@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "agent-patterns"
+version = "0.1.0"
+description = "This is a package of agents that can be extended to form agent implementations aligning with a number of ai agent design patterns."
+authors = ["osok <michael@caughey.com>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+python-dotenv = "^1.1.0"
+langchain = "^0.3.23"
+langgraph = "^0.3.25"
+langchain-openai = "^0.3.12"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
