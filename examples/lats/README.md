@@ -15,13 +15,17 @@ Key features:
 ## Examples
 
 - [Simple Example](./simple_example.py) - Demonstrates basic usage for developing a strategy to increase user engagement on a social media platform.
+- [Engineering Problem Example](./engineering_problem_example.py) - Explores multiple approaches to design a sustainable urban transportation system with specific constraints.
+- [Medical Diagnosis Example](./medical_diagnosis_example.py) - Demonstrates clinical reasoning by exploring multiple diagnostic hypotheses and treatment options for a complex medical case.
 
 ## Running the Examples
 
-To run the LATS agent example:
+To run any of the LATS agent examples:
 
 ```bash
 python examples/lats/simple_example.py
+python examples/lats/engineering_problem_example.py
+python examples/lats/medical_diagnosis_example.py
 ```
 
 Make sure you have set up your environment variables first, including your OpenAI API key. 

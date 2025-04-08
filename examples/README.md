@@ -40,6 +40,8 @@ Implementation of the Reasoning Without Observation pattern for decoupled planni
 ### [LATS Agent](./lats/)
 Implementation of the Language Agent Tree Search pattern for exploring multiple reasoning paths:
 - [Simple Example](./lats/simple_example.py) - Strategy development using Monte Carlo Tree Search approach
+- [Engineering Problem Example](./lats/engineering_problem_example.py) - Sustainable urban transportation system design
+- [Medical Diagnosis Example](./lats/medical_diagnosis_example.py) - Clinical reasoning with diagnostic hypotheses exploration
 
 ## Running the Examples
 
