@@ -37,9 +37,6 @@ def main():
         prompt_dir="src/agent_patterns/prompts"  # Path to prompt templates
     )
     
-    # Add recursion_limit attribute directly
-    agent.recursion_limit = 30
-    
     # Engineering challenge: Design a sustainable urban transportation system
     problem = """Design a sustainable urban transportation system for a city of 1 million people
 that reduces carbon emissions by at least 40% compared to traditional systems,
@@ -51,9 +48,12 @@ Consider infrastructure requirements, costs, technology integration, and impleme
     print("="*80)
     print(problem)
     
+    # Configuration with higher recursion limit
+    config = {"recursion_limit": 100}
+    
     # Run the agent with error handling
     try:
-        result = agent.run(problem)
+        result = agent.run(problem, config=config)
         
         # Print the result
         print("\n" + "="*80)

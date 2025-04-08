@@ -62,7 +62,6 @@ class LATSAgent(BaseAgent):
         exploration_weight: C parameter for UCB formula (exploration vs exploitation)
         n_expansions: Number of child nodes to generate per expansion
         prompt_dir: Directory for prompt templates
-        recursion_limit: Maximum recursion depth for graph compilation
     """
     
     def __init__(
@@ -73,10 +72,8 @@ class LATSAgent(BaseAgent):
         exploration_weight: float = 1.0,
         n_expansions: int = 3,
         prompt_dir: str = "prompts",
-        recursion_limit: int = 25,
     ):
         """Initialize the LATS agent."""
-        self.recursion_limit = recursion_limit  # Set recursion_limit first
         super().__init__(llm_configs=llm_configs, prompt_dir=prompt_dir)
         self.max_iterations = max_iterations
         self.max_depth = max_depth
@@ -126,15 +123,16 @@ class LATSAgent(BaseAgent):
         
         sg.add_edge("select_best_path", END)
         
-        # Compile the graph with recursion limit
-        self.graph = sg.compile(recursion_limit=self.recursion_limit)
+        # Compile the graph
+        self.graph = sg.compile()
     
-    def run(self, input_data: Any) -> Any:
+    def run(self, input_data: Any, config: Optional[Dict[str, Any]] = None) -> Any:
         """
         Run the LATS algorithm to find the best solution path.
         
         Args:
             input_data: The problem or query to solve
+            config: Optional configuration for the run, can include recursion_limit
             
         Returns:
             The final answer after tree search
@@ -155,8 +153,16 @@ class LATSAgent(BaseAgent):
             "final_answer": None      # Final selected solution
         }
         
+        # Use config if provided, otherwise create one
+        if config is None:
+            config = {}
+        
         # Run the graph with the initial state
-        final_state = self.graph.invoke(initial_state)
+        # Add recursion_limit to config if not already present
+        if "recursion_limit" not in config:
+            config["recursion_limit"] = 50  # Higher than the default 25
+            
+        final_state = self.graph.invoke(initial_state, config=config)
         return final_state["final_answer"]
     
     def _initialize_search(self, state: LATSState) -> Dict[str, Any]:

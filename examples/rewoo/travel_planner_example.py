@@ -697,13 +697,13 @@ Enjoy your trip to Paris! This beautiful city has something for everyone, from w
     else:
         # Create real OpenAI LLMs
         planner_llm = ChatOpenAI(
-            model="gpt-3.5-turbo",
+            model="gpt-4o",
             temperature=0.7,
             api_key=api_key
         )
         
         solver_llm = ChatOpenAI(
-            model="gpt-3.5-turbo",
+            model="gpt-4o",
             temperature=0.2,
             api_key=api_key
         )

@@ -137,7 +137,7 @@ class BaseAgent(abc.ABC): # Inherit from abc.ABC
         
         # Get the LLM provider and model
         provider = config.pop("provider", "openai").lower()
-        model = config.pop("model_name", config.pop("model", "gpt-3.5-turbo"))
+        model = config.pop("model_name", config.pop("model", "gpt-4o"))
         
         # Import the appropriate module for the provider
         if provider == "openai":

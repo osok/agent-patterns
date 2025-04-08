@@ -415,13 +415,13 @@ The theater sold 150 adult tickets and 100 child tickets.
     else:
         # Create real OpenAI LLMs
         planner_llm = ChatOpenAI(
-            model="gpt-3.5-turbo",
+            model="gpt-4o",
             temperature=0.7,
             api_key=api_key
         )
         
         solver_llm = ChatOpenAI(
-            model="gpt-3.5-turbo",
+            model="gpt-4o",
             temperature=0.2,
             api_key=api_key
         )

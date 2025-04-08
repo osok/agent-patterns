@@ -26,7 +26,7 @@ def setup_llm_configs() -> Dict:
     """
     # Default to OpenAI if specific providers aren't specified
     default_provider = os.getenv("DEFAULT_MODEL_PROVIDER", "openai")
-    default_model = os.getenv("DEFAULT_MODEL_NAME", "gpt-3.5-turbo")
+    default_model = os.getenv("DEFAULT_MODEL_NAME", "gpt-4o")
     
     # Define configurations for each role
     # In a production setting, you might want different models for different roles

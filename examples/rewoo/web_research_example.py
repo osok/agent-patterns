@@ -386,13 +386,13 @@ Quantum computing represents a frontier technology with transformative potential
     else:
         # Create real OpenAI LLMs
         planner_llm = ChatOpenAI(
-            model="gpt-3.5-turbo",
+            model="gpt-4o",
             temperature=0.7,
             api_key=api_key
         )
         
         solver_llm = ChatOpenAI(
-            model="gpt-3.5-turbo",
+            model="gpt-4o",
             temperature=0.2,
             api_key=api_key
         )

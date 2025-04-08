@@ -21,7 +21,7 @@ def main():
             "temperature": 0.7
         },
         "executor": {
-            "model_name": "gpt-3.5-turbo",  # Less expensive model for execution
+            "model_name": "gpt-4o",  # Using gpt-4o for execution
             "provider": "openai",
             "temperature": 0.5
         }

@@ -37,9 +37,6 @@ def main():
         prompt_dir="src/agent_patterns/prompts"  # Path to prompt templates
     )
     
-    # Add recursion_limit attribute directly
-    agent.recursion_limit = 35
-    
     # Medical case to diagnose
     problem = """
 A 45-year-old female presents with progressive fatigue, weight gain of 15 pounds over 6 months,
@@ -62,9 +59,12 @@ additional tests if needed, and a comprehensive treatment plan including lifesty
     print("="*80)
     print(problem)
     
+    # Configuration with higher recursion limit
+    config = {"recursion_limit": 100}
+    
     # Run the agent with error handling
     try:
-        result = agent.run(problem)
+        result = agent.run(problem, config=config)
         
         # Print the result
         print("\n" + "="*80)

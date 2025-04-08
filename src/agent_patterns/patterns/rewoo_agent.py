@@ -127,12 +127,13 @@ class REWOOAgent(BaseAgent):
         """
         return not state["execution_complete"]
     
-    def run(self, input_data: Any) -> Any:
+    def run(self, input_data: Any, config: Optional[Dict[str, Any]] = None) -> Any:
         """
         Run the REWOO agent on the given input.
         
         Args:
             input_data: User query or task description
+            config: Optional configuration parameters like recursion_limit
             
         Returns:
             Final response after execution
@@ -152,17 +153,18 @@ class REWOOAgent(BaseAgent):
         
         logger.info(f"Starting REWOO agent with input: {input_data}")
         # Don't catch exceptions here to allow them to propagate
-        final_state = self.graph.invoke(initial_state)
+        final_state = self.graph.invoke(initial_state, config=config)
         logger.info("REWOO agent execution completed")
         
         return final_state["final_answer"]
     
-    def stream(self, input_data: Any):
+    def stream(self, input_data: Any, config: Optional[Dict[str, Any]] = None):
         """
         Stream the execution of the REWOO agent.
         
         Args:
             input_data: User query or task description
+            config: Optional configuration parameters like recursion_limit
             
         Yields:
             Intermediate results during execution
@@ -177,10 +179,9 @@ class REWOOAgent(BaseAgent):
             "final_answer": None
         }
         
-        # Note: The exact API for streaming might need to be adjusted based on the specific version
-        # of LangGraph being used
+        # Use try/except to gracefully handle any streaming issues
         try:
-            for event in self.graph.stream(initial_state):
+            for event in self.graph.stream(initial_state, config=config):
                 if "state" in event and "final_answer" in event["state"] and event["state"]["final_answer"]:
                     yield event["state"]["final_answer"]
                 elif "state" in event and "current_step_index" in event["state"]:
@@ -188,9 +189,11 @@ class REWOOAgent(BaseAgent):
                     plan_length = len(event["state"].get("plan", []))
                     if plan_length > 0:
                         yield f"Executing step {current_step + 1} of {plan_length}..."
-        except AttributeError:
-            # Fall back to non-streaming if stream is not available
-            result = self.run(input_data)
+        except Exception as e:
+            # Log the error and fall back to non-streaming
+            logger.warning(f"Error during streaming: {str(e)}. Falling back to non-streaming.")
+            # Fall back to non-streaming in case of any error
+            result = self.run(input_data, config=config)
             yield result
             
     def _plan_steps(self, state: REWOOState) -> Dict:

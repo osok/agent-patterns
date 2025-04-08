@@ -24,12 +24,12 @@ def main():
     llm_configs = {
         "generator": {
             "provider": "openai",
-            "model": "gpt-3.5-turbo",
+            "model": "gpt-4o",
             "temperature": 0.7
         },
         "critic": {
             "provider": "openai",
-            "model": "gpt-4", # Using a potentially stronger model for critique
+            "model": "gpt-4o", # Using the same model for critique
             "temperature": 0.2 # Lower temperature for more focused critique
         }
     }

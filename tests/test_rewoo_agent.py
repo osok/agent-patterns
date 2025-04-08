@@ -54,11 +54,13 @@ class MockGraph:
     def __init__(self):
         self.invoke_called = False
         self.last_input = None
+        self.last_config = None
         
-    def invoke(self, state):
+    def invoke(self, state, config=None):
         """Mock invoke method."""
         self.invoke_called = True
         self.last_input = state
+        self.last_config = config
         
         # Simulate plan_steps node execution
         # In a real graph, this would call the _plan_steps method
@@ -77,8 +79,11 @@ class MockGraph:
             "final_answer": "This is the final synthesized answer based on all the steps."
         }
     
-    def stream(self, state):
+    def stream(self, state, config=None):
         """Mock stream method."""
+        # Store the config
+        self.last_config = config
+        
         # Return a simple iterator with one event
         yield {
             "state": {
