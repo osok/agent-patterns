@@ -62,6 +62,7 @@ class LATSAgent(BaseAgent):
         exploration_weight: C parameter for UCB formula (exploration vs exploitation)
         n_expansions: Number of child nodes to generate per expansion
         prompt_dir: Directory for prompt templates
+        recursion_limit: Maximum recursion depth for graph compilation
     """
     
     def __init__(
@@ -72,6 +73,7 @@ class LATSAgent(BaseAgent):
         exploration_weight: float = 1.0,
         n_expansions: int = 3,
         prompt_dir: str = "prompts",
+        recursion_limit: int = 25,
     ):
         """Initialize the LATS agent."""
         super().__init__(llm_configs=llm_configs, prompt_dir=prompt_dir)
@@ -79,6 +81,7 @@ class LATSAgent(BaseAgent):
         self.max_depth = max_depth
         self.exploration_weight = exploration_weight
         self.n_expansions = n_expansions
+        self.recursion_limit = recursion_limit
     
     def build_graph(self) -> None:
         """
@@ -123,8 +126,8 @@ class LATSAgent(BaseAgent):
         
         sg.add_edge("select_best_path", END)
         
-        # Compile the graph
-        self.graph = sg.compile()
+        # Compile the graph with recursion limit
+        self.graph = sg.compile(recursion_limit=self.recursion_limit)
     
     def run(self, input_data: Any) -> Any:
         """
