@@ -1,19 +1,60 @@
-[tool.poetry]
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
 name = "agent-patterns"
 version = "0.1.0"
-description = "This is a package of agents that can be extended to form agent implementations aligning with a number of ai agent design patterns."
-authors = ["osok <michael@caughey.com>"]
-license = "MIT"
+description = "A library of reusable, extensible AI agent patterns using LangGraph"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "langchain>=0.1.0",
+    "langgraph>=0.0.10",
+    "python-dotenv>=1.0.0",
+    "openai>=1.12.0",
+    "anthropic>=0.8.0"
+]
 
-[tool.poetry.dependencies]
-python = "^3.10"
-python-dotenv = "^1.1.0"
-langchain = "^0.3.23"
-langgraph = "^0.3.25"
-langchain-openai = "^0.3.12"
+[project.optional-dependencies]
+dev = [
+    "black>=24.0.0",
+    "isort>=5.13.0",
+    "mypy>=1.8.0",
+    "ruff>=0.2.0",
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-cov>=4.1.0"
+]
 
-[tool.poetry.dev-dependencies]
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["agent_patterns*"]
 
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+[tool.pytest.ini_options]
+minversion = "8.3"
+addopts = "-ra -q --cov"
+testpaths = [
+    "tests"
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py38']
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+check_untyped_defs = true
+
+[tool.ruff]
+select = ["E", "F", "B", "I"]
+ignore = []
+line-length = 88
+target-version = "py38"
