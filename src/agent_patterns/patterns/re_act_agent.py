@@ -48,7 +48,7 @@ class ReActAgent(BaseAgent):
     def __init__(
         self,
         llm_configs: Dict[str, Dict], # Inherited from BaseAgent
-        tools: List[BaseTool],
+        tools: List[Union[BaseTool, str]],
         prompt_dir: str = "prompts", # Default prompt directory
         max_steps: int = 10, # Keep max_steps as instance property
         log_level: int = logging.INFO
@@ -62,9 +62,25 @@ class ReActAgent(BaseAgent):
             max_steps: Maximum number of agent steps before stopping.
             log_level: Logging level.
         """
-        self.tools = tools
+        # Ensure tools is properly initialized
+        processed_tools = []
+        self.tool_map = {}
+        
+        for tool in tools:
+            if isinstance(tool, str):
+                # If a string is provided, just store it directly
+                self.tool_map[tool] = tool
+                processed_tools.append(tool)
+            elif hasattr(tool, 'name'):
+                # If it's a BaseTool or has a name attribute
+                self.tool_map[tool.name] = tool
+                processed_tools.append(tool)
+            else:
+                # Log a warning and skip this tool
+                logging.warning(f"Skipping tool of unknown type: {type(tool)}")
+        
+        self.tools = processed_tools
         self.max_steps = max_steps
-        self.tool_map = {tool.name: tool for tool in tools} # Map tool names for easy lookup
         self.llm = None # Will be initialized via _get_llm
         
         # Call BaseAgent init *after* setting agent-specific properties

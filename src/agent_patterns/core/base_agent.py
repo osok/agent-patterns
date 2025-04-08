@@ -53,10 +53,19 @@ class BaseAgent(abc.ABC): # Inherit from abc.ABC
         self.llm_configs = llm_configs
         self.prompt_dir = prompt_dir
         
+        # Initialize LLM cache
+        self._llm_cache = {}
+        
         # Log initialization
         self.logger.info(f"Initializing agent with prompt directory: {prompt_dir}")
         
-        self.build_graph() # Call build_graph during init as per design
+        # Build the graph
+        self.graph = None
+        self.build_graph()
+        
+        # Verify the graph was built
+        if self.graph is None:
+            raise ValueError("build_graph() must set self.graph. The graph cannot be None.")
         
         self.logger.info("Agent initialization complete")
 
@@ -100,19 +109,24 @@ class BaseAgent(abc.ABC): # Inherit from abc.ABC
         Raises:
             ValueError: If the role is not configured or LLM initialization fails.
         """
+        # Check if the LLM is already cached
+        if role in self._llm_cache:
+            return self._llm_cache[role]
+            
         if role not in self.llm_configs:
             available_roles = ", ".join(self.llm_configs.keys())
             if "default" in self.llm_configs:
                 self.logger.warning(f"Role '{role}' not found. Using 'default' role instead. Available roles: {available_roles}")
                 role = "default"
             else:
-                raise ValueError(f"Role '{role}' not configured in llm_configs and no default fallback. Available roles: {available_roles}")
+                raise ValueError(f"Role '{role}' not found in llm_configs and no default fallback. Available roles: {available_roles}")
         
         # Get the LLM configuration
         config = self.llm_configs[role]
         
         # If config is already an LLM instance, just return it
         if hasattr(config, "invoke") or hasattr(config, "__call__"):
+            self._llm_cache[role] = config
             return config
             
         # Otherwise, assume it's a config dict that needs to be used to create an LLM
@@ -123,19 +137,23 @@ class BaseAgent(abc.ABC): # Inherit from abc.ABC
         
         # Get the LLM provider and model
         provider = config.pop("provider", "openai").lower()
-        model = config.pop("model", "gpt-3.5-turbo")
+        model = config.pop("model_name", config.pop("model", "gpt-3.5-turbo"))
         
         # Import the appropriate module for the provider
         if provider == "openai":
             try:
                 from langchain_openai import ChatOpenAI
-                return ChatOpenAI(model=model, **config)
+                llm = ChatOpenAI(model=model, **config)
+                self._llm_cache[role] = llm
+                return llm
             except ImportError:
                 raise ImportError("langchain-openai not installed. Please install it with: pip install langchain-openai")
         elif provider == "anthropic":
             try:
                 from langchain_anthropic import ChatAnthropic
-                return ChatAnthropic(model=model, **config)
+                llm = ChatAnthropic(model=model, **config)
+                self._llm_cache[role] = llm
+                return llm
             except ImportError:
                 raise ImportError("langchain-anthropic not installed. Please install it with: pip install langchain-anthropic")
         else:
@@ -145,17 +163,57 @@ class BaseAgent(abc.ABC): # Inherit from abc.ABC
         """
         Load a prompt template for the specified name.
         
+        First tries to load from files in the prompt directory structure:
+        - {prompt_dir}/{class_name}/{name}/system.md
+        - {prompt_dir}/{class_name}/{name}/user.md
+        
+        If files don't exist, falls back to built-in templates.
+        
         Args:
             name: Name of the prompt template.
             
         Returns:
             A prompt template suitable for the LLM.
+            
+        Raises:
+            FileNotFoundError: If prompt files don't exist and no fallback is available.
         """
-        from langchain_core.prompts import ChatPromptTemplate
+        from langchain_core.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
         
-        # For simplicity in this example, create a basic template
         class_name = self.__class__.__name__
         
+        # Try to load from files first
+        if self.prompt_dir:
+            # Construct paths to system and user prompt files
+            class_prompt_dir = os.path.join(self.prompt_dir, class_name, name)
+            system_path = os.path.join(class_prompt_dir, "system.md")
+            user_path = os.path.join(class_prompt_dir, "user.md")
+            
+            # Check if both files exist
+            if os.path.exists(system_path) and os.path.exists(user_path):
+                # Load system prompt
+                with open(system_path, "r") as f:
+                    system_content = f.read()
+                
+                # Load user prompt
+                with open(user_path, "r") as f:
+                    user_content = f.read()
+                
+                # Create template from loaded content
+                return ChatPromptTemplate.from_messages([
+                    SystemMessagePromptTemplate.from_template(system_content),
+                    HumanMessagePromptTemplate.from_template(user_content)
+                ])
+        
+        # For nonexistent steps that aren't covered by fallbacks, raise an error
+        if name not in ["PlannerPrompt", "SolverPrompt", "FinalAnswerPrompt"]:
+            raise FileNotFoundError(
+                f"Prompt template '{name}' not found for {class_name}. "
+                f"Expected files at {self.prompt_dir}/{class_name}/{name}/system.md and "
+                f"{self.prompt_dir}/{class_name}/{name}/user.md"
+            )
+        
+        # Fallback for common templates
         if name == "PlannerPrompt":
             return ChatPromptTemplate.from_messages([
                 {"role": "system", "content": f"You are a planning agent responsible for creating a step-by-step plan to answer the user's query. Do not execute the plan or use tools directly - just create the plan."},
@@ -172,11 +230,8 @@ class BaseAgent(abc.ABC): # Inherit from abc.ABC
                 {"role": "user", "content": "Using the following execution steps, provide a comprehensive answer to the original query:\n\nOriginal query: {input}\n\nExecution summary:\n{execution_summary}"}
             ])
         else:
-            # Default template
-            return ChatPromptTemplate.from_messages([
-                {"role": "system", "content": f"You are a {class_name} agent."},
-                {"role": "user", "content": "Task: {input}\nStep: {step_description}\n\nContext: {context}"}
-            ])
+            # Should never get here because of the earlier check, but just in case
+            raise FileNotFoundError(f"Prompt template '{name}' not found and no fallback available.")
 
     # --- Lifecycle Hooks (as per design doc) ---
 

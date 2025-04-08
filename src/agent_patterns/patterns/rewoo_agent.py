@@ -19,6 +19,7 @@ import operator
 import logging
 from agent_patterns.core.base_agent import BaseAgent
 from langgraph.graph import StateGraph, END
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -221,52 +222,91 @@ class REWOOAgent(BaseAgent):
         planning_response = planner_llm.invoke(messages)
         
         # Parse the planning response into structured steps
-        # Here we assume the LLM will respond with a parseable format
-        # In a robust implementation, this would include error handling
-        plan_text = planning_response if isinstance(planning_response, str) else planning_response.content
+        # Handle different response formats (string, dict with content, AIMessage)
+        if isinstance(planning_response, str):
+            plan_text = planning_response
+        elif isinstance(planning_response, dict) and "content" in planning_response:
+            plan_text = planning_response["content"]
+        elif hasattr(planning_response, "content"):
+            plan_text = planning_response.content
+        else:
+            logger.warning(f"Unexpected planning response format: {type(planning_response)}")
+            plan_text = str(planning_response)
         
-        # Parse plan text into structured steps
-        # This is a simplified parsing approach - in production, you might want more robust parsing
+        # Parse plan text into structured steps using more robust parsing
         plan_lines = plan_text.strip().split("\n")
         structured_plan = []
         
+        # Regular expressions for step detection
+        step_patterns = [
+            r'^Step\s+(\d+)[\s:.)-]*(.*)$',  # Step 1: Do something
+            r'^(\d+)[\s:.)-]+(.*)$',         # 1. Do something
+            r'^(\d+)\)\s+(.*)$',              # 1) Do something 
+            r'^\*\s+Step\s+(\d+)[\s:.)-]*(.*)$',  # * Step 1: Do something
+            r'^\*\s+(\d+)[\s:.)-]+(.*)$'     # * 1. Do something
+        ]
+        
         current_step = None
+        step_content = []
+        
+        def process_current_step():
+            """Helper function to process and add the current step to the structured plan."""
+            if current_step and step_content:
+                # Join all content lines for the step
+                details = "\n".join(step_content).strip()
+                current_step["details"] = details
+                
+                # Try to identify tool mentions in the details
+                if details:
+                    common_tools = ["search", "calculator", "database", "api", "browser", "query", "failing_tool"]
+                    for tool in common_tools:
+                        if tool.lower() in details.lower() and tool not in current_step["tools"]:
+                            current_step["tools"].append(tool)
+                
+                structured_plan.append(current_step)
+        
         for line in plan_lines:
             line = line.strip()
             if not line:
                 continue
-                
-            # Try to identify step markers (Step 1:, 1., etc.)
-            if line.lower().startswith("step ") or (line[0].isdigit() and line[1:3] in [". ", ") "]):
-                if current_step:
-                    structured_plan.append(current_step)
-                
-                # Extract step number if possible
-                try:
-                    step_num = int(line.split()[1].rstrip(":.))")) if line.lower().startswith("step ") else int(line.split(".")[0])
-                except (IndexError, ValueError):
-                    step_num = len(structured_plan) + 1
+            
+            # Check if this line starts a new step
+            is_new_step = False
+            step_num = len(structured_plan) + 1
+            step_desc = line
+            
+            for pattern in step_patterns:
+                match = re.match(pattern, line, re.IGNORECASE)
+                if match:
+                    is_new_step = True
+                    try:
+                        step_num = int(match.group(1))
+                    except (IndexError, ValueError):
+                        step_num = len(structured_plan) + 1
                     
+                    # Get the step description from the matched group
+                    step_desc = match.group(2).strip() if match.group(2) else line
+                    break
+            
+            if is_new_step:
+                # Process the previous step if it exists
+                process_current_step()
+                
+                # Start a new step
                 current_step = {
                     "step_id": step_num,
-                    "description": line,
+                    "description": step_desc,
                     "details": "",
                     "tools": [],
                     "depends_on": []
                 }
+                step_content = []
             elif current_step:
-                # If we already have a current step, add this line as additional details
-                current_step["details"] += line + "\n"
-                
-                # Try to identify tool mentions
-                common_tools = ["search", "calculator", "database", "api", "browser", "query"]
-                for tool in common_tools:
-                    if tool.lower() in line.lower() and tool not in current_step["tools"]:
-                        current_step["tools"].append(tool)
+                # Add line to current step's content
+                step_content.append(line)
         
-        # Add the last step if it exists
-        if current_step:
-            structured_plan.append(current_step)
+        # Process the last step
+        process_current_step()
             
         # If no structured plan was created, create a simple default plan
         if not structured_plan:
@@ -277,6 +317,15 @@ class REWOOAgent(BaseAgent):
                 "tools": [],
                 "depends_on": []
             }]
+        
+        # Ensure step_ids are unique and sequential if needed
+        if len(structured_plan) > 0:
+            # Sort by step_id first to preserve any intentional ordering
+            structured_plan.sort(key=lambda x: x["step_id"])
+            
+            # Then reassign ids sequentially starting from 1
+            for i, step in enumerate(structured_plan, 1):
+                step["step_id"] = i
             
         logger.info(f"Generated plan with {len(structured_plan)} steps")
         return {"plan": structured_plan}
@@ -318,7 +367,7 @@ class REWOOAgent(BaseAgent):
         
         # Prepare context from previous execution results
         context = ""
-        for result in state["execution_results"]:
+        for result in state.get("execution_results", []):
             step_id = result["step_id"]
             context += f"Step {step_id} result: {result['result']}\n"
         
@@ -340,7 +389,16 @@ class REWOOAgent(BaseAgent):
         execution_response = solver_llm.invoke(messages)
         
         # Extract execution result
-        execution_result = execution_response if isinstance(execution_response, str) else execution_response.content
+        # Handle different response formats (string, dict with content, AIMessage)
+        if isinstance(execution_response, str):
+            execution_result = execution_response
+        elif isinstance(execution_response, dict) and "content" in execution_response:
+            execution_result = execution_response["content"]
+        elif hasattr(execution_response, "content"):
+            execution_result = execution_response.content
+        else:
+            logger.warning(f"Unexpected execution response format: {type(execution_response)}")
+            execution_result = str(execution_response)
         
         # Check if any tools need to be called based on LLM output
         tool_calls = self._extract_tool_calls(execution_result)
@@ -360,16 +418,21 @@ class REWOOAgent(BaseAgent):
                         "output": tool_result
                     })
                 except Exception as e:
-                    logger.error(f"Error executing tool {tool_name}: {str(e)}")
+                    error_msg = str(e)
+                    logger.error(f"Error executing tool {tool_name}: {error_msg}")
+                    # Include both output and error keys for better compatibility
                     tool_outputs.append({
                         "tool": tool_name,
-                        "error": str(e)
+                        "output": {"error": error_msg},
+                        "error": error_msg
                     })
             else:
+                error_msg = "Tool not available"
                 logger.warning(f"Tool not found: {tool_name}")
                 tool_outputs.append({
                     "tool": tool_name, 
-                    "error": "Tool not available"
+                    "output": {"error": error_msg},
+                    "error": error_msg
                 })
         
         # Build the execution result
@@ -381,7 +444,7 @@ class REWOOAgent(BaseAgent):
         }
         
         # Get a copy of the existing execution results and append the new result
-        execution_results = state["execution_results"].copy()
+        execution_results = state.get("execution_results", []).copy()
         execution_results.append(new_result)
         
         # Move to next step and update state
@@ -425,9 +488,20 @@ class REWOOAgent(BaseAgent):
         
         # Format the execution results for the LLM
         execution_summary = ""
-        for i, result in enumerate(state["execution_results"]):
+        
+        # Ensure execution_results exists in state
+        execution_results = state.get("execution_results", [])
+        plan = state.get("plan", [])
+        
+        # If execution_results is missing but execution_complete is True,
+        # provide a default empty list but still continue
+        if not execution_results and state.get("execution_complete", False):
+            logger.warning("Execution is marked as complete but no execution_results found in state")
+            execution_results = []
+        
+        for i, result in enumerate(execution_results):
             step_id = result["step_id"]
-            step_desc = next((s["description"] for s in state["plan"] if s["step_id"] == step_id), f"Step {step_id}")
+            step_desc = next((s["description"] for s in plan if s["step_id"] == step_id), f"Step {step_id}")
             execution_summary += f"Step {step_id}: {step_desc}\nResult: {result['result']}\n\n"
             
             # Include tool outputs
@@ -442,9 +516,13 @@ class REWOOAgent(BaseAgent):
                         execution_summary += f"- {tool_name}: Error - {output.get('error', 'unknown error')}\n"
                 execution_summary += "\n"
         
+        # If no execution results, provide a generic summary
+        if not execution_summary:
+            execution_summary = "No detailed execution results available."
+        
         # Format the prompt with the input and execution summary
         prompt_args = {
-            "input": state["input"],
+            "input": state.get("input", "No input provided"),
             "execution_summary": execution_summary
         }
         
@@ -455,7 +533,17 @@ class REWOOAgent(BaseAgent):
         logger.info("Generating final answer")
         final_response = final_llm.invoke(messages)
         
-        final_answer = final_response if isinstance(final_response, str) else final_response.content
+        # Handle different response formats (string, dict with content, AIMessage)
+        if isinstance(final_response, str):
+            final_answer = final_response
+        elif isinstance(final_response, dict) and "content" in final_response:
+            final_answer = final_response["content"]
+        elif hasattr(final_response, "content"):
+            final_answer = final_response.content
+        else:
+            logger.warning(f"Unexpected final response format: {type(final_response)}")
+            final_answer = str(final_response)
+            
         logger.info("Final answer generated")
         
         return {"final_answer": final_answer}

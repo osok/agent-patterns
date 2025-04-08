@@ -6,5 +6,6 @@ from agent_patterns.patterns.reflection_agent import ReflectionAgent
 from agent_patterns.patterns.reflexion_agent import ReflexionAgent
 from agent_patterns.patterns.llm_compiler_agent import LLMCompilerAgent
 from agent_patterns.patterns.rewoo_agent import REWOOAgent
+from agent_patterns.patterns.lats_agent import LATSAgent
 
-__all__ = ["ReActAgent", "PlanAndSolveAgent", "ReflectionAgent", "ReflexionAgent", "LLMCompilerAgent", "REWOOAgent"]
+__all__ = ["ReActAgent", "PlanAndSolveAgent", "ReflectionAgent", "ReflexionAgent", "LLMCompilerAgent", "REWOOAgent", "LATSAgent"]
