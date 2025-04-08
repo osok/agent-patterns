@@ -37,6 +37,10 @@ Implementation of the Reasoning Without Observation pattern for decoupled planni
 - [Math Solver Example](./rewoo/math_solver_example.py) - Step-by-step solution to mathematical word problems
 - [Travel Planner Example](./rewoo/travel_planner_example.py) - Detailed travel itinerary with flights, accommodations, and attractions
 
+### [LATS Agent](./lats/)
+Implementation of the Language Agent Tree Search pattern for exploring multiple reasoning paths:
+- [Simple Example](./lats/simple_example.py) - Strategy development using Monte Carlo Tree Search approach
+
 ## Running the Examples
 
 Each example can be run directly using Python. Make sure you have set up your environment variables first:
