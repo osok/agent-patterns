@@ -1,10 +1,10 @@
 # **Agent-Patterns Project: Design Document** 
 
 **Version:** 2.1  
- **Date:** April 7, 2025  
- **Author:** *Michael Caughey*
+**Date:** April 7, 2025  
+**Author:** *Michael Caughey*
 
- **Status:** Draft
+**Status:** Draft
 
 ---
 
@@ -12,7 +12,7 @@
 
 ### **1.1. Project Purpose**
 
-The *agent-patterns* project provides a Python library of **reusable, extensible, and well-documented base classes** that encapsulate common AI agent workflows (or “patterns”). These patterns are implemented using [**LangGraph**](https://langchain.com/docs/langgraph) and rely on [**LangChain**](https://python.langchain.com/en/latest/) for Large Language Model (LLM) integrations, prompt management, and tool usage.
+The *agent-patterns* project provides a Python library of **reusable, extensible, and well-documented base classes** that encapsulate common AI agent workflows (or "patterns"). These patterns are implemented using [**LangGraph**](https://langchain.com/docs/langgraph) and rely on [**LangChain**](https://python.langchain.com/en/latest/) for Large Language Model (LLM) integrations, prompt management, and tool usage.
 
 ### **1.2. Scope**
 
@@ -34,9 +34,9 @@ We focus on **single-agent** and **multi-agent** design patterns that have prove
 
 * **Self-Discovery**
 
-* **STORM (Topic Outlines \+ Multi-perspective Retrieval)**
+* **STORM (Topic Outlines + Multi-perspective Retrieval)**
 
-Each pattern’s goal is to reduce boilerplate and encourage consistent best practices. The library is especially useful for developers needing to quickly build or customize advanced AI workflows without reinventing the wheel.
+Each pattern's goal is to reduce boilerplate and encourage consistent best practices. The library is especially useful for developers needing to quickly build or customize advanced AI workflows without reinventing the wheel.
 
 ### **1.3. Architectural Philosophy**
 
@@ -44,7 +44,7 @@ Each pattern’s goal is to reduce boilerplate and encourage consistent best pra
 
 2. **Externalized Configuration & Prompts:** Prompt templates, environment variables (e.g., model keys), and certain runtime parameters (e.g., max steps) are stored outside core code for easier customization.
 
-3. **Developer Clarity:** Each pattern’s responsibilities, methods, and usage are clearly documented so users know exactly which methods to override, how to pass custom prompts, and how to plug in specialized logic.
+3. **Developer Clarity:** Each pattern's responsibilities, methods, and usage are clearly documented so users know exactly which methods to override, how to pass custom prompts, and how to plug in specialized logic.
 
 4. **Testability & Extensibility:** By separating pattern logic, tool definitions, and LLM configurations, the library is designed to be straightforward to test, maintain, and extend with new patterns.
 
@@ -52,32 +52,32 @@ Each pattern’s goal is to reduce boilerplate and encourage consistent best pra
 
 ## **2\. Repository & File Structure**
 
-Here’s a recommended layout for the *agent-patterns* repository. You can customize as needed, but we strongly recommend separating core abstractions, pattern implementations, prompts, and examples:
+Here's a recommended layout for the *agent-patterns* repository. You can customize as needed, but we strongly recommend separating core abstractions, pattern implementations, prompts, and examples:
 
-agent\_patterns/  
+agent_patterns/  
 ├── core/  
-│   ├── base\_agent.py  
-│   └── multi\_agent\_base.py  
+│   ├── base_agent.py  
+│   └── multi_agent_base.py  
 ├── patterns/  
-│   ├── re\_act\_agent.py  
-│   ├── plan\_and\_solve\_agent.py  
-│   ├── reflection\_agent.py  
-│   ├── reflexion\_agent.py  
-│   ├── llm\_compiler\_agent.py  
-│   ├── rewoo\_agent.py  
-│   ├── lats\_agent.py  
-│   ├── self\_discovery\_agent.py  
-│   └── storm\_agent.py  
+│   ├── re_act_agent.py  
+│   ├── plan_and_solve_agent.py  
+│   ├── reflection_agent.py  
+│   ├── reflexion_agent.py  
+│   ├── llm_compiler_agent.py  
+│   ├── rewoo_agent.py  
+│   ├── lats_agent.py  
+│   ├── self_discovery_agent.py  
+│   └── storm_agent.py  
 ├── prompts/  
 │   ├── reflection/  
-│   │   ├── critic\_prompt.md  
-│   │   └── revision\_prompt.md  
+│   │   ├── critic_prompt.md  
+│   │   └── revision_prompt.md  
 │   └── ...  
 ├── examples/  
-│   ├── reflection\_example.py  
-│   └── plan\_example.py  
+│   ├── reflection_example.py  
+│   └── plan_example.py  
 ├── tests/  
-│   ├── test\_reflection.py  
+│   ├── test_reflection.py  
 │   └── ...  
 ├── .env  
 ├── pyproject.toml  
@@ -101,7 +101,7 @@ agent\_patterns/
 
 ### **3.1. `BaseAgent` (Abstract)**
 
-**Responsibility**: Provide core logic for orchestrating a single agent’s workflow, including:
+**Responsibility**: Provide core logic for orchestrating a single agent's workflow, including:
 
 * Initializing an LLM or set of LLM roles (thinking, critic, etc.).
 
@@ -109,7 +109,7 @@ agent\_patterns/
 
 * Defining or compiling a [LangGraph](https://langchain.com/docs/langgraph) graph.
 
-* Running or streaming the agent’s process from input to output.
+* Running or streaming the agent's process from input to output.
 
 **Typical Usage**:
 
@@ -123,64 +123,64 @@ agent\_patterns/
 
 5. Optionally override lifecycle hooks (`on_start()`, `on_finish()`) for logging.
 
-\# core/base\_agent.py  
+\# core/base_agent.py  
 import abc  
 from typing import Any, Iterator  
 from langgraph import CompiledGraph
 
 class BaseAgent(abc.ABC):  
-    def \_\_init\_\_(self, llm\_configs: dict, prompt\_dir: str \= "prompts"):  
+    def \_\_init\_\_(self, llm_configs: dict, prompt_dir: str = "prompts"):  
         """  
-        :param llm\_configs: Dictionary specifying provider, model, and roles.  
-        :param prompt\_dir: Directory for prompt templates.  
+        :param llm_configs: Dictionary specifying provider, model, and roles.  
+        :param prompt_dir: Directory for prompt templates.  
         """  
-        self.llm\_configs \= llm\_configs  
-        self.prompt\_dir \= prompt\_dir  
-        self.graph: CompiledGraph \= None  \# set by self.build\_graph()
+        self.llm_configs \= llm_configs  
+        self.prompt_dir \= prompt_dir  
+        self.graph: CompiledGraph \= None  \# set by self.build_graph()
 
         \# Subclass is expected to build/compile its graph  
-        self.build\_graph()
+        self.build_graph()
 
     @abc.abstractmethod  
-    def build\_graph(self) \-\> None:  
+    def build_graph(self) \-\> None:  
         """Construct or compile the LangGraph used by this agent pattern."""  
         pass
 
     @abc.abstractmethod  
-    def run(self, input\_data: Any) \-\> Any:  
+    def run(self, input_data: Any) \-\> Any:  
         """  
         Run the agent to completion with the given input.  
-        :param input\_data: The user query or initial state.  
+        :param input_data: The user query or initial state.  
         :return: The final output or answer.  
         """  
         pass
 
-    def stream(self, input\_data: Any) \-\> Iterator\[Any\]:  
+    def stream(self, input_data: Any) \-\> Iterator\[Any\]:  
         """Optional streaming interface. Subclasses can override."""  
-        yield self.run(input\_data)
+        yield self.run(input_data)
 
-    def \_get\_llm(self, role: str):  
-        """Returns an LLM object for a given role based on llm\_configs."""  
-        \# Implementation detail: parse self.llm\_configs to create the LLM.  
-        \# E.g., llm\_configs might have THINKING\_MODEL\_NAME, CRITIC\_MODEL\_NAME, etc.  
+    def \_get_llm(self, role: str):  
+        """Returns an LLM object for a given role based on llm_configs."""  
+        \# Implementation detail: parse self.llm_configs to create the LLM.  
+        \# E.g., llm_configs might have THINKING_MODEL_NAME, CRITIC_MODEL_NAME, etc.  
         pass
 
-    def \_load\_prompt(self, step\_name: str) \-\> dict:  
+    def \_load_prompt(self, step_name: str) \-\> dict:  
         """  
         Loads a prompt template (system/user) from the prompts/ directory.  
         Subclasses can override to implement custom logic or fallback.  
         """  
-        \# E.g. read from f"{self.prompt\_dir}/{self.\_\_class\_\_.\_\_name\_\_}/{step\_name}/\*.md"  
-        \# Return a dict with {"system\_prompt": "...", "user\_prompt": "..."} or similar  
+        \# E.g. read from f"{self.prompt_dir}/{self.\_\_class\_\_.\_\_name\_\_}/{step_name}/\*.md"  
+        \# Return a dict with {"system_prompt": "...", "user_prompt": "..."} or similar  
         return {}
 
 **Design Notes**:
 
 * `_get_llm(role)` and `_load_prompt(step_name)` are placeholders for actual prompt and LLM loading. This keeps the base class generic.
 
-* `build_graph()` is where the pattern sets up its LangGraph nodes and transitions. The base class doesn’t know the pattern’s structure; that’s left to subclasses.
+* `build_graph()` is where the pattern sets up its LangGraph nodes and transitions. The base class doesn't know the pattern's structure; that's left to subclasses.
 
-* `run(input_data)` is the main method. Many patterns also define specialized sub-steps, but `run()` is the entry point from a developer’s perspective.
+* `run(input_data)` is the main method. Many patterns also define specialized sub-steps, but `run()` is the entry point from a developer's perspective.
 
 ### **3.2. `MultiAgentBase` (Abstract)**
 
@@ -192,19 +192,19 @@ class BaseAgent(abc.ABC):
 
 * Common logic for collating results.
 
-\# core/multi\_agent\_base.py  
+\# core/multi_agent_base.py  
 import abc  
 from typing import List, Dict  
-from .base\_agent import BaseAgent
+from .base_agent import BaseAgent
 
 class MultiAgentBase(BaseAgent, abc.ABC):  
-    def \_\_init\_\_(self, sub\_agents: Dict\[str, BaseAgent\], \*\*kwargs):  
+    def \_\_init\_\_(self, sub_agents: Dict\[str, BaseAgent\], \*\*kwargs):  
         """  
-        :param sub\_agents: Mapping of role \-\> agent instance (or agent class).  
+        :param sub_agents: Mapping of role \-\> agent instance (or agent class).  
         :param kwargs: Additional arguments passed to BaseAgent.  
         """  
         super().\_\_init\_\_(\*\*kwargs)  
-        self.sub\_agents \= sub\_agents
+        self.sub_agents \= sub_agents
 
     @abc.abstractmethod  
     def coordinate(self, task: str) \-\> str:  
@@ -228,7 +228,7 @@ class MultiAgentBase(BaseAgent, abc.ABC):
 
 Below are the core patterns. Each pattern extends `BaseAgent` (or `MultiAgentBase` if it needs multi-agent capabilities). We focus on prescriptive instructions so a developer knows exactly which methods to implement, how to handle prompts, etc.
 
-### **4.1. ReAct (Reason \+ Act) Pattern**
+### **4.1. ReAct (Reason + Act) Pattern**
 
 #### **4.1.1. Overview**
 
@@ -236,13 +236,13 @@ Below are the core patterns. Each pattern extends `BaseAgent` (or `MultiAgentBas
 
 #### **4.1.2. Class: `ReActAgent`**
 
-\# patterns/re\_act\_agent.py  
+\# patterns/re_act_agent.py  
 from typing import Any, Dict  
-from agent\_patterns.core.base\_agent import BaseAgent  
+from agent_patterns.core.base_agent import BaseAgent  
 from langgraph import StateGraph, CompiledGraph
 
 class ReActAgent(BaseAgent):  
-    def build\_graph(self) \-\> None:  
+    def build_graph(self) \-\> None:  
         """  
         Construct a StateGraph for the ReAct cycle:  
           (thought) \-\> (action) \-\> (observation) \-\> check if done \-\> (thought) ...  
@@ -250,102 +250,102 @@ class ReActAgent(BaseAgent):
         sg \= StateGraph()
 
         \# Node definitions (Pseudo-code)  
-        sg.add\_node("thought\_step", func=self.\_generate\_thought\_and\_action)  
-        sg.add\_node("action\_step", func=self.\_execute\_action)  
-        sg.add\_node("observation\_step", func=self.\_observation\_handler)  
-        sg.add\_node("final\_answer", func=self.\_format\_final\_answer)
+        sg.add_node("thought_step", func=self.\_generate_thought_and_action)  
+        sg.add_node("action_step", func=self.\_execute_action)  
+        sg.add_node("observation_step", func=self.\_observation_handler)  
+        sg.add_node("final_answer", func=self.\_format_final_answer)
 
         \# Edges & transitions  
-        sg.add\_edge("thought\_step", "action\_step")  
-        sg.add\_edge("action\_step", "observation\_step")  
-        sg.add\_edge("observation\_step", "thought\_step", condition=self.\_check\_continue)  
-        sg.add\_edge("observation\_step", "final\_answer", condition=self.\_check\_if\_done)
+        sg.add_edge("thought_step", "action_step")  
+        sg.add_edge("action_step", "observation_step")  
+        sg.add_edge("observation_step", "thought_step", condition=self.\_check_continue)  
+        sg.add_edge("observation_step", "final_answer", condition=self.\_check_if_done)
 
         self.graph \= sg.compile()
 
-    def run(self, input\_data: Any) \-\> Any:  
+    def run(self, input_data: Any) \-\> Any:  
         """  
         Entry point for the ReAct pattern.  
         Input: user query or problem statement.  
         Output: final answer after possibly multiple cycles.  
         """  
-        initial\_state \= {  
-            "input": input\_data,  
+        initial_state \= {  
+            "input": input_data,  
             "thought": "",  
             "action": {},  
             "observation": None,  
-            "intermediate\_steps": \[\],  
-            "final\_answer": None  
+            "intermediate_steps": \[\],  
+            "final_answer": None  
         }  
-        result\_state \= self.graph.run(initial\_state)  
-        return result\_state\["final\_answer"\]
+        result_state \= self.graph.run(initial_state)  
+        return result_state\["final_answer"\]
 
-    def \_generate\_thought\_and\_action(self, state: Dict) \-\> Dict:  
+    def \_generate_thought_and_action(self, state: Dict) \-\> Dict:  
         """  
         1\. Summarize current state & query LLM for next thought & action.  
-        2\. Action is typically {tool\_name: str, tool\_input: str}.  
+        2\. Action is typically {tool_name: str, tool_input: str}.  
         """  
-        prompt\_data \= self.\_load\_prompt("ThoughtStep")  \# system, user prompts  
-        llm \= self.\_get\_llm("thinking")  
-        \# Compose a prompt, e.g. prompt\_data\["system"\] \+ user info \+ state  
-        \# LLM returns something like "Thought: I need to look up weather \-\> Action: search\_tool('weather in Paris')"  
+        prompt_data \= self.\_load_prompt("ThoughtStep")  \# system, user prompts  
+        llm \= self.\_get_llm("thinking")  
+        \# Compose a prompt, e.g. prompt_data\["system"\] + user info + state  
+        \# LLM returns something like "Thought: I need to look up weather \-\> Action: search_tool('weather in Paris')"  
         \# Parse it into \`thought\` and \`action\` dict  
         \# ...  
         \# For illustration, assume we parse it:  
-        thought\_str \= "I need to check the weather"  
-        action\_dict \= {"tool\_name": "search\_tool", "tool\_input": "weather in Paris"}  
-        state\["thought"\] \= thought\_str  
-        state\["action"\] \= action\_dict  
-        state\["intermediate\_steps"\].append((thought\_str, action\_dict, None))  
+        thought_str \= "I need to check the weather"  
+        action_dict \= {"tool_name": "search_tool", "tool_input": "weather in Paris"}  
+        state\["thought"\] \= thought_str  
+        state\["action"\] \= action_dict  
+        state\["intermediate_steps"\].append((thought_str, action_dict, None))  
         return state
 
-    def \_execute\_action(self, state: Dict) \-\> Dict:  
+    def \_execute_action(self, state: Dict) \-\> Dict:  
         """Call the actual tool with the specified input."""  
         action \= state\["action"\]  
-        tool\_name \= action\["tool\_name"\]  
-        tool\_input \= action\["tool\_input"\]  
+        tool_name \= action\["tool_name"\]  
+        tool_input \= action\["tool_input"\]  
         \# Assume we have a tool registry or something similar  
-        observation \= self.\_call\_tool(tool\_name, tool\_input)  
+        observation \= self.\_call_tool(tool_name, tool_input)  
         state\["observation"\] \= observation  
-        \# Update the last step in intermediate\_steps with the observation  
-        if state\["intermediate\_steps"\]:  
-            last\_thought, last\_action, \_ \= state\["intermediate\_steps"\]\[-1\]  
-            state\["intermediate\_steps"\]\[-1\] \= (last\_thought, last\_action, observation)  
+        \# Update the last step in intermediate_steps with the observation  
+        if state\["intermediate_steps"\]:  
+            last_thought, last_action, \_ \= state\["intermediate_steps"\]\[-1\]  
+            state\["intermediate_steps"\]\[-1\] \= (last_thought, last_action, observation)  
         return state
 
-    def \_observation\_handler(self, state: Dict) \-\> Dict:  
+    def \_observation_handler(self, state: Dict) \-\> Dict:  
         """We could do additional processing of the observation if needed."""  
         return state
 
-    def \_check\_continue(self, state: Dict) \-\> bool:  
+    def \_check_continue(self, state: Dict) \-\> bool:  
         """Check if we should keep going. For now, always True unless found a final answer marker."""  
         \# Could parse state\["thought"\] for a 'FINAL ANSWER' marker, etc.  
-        return not self.\_is\_done(state)
+        return not self.\_is_done(state)
 
-    def \_check\_if\_done(self, state: Dict) \-\> bool:  
-        return self.\_is\_done(state)
+    def \_check_if_done(self, state: Dict) \-\> bool:  
+        return self.\_is_done(state)
 
-    def \_is\_done(self, state: Dict) \-\> bool:  
+    def \_is_done(self, state: Dict) \-\> bool:  
         """  
         Condition to exit the cycle: e.g. thought or observation indicates completion,  
         or a maximum step limit reached.  
         """  
-        \# Implement custom logic, e.g., if "FINAL ANSWER:" in state\["thought"\] or step\_count \> ...  
+        \# Implement custom logic, e.g., if "FINAL ANSWER:" in state\["thought"\] or step_count \> ...  
         return False
 
-    def \_format\_final\_answer(self, state: Dict) \-\> Dict:  
+    def \_format_final_answer(self, state: Dict) \-\> Dict:  
         """  
         Optionally reformat or finalize the answer for the user.  
         """  
         \# E.g., parse the last thought for final answer  
         final \= "Here's the final answer from the chain of thought..."  
-        state\["final\_answer"\] \= final  
+        state\["final_answer"\] \= final  
         return state
 
-    def \_call\_tool(self, tool\_name: str, tool\_input: Any) \-\> Any:  
+    def \_call_tool(self, tool_name: str, tool_input: Any) \-\> Any:  
         """Implement or delegate to a registry for tool calls."""  
         \# ...  
-        return f"Mock result for {tool\_input}"
+        return f"Mock result for {tool_input}"
 
 #### **4.1.3. Implementation Notes:**
 
@@ -365,80 +365,80 @@ class ReActAgent(BaseAgent):
 
 #### **4.2.2. Class: `PlanAndSolveAgent`**
 
-\# patterns/plan\_and\_solve\_agent.py  
+\# patterns/plan_and_solve_agent.py  
 from typing import Any, Dict, List  
-from agent\_patterns.core.base\_agent import BaseAgent  
+from agent_patterns.core.base_agent import BaseAgent  
 from langgraph import StateGraph
 
 class PlanAndSolveAgent(BaseAgent):
 
-    def build\_graph(self) \-\> None:  
+    def build_graph(self) \-\> None:  
         sg \= StateGraph()  
-        sg.add\_node("plan\_step", func=self.\_generate\_plan)  
-        sg.add\_node("execute\_step", func=self.\_execute\_plan\_step)  
-        sg.add\_node("check\_completion", func=self.\_check\_plan\_completion)  
-        sg.add\_node("aggregate\_results", func=self.\_aggregate\_results)
+        sg.add_node("plan_step", func=self.\_generate_plan)  
+        sg.add_node("execute_step", func=self.\_execute_plan_step)  
+        sg.add_node("check_completion", func=self.\_check_plan_completion)  
+        sg.add_node("aggregate_results", func=self.\_aggregate_results)
 
-        sg.add\_edge("plan\_step", "execute\_step")  
-        sg.add\_edge("execute\_step", "check\_completion")  
-        sg.add\_edge("check\_completion", "execute\_step", condition=lambda s: not s\["plan\_done"\])  
-        sg.add\_edge("check\_completion", "aggregate\_results", condition=lambda s: s\["plan\_done"\])
+        sg.add_edge("plan_step", "execute_step")  
+        sg.add_edge("execute_step", "check_completion")  
+        sg.add_edge("check_completion", "execute_step", condition=lambda s: not s\["plan_done"\])  
+        sg.add_edge("check_completion", "aggregate_results", condition=lambda s: s\["plan_done"\])
 
         self.graph \= sg.compile()
 
-    def run(self, input\_data: Any) \-\> Any:  
+    def run(self, input_data: Any) \-\> Any:  
         state \= {  
-            "input\_task": input\_data,  
+            "input_task": input_data,  
             "plan": \[\],  
-            "current\_step\_index": 0,  
-            "step\_results": \[\],  
-            "plan\_done": False,  
-            "final\_result": None  
+            "current_step_index": 0,  
+            "step_results": \[\],  
+            "plan_done": False,  
+            "final_result": None  
         }  
-        final\_state \= self.graph.run(state)  
-        return final\_state\["final\_result"\]
+        final_state \= self.graph.run(state)  
+        return final_state\["final_result"\]
 
-    def \_generate\_plan(self, state: Dict) \-\> Dict:  
+    def \_generate_plan(self, state: Dict) \-\> Dict:  
         """  
         Use an LLM to create a structured plan (list of steps).  
         """  
-        prompt\_data \= self.\_load\_prompt("PlanStep")  
-        llm \= self.\_get\_llm("planning")  
-        \# e.g., plan\_text \= llm.generate(...)  
-        \# parse plan\_text into a list of step dicts  
-        plan \= \[{"step\_description": "Step 1: Do X"}, {"step\_description": "Step 2: Do Y"}\]  
+        prompt_data \= self.\_load_prompt("PlanStep")  
+        llm \= self.\_get_llm("planning")  
+        \# e.g., plan_text \= llm.generate(...)  
+        \# parse plan_text into a list of step dicts  
+        plan \= \[{"step_description": "Step 1: Do X"}, {"step_description": "Step 2: Do Y"}\]  
         state\["plan"\] \= plan  
         return state
 
-    def \_execute\_plan\_step(self, state: Dict) \-\> Dict:  
-        idx \= state\["current\_step\_index"\]  
+    def \_execute_plan_step(self, state: Dict) \-\> Dict:  
+        idx \= state\["current_step_index"\]  
         plan \= state\["plan"\]  
         if idx \< len(plan):  
             step \= plan\[idx\]  
-            result \= self.\_run\_single\_step(step, state)  
-            state\["step\_results"\].append(result)  
-            state\["current\_step\_index"\] \+= 1  
+            result \= self.\_run_single_step(step, state)  
+            state\["step_results"\].append(result)  
+            state\["current_step_index"\] \+= 1  
         return state
 
-    def \_check\_plan\_completion(self, state: Dict) \-\> Dict:  
-        if state\["current\_step\_index"\] \>= len(state\["plan"\]):  
-            state\["plan\_done"\] \= True  
+    def \_check_plan_completion(self, state: Dict) \-\> Dict:  
+        if state\["current_step_index"\] \>= len(state\["plan"\]):  
+            state\["plan_done"\] \= True  
         return state
 
-    def \_aggregate\_results(self, state: Dict) \-\> Dict:  
+    def \_aggregate_results(self, state: Dict) \-\> Dict:  
         """  
         Combine step results into a final answer, possibly using another LLM or direct logic.  
         """  
-        final \= " ".join(state\["step\_results"\])  
-        state\["final\_result"\] \= f"Plan & Solve final answer:\\n{final}"  
+        final \= " ".join(state\["step_results"\])  
+        state\["final_result"\] \= f"Plan & Solve final answer:\\n{final}"  
         return state
 
-    def \_run\_single\_step(self, step: Dict, state: Dict) \-\> Any:  
+    def \_run_single_step(self, step: Dict, state: Dict) \-\> Any:  
         """  
         Could call an LLM or a tool depending on step content.  
         """  
-        \# e.g., parse step\["step\_description"\], do the action  
-        return f"Executed: {step\['step\_description'\]}"
+        \# e.g., parse step\["step_description"\], do the action  
+        return f"Executed: {step\['step_description'\]}"
 
 #### **4.2.3. Implementation Details**
 
@@ -460,73 +460,73 @@ class PlanAndSolveAgent(BaseAgent):
 
 #### **4.3.2. Class: `ReflectionAgent`**
 
-\# patterns/reflection\_agent.py  
-from agent\_patterns.core.base\_agent import BaseAgent  
+\# patterns/reflection_agent.py  
+from agent_patterns.core.base_agent import BaseAgent  
 from langgraph import StateGraph
 
 class ReflectionAgent(BaseAgent):
 
-    def build\_graph(self) \-\> None:  
+    def build_graph(self) \-\> None:  
         sg \= StateGraph()  
-        sg.add\_node("generate\_initial", func=self.\_generate\_initial\_output)  
-        sg.add\_node("reflect", func=self.\_reflect\_on\_output)  
-        sg.add\_node("check\_refine", func=self.\_check\_refinement\_needed)  
-        sg.add\_node("refine", func=self.\_refine\_output)  
-        sg.add\_node("final\_output", func=lambda s: s)
+        sg.add_node("generate_initial", func=self.\_generate_initial_output)  
+        sg.add_node("reflect", func=self.\_reflect_on_output)  
+        sg.add_node("check_refine", func=self.\_check_refinement_needed)  
+        sg.add_node("refine", func=self.\_refine_output)  
+        sg.add_node("final_output", func=lambda s: s)
 
         \# Edges  
-        sg.add\_edge("generate\_initial", "reflect")  
-        sg.add\_edge("reflect", "check\_refine")  
-        sg.add\_edge("check\_refine", "refine", condition=lambda s: s\["needs\_refinement"\])  
-        sg.add\_edge("check\_refine", "final\_output", condition=lambda s: not s\["needs\_refinement"\])  
-        sg.add\_edge("refine", "final\_output")
+        sg.add_edge("generate_initial", "reflect")  
+        sg.add_edge("reflect", "check_refine")  
+        sg.add_edge("check_refine", "refine", condition=lambda s: s\["needs_refinement"\])  
+        sg.add_edge("check_refine", "final_output", condition=lambda s: not s\["needs_refinement"\])  
+        sg.add_edge("refine", "final_output")
 
         self.graph \= sg.compile()
 
-    def run(self, input\_data: str):  
+    def run(self, input_data: str):  
         state \= {  
-            "input\_task": input\_data,  
-            "initial\_output": None,  
+            "input_task": input_data,  
+            "initial_output": None,  
             "reflection": None,  
-            "refined\_output": None,  
-            "needs\_refinement": False,  
-            "final\_answer": None  
+            "refined_output": None,  
+            "needs_refinement": False,  
+            "final_answer": None  
         }  
-        final\_state \= self.graph.run(state)  
-        return final\_state.get("final\_answer")
+        final_state \= self.graph.run(state)  
+        return final_state.get("final_answer")
 
-    def \_generate\_initial\_output(self, state):  
+    def \_generate_initial_output(self, state):  
         """Generate a first attempt using the main LLM."""  
-        prompt\_data \= self.\_load\_prompt("Generate")  
-        llm \= self.\_get\_llm("documentation")  \# or "thinking", depending  
+        prompt_data \= self.\_load_prompt("Generate")  
+        llm \= self.\_get_llm("documentation")  \# or "thinking", depending  
         \# result \= llm.predict(...)  
-        result \= f"Initial answer to {state\['input\_task'\]}"  
-        state\["initial\_output"\] \= result  
+        result \= f"Initial answer to {state\['input_task'\]}"  
+        state\["initial_output"\] \= result  
         return state
 
-    def \_reflect\_on\_output(self, state):  
+    def \_reflect_on_output(self, state):  
         """Use a separate reflection model to critique the initial output."""  
-        critic\_prompt \= self.\_load\_prompt("Reflect")  
-        critic\_llm \= self.\_get\_llm("reflection")  
-        \# reflection\_text \= critic\_llm.predict(state\["initial\_output"\])  
-        reflection\_text \= "Critique: The answer is incomplete; mention more details."  
-        state\["reflection"\] \= reflection\_text  
+        critic_prompt \= self.\_load_prompt("Reflect")  
+        critic_llm \= self.\_get_llm("reflection")  
+        \# reflection_text \= critic_llm.predict(state\["initial_output"\])  
+        reflection_text \= "Critique: The answer is incomplete; mention more details."  
+        state\["reflection"\] \= reflection_text  
         return state
 
-    def \_check\_refinement\_needed(self, state):  
+    def \_check_refinement_needed(self, state):  
         """Decide if refinement is necessary."""  
         \# simple heuristic: if 'incomplete' in reflection \-\> refine  
-        state\["needs\_refinement"\] \= "incomplete" in state\["reflection"\].lower()  
+        state\["needs_refinement"\] \= "incomplete" in state\["reflection"\].lower()  
         return state
 
-    def \_refine\_output(self, state):  
+    def \_refine_output(self, state):  
         """Generate a refined output using the reflection text."""  
-        refine\_prompt \= self.\_load\_prompt("Refine")  
-        llm \= self.\_get\_llm("documentation")  
-        \# refined \= llm.predict(f"{state\['initial\_output'\]}\\nCritique: {state\['reflection'\]}")  
-        refined \= f"Refined answer (added details) for {state\['input\_task'\]}"  
-        state\["refined\_output"\] \= refined  
-        state\["final\_answer"\] \= refined  
+        refine_prompt \= self.\_load_prompt("Refine")  
+        llm \= self.\_get_llm("documentation")  
+        \# refined \= llm.predict(f"{state\['initial_output'\]}\\nCritique: {state\['reflection'\]}")  
+        refined \= f"Refined answer (added details) for {state\['input_task'\]}"  
+        state\["refined_output"\] \= refined  
+        state\["final_answer"\] \= refined  
         return state
 
 #### **4.3.3. Implementation Guidelines**
@@ -549,43 +549,43 @@ class ReflectionAgent(BaseAgent):
 
 ### **4.4.1. Overview**
 
-**Goal:** Enable iterative problem-solving where the agent revisits past mistakes and successes across *multiple trials*, storing “lessons” in a persistent “reflection memory.” After each trial (or “episode”), the agent logs insights—why something worked or failed—so that next time it encounters a similar situation, it can consult those insights to improve performance.
+**Goal:** Enable iterative problem-solving where the agent revisits past mistakes and successes across *multiple trials*, storing "lessons" in a persistent "reflection memory." After each trial (or "episode"), the agent logs insights—why something worked or failed—so that next time it encounters a similar situation, it can consult those insights to improve performance.
 
-This differs from a simple one-pass “Reflection” pattern by introducing:
+This differs from a simple one-pass "Reflection" pattern by introducing:
 
 * **Reflection Memory**: A structured store of lessons or heuristics the agent can read before generating the next attempt.
 
 * **Multi-Trial Loop**: The agent repeatedly attempts a task (or sub-task), reflecting after each attempt and incorporating those reflections into a persistent memory.
 
-It’s most useful when:
+It's most useful when:
 
 * The agent must refine a partial solution over many tries.
 
-* We want a “learning effect” across attempts (although it’s local to the session, not a global learned model).
+* We want a "learning effect" across attempts (although it's local to the session, not a global learned model).
 
   ### **4.4.2. Class: `ReflexionAgent`**
 
-Below is a sketch for a builder’s guide, showing how to build the LangGraph for multiple attempts:
+Below is a sketch for a builder's guide, showing how to build the LangGraph for multiple attempts:
 
-\# patterns/reflexion\_agent.py
+\# patterns/reflexion_agent.py
 
 from typing import Any, Dict
 
-from agent\_patterns.core.base\_agent import BaseAgent
+from agent_patterns.core.base_agent import BaseAgent
 
 from langgraph import StateGraph, CompiledGraph
 
 class ReflexionAgent(BaseAgent):
 
-    def build\_graph(self) \-\> None:
+    def build_graph(self) \-\> None:
 
         sg \= StateGraph()
 
         
 
-        \# 1\) plan\_action\_with\_memory \-\> 2\) execute\_action \-\> 3\) evaluate\_outcome
+        \# 1\) plan_action_with_memory \-\> 2\) execute_action \-\> 3\) evaluate_outcome
 
-        \#    \-\> 4\) reflect\_on\_trial \-\> 5\) update\_reflection\_memory 
+        \#    \-\> 4\) reflect_on_trial \-\> 5\) update_reflection_memory 
 
         \#    \-\> check if done or not \-\> loop or final
 
@@ -593,73 +593,73 @@ class ReflexionAgent(BaseAgent):
 
         \# We illustrate a loop from a 'trial' node back to the top, up to a max trial count
 
-        \# or until the agent decides it’s done.
+        \# or until the agent decides it's done.
 
         
 
-        sg.add\_node("plan\_action\_with\_memory", func=self.\_plan\_action\_with\_memory)
+        sg.add_node("plan_action_with_memory", func=self.\_plan_action_with_memory)
 
-        sg.add\_node("execute\_action", func=self.\_execute\_action)
+        sg.add_node("execute_action", func=self.\_execute_action)
 
-        sg.add\_node("evaluate\_outcome", func=self.\_evaluate\_outcome)
+        sg.add_node("evaluate_outcome", func=self.\_evaluate_outcome)
 
-        sg.add\_node("reflect\_on\_trial", func=self.\_reflect\_on\_trial)
+        sg.add_node("reflect_on_trial", func=self.\_reflect_on_trial)
 
-        sg.add\_node("update\_reflection\_memory", func=self.\_update\_reflection\_memory)
+        sg.add_node("update_reflection_memory", func=self.\_update_reflection_memory)
 
-        sg.add\_node("final\_output", func=lambda s: s)
+        sg.add_node("final_output", func=lambda s: s)
 
         \# Edges for the trial loop:
 
-        sg.add\_edge("plan\_action\_with\_memory", "execute\_action")
+        sg.add_edge("plan_action_with_memory", "execute_action")
 
-        sg.add\_edge("execute\_action", "evaluate\_outcome")
+        sg.add_edge("execute_action", "evaluate_outcome")
 
-        sg.add\_edge("evaluate\_outcome", "reflect\_on\_trial")
+        sg.add_edge("evaluate_outcome", "reflect_on_trial")
 
-        sg.add\_edge("reflect\_on\_trial", "update\_reflection\_memory")
+        sg.add_edge("reflect_on_trial", "update_reflection_memory")
 
-        \# Condition: either loop to "plan\_action\_with\_memory" (new trial) or exit
+        \# Condition: either loop to "plan_action_with_memory" (new trial) or exit
 
-        sg.add\_edge("update\_reflection\_memory", "plan\_action\_with\_memory",
+        sg.add_edge("update_reflection_memory", "plan_action_with_memory",
 
-                    condition=self.\_continue\_trials)
+                    condition=self.\_continue_trials)
 
-        sg.add\_edge("update\_reflection\_memory", "final\_output",
+        sg.add_edge("update_reflection_memory", "final_output",
 
-                    condition=lambda s: not self.\_continue\_trials(s))
+                    condition=lambda s: not self.\_continue_trials(s))
 
         self.graph \= sg.compile()
 
-    def run(self, input\_data: Any) \-\> Any:
+    def run(self, input_data: Any) \-\> Any:
 
         \# The agent will attempt multiple trials, storing reflection each time
 
-        initial\_state \= {
+        initial_state \= {
 
-            "input\_task": input\_data,
+            "input_task": input_data,
 
-            "reflection\_memory": \[\],     \# list of string insights or structured data
+            "reflection_memory": \[\],     \# list of string insights or structured data
 
-            "trial\_count": 0,
+            "trial_count": 0,
 
-            "max\_trials": 3,            \# or read from config
+            "max_trials": 3,            \# or read from config
 
             "outcome": None,
 
-            "final\_answer": None
+            "final_answer": None
 
         }
 
-        final\_state \= self.graph.run(initial\_state)
+        final_state \= self.graph.run(initial_state)
 
-        return final\_state\["final\_answer"\]
+        return final_state\["final_answer"\]
 
-    def \_plan\_action\_with\_memory(self, state: Dict) \-\> Dict:
+    def \_plan_action_with_memory(self, state: Dict) \-\> Dict:
 
         """
 
-        Reads reflection\_memory to inform the next planned action or approach.
+        Reads reflection_memory to inform the next planned action or approach.
 
         Typically uses a 'thinking' LLM or specialized role.
 
@@ -671,11 +671,11 @@ class ReflexionAgent(BaseAgent):
 
         \# ...
 
-        state\["trial\_count"\] \+= 1
+        state\["trial_count"\] \+= 1
 
         return state
 
-    def \_execute\_action(self, state: Dict) \-\> Dict:
+    def \_execute_action(self, state: Dict) \-\> Dict:
 
         """
 
@@ -691,7 +691,7 @@ class ReflexionAgent(BaseAgent):
 
         return state
 
-    def \_evaluate\_outcome(self, state: Dict) \-\> Dict:
+    def \_evaluate_outcome(self, state: Dict) \-\> Dict:
 
         """
 
@@ -709,7 +709,7 @@ class ReflexionAgent(BaseAgent):
 
         return state
 
-    def \_reflect\_on\_trial(self, state: Dict) \-\> Dict:
+    def \_reflect_on_trial(self, state: Dict) \-\> Dict:
 
         """
 
@@ -719,43 +719,43 @@ class ReflexionAgent(BaseAgent):
 
         """
 
-        reflection\_llm \= self.\_get\_llm("reflection")
+        reflection_llm \= self.\_get_llm("reflection")
 
-        \# reflection\_text \= reflection\_llm.predict( ... )
+        \# reflection_text \= reflection_llm.predict( ... )
 
-        reflection\_text \= "If outcome is X, we should do Y next time."
+        reflection_text \= "If outcome is X, we should do Y next time."
 
-        state\["trial\_reflection"\] \= reflection\_text
-
-        return state
-
-    def \_update\_reflection\_memory(self, state: Dict) \-\> Dict:
-
-        """
-
-        Append newly generated reflection to reflection\_memory.
-
-        """
-
-        state\["reflection\_memory"\].append(state\["trial\_reflection"\])
+        state\["trial_reflection"\] \= reflection_text
 
         return state
 
-    def \_continue\_trials(self, state: Dict\]) \-\> bool:
+    def \_update_reflection_memory(self, state: Dict) \-\> Dict:
 
         """
 
-        Decide if we need another trial: e.g. not done or trial\_count \< max\_trials
+        Append newly generated reflection to reflection_memory.
+
+        """
+
+        state\["reflection_memory"\].append(state\["trial_reflection"\])
+
+        return state
+
+    def \_continue_trials(self, state: Dict\]) \-\> bool:
+
+        """
+
+        Decide if we need another trial: e.g. not done or trial_count \< max_trials
 
         or outcome wasn't successful.
 
         """
 
-        if state\["trial\_count"\] \>= state\["max\_trials"\]:
+        if state\["trial_count"\] \>= state\["max_trials"\]:
 
             \# finalize or forcibly stop
 
-            state\["final\_answer"\] \= f"Best attempt result: {state\['outcome'\]}"
+            state\["final_answer"\] \= f"Best attempt result: {state\['outcome'\]}"
 
             return False
 
@@ -763,7 +763,7 @@ class ReflexionAgent(BaseAgent):
 
         if state.get("evaluation") \== "success":
 
-            state\["final\_answer"\] \= f"Successful result: {state\['outcome'\]}"
+            state\["final_answer"\] \= f"Successful result: {state\['outcome'\]}"
 
             return False
 
@@ -789,11 +789,11 @@ class ReflexionAgent(BaseAgent):
 
    ### **4.5.1. Overview**
 
-**Goal:** Treat your entire multi-tool workflow like a “compiler.” The agent constructs an **execution graph** from the user task and the available tools, then **executes** the graph in an optimized order—possibly in parallel. This can speed up tasks requiring multiple independent tool calls or sub-queries.
+**Goal:** Treat your entire multi-tool workflow like a "compiler." The agent constructs an **execution graph** from the user task and the available tools, then **executes** the graph in an optimized order—possibly in parallel. This can speed up tasks requiring multiple independent tool calls or sub-queries.
 
 ### **4.5.2. Key Components**
 
-1. **Planner**: An LLM that inspects the user’s request plus the “tool signatures” to generate a DAG (Directed Acyclic Graph) describing the execution sequence.
+1. **Planner**: An LLM that inspects the user's request plus the "tool signatures" to generate a DAG (Directed Acyclic Graph) describing the execution sequence.
 
 2. **Executor**: Runs each node in topological order (or parallel if no dependencies).
 
@@ -801,69 +801,69 @@ class ReflexionAgent(BaseAgent):
 
    ### **4.5.3. Class: `LLMCompilerAgent`**
 
-\# patterns/llm\_compiler\_agent.py
+\# patterns/llm_compiler_agent.py
 
 from typing import Any, Dict
 
-from agent\_patterns.core.base\_agent import BaseAgent
+from agent_patterns.core.base_agent import BaseAgent
 
 from langgraph import StateGraph
 
 class LLMCompilerAgent(BaseAgent):
 
-    def build\_graph(self) \-\> None:
+    def build_graph(self) \-\> None:
 
         sg \= StateGraph()
 
         \# We'll define a simplified approach:
 
-        \# 1\) planner\_generate\_graph \-\> 2\) executor\_dispatch
+        \# 1\) planner_generate_graph \-\> 2\) executor_dispatch
 
-        \# \-\> 3\) check\_if\_done \-\> 4\) synthesize\_result
+        \# \-\> 3\) check_if_done \-\> 4\) synthesize_result
 
-        \# \-\> loop back to executor\_dispatch if not done.
+        \# \-\> loop back to executor_dispatch if not done.
 
-        sg.add\_node("planner\_generate\_graph", func=self.\_planner\_generate\_graph)
+        sg.add_node("planner_generate_graph", func=self.\_planner_generate_graph)
 
-        sg.add\_node("executor\_dispatch", func=self.\_executor\_dispatch)
+        sg.add_node("executor_dispatch", func=self.\_executor_dispatch)
 
-        sg.add\_node("check\_completion", func=self.\_check\_completion)
+        sg.add_node("check_completion", func=self.\_check_completion)
 
-        sg.add\_node("synthesize\_result", func=self.\_synthesize\_result)
+        sg.add_node("synthesize_result", func=self.\_synthesize_result)
 
-        sg.add\_edge("planner\_generate\_graph", "executor\_dispatch")
+        sg.add_edge("planner_generate_graph", "executor_dispatch")
 
-        sg.add\_edge("executor\_dispatch", "check\_completion")
+        sg.add_edge("executor_dispatch", "check_completion")
 
-        sg.add\_edge("check\_completion", "executor\_dispatch", condition=lambda s: not s\["graph\_done"\])
+        sg.add_edge("check_completion", "executor_dispatch", condition=lambda s: not s\["graph_done"\])
 
-        sg.add\_edge("check\_completion", "synthesize\_result", condition=lambda s: s\["graph\_done"\])
+        sg.add_edge("check_completion", "synthesize_result", condition=lambda s: s\["graph_done"\])
 
         self.graph \= sg.compile()
 
-    def run(self, input\_data: Any) \-\> Any:
+    def run(self, input_data: Any) \-\> Any:
 
         state \= {
 
-            "input\_task": input\_data,
+            "input_task": input_data,
 
-            "tool\_schemas": self.\_define\_tool\_schemas(),
+            "tool_schemas": self.\_define_tool_schemas(),
 
-            "execution\_graph": None,       \# The DAG structure
+            "execution_graph": None,       \# The DAG structure
 
-            "node\_results": {},
+            "node_results": {},
 
-            "graph\_done": False,
+            "graph_done": False,
 
-            "final\_answer": None
+            "final_answer": None
 
         }
 
-        final\_state \= self.graph.run(state)
+        final_state \= self.graph.run(state)
 
-        return final\_state\["final\_answer"\]
+        return final_state\["final_answer"\]
 
-    def \_define\_tool\_schemas(self) \-\> Dict:
+    def \_define_tool_schemas(self) \-\> Dict:
 
         """
 
@@ -877,25 +877,25 @@ class LLMCompilerAgent(BaseAgent):
 
         return {
 
-            "search\_tool": {
+            "search_tool": {
 
-                "input\_params": \["query"\],
+                "input_params": \["query"\],
 
-                "output": "search\_results"
+                "output": "search_results"
 
             },
 
-            "calculator\_tool": {
+            "calculator_tool": {
 
-                "input\_params": \["expression"\],
+                "input_params": \["expression"\],
 
-                "output": "numeric\_result"
+                "output": "numeric_result"
 
             }
 
         }
 
-    def \_planner\_generate\_graph(self, state: Dict) \-\> Dict:
+    def \_planner_generate_graph(self, state: Dict) \-\> Dict:
 
         """
 
@@ -905,79 +905,79 @@ class LLMCompilerAgent(BaseAgent):
 
         """
 
-        planner\_llm \= self.\_get\_llm("thinking")
+        planner_llm \= self.\_get_llm("thinking")
 
-        \# plan\_json \= planner\_llm.predict( ... ) 
+        \# plan_json \= planner_llm.predict( ... ) 
 
         \# parse as Python structure
 
         \# For demonstration:
 
-        example\_graph \= {
+        example_graph \= {
 
             "nodes": \[
 
-                {"id": "node1", "tool": "search\_tool", "depends\_on": \[\], "args": {"query": "some query"}},
+                {"id": "node1", "tool": "search_tool", "depends_on": \[\], "args": {"query": "some query"}},
 
-                {"id": "node2", "tool": "calculator\_tool", "depends\_on": \["node1"\], "args": {"expression": "2+2"}}
+                {"id": "node2", "tool": "calculator_tool", "depends_on": \["node1"\], "args": {"expression": "2+2"}}
 
             \]
 
         }
 
-        state\["execution\_graph"\] \= example\_graph
+        state\["execution_graph"\] \= example_graph
 
         return state
 
-    def \_executor\_dispatch(self, state: Dict) \-\> Dict:
+    def \_executor_dispatch(self, state: Dict) \-\> Dict:
 
         """
 
         Look for any nodes whose dependencies are satisfied and haven't been run yet.
 
-        Execute them in parallel or one by one, storing results in node\_results.
+        Execute them in parallel or one by one, storing results in node_results.
 
         """
 
-        graph \= state\["execution\_graph"\]
+        graph \= state\["execution_graph"\]
 
-        node\_results \= state\["node\_results"\]
+        node_results \= state\["node_results"\]
 
         for node in graph\["nodes"\]:
 
-            node\_id \= node\["id"\]
+            node_id \= node\["id"\]
 
-            if node\_id in node\_results:
+            if node_id in node_results:
 
                 continue  \# already executed
 
             \# check dependencies
 
-            if all(dep in node\_results for dep in node\["depends\_on"\]):
+            if all(dep in node_results for dep in node\["depends_on"\]):
 
                 \# we can execute this node
 
-                res \= self.\_execute\_tool(node\["tool"\], node\["args"\])
+                res \= self.\_execute_tool(node\["tool"\], node\["args"\])
 
-                node\_results\[node\_id\] \= res
+                node_results\[node_id\] \= res
 
         return state
 
-    def \_check\_completion(self, state: Dict) \-\> Dict:
+    def \_check_completion(self, state: Dict) \-\> Dict:
 
-        graph \= state\["execution\_graph"\]
+        graph \= state\["execution_graph"\]
 
-        node\_results \= state\["node\_results"\]
+        node_results \= state\["node_results"\]
 
-        all\_ids \= \[n\["id"\] for n in graph\["nodes"\]\]
+        all_ids \= \[n\["id"\] for n in graph\["nodes"\]\]
 
         \# If we've computed results for all nodes, we are done
 
-        state\["graph\_done"\] \= all(id\_ in node\_results for id\_ in all\_ids)
+        state\["graph_done"\] \= all(id_ in node_results for id_ in all_ids)
 
         return state
 
-    def \_synthesize\_result(self, state: Dict) \-\> Dict:
+    def \_synthesize_result(self, state: Dict) \-\> Dict:
 
         """
 
@@ -987,17 +987,17 @@ class LLMCompilerAgent(BaseAgent):
 
         \# E.g., we can ask an LLM to produce a final summary:
 
-        summary\_llm \= self.\_get\_llm("documentation")
+        summary_llm \= self.\_get_llm("documentation")
 
-        \# final\_answer \= summary\_llm.predict(...)
+        \# final_answer \= summary_llm.predict(...)
 
-        final\_answer \= "Final result compiled from node outputs."
+        final_answer \= "Final result compiled from node outputs."
 
-        state\["final\_answer"\] \= final\_answer
+        state\["final_answer"\] \= final_answer
 
         return state
 
-    def \_execute\_tool(self, tool\_name: str, args: Dict) \-\> Any:
+    def \_execute_tool(self, tool_name: str, args: Dict) \-\> Any:
 
         """
 
@@ -1007,13 +1007,13 @@ class LLMCompilerAgent(BaseAgent):
 
         \# ...
 
-        return f"Mock result of {tool\_name} with {args}"
+        return f"Mock result of {tool_name} with {args}"
 
 **Builder Tips:**
 
 * **Tool Schemas**: Provide enough detail so the planner LLM can figure out the dependency graph.
 
-* **Parallelization**: For real concurrency, consider LangGraph’s parallel node support or an async approach.
+* **Parallelization**: For real concurrency, consider LangGraph's parallel node support or an async approach.
 
 * **Graph Representation**: A typical structure is `{"nodes": [ {id, tool, depends_on, args}, ... ]}`.
 
@@ -1023,77 +1023,77 @@ class LLMCompilerAgent(BaseAgent):
 
   ### **4.6.1. Overview**
 
-**Goal:** Separate the “thinking” LLM (the Worker) from the actual tool‑execution step (the Solver). The Worker plans out calls and placeholders for results *without* seeing their real outputs initially; then the Solver (often a cheaper or specialized model, or direct code) executes them. Finally, the Worker integrates the actual results back in a final pass.
+**Goal:** Separate the "thinking" LLM (the Worker) from the actual tool-execution step (the Solver). The Worker plans out calls and placeholders for results *without* seeing their real outputs initially; then the Solver (often a cheaper or specialized model, or direct code) executes them. Finally, the Worker integrates the actual results back in a final pass.
 
 This can reduce cost or latency if the main LLM is expensive—because you can run multiple Solver calls in parallel, only calling the expensive Worker again once all results are ready.
 
 ### **4.6.2. Class: `REWOOAgent`**
 
-\# patterns/rewoo\_agent.py
+\# patterns/rewoo_agent.py
 
 from typing import Any, Dict, List
 
-from agent\_patterns.core.base\_agent import BaseAgent
+from agent_patterns.core.base_agent import BaseAgent
 
 from langgraph import StateGraph
 
 class REWOOAgent(BaseAgent):
 
-    def build\_graph(self) \-\> None:
+    def build_graph(self) \-\> None:
 
         sg \= StateGraph()
 
         
 
-        \# 1\) worker\_plan \-\> 2\) dispatch\_to\_solvers \-\> 3\) solver\_execute (parallel or batch)
+        \# 1\) worker_plan \-\> 2\) dispatch_to_solvers \-\> 3\) solver_execute (parallel or batch)
 
-        \# 4\) collect\_solver\_results \-\> 5\) worker\_integrate \-\> final
+        \# 4\) collect_solver_results \-\> 5\) worker_integrate \-\> final
 
-        sg.add\_node("worker\_plan", func=self.\_worker\_plan)
+        sg.add_node("worker_plan", func=self.\_worker_plan)
 
-        sg.add\_node("dispatch\_to\_solvers", func=self.\_dispatch\_to\_solvers)
+        sg.add_node("dispatch_to_solvers", func=self.\_dispatch_to_solvers)
 
-        sg.add\_node("solver\_execute", func=self.\_solver\_execute)    \# could also be multiple parallel nodes
+        sg.add_node("solver_execute", func=self.\_solver_execute)    \# could also be multiple parallel nodes
 
-        sg.add\_node("collect\_solver\_results", func=self.\_collect\_solver\_results)
+        sg.add_node("collect_solver_results", func=self.\_collect_solver_results)
 
-        sg.add\_node("worker\_integrate", func=self.\_worker\_integrate)
+        sg.add_node("worker_integrate", func=self.\_worker_integrate)
 
-        sg.add\_node("final\_output", func=lambda s: s)
+        sg.add_node("final_output", func=lambda s: s)
 
-        sg.add\_edge("worker\_plan", "dispatch\_to\_solvers")
+        sg.add_edge("worker_plan", "dispatch_to_solvers")
 
-        sg.add\_edge("dispatch\_to\_solvers", "solver\_execute")
+        sg.add_edge("dispatch_to_solvers", "solver_execute")
 
-        sg.add\_edge("solver\_execute", "collect\_solver\_results")
+        sg.add_edge("solver_execute", "collect_solver_results")
 
-        sg.add\_edge("collect\_solver\_results", "worker\_integrate")
+        sg.add_edge("collect_solver_results", "worker_integrate")
 
-        sg.add\_edge("worker\_integrate", "final\_output")
+        sg.add_edge("worker_integrate", "final_output")
 
         self.graph \= sg.compile()
 
-    def run(self, input\_data: Any) \-\> Any:
+    def run(self, input_data: Any) \-\> Any:
 
         state \= {
 
-            "input\_task": input\_data,
+            "input_task": input_data,
 
-            "worker\_plan\_template": "",    \# e.g. "Find CEO \-\> {ceo}, also get Stock \-\> {price}"
+            "worker_plan_template": "",    \# e.g. "Find CEO \-\> {ceo}, also get Stock \-\> {price}"
 
-            "solver\_requests": \[\],         \# list of tool calls
+            "solver_requests": \[\],         \# list of tool calls
 
-            "solver\_results": {},          \# mapping placeholders \-\> real data
+            "solver_results": {},          \# mapping placeholders \-\> real data
 
-            "final\_answer": None
+            "final_answer": None
 
         }
 
-        final\_state \= self.graph.run(state)
+        final_state \= self.graph.run(state)
 
-        return final\_state\["final\_answer"\]
+        return final_state\["final_answer"\]
 
-    def \_worker\_plan(self, state: Dict) \-\> Dict:
+    def \_worker_plan(self, state: Dict) \-\> Dict:
 
         """
 
@@ -1101,75 +1101,75 @@ class REWOOAgent(BaseAgent):
 
         """
 
-        thinking\_llm \= self.\_get\_llm("thinking")
+        thinking_llm \= self.\_get_llm("thinking")
 
         \# Example: 
 
-        \# plan\_template \= thinking\_llm.predict("Given the user request, lay out the steps 
+        \# plan_template \= thinking_llm.predict("Given the user request, lay out the steps 
 
         \#   with placeholders for each solver call result...")
 
-        plan\_template \= "Find CEO \-\> {ceo\_name}; Check stock \-\> {stock\_price}"
+        plan_template \= "Find CEO \-\> {ceo_name}; Check stock \-\> {stock_price}"
 
-        solver\_requests \= \[
+        solver_requests \= \[
 
-            {"placeholder": "ceo\_name", "tool": "search\_tool", "params": {"query": "CEO of Company X"}},
+            {"placeholder": "ceo_name", "tool": "search_tool", "params": {"query": "CEO of Company X"}},
 
-            {"placeholder": "stock\_price", "tool": "stock\_api\_tool", "params": {"symbol": "COMPX"}}
+            {"placeholder": "stock_price", "tool": "stock_api_tool", "params": {"symbol": "COMPX"}}
 
         \]
 
-        state\["worker\_plan\_template"\] \= plan\_template
+        state\["worker_plan_template"\] \= plan_template
 
-        state\["solver\_requests"\] \= solver\_requests
-
-        return state
-
-    def \_dispatch\_to\_solvers(self, state: Dict) \-\> Dict:
-
-        """
-
-        Possibly break solver\_requests into parallel tasks. We'll keep it simple.
-
-        """
+        state\["solver_requests"\] \= solver_requests
 
         return state
 
-    def \_solver\_execute(self, state: Dict) \-\> Dict:
+    def \_dispatch_to_solvers(self, state: Dict) \-\> Dict:
 
         """
 
-        Let each solver\_request be executed, presumably by a cheaper model or direct code.
+        Possibly break solver_requests into parallel tasks. We'll keep it simple.
 
         """
 
-        for req in state\["solver\_requests"\]:
+        return state
+
+    def \_solver_execute(self, state: Dict) \-\> Dict:
+
+        """
+
+        Let each solver_request be executed, presumably by a cheaper model or direct code.
+
+        """
+
+        for req in state\["solver_requests"\]:
 
             placeholder \= req\["placeholder"\]
 
-            tool\_name \= req\["tool"\]
+            tool_name \= req\["tool"\]
 
             params \= req\["params"\]
 
             \# call the solver
 
-            result \= self.\_call\_solver(tool\_name, params)
+            result \= self.\_call_solver(tool_name, params)
 
-            state\["solver\_results"\]\[placeholder\] \= result
-
-        return state
-
-    def \_collect\_solver\_results(self, state: Dict) \-\> Dict:
-
-        """
-
-        If parallel tasks were used, gather them here. We’re just storing them in solver\_results. 
-
-        """
+            state\["solver_results"\]\[placeholder\] \= result
 
         return state
 
-    def \_worker\_integrate(self, state: Dict) \-\> Dict:
+    def \_collect_solver_results(self, state: Dict) \-\> Dict:
+
+        """
+
+        If parallel tasks were used, gather them here. We're just storing them in solver_results. 
+
+        """
+
+        return state
+
+    def \_worker_integrate(self, state: Dict) \-\> Dict:
 
         """
 
@@ -1177,31 +1177,31 @@ class REWOOAgent(BaseAgent):
 
         """
 
-        integration\_llm \= self.\_get\_llm("thinking")
+        integration_llm \= self.\_get_llm("thinking")
 
-        plan\_template \= state\["worker\_plan\_template"\]
+        plan_template \= state\["worker_plan_template"\]
 
-        solver\_data \= state\["solver\_results"\]
+        solver_data \= state\["solver_results"\]
 
-        \# e.g. "Find CEO \-\> {ceo\_name}; ..." \-\> "Find CEO \-\> Jane Doe; ..." 
+        \# e.g. "Find CEO \-\> {ceo_name}; ..." \-\> "Find CEO \-\> Jane Doe; ..." 
 
         \# Then feed that to the LLM for final phrasing or formatting
 
-        filled\_in\_text \= plan\_template
+        filled_in_text \= plan_template
 
-        for placeholder, val in solver\_data.items():
+        for placeholder, val in solver_data.items():
 
-            filled\_in\_text \= filled\_in\_text.replace(f"{{{placeholder}}}", str(val))
+            filled_in_text \= filled_in_text.replace(f"{{{placeholder}}}", str(val))
 
-        \# final\_answer \= integration\_llm.predict(f"Integrate the following filled plan:\\n {filled\_in\_text}")
+        \# final_answer \= integration_llm.predict(f"Integrate the following filled plan:\\n {filled_in_text}")
 
-        final\_answer \= f"Final integrated result:\\n{filled\_in\_text}"
+        final_answer \= f"Final integrated result:\\n{filled_in_text}"
 
-        state\["final\_answer"\] \= final\_answer
+        state\["final_answer"\] \= final_answer
 
         return state
 
-    def \_call\_solver(self, tool\_name: str, params: Dict):
+    def \_call_solver(self, tool_name: str, params: Dict):
 
         """
 
@@ -1209,7 +1209,7 @@ class REWOOAgent(BaseAgent):
 
         """
 
-        return f"Mock result for {tool\_name} with {params}"
+        return f"Mock result for {tool_name} with {params}"
 
 **Builder Tips:**
 
@@ -1233,17 +1233,17 @@ class REWOOAgent(BaseAgent):
 
 ### **4.7.2. Class: `LATSAgent`**
 
-\# patterns/lats\_agent.py
+\# patterns/lats_agent.py
 
 from typing import Any, Dict
 
-from agent\_patterns.core.base\_agent import BaseAgent
+from agent_patterns.core.base_agent import BaseAgent
 
 from langgraph import StateGraph
 
 class LATSAgent(BaseAgent):
 
-    def build\_graph(self) \-\> None:
+    def build_graph(self) \-\> None:
 
         sg \= StateGraph()
 
@@ -1251,65 +1251,65 @@ class LATSAgent(BaseAgent):
 
         \# Minimal skeleton:
 
-        \# 1\) select\_node \-\> 2\) expand\_node \-\> 3\) evaluate\_node \-\> 4\) backpropagate
+        \# 1\) select_node \-\> 2\) expand_node \-\> 3\) evaluate_node \-\> 4\) backpropagate
 
-        \#    \-\> check\_search\_budget \-\> loop or choose\_best\_path \-\> generate\_final\_output
+        \#    \-\> check_search_budget \-\> loop or choose_best_path \-\> generate_final_output
 
-        sg.add\_node("select\_node", func=self.\_select\_node)
+        sg.add_node("select_node", func=self.\_select_node)
 
-        sg.add\_node("expand\_node", func=self.\_expand\_node)
+        sg.add_node("expand_node", func=self.\_expand_node)
 
-        sg.add\_node("evaluate\_node", func=self.\_evaluate\_node)
+        sg.add_node("evaluate_node", func=self.\_evaluate_node)
 
-        sg.add\_node("backpropagate", func=self.\_backpropagate)
+        sg.add_node("backpropagate", func=self.\_backpropagate)
 
-        sg.add\_node("check\_budget", func=self.\_check\_budget)
+        sg.add_node("check_budget", func=self.\_check_budget)
 
-        sg.add\_node("choose\_best\_path", func=self.\_choose\_best\_path)
+        sg.add_node("choose_best_path", func=self.\_choose_best_path)
 
-        sg.add\_node("generate\_final\_output", func=self.\_generate\_final\_output)
+        sg.add_node("generate_final_output", func=self.\_generate_final_output)
 
-        sg.add\_edge("select\_node", "expand\_node")
+        sg.add_edge("select_node", "expand_node")
 
-        sg.add\_edge("expand\_node", "evaluate\_node")
+        sg.add_edge("expand_node", "evaluate_node")
 
-        sg.add\_edge("evaluate\_node", "backpropagate")
+        sg.add_edge("evaluate_node", "backpropagate")
 
-        sg.add\_edge("backpropagate", "check\_budget")
+        sg.add_edge("backpropagate", "check_budget")
 
-        sg.add\_edge("check\_budget", "select\_node", condition=lambda s: not s\["budget\_exhausted"\])
+        sg.add_edge("check_budget", "select_node", condition=lambda s: not s\["budget_exhausted"\])
 
-        sg.add\_edge("check\_budget", "choose\_best\_path", condition=lambda s: s\["budget\_exhausted"\])
+        sg.add_edge("check_budget", "choose_best_path", condition=lambda s: s\["budget_exhausted"\])
 
-        sg.add\_edge("choose\_best\_path", "generate\_final\_output")
+        sg.add_edge("choose_best_path", "generate_final_output")
 
         self.graph \= sg.compile()
 
-    def run(self, input\_data: Any) \-\> Any:
+    def run(self, input_data: Any) \-\> Any:
 
         state \= {
 
-            "input\_task": input\_data,
+            "input_task": input_data,
 
-            "search\_tree": self.\_init\_tree(input\_data),
+            "search_tree": self.\_init_tree(input_data),
 
-            "budget\_exhausted": False,
+            "budget_exhausted": False,
 
             "iterations": 0,
 
-            "max\_iterations": 10,
+            "max_iterations": 10,
 
-            "best\_path": None,
+            "best_path": None,
 
-            "final\_answer": None
+            "final_answer": None
 
         }
 
-        final\_state \= self.graph.run(state)
+        final_state \= self.graph.run(state)
 
-        return final\_state\["final\_answer"\]
+        return final_state\["final_answer"\]
 
-    def \_init\_tree(self, input\_data):
+    def \_init_tree(self, input_data):
 
         """Create the root of the search tree with the initial problem state."""
 
@@ -1317,7 +1317,7 @@ class LATSAgent(BaseAgent):
 
             "root": {
 
-                "state\_description": f"Start for {input\_data}",
+                "state_description": f"Start for {input_data}",
 
                 "children": \[\],
 
@@ -1329,7 +1329,7 @@ class LATSAgent(BaseAgent):
 
         }
 
-    def \_select\_node(self, state: Dict) \-\> Dict:
+    def \_select_node(self, state: Dict) \-\> Dict:
 
         """
 
@@ -1339,11 +1339,11 @@ class LATSAgent(BaseAgent):
 
         \# ...
 
-        state\["current\_node"\] \= "root"  \# or some selection logic
+        state\["current_node"\] \= "root"  \# or some selection logic
 
         return state
 
-    def \_expand\_node(self, state: Dict) \-\> Dict:
+    def \_expand_node(self, state: Dict) \-\> Dict:
 
         """
 
@@ -1359,7 +1359,7 @@ class LATSAgent(BaseAgent):
 
         return state
 
-    def \_evaluate\_node(self, state: Dict) \-\> Dict:
+    def \_evaluate_node(self, state: Dict) \-\> Dict:
 
         """
 
@@ -1385,23 +1385,23 @@ class LATSAgent(BaseAgent):
 
         return state
 
-    def \_check\_budget(self, state: Dict) \-\> Dict:
+    def \_check_budget(self, state: Dict) \-\> Dict:
 
         """
 
-        If we've done enough iterations, mark budget\_exhausted.
+        If we've done enough iterations, mark budget_exhausted.
 
         """
 
         state\["iterations"\] \+= 1
 
-        if state\["iterations"\] \>= state\["max\_iterations"\]:
+        if state\["iterations"\] \>= state\["max_iterations"\]:
 
-            state\["budget\_exhausted"\] \= True
+            state\["budget_exhausted"\] \= True
 
         return state
 
-    def \_choose\_best\_path(self, state: Dict) \-\> Dict:
+    def \_choose_best_path(self, state: Dict) \-\> Dict:
 
         """
 
@@ -1409,11 +1409,11 @@ class LATSAgent(BaseAgent):
 
         """
 
-        state\["best\_path"\] \= "some best path"
+        state\["best_path"\] \= "some best path"
 
         return state
 
-    def \_generate\_final\_output(self, state: Dict) \-\> Dict:
+    def \_generate_final_output(self, state: Dict) \-\> Dict:
 
         """
 
@@ -1421,13 +1421,13 @@ class LATSAgent(BaseAgent):
 
         """
 
-        final\_llm \= self.\_get\_llm("thinking")
+        final_llm \= self.\_get_llm("thinking")
 
-        \# final\_text \= final\_llm.predict(...)
+        \# final_text \= final_llm.predict(...)
 
-        final\_text \= f"Final answer based on best path: {state\['best\_path'\]}"
+        final_text \= f"Final answer based on best path: {state\['best_path'\]}"
 
-        state\["final\_answer"\] \= final\_text
+        state\["final_answer"\] \= final_text
 
         return state
 
@@ -1439,7 +1439,7 @@ class LATSAgent(BaseAgent):
 
   * `_expand_node` might call an LLM to propose 2–5 possible next steps (like partial solutions).
 
-  * `_evaluate_node` might call a different “evaluation” or “reflection” LLM to score each child’s outcome.
+  * `_evaluate_node` might call a different "evaluation" or "reflection" LLM to score each child's outcome.
 
 * **Iteration Limit**: `max_iterations` or a time budget.
 
@@ -1451,89 +1451,89 @@ class LATSAgent(BaseAgent):
 
   ### **4.8.1. Overview**
 
-**Goal:** Let the agent *dynamically create or select “reasoning modules”* for the current task. It first identifies which known problem-solving heuristics or “modules” apply, then **adapts** them to the specifics of the query, and **executes** them in a structured manner. Think of it as an agent that “pulls in relevant internal methods” (some big library of ways it’s learned to reason) before diving in.
+**Goal:** Let the agent *dynamically create or select "reasoning modules"* for the current task. It first identifies which known problem-solving heuristics or "modules" apply, then **adapts** them to the specifics of the query, and **executes** them in a structured manner. Think of it as an agent that "pulls in relevant internal methods" (some big library of ways it's learned to reason) before diving in.
 
 ### **4.8.2. Class: `SelfDiscoveryAgent`**
 
-\# patterns/self\_discovery\_agent.py
+\# patterns/self_discovery_agent.py
 
 from typing import Any, Dict, List
 
-from agent\_patterns.core.base\_agent import BaseAgent
+from agent_patterns.core.base_agent import BaseAgent
 
 from langgraph import StateGraph
 
 class SelfDiscoveryAgent(BaseAgent):
 
-    def build\_graph(self) \-\> None:
+    def build_graph(self) \-\> None:
 
         sg \= StateGraph()
 
-        \# 1\) discover\_or\_select\_modules \-\> 2\) adapt\_modules \-\> 3\) plan\_reasoning\_steps
+        \# 1\) discover_or_select_modules \-\> 2\) adapt_modules \-\> 3\) plan_reasoning_steps
 
-        \# \-\> 4\) execute\_reasoning\_step (loop for each step) \-\> final
+        \# \-\> 4\) execute_reasoning_step (loop for each step) \-\> final
 
-        sg.add\_node("discover\_or\_select\_modules", func=self.\_discover\_or\_select\_modules)
+        sg.add_node("discover_or_select_modules", func=self.\_discover_or_select_modules)
 
-        sg.add\_node("adapt\_modules", func=self.\_adapt\_modules)
+        sg.add_node("adapt_modules", func=self.\_adapt_modules)
 
-        sg.add\_node("plan\_reasoning\_steps", func=self.\_plan\_reasoning\_steps)
+        sg.add_node("plan_reasoning_steps", func=self.\_plan_reasoning_steps)
 
-        sg.add\_node("execute\_reasoning\_step", func=self.\_execute\_reasoning\_step)
+        sg.add_node("execute_reasoning_step", func=self.\_execute_reasoning_step)
 
-        sg.add\_node("check\_completion", func=self.\_check\_completion)
+        sg.add_node("check_completion", func=self.\_check_completion)
 
-        sg.add\_node("final\_output", func=lambda s: s)
+        sg.add_node("final_output", func=lambda s: s)
 
         \# Linear up to planning
 
-        sg.add\_edge("discover\_or\_select\_modules", "adapt\_modules")
+        sg.add_edge("discover_or_select_modules", "adapt_modules")
 
-        sg.add\_edge("adapt\_modules", "plan\_reasoning\_steps")
+        sg.add_edge("adapt_modules", "plan_reasoning_steps")
 
         
 
-        \# Now, for each step in the plan, call execute\_reasoning\_step \-\> check\_completion
+        \# Now, for each step in the plan, call execute_reasoning_step \-\> check_completion
 
-        sg.add\_edge("plan\_reasoning\_steps", "execute\_reasoning\_step")
+        sg.add_edge("plan_reasoning_steps", "execute_reasoning_step")
 
-        sg.add\_edge("execute\_reasoning\_step", "check\_completion")
+        sg.add_edge("execute_reasoning_step", "check_completion")
 
         \# If not done, loop back
 
-        sg.add\_edge("check\_completion", "execute\_reasoning\_step", condition=lambda s: not s\["done\_with\_plan"\])
+        sg.add_edge("check_completion", "execute_reasoning_step", condition=lambda s: not s\["done_with_plan"\])
 
-        sg.add\_edge("check\_completion", "final\_output", condition=lambda s: s\["done\_with\_plan"\])
+        sg.add_edge("check_completion", "final_output", condition=lambda s: s\["done_with_plan"\])
 
         self.graph \= sg.compile()
 
-    def run(self, input\_data: Any) \-\> Any:
+    def run(self, input_data: Any) \-\> Any:
 
         state \= {
 
-            "input\_task": input\_data,
+            "input_task": input_data,
 
-            "available\_modules": self.\_load\_module\_library(),
+            "available_modules": self.\_load_module_library(),
 
-            "selected\_modules": \[\],
+            "selected_modules": \[\],
 
-            "adapted\_modules": \[\],
+            "adapted_modules": \[\],
 
-            "reasoning\_plan": \[\],
+            "reasoning_plan": \[\],
 
-            "plan\_index": 0,
+            "plan_index": 0,
 
-            "done\_with\_plan": False,
+            "done_with_plan": False,
 
-            "final\_answer": None
+            "final_answer": None
 
         }
 
-        final\_state \= self.graph.run(state)
+        final_state \= self.graph.run(state)
 
-        return final\_state\["final\_answer"\]
+        return final_state\["final_answer"\]
 
-    def \_load\_module\_library(self) \-\> List\[str\]:
+    def \_load_module_library(self) \-\> List\[str\]:
 
         """
 
@@ -1545,7 +1545,7 @@ class SelfDiscoveryAgent(BaseAgent):
 
         return \["moduleA", "moduleB", "moduleC"\]
 
-    def \_discover\_or\_select\_modules(self, state: Dict) \-\> Dict:
+    def \_discover_or_select_modules(self, state: Dict) \-\> Dict:
 
         """
 
@@ -1555,11 +1555,11 @@ class SelfDiscoveryAgent(BaseAgent):
 
         \# ...
 
-        state\["selected\_modules"\] \= \["moduleA"\]
+        state\["selected_modules"\] \= \["moduleA"\]
 
         return state
 
-    def \_adapt\_modules(self, state: Dict) \-\> Dict:
+    def \_adapt_modules(self, state: Dict) \-\> Dict:
 
         """
 
@@ -1571,11 +1571,11 @@ class SelfDiscoveryAgent(BaseAgent):
 
         \# ...
 
-        state\["adapted\_modules"\] \= \["moduleA\_for\_this\_task"\]
+        state\["adapted_modules"\] \= \["moduleA_for_this_task"\]
 
         return state
 
-    def \_plan\_reasoning\_steps(self, state: Dict) \-\> Dict:
+    def \_plan_reasoning_steps(self, state: Dict) \-\> Dict:
 
         """
 
@@ -1585,63 +1585,63 @@ class SelfDiscoveryAgent(BaseAgent):
 
         \# ...
 
-        state\["reasoning\_plan"\] \= \[
+        state\["reasoning_plan"\] \= \[
 
-            {"description": "Apply moduleA\_for\_this\_task to parse the input"},
+            {"description": "Apply moduleA_for_this_task to parse the input"},
 
             {"description": "Analyze the partial result for solution"}
 
         \]
 
-        state\["plan\_index"\] \= 0
+        state\["plan_index"\] \= 0
 
         return state
 
-    def \_execute\_reasoning\_step(self, state: Dict) \-\> Dict:
+    def \_execute_reasoning_step(self, state: Dict) \-\> Dict:
 
-        plan \= state\["reasoning\_plan"\]
+        plan \= state\["reasoning_plan"\]
 
-        i \= state\["plan\_index"\]
+        i \= state\["plan_index"\]
 
         if i \< len(plan):
 
-            step\_desc \= plan\[i\]\["description"\]
+            step_desc \= plan\[i\]\["description"\]
 
             \# Possibly call an LLM or function representing the adapted module
 
-            \# e.g.: step\_output \= self.\_call\_module(step\_desc)
+            \# e.g.: step_output \= self.\_call_module(step_desc)
 
-            step\_output \= f"Executed step: {step\_desc}"
+            step_output \= f"Executed step: {step_desc}"
 
-            state\["plan\_index"\] \+= 1
+            state\["plan_index"\] \+= 1
 
             \# optional: store partial results
 
         return state
 
-    def \_check\_completion(self, state: Dict) \-\> Dict:
+    def \_check_completion(self, state: Dict) \-\> Dict:
 
-        if state\["plan\_index"\] \>= len(state\["reasoning\_plan"\]):
+        if state\["plan_index"\] \>= len(state\["reasoning_plan"\]):
 
-            state\["done\_with\_plan"\] \= True
+            state\["done_with_plan"\] \= True
 
-            state\["final\_answer"\] \= "All modules applied, final result here\!"
+            state\["final_answer"\] \= "All modules applied, final result here\!"
 
         else:
 
-            state\["done\_with\_plan"\] \= False
+            state\["done_with_plan"\] \= False
 
         return state
 
 **Builder Tips:**
 
-* **Module Library**: Could be a real database or a file with multiple “functions” or heuristics.
+* **Module Library**: Could be a real database or a file with multiple "functions" or heuristics.
 
-* **Selection**: Use a specialized LLM prompt: “Given the user’s goal, pick the best modules from this list.”
+* **Selection**: Use a specialized LLM prompt: "Given the user's goal, pick the best modules from this list."
 
-* **Adaptation**: Another LLM prompt that modifies or extends the selected module for the user’s domain.
+* **Adaptation**: Another LLM prompt that modifies or extends the selected module for the user's domain.
 
-* **Plan**: Then proceed like a “Plan & Solve,” but specifically using your newly discovered/adapted modules.
+* **Plan**: Then proceed like a "Plan & Solve," but specifically using your newly discovered/adapted modules.
 
   ---
 
@@ -1653,7 +1653,7 @@ class SelfDiscoveryAgent(BaseAgent):
 
 1. Generating a **topic outline**.
 
-2. Creating **questions** from multiple viewpoints or “personas” (scientist, policymaker, etc.).
+2. Creating **questions** from multiple viewpoints or "personas" (scientist, policymaker, etc.).
 
 3. **Retrieving** relevant info for each question (via tools or a knowledge base).
 
@@ -1661,75 +1661,75 @@ class SelfDiscoveryAgent(BaseAgent):
 
    ### **4.9.2. Class: `STORMAgent`**
 
-\# patterns/storm\_agent.py
+\# patterns/storm_agent.py
 
 from typing import Any, Dict, List
 
-from agent\_patterns.core.base\_agent import BaseAgent
+from agent_patterns.core.base_agent import BaseAgent
 
 from langgraph import StateGraph
 
 class STORMAgent(BaseAgent):
 
-    def build\_graph(self) \-\> None:
+    def build_graph(self) \-\> None:
 
         sg \= StateGraph()
 
         
 
-        \# Stage 1: (outline) \-\> (generate\_perspectives) \-\> (generate\_questions)
+        \# Stage 1: (outline) \-\> (generate_perspectives) \-\> (generate_questions)
 
-        sg.add\_node("generate\_outline", func=self.\_generate\_outline)
+        sg.add_node("generate_outline", func=self.\_generate_outline)
 
-        sg.add\_node("generate\_perspectives", func=self.\_generate\_perspectives)
+        sg.add_node("generate_perspectives", func=self.\_generate_perspectives)
 
-        sg.add\_node("generate\_questions", func=self.\_generate\_questions)
+        sg.add_node("generate_questions", func=self.\_generate_questions)
 
-        \# Stage 2: (dispatch\_queries) \-\> (execute\_search) \-\> (collect\_search\_results)
+        \# Stage 2: (dispatch_queries) \-\> (execute_search) \-\> (collect_search_results)
 
-        sg.add\_node("dispatch\_queries", func=self.\_dispatch\_queries)
+        sg.add_node("dispatch_queries", func=self.\_dispatch_queries)
 
-        sg.add\_node("execute\_search", func=self.\_execute\_search)
+        sg.add_node("execute_search", func=self.\_execute_search)
 
-        sg.add\_node("collect\_search\_results", func=self.\_collect\_search\_results)
+        sg.add_node("collect_search_results", func=self.\_collect_search_results)
 
-        \# Stage 3: (synthesize\_section) \-\> possibly loop over sections \-\> (compile\_report)
+        \# Stage 3: (synthesize_section) \-\> possibly loop over sections \-\> (compile_report)
 
-        sg.add\_node("synthesize\_sections", func=self.\_synthesize\_sections)
+        sg.add_node("synthesize_sections", func=self.\_synthesize_sections)
 
-        sg.add\_node("compile\_report", func=self.\_compile\_report)
+        sg.add_node("compile_report", func=self.\_compile_report)
 
-        sg.add\_node("final\_output", func=lambda s: s)
+        sg.add_node("final_output", func=lambda s: s)
 
         \# Edges for stage 1
 
-        sg.add\_edge("generate\_outline", "generate\_perspectives")
+        sg.add_edge("generate_outline", "generate_perspectives")
 
-        sg.add\_edge("generate\_perspectives", "generate\_questions")
+        sg.add_edge("generate_perspectives", "generate_questions")
 
         \# Edges for stage 2
 
-        sg.add\_edge("generate\_questions", "dispatch\_queries")
+        sg.add_edge("generate_questions", "dispatch_queries")
 
-        sg.add\_edge("dispatch\_queries", "execute\_search")
+        sg.add_edge("dispatch_queries", "execute_search")
 
-        sg.add\_edge("execute\_search", "collect\_search\_results")
+        sg.add_edge("execute_search", "collect_search_results")
 
         \# Edges for stage 3
 
-        sg.add\_edge("collect\_search\_results", "synthesize\_sections")
+        sg.add_edge("collect_search_results", "synthesize_sections")
 
-        sg.add\_edge("synthesize\_sections", "compile\_report")
+        sg.add_edge("synthesize_sections", "compile_report")
 
-        sg.add\_edge("compile\_report", "final\_output")
+        sg.add_edge("compile_report", "final_output")
 
         self.graph \= sg.compile()
 
-    def run(self, input\_data: Any) \-\> Any:
+    def run(self, input_data: Any) \-\> Any:
 
         state \= {
 
-            "topic": input\_data,
+            "topic": input_data,
 
             "outline": {},
 
@@ -1737,19 +1737,19 @@ class STORMAgent(BaseAgent):
 
             "questions": {},
 
-            "search\_results": {},
+            "search_results": {},
 
-            "synthesized\_sections": {},
+            "synthesized_sections": {},
 
-            "final\_report": None
+            "final_report": None
 
         }
 
-        final\_state \= self.graph.run(state)
+        final_state \= self.graph.run(state)
 
-        return final\_state\["final\_report"\]
+        return final_state\["final_report"\]
 
-    def \_generate\_outline(self, state: Dict) \-\> Dict:
+    def \_generate_outline(self, state: Dict) \-\> Dict:
 
         """
 
@@ -1773,7 +1773,7 @@ class STORMAgent(BaseAgent):
 
         return state
 
-    def \_generate\_perspectives(self, state: Dict) \-\> Dict:
+    def \_generate_perspectives(self, state: Dict) \-\> Dict:
 
         """
 
@@ -1789,7 +1789,7 @@ class STORMAgent(BaseAgent):
 
         return state
 
-    def \_generate\_questions(self, state: Dict) \-\> Dict:
+    def \_generate_questions(self, state: Dict) \-\> Dict:
 
         """
 
@@ -1797,23 +1797,23 @@ class STORMAgent(BaseAgent):
 
         """
 
-        questions\_dict \= {}
+        questions_dict \= {}
 
         for section in state\["outline"\]:
 
-            questions\_dict\[section\] \= {}
+            questions_dict\[section\] \= {}
 
             for p in state\["perspectives"\]:
 
                 \# e.g. LLM call to generate relevant Qs
 
-                questions\_dict\[section\]\[p\] \= \[f"Key {p} question about {section}"\]
+                questions_dict\[section\]\[p\] \= \[f"Key {p} question about {section}"\]
 
-        state\["questions"\] \= questions\_dict
+        state\["questions"\] \= questions_dict
 
         return state
 
-    def \_dispatch\_queries(self, state: Dict) \-\> Dict:
+    def \_dispatch_queries(self, state: Dict) \-\> Dict:
 
         """
 
@@ -1825,33 +1825,33 @@ class STORMAgent(BaseAgent):
 
         return state
 
-    def \_execute\_search(self, state: Dict) \-\> Dict:
+    def \_execute_search(self, state: Dict) \-\> Dict:
 
         """
 
         Execute all queries, presumably via a search or retrieval tool. 
 
-        Results stored in search\_results\[section\]\[perspective\].
+        Results stored in search_results\[section\]\[perspective\].
 
         """
 
         results \= {}
 
-        for section, pers\_map in state\["questions"\].items():
+        for section, pers_map in state\["questions"\].items():
 
             results\[section\] \= {}
 
-            for p, q\_list in pers\_map.items():
+            for p, q_list in pers_map.items():
 
                 \# call the knowledge base, gather text
 
-                results\[section\]\[p\] \= \[f"Mock retrieved info for {q}" for q in q\_list\]
+                results\[section\]\[p\] \= \[f"Mock retrieved info for {q}" for q in q_list\]
 
-        state\["search\_results"\] \= results
+        state\["search_results"\] \= results
 
         return state
 
-    def \_collect\_search\_results(self, state: Dict) \-\> Dict:
+    def \_collect_search_results(self, state: Dict) \-\> Dict:
 
         """
 
@@ -1861,7 +1861,7 @@ class STORMAgent(BaseAgent):
 
         return state
 
-    def \_synthesize\_sections(self, state: Dict) \-\> Dict:
+    def \_synthesize_sections(self, state: Dict) \-\> Dict:
 
         """
 
@@ -1883,11 +1883,11 @@ class STORMAgent(BaseAgent):
 
             synthesized\[section\] \= f"Synthesized content for {section} from all perspective data."
 
-        state\["synthesized\_sections"\] \= synthesized
+        state\["synthesized_sections"\] \= synthesized
 
         return state
 
-    def \_compile\_report(self, state: Dict) \-\> Dict:
+    def \_compile_report(self, state: Dict) \-\> Dict:
 
         """
 
@@ -1895,27 +1895,27 @@ class STORMAgent(BaseAgent):
 
         """
 
-        final\_text \= \[\]
+        final_text \= \[\]
 
         for section in \["Introduction", "MainBody", "Conclusion"\]:
 
-            sec\_content \= state\["synthesized\_sections"\].get(section, "")
+            sec_content \= state\["synthesized_sections"\].get(section, "")
 
-            final\_text.append(f"{section}:\\n{sec\_content}")
+            final_text.append(f"{section}:\\n{sec_content}")
 
-        state\["final\_report"\] \= "\\n\\n".join(final\_text)
+        state\["final_report"\] \= "\\n\\n".join(final_text)
 
         return state
 
 **Builder Tips:**
 
-1. **Outline & Perspectives**: Provide separate prompts to generate a structured outline and the relevant expert viewpoints (or “personas”).
+1. **Outline & Perspectives**: Provide separate prompts to generate a structured outline and the relevant expert viewpoints ("personas").
 
 2. **Multi-Question Generation**: A for-loop approach over (section × perspective). The LLM can produce targeted queries for each vantage point.
 
 3. **Retrieval**: Any search or knowledge-base calls happen in `_execute_search`. Could be parallel tasks in LangGraph if desired.
 
-4. **Synthesis**: Merges the retrieved data from multiple angles, typically with a “documentation” model specialized for summarizing large text.
+4. **Synthesis**: Merges the retrieved data from multiple angles, typically with a "documentation" model specialized for summarizing large text.
 
 5. **Customization**:
 
@@ -1925,7 +1925,7 @@ class STORMAgent(BaseAgent):
 
    ---
 
-See `patterns/` directory for each pattern’s reference implementation. The sections in this document serve as a template, ensuring consistency across patterns.
+See `patterns/` directory for each pattern's reference implementation. The sections in this document serve as a template, ensuring consistency across patterns.
 
 ---
 
@@ -1959,30 +1959,30 @@ prompts/
 
 We use a `.env` file for keys, model names, and provider details. Example:
 
-OPENAI\_API\_KEY= "your-key"  
-THINKING\_MODEL\_PROVIDER=openai  
-THINKING\_MODEL\_NAME="gpt-4-turbo"  
-REFLECTION\_MODEL\_PROVIDER=anthropic  
-REFLECTION\_MODEL\_NAME="claude-3.5"
+OPENAI_API_KEY= "your-key"  
+THINKING_MODEL_PROVIDER=openai  
+THINKING_MODEL_NAME="gpt-4-turbo"  
+REFLECTION_MODEL_PROVIDER=anthropic  
+REFLECTION_MODEL_NAME="claude-3.5"
 
 **`llm_configs`** can be built by parsing `.env`:
 
 import os  
-from dotenv import load\_dotenv
+from dotenv import load_dotenv
 
-load\_dotenv()  
-llm\_configs \= {  
+load_dotenv()  
+llm_configs \= {  
     "thinking": {  
-        "provider": os.getenv("THINKING\_MODEL\_PROVIDER"),  
-        "model\_name": os.getenv("THINKING\_MODEL\_NAME"),  
+        "provider": os.getenv("THINKING_MODEL_PROVIDER"),  
+        "model_name": os.getenv("THINKING_MODEL_NAME"),  
     },  
     \# ... likewise for reflection, documentation, etc.  
 }
 
-Then pass `llm_configs` to each pattern’s constructor:
+Then pass `llm_configs` to each pattern's constructor:
 
-my\_reflection\_agent \= ReflectionAgent(llm\_configs=llm\_configs, prompt\_dir="prompts")  
-result \= my\_reflection\_agent.run("Explain quantum entanglement in simple terms.")
+my_reflection_agent \= ReflectionAgent(llm_configs=llm_configs, prompt_dir="prompts")  
+result \= my_reflection_agent.run("Explain quantum entanglement in simple terms.")
 
 ---
 
@@ -1992,27 +1992,27 @@ result \= my\_reflection\_agent.run("Explain quantum entanglement in simple term
 
 Each pattern has a dedicated example script in `examples/`. For instance, `reflection_example.py` might look like:
 
-\# examples/reflection\_example.py  
+\# examples/reflection_example.py  
 import os  
-from dotenv import load\_dotenv  
-from agent\_patterns.patterns.reflection\_agent import ReflectionAgent
+from dotenv import load_dotenv  
+from agent_patterns.patterns.reflection_agent import ReflectionAgent
 
 def main():  
-    load\_dotenv()  
-    llm\_configs \= {  
+    load_dotenv()  
+    llm_configs \= {  
         "documentation": {  
-            "provider": os.getenv("DOCUMENTATION\_MODEL\_PROVIDER"),  
-            "model\_name": os.getenv("DOCUMENTATION\_MODEL\_NAME"),  
+            "provider": os.getenv("DOCUMENTATION_MODEL_PROVIDER"),  
+            "model_name": os.getenv("DOCUMENTATION_MODEL_NAME"),  
         },  
         "reflection": {  
-            "provider": os.getenv("REFLECTION\_MODEL\_PROVIDER"),  
-            "model\_name": os.getenv("REFLECTION\_MODEL\_NAME"),  
+            "provider": os.getenv("REFLECTION_MODEL_PROVIDER"),  
+            "model_name": os.getenv("REFLECTION_MODEL_NAME"),  
         }  
     }
 
-    agent \= ReflectionAgent(llm\_configs=llm\_configs)  
-    final\_answer \= agent.run("Write a short story about a robot dog.")  
-    print(final\_answer)
+    agent \= ReflectionAgent(llm_configs=llm_configs)  
+    final_answer \= agent.run("Write a short story about a robot dog.")  
+    print(final_answer)
 
 if \_\_name\_\_ \== "\_\_main\_\_":  
     main()
@@ -2021,14 +2021,14 @@ if \_\_name\_\_ \== "\_\_main\_\_":
 
 Under `tests/`, create unit tests ensuring each pattern handles typical and edge cases. Use mocks or stubs for LLM calls:
 
-\# tests/test\_reflection.py  
+\# tests/test_reflection.py  
 import pytest  
 from unittest.mock import patch  
-from agent\_patterns.patterns.reflection\_agent import ReflectionAgent
+from agent_patterns.patterns.reflection_agent import ReflectionAgent
 
-def test\_reflection\_agent\_basic():  
-    agent \= ReflectionAgent(llm\_configs={}, prompt\_dir="prompts")  
-    with patch.object(agent, "\_get\_llm", return\_value=lambda x: "mock\_llm\_response"):  
+def test_reflection_agent_basic():  
+    agent \= ReflectionAgent(llm_configs={}, prompt_dir="prompts")  
+    with patch.object(agent, "\_get_llm", return_value=lambda x: "mock_llm_response"):  
         output \= agent.run("Test input")  
         assert "mock" in output  \# simplistic check
 
@@ -2036,7 +2036,7 @@ def test\_reflection\_agent\_basic():
 
 ## **8\. Notes on Extensibility & Best Practices**
 
-1. **Externalize Tools**: Patterns like ReAct rely on multiple external tools (e.g., web search, calculator). Provide a `ToolRegistry` or pass a `tools` dictionary into the agent’s constructor so new tools can be added easily.
+1. **Externalize Tools**: Patterns like ReAct rely on multiple external tools (e.g., web search, calculator). Provide a `ToolRegistry` or pass a `tools` dictionary into the agent's constructor so new tools can be added easily.
 
 2. **Parallel Execution**: LangGraph supports parallel nodes. Use them for multi-step or multi-agent tasks if beneficial.
 
@@ -2044,7 +2044,7 @@ def test\_reflection\_agent\_basic():
 
 4. **Iteration Limits & Safety**: Patterns like Reflection can loop. Always define a max iteration or safe stop condition to avoid infinite loops or excessive token usage.
 
-5. **Logging & Observability**: Consider hooking into the agent’s lifecycle with logs for each node (e.g., logging the LLM’s output at each step). This helps debug or interpret the agent’s chain-of-thought.
+5. **Logging & Observability**: Consider hooking into the agent's lifecycle with logs for each node (e.g., logging the LLM's output at each step). This helps debug or interpret the agent's chain-of-thought.
 
 ---
 
@@ -2054,7 +2054,7 @@ def test\_reflection\_agent\_basic():
 
 2. **Define `build_graph()`**: Create a `StateGraph`, add your nodes, transitions, and compile it.
 
-3. **Implement** all node functions (the “steps”):
+3. **Implement** all node functions (the "steps"):
 
    * Each step function takes and returns a `state: dict`.
 
@@ -2076,7 +2076,7 @@ For questions or contributions:
 
 * See [**examples/**](https://chatgpt.com/c/examples) for usage demos.
 
-* Consult each pattern’s docstrings for detailed instructions.
+* Consult each pattern's docstrings for detailed instructions.
 
 * Submit issues or PRs on our GitHub repository to propose improvements or new patterns.
 
