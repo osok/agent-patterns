@@ -117,9 +117,9 @@ class ReActAgent(BaseAgent):
 
     def _get_agent_prompt(self) -> Any:
          """Load and return the main agent prompt template."""
-         # Uses the method from BaseAgent, expecting prompts in <prompt_dir>/ReActAgent/AgentStep/
+         # Uses the method from BaseAgent, expecting prompts in <prompt_dir>/ReActAgent/ThoughtStep/
          try:
-             return self._load_prompt_template("AgentStep")
+             return self._load_prompt_template("ThoughtStep")
          except (FileNotFoundError, ValueError) as e:
              self.logger.error("Failed to load ReAct agent prompt: %s", e)
              # Provide a fallback or raise a more specific error if needed
