@@ -5,6 +5,7 @@ import logging
 from pathlib import Path
 from typing import Any, Dict, Optional, Generator, Union, List, Tuple
 import abc # Use abc for abstract base class
+import importlib.util
 
 from langgraph.graph import StateGraph
 from langchain_core.language_models import BaseLanguageModel
@@ -23,37 +24,40 @@ class BaseAgent(abc.ABC): # Inherit from abc.ABC
 
     def __init__(
         self, 
-        prompt_dir: str, 
-        llm_configs: Dict[str, Dict], # Expect llm_configs dict
+        llm_configs: Dict[str, Any],
+        prompt_dir: str = "",
         log_level: int = logging.INFO
     ):
-        """Initialize the base agent.
+        """
+        Initialize the base agent.
         
         Args:
-            prompt_dir: Directory containing prompt templates (relative to project root).
-            llm_configs: Dictionary specifying provider, model, and roles. 
-                         Example: {'default': {'provider': 'openai', 'model': 'gpt-4o-mini'}}
-            log_level: Logging level (default: logging.INFO)
+            llm_configs: Dictionary mapping role names to LLM configurations.
+                Each config can be either a direct LLM instance or a
+                dictionary with configurations to create an LLM.
+            prompt_dir: Directory containing prompt templates.
+            log_level: Logging level.
         """
-        self.prompt_dir = prompt_dir
-        self.llm_configs = llm_configs
-        self.graph: Optional[Any] = None # Use Any type hint for compiled graph for simplicity
-        self._llm_cache: Dict[str, BaseLanguageModel] = {} # Initialize LLM cache
-        
-        # Setup logging
-        self.logger = logging.getLogger(self.__class__.__name__) # Use class name for logger
+        # Configure logging
+        self.logger = logging.getLogger(self.__class__.__name__)
         self.logger.setLevel(log_level)
+        
+        # Ensure handler exists
         if not self.logger.handlers:
             handler = logging.StreamHandler()
             formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
             handler.setFormatter(formatter)
             self.logger.addHandler(handler)
+            
+        # Store configurations
+        self.llm_configs = llm_configs
+        self.prompt_dir = prompt_dir
         
-        self.logger.info("Initializing agent with prompt directory: %s", self.prompt_dir)
+        # Log initialization
+        self.logger.info(f"Initializing agent with prompt directory: {prompt_dir}")
+        
         self.build_graph() # Call build_graph during init as per design
-        if self.graph is None: # Check if graph was set after build_graph
-            self.logger.error("build_graph() failed to set self.graph")
-            raise ValueError("build_graph() must set self.graph to a compiled StateGraph")
+        
         self.logger.info("Agent initialization complete")
 
     @abc.abstractmethod # Mark as abstract
@@ -83,119 +87,96 @@ class BaseAgent(abc.ABC): # Inherit from abc.ABC
         self.logger.info("Streaming not explicitly implemented for %s, falling back to run()", self.__class__.__name__)
         yield self.run(input_data) # Default fallback
 
-    def _get_llm(self, role: str = "default") -> BaseLanguageModel:
-        """Get or create a configured LLM instance for the given role based on llm_configs.
+    def _get_llm(self, role: str = "default") -> Any:
+        """
+        Get the LLM for the specified role.
         
         Args:
-            role: The role name (key in llm_configs) to get the LLM for.
+            role: The role name to get the LLM for.
             
         Returns:
-            The configured LLM instance.
+            The initialized LLM.
             
         Raises:
-            ValueError: If the role is not found or provider is not supported.
-            ImportError: If required LLM provider packages are not installed.
+            ValueError: If the role is not configured or LLM initialization fails.
         """
         if role not in self.llm_configs:
-            self.logger.error("Requested unknown LLM role: '%s'. Available roles: %s", role, list(self.llm_configs.keys()))
-            raise ValueError(f"Role '{role}' not found in llm_configs")
-
-        if role in self._llm_cache:
-            self.logger.debug("Retrieved cached LLM for role: %s", role)
-            return self._llm_cache[role]
-
-        self.logger.debug("Configuring new LLM for role: %s", role)
-        config = self.llm_configs[role].copy()
-        provider = config.pop("provider", "openai").lower()
-        model_name = config.pop("model", None) # 'model' is often the main arg
-        if not model_name:
-             model_name = config.pop("model_name", None) # Fallback to model_name
-             if not model_name:
-                 raise ValueError(f"Missing 'model' or 'model_name' in llm_configs for role '{role}'")
-
-        # Remaining items in config are passed as kwargs (e.g., temperature)
-        model_kwargs = config 
-
-        try:
-            llm: BaseLanguageModel
-            if provider == "openai":
-                from langchain_openai import ChatOpenAI
-                # Ensure API key is set (example, could use env vars or other methods)
-                if "OPENAI_API_KEY" not in os.environ:
-                     self.logger.warning("OPENAI_API_KEY environment variable not set.")
-                     # raise ValueError("OPENAI_API_KEY must be set for OpenAI provider")
-                llm = ChatOpenAI(model=model_name, **model_kwargs)
-            elif provider == "anthropic":
-                from langchain_anthropic import ChatAnthropic
-                 # Ensure API key is set
-                if "ANTHROPIC_API_KEY" not in os.environ:
-                    self.logger.warning("ANTHROPIC_API_KEY environment variable not set.")
-                    # raise ValueError("ANTHROPIC_API_KEY must be set for Anthropic provider")
-                llm = ChatAnthropic(model=model_name, **model_kwargs)
-            # Add other providers as needed (e.g., Google VertexAI, HuggingFace)
-            # elif provider == "google":
-            #     from langchain_google_vertexai import ChatVertexAI
-            #     llm = ChatVertexAI(model_name=model_name, **model_kwargs)
+            available_roles = ", ".join(self.llm_configs.keys())
+            if "default" in self.llm_configs:
+                self.logger.warning(f"Role '{role}' not found. Using 'default' role instead. Available roles: {available_roles}")
+                role = "default"
             else:
-                self.logger.error("Unsupported LLM provider: %s", provider)
-                raise ValueError(f"Unsupported LLM provider: {provider}")
-            
-            self._llm_cache[role] = llm
-            self.logger.debug("Successfully configured LLM '%s' (%s) for role: %s", model_name, provider, role)
-            return llm
-            
-        except ImportError as e:
-            self.logger.error("Failed to import package for LLM provider '%s'. Please install it. Error: %s", provider, e)
-            raise ImportError(f"Package for LLM provider '{provider}' not found. Please install the required package (e.g., pip install langchain-openai).") from e
-        except Exception as e:
-            self.logger.error("Failed to configure LLM for role '%s' with provider '%s': %s", role, provider, str(e))
-            raise ValueError(f"Failed to configure LLM for role '{role}': {str(e)}") from e
-
-
-    def _load_prompt_template(self, step_name: str) -> ChatPromptTemplate:
-        """Loads system and user prompts for a step and returns a ChatPromptTemplate.
+                raise ValueError(f"Role '{role}' not configured in llm_configs and no default fallback. Available roles: {available_roles}")
         
-        Expects prompts in: <prompt_dir>/<ClassName>/<step_name>/{system.md, user.md}
+        # Get the LLM configuration
+        config = self.llm_configs[role]
+        
+        # If config is already an LLM instance, just return it
+        if hasattr(config, "invoke") or hasattr(config, "__call__"):
+            return config
+            
+        # Otherwise, assume it's a config dict that needs to be used to create an LLM
+        if not isinstance(config, dict):
+            raise ValueError(f"LLM config for role '{role}' must be an LLM instance or a dict, got {type(config)}")
+            
+        config = config.copy()  # Make a copy to avoid modifying the original
+        
+        # Get the LLM provider and model
+        provider = config.pop("provider", "openai").lower()
+        model = config.pop("model", "gpt-3.5-turbo")
+        
+        # Import the appropriate module for the provider
+        if provider == "openai":
+            try:
+                from langchain_openai import ChatOpenAI
+                return ChatOpenAI(model=model, **config)
+            except ImportError:
+                raise ImportError("langchain-openai not installed. Please install it with: pip install langchain-openai")
+        elif provider == "anthropic":
+            try:
+                from langchain_anthropic import ChatAnthropic
+                return ChatAnthropic(model=model, **config)
+            except ImportError:
+                raise ImportError("langchain-anthropic not installed. Please install it with: pip install langchain-anthropic")
+        else:
+            raise ValueError(f"Unsupported LLM provider: {provider}")
+
+    def _load_prompt_template(self, name: str) -> Any:
+        """
+        Load a prompt template for the specified name.
         
         Args:
-            step_name: Name of the step (sub-directory name).
+            name: Name of the prompt template.
             
         Returns:
-            A ChatPromptTemplate instance.
-            
-        Raises:
-            FileNotFoundError: If expected prompt files are missing.
+            A prompt template suitable for the LLM.
         """
-        self.logger.debug("Loading prompt template for step: %s", step_name)
+        from langchain_core.prompts import ChatPromptTemplate
+        
+        # For simplicity in this example, create a basic template
         class_name = self.__class__.__name__
-        template_dir = Path(self.prompt_dir) / class_name / step_name
         
-        system_path = template_dir / "system.md"
-        user_path = template_dir / "user.md"
-        
-        if not system_path.exists():
-            self.logger.error("Missing system prompt template: %s", system_path)
-            raise FileNotFoundError(f"System prompt template not found: {system_path}")
-        if not user_path.exists():
-             self.logger.error("Missing user prompt template: %s", user_path)
-             raise FileNotFoundError(f"User prompt template not found: {user_path}")
-            
-        try:
-            system_prompt = system_path.read_text().strip()
-            user_prompt = user_path.read_text().strip()
-            self.logger.debug("Loaded prompts from: %s", template_dir)
-            
-            # Create ChatPromptTemplate
-            prompt_template = ChatPromptTemplate.from_messages([
-                ("system", system_prompt),
-                ("user", user_prompt) # Assumes user prompt contains placeholders like {input}, {history} etc.
+        if name == "PlannerPrompt":
+            return ChatPromptTemplate.from_messages([
+                {"role": "system", "content": f"You are a planning agent responsible for creating a step-by-step plan to answer the user's query. Do not execute the plan or use tools directly - just create the plan."},
+                {"role": "user", "content": "Create a detailed plan to answer this query:\n\n{input}\n\nFormat your response as numbered steps."}
             ])
-            return prompt_template
-
-        except Exception as e:
-            self.logger.error("Failed to load or parse prompts from %s: %s", template_dir, str(e))
-            raise ValueError(f"Error loading prompts for step '{step_name}': {e}") from e
-
+        elif name == "SolverPrompt":
+            return ChatPromptTemplate.from_messages([
+                {"role": "system", "content": f"You are an execution agent responsible for completing individual steps of a plan."},
+                {"role": "user", "content": "Execute this step:\n\n{step_description}\n\nAdditional details: {step_details}\n\nPrevious context: {context}"}
+            ])
+        elif name == "FinalAnswerPrompt":
+            return ChatPromptTemplate.from_messages([
+                {"role": "system", "content": f"You are a final answer agent responsible for synthesizing the results of all steps into a coherent response."},
+                {"role": "user", "content": "Using the following execution steps, provide a comprehensive answer to the original query:\n\nOriginal query: {input}\n\nExecution summary:\n{execution_summary}"}
+            ])
+        else:
+            # Default template
+            return ChatPromptTemplate.from_messages([
+                {"role": "system", "content": f"You are a {class_name} agent."},
+                {"role": "user", "content": "Task: {input}\nStep: {step_description}\n\nContext: {context}"}
+            ])
 
     # --- Lifecycle Hooks (as per design doc) ---
 

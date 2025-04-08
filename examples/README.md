@@ -24,6 +24,19 @@ Implementation of the Reflexion pattern for multi-trial learning with reflection
 - [Simple Example](./reflexion/simple_example.py) - Fibonacci function implementation with iterative improvement
 - [Chess Analysis Example](./reflexion/chess_analysis_example.py) - Chess position analysis with progressive refinement
 
+### [LLM Compiler Agent](./llm_compiler/)
+Implementation of the LLM Compiler pattern for parallel function calling and task orchestration:
+- [Basic Example](./llm_compiler/llm_compiler_example.py) - Demonstrates basic usage with multiple tools
+- [Performance Comparison](./llm_compiler/parallel_vs_sequential_example.py) - Compares parallel vs sequential execution
+- [DAG Visualization](./llm_compiler/llm_compiler_dag_example.py) - Visualizes task dependencies with ASCII art
+
+### [REWOO Agent](./rewoo/)
+Implementation of the Reasoning Without Observation pattern for decoupled planning and execution:
+- [Simple Example](./rewoo/simple_example.py) - Research task using separate planning and execution components
+- [Web Research Example](./rewoo/web_research_example.py) - Comprehensive research report with structured information extraction
+- [Math Solver Example](./rewoo/math_solver_example.py) - Step-by-step solution to mathematical word problems
+- [Travel Planner Example](./rewoo/travel_planner_example.py) - Detailed travel itinerary with flights, accommodations, and attractions
+
 ## Running the Examples
 
 Each example can be run directly using Python. Make sure you have set up your environment variables first:
@@ -43,4 +56,10 @@ For instance:
 
 ```bash
 python examples/reflection/simple_example.py
+```
+
+Or for REWOO:
+
+```bash
+python examples/rewoo/simple_example.py
 ```
