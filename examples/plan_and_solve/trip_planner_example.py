@@ -1,4 +1,4 @@
-"""Example demonstrating the PlanAndSolveAgent."""
+"""Example demonstrating the PlanAndSolveAgent for trip planning."""
 
 import os
 import logging
@@ -21,7 +21,7 @@ def main():
             "temperature": 0.7
         },
         "executor": {
-            "model_name": "gpt-3.5-turbo",  # Less expensive model for execution
+            "model_name": "gpt-4-turbo-preview",  # Using the same model for detailed itinerary
             "provider": "openai",
             "temperature": 0.5
         }
@@ -29,7 +29,7 @@ def main():
     
     # Get the project root directory
     current_dir = Path(__file__).parent.absolute()
-    project_root = current_dir.parent
+    project_root = current_dir.parent.parent
     prompt_dir = str(project_root / "src" / "agent_patterns" / "prompts")
     
     # Initialize the agent
@@ -39,10 +39,24 @@ def main():
         log_level=logging.INFO
     )
     
-    # Example task
-    task = "Create a comprehensive study plan for learning Python programming from scratch to advanced level in 3 months."
+    # Example task for trip planning
+    task = """
+    Create a detailed 5-day itinerary for a trip to Tokyo, Japan. The travelers are a couple in their 30s 
+    who are interested in food, culture, and technology. They have a moderate budget (about $200/day for 
+    activities and meals, not including accommodation). They want a mix of popular tourist attractions and 
+    off-the-beaten-path experiences. They prefer public transportation and walking.
     
-    logger.info(f"Running Plan and Solve agent with task: {task}")
+    The itinerary should include:
+    1. Day-by-day schedule with morning, afternoon, and evening activities
+    2. Recommended restaurants for each day (breakfast, lunch, dinner)
+    3. Estimated costs for activities and meals
+    4. Transit information between locations
+    5. One day trip outside of central Tokyo
+    
+    The travelers are arriving on a Monday morning and departing Saturday evening.
+    """
+    
+    logger.info(f"Running Plan and Solve agent for trip planning")
     
     # Run the agent
     result = agent.run(task)
@@ -51,12 +65,12 @@ def main():
     if "error" in result:
         logger.error(f"Agent execution failed: {result['error']}")
     else:
-        logger.info("Agent execution completed successfully")
+        logger.info("Trip planning completed successfully")
         print("\n" + "="*80 + "\n")
-        print("TASK:")
+        print("TRIP PLANNING TASK:")
         print(task)
         print("\n" + "="*80 + "\n")
-        print("RESULT:")
+        print("ITINERARY RESULT:")
         print(result["output"])
         print("\n" + "="*80 + "\n")
 

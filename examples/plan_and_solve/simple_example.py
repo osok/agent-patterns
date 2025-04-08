@@ -1,11 +1,10 @@
-"""Example demonstrating the ReActAgent."""
+"""Example demonstrating the PlanAndSolveAgent."""
 
 import os
 import logging
 from pathlib import Path
 
-from langchain_core.tools import Tool
-from agent_patterns.patterns.re_act_agent import ReActAgent
+from agent_patterns.patterns.plan_and_solve_agent import PlanAndSolveAgent
 
 def main():
     # Configure logging
@@ -16,50 +15,34 @@ def main():
     # Setup LLM configs
     # Make sure your environment variables are set (e.g., OPENAI_API_KEY)
     llm_configs = {
-        "default": {
-            "model_name": "gpt-4-turbo-preview",
+        "planner": {
+            "model_name": "gpt-4-turbo-preview",  # More powerful model for planning
             "provider": "openai",
             "temperature": 0.7
+        },
+        "executor": {
+            "model_name": "gpt-3.5-turbo",  # Less expensive model for execution
+            "provider": "openai",
+            "temperature": 0.5
         }
     }
     
-    # Define sample tools for the ReAct agent
-    tools = [
-        Tool(
-            name="search",
-            func=lambda query: f"Search results for: {query}",
-            description="Search the web for information on a given topic."
-        ),
-        Tool(
-            name="calculator",
-            func=lambda expression: str(eval(expression)),
-            description="Evaluate a mathematical expression."
-        ),
-        Tool(
-            name="weather",
-            func=lambda location: f"The weather in {location} is currently sunny and 75°F.",
-            description="Get the current weather for a specified location."
-        )
-    ]
-    
     # Get the project root directory
     current_dir = Path(__file__).parent.absolute()
-    project_root = current_dir.parent
+    project_root = current_dir.parent.parent
     prompt_dir = str(project_root / "src" / "agent_patterns" / "prompts")
     
     # Initialize the agent
-    agent = ReActAgent(
+    agent = PlanAndSolveAgent(
         llm_configs=llm_configs,
-        tools=tools,
         prompt_dir=prompt_dir,
-        max_steps=5,
         log_level=logging.INFO
     )
     
     # Example task
-    task = "What's the weather like in San Francisco? Also, what is 25 * 4?"
+    task = "Create a comprehensive study plan for learning Python programming from scratch to advanced level in 3 months."
     
-    logger.info(f"Running ReAct agent with task: {task}")
+    logger.info(f"Running Plan and Solve agent with task: {task}")
     
     # Run the agent
     result = agent.run(task)
