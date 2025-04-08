@@ -8,6 +8,7 @@ and treatment options for a medical case by reasoning through different pathways
 import os
 from dotenv import load_dotenv
 from agent_patterns.patterns.lats_agent import LATSAgent
+from langgraph.errors import GraphRecursionError
 
 # Load environment variables
 load_dotenv()
@@ -29,12 +30,15 @@ def main():
     # Create the LATS agent with parameters optimized for medical reasoning
     agent = LATSAgent(
         llm_configs=llm_configs,
-        max_iterations=25,      # More iterations for thorough diagnosis exploration
-        max_depth=6,            # Deeper chains for detailed clinical reasoning
+        max_iterations=20,      # Reduced iterations to avoid recursion issues
+        max_depth=5,            # Reasonable depth for clinical reasoning
         exploration_weight=0.8, # Lower exploration to focus on more likely diagnoses
         n_expansions=5,         # More branches to consider various diagnostic possibilities
         prompt_dir="src/agent_patterns/prompts"  # Path to prompt templates
     )
+    
+    # Add recursion_limit attribute directly
+    agent.recursion_limit = 35
     
     # Medical case to diagnose
     problem = """
@@ -58,14 +62,21 @@ additional tests if needed, and a comprehensive treatment plan including lifesty
     print("="*80)
     print(problem)
     
-    # Run the agent
-    result = agent.run(problem)
-    
-    # Print the result
-    print("\n" + "="*80)
-    print("DIAGNOSIS AND TREATMENT PLAN:")
-    print("="*80)
-    print(result)
+    # Run the agent with error handling
+    try:
+        result = agent.run(problem)
+        
+        # Print the result
+        print("\n" + "="*80)
+        print("DIAGNOSIS AND TREATMENT PLAN:")
+        print("="*80)
+        print(result)
+    except GraphRecursionError as e:
+        print("\n" + "="*80)
+        print("ERROR: Graph recursion limit reached.")
+        print("The example requires a higher recursion limit to complete.")
+        print("Please increase the recursion_limit parameter or reduce the max_iterations/max_depth.")
+        print("="*80)
 
 if __name__ == "__main__":
     main() 

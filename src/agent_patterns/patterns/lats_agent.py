@@ -76,12 +76,12 @@ class LATSAgent(BaseAgent):
         recursion_limit: int = 25,
     ):
         """Initialize the LATS agent."""
+        self.recursion_limit = recursion_limit  # Set recursion_limit first
         super().__init__(llm_configs=llm_configs, prompt_dir=prompt_dir)
         self.max_iterations = max_iterations
         self.max_depth = max_depth
         self.exploration_weight = exploration_weight
         self.n_expansions = n_expansions
-        self.recursion_limit = recursion_limit
     
     def build_graph(self) -> None:
         """
