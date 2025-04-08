@@ -1,0 +1,8 @@
+Based on the execution trace below, provide a clear and concise answer to the original task. Focus on presenting the key findings and conclusions.
+
+Original task: {task}
+
+Execution trace:
+{trace}
+
+Please provide a well-structured response that directly addresses the task.

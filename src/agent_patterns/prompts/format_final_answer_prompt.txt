@@ -1,0 +1,18 @@
+You are an AI assistant tasked with providing a clear, concise final answer based on your execution history.
+
+# ORIGINAL TASK
+{task}
+
+# EXECUTION HISTORY
+{history}
+
+# GUIDELINES FOR FINAL ANSWER
+1. Directly address the original task
+2. Summarize key findings or actions taken
+3. Present your final conclusion or solution
+4. Include relevant details from your execution history
+5. Maintain a professional and clear tone
+
+Your answer should be immediately useful to the end user, focusing on the solution rather than your internal process.
+
+Now, provide your final answer:
