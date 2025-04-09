@@ -43,6 +43,16 @@ Implementation of the Language Agent Tree Search pattern for exploring multiple 
 - [Engineering Problem Example](./lats/engineering_problem_example.py) - Sustainable urban transportation system design
 - [Medical Diagnosis Example](./lats/medical_diagnosis_example.py) - Clinical reasoning with diagnostic hypotheses exploration
 
+### [STORM Agent](./storm/)
+Implementation of the Synthesis of Topic Outlines through Retrieval and Multi-perspective Question Asking pattern for article generation:
+- [Basic Article Generation](./storm/basic_article_generation.py) - Complete article generation with structured outline
+- [Streaming Article Generation](./storm/streaming_article_generation.py) - Real-time updates during article generation process
+
+### [Self-Discovery Agent](./self_discovery/)
+Implementation of the Self-Discovery pattern for dynamic reasoning structure composition:
+- [Basic Reasoning](./self_discovery/basic_reasoning.py) - Complex problem solving with self-discovered reasoning strategies
+- [Simulated Streaming](./self_discovery/basic_reasoning.py) - Step-by-step view of the self-discovery and execution process
+
 ## Running the Examples
 
 Each example can be run directly using Python. Make sure you have set up your environment variables first:
