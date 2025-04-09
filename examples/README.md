@@ -53,6 +53,16 @@ Implementation of the Self-Discovery pattern for dynamic reasoning structure com
 - [Basic Reasoning](./self_discovery/basic_reasoning.py) - Complex problem solving with self-discovered reasoning strategies
 - [Simulated Streaming](./self_discovery/basic_reasoning.py) - Step-by-step view of the self-discovery and execution process
 
+### [MCP Integration](./mcp/)
+Implementation of the Model Context Protocol (MCP) integration for connecting agents to external tool providers:
+- [MCP Example](./mcp/mcp_example.py) - Demonstrates how to connect agents to MCP-compatible tool servers
+
+### [MCP Servers](./mcp_servers/)
+Example Model Context Protocol (MCP) server implementations:
+- [Calculator Server](./mcp_servers/calculator_server.py) - Provides calculator functionality via MCP
+- [Search Server](./mcp_servers/search_server.py) - Provides mock search functionality via MCP
+- [README](./mcp_servers/README.md) - Detailed information on MCP server implementation and usage
+
 ## Running the Examples
 
 Each example can be run directly using Python. Make sure you have set up your environment variables first:
@@ -74,8 +84,12 @@ For instance:
 python examples/reflection/simple_example.py
 ```
 
-Or for REWOO:
+Or for the MCP integration example:
 
 ```bash
-python examples/rewoo/simple_example.py
+# First start an MCP server in a separate terminal
+python examples/mcp_servers/calculator_server.py
+
+# Then run the MCP integration example
+python examples/mcp/mcp_example.py
 ```

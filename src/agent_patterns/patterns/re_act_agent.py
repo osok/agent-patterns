@@ -48,8 +48,9 @@ class ReActAgent(BaseAgent):
     def __init__(
         self,
         llm_configs: Dict[str, Dict], # Inherited from BaseAgent
-        tools: List[Union[BaseTool, str]],
+        tools: Optional[List[Union[BaseTool, str]]] = None,
         prompt_dir: str = "prompts", # Default prompt directory
+        tool_provider: Optional[Any] = None,
         max_steps: int = 10, # Keep max_steps as instance property
         log_level: int = logging.INFO
     ):
@@ -57,8 +58,9 @@ class ReActAgent(BaseAgent):
         
         Args:
             llm_configs: Configuration for LLM roles (e.g., {'default': {...}}).
-            tools: List of tools available to the agent.
+            tools: List of tools available to the agent. Optional if tool_provider is provided.
             prompt_dir: Directory containing prompt templates (relative to project root).
+            tool_provider: Optional provider for tools the agent can use (from MCP).
             max_steps: Maximum number of agent steps before stopping.
             log_level: Logging level.
         """
@@ -66,25 +68,35 @@ class ReActAgent(BaseAgent):
         processed_tools = []
         self.tool_map = {}
         
-        for tool in tools:
-            if isinstance(tool, str):
-                # If a string is provided, just store it directly
-                self.tool_map[tool] = tool
-                processed_tools.append(tool)
-            elif hasattr(tool, 'name'):
-                # If it's a BaseTool or has a name attribute
-                self.tool_map[tool.name] = tool
-                processed_tools.append(tool)
-            else:
-                # Log a warning and skip this tool
-                logging.warning(f"Skipping tool of unknown type: {type(tool)}")
+        # Only process tools if provided
+        if tools:
+            for tool in tools:
+                if isinstance(tool, str):
+                    # If a string is provided, just store it directly
+                    self.tool_map[tool] = tool
+                    processed_tools.append(tool)
+                elif hasattr(tool, 'name'):
+                    # If it's a BaseTool or has a name attribute
+                    self.tool_map[tool.name] = tool
+                    processed_tools.append(tool)
+                else:
+                    # Log a warning and skip this tool
+                    logging.warning(f"Skipping tool of unknown type: {type(tool)}")
+        elif not tool_provider:
+            # Neither tools nor tool_provider provided
+            self.logger.warning("No tools or tool_provider provided. Agent will be limited to reasoning only.")
         
         self.tools = processed_tools
         self.max_steps = max_steps
         self.llm = None # Will be initialized via _get_llm
         
         # Call BaseAgent init *after* setting agent-specific properties
-        super().__init__(llm_configs=llm_configs, prompt_dir=prompt_dir, log_level=log_level)
+        super().__init__(
+            llm_configs=llm_configs, 
+            prompt_dir=prompt_dir, 
+            tool_provider=tool_provider,
+            log_level=log_level
+        )
         
         # Initialize the LLM using the base class method
         try:
@@ -93,7 +105,18 @@ class ReActAgent(BaseAgent):
             self.logger.error("Failed to initialize LLM: %s", e)
             raise # Re-raise if LLM init fails
 
-        self.logger.info("Initialized ReAct agent with %d tools and max_steps=%d", len(self.tools), self.max_steps)
+        # Log initialization with tools information
+        if tool_provider:
+            try:
+                provider_tools = tool_provider.list_tools()
+                self.logger.info("Initialized ReAct agent with tool_provider offering %d tools and max_steps=%d", 
+                                len(provider_tools), self.max_steps)
+            except Exception as e:
+                self.logger.warning("Could not list tools from tool_provider: %s", e)
+                self.logger.info("Initialized ReAct agent with tool_provider and max_steps=%d", self.max_steps)
+        else:
+            self.logger.info("Initialized ReAct agent with %d tools and max_steps=%d", 
+                            len(self.tools), self.max_steps)
 
     def build_graph(self) -> None:
         """Build the LangGraph state graph for the ReAct agent.
@@ -156,7 +179,30 @@ class ReActAgent(BaseAgent):
         
         # Format the prompt with current state
         # Ensure tools are formatted correctly for the prompt
-        tool_descriptions = "\n".join([f"- {tool.name}: {tool.description}" for tool in self.tools])
+        tool_descriptions = ""
+        
+        # First, try to get tools from the tool_provider if available
+        if self.tool_provider:
+            try:
+                provider_tools = self.tool_provider.list_tools()
+                tool_descriptions = "\n".join([
+                    f"- {tool.get('name', 'Unknown')}: {tool.get('description', 'No description')}" 
+                    for tool in provider_tools
+                ])
+            except Exception as e:
+                self.logger.warning("Could not list tools from tool_provider: %s", e)
+                # Fall back to direct tools
+                if self.tools:
+                    tool_descriptions = "\n".join([
+                        f"- {tool.name}: {tool.description}" for tool in self.tools 
+                        if hasattr(tool, 'name') and hasattr(tool, 'description')
+                    ])
+        # If no tool_provider or it failed, use the direct tools
+        elif self.tools:
+            tool_descriptions = "\n".join([
+                f"- {tool.name}: {tool.description}" for tool in self.tools 
+                if hasattr(tool, 'name') and hasattr(tool, 'description')
+            ])
         
         # Prepare messages for the LLM call - include history if available
         messages = state.get("chat_history", [])
@@ -173,9 +219,9 @@ class ReActAgent(BaseAgent):
             
             formatted_prompt = prompt.invoke({
                 "input": state["input"], 
-                "intermediate_steps": state.get("intermediate_steps", []) # Pass intermediate steps
+                "intermediate_steps": state.get("intermediate_steps", []), # Pass intermediate steps
+                "tools": tool_descriptions # Add tool descriptions to the prompt
                 # "chat_history": messages # Pass history if prompt expects it
-                # "tools": tool_descriptions # Pass tool descriptions if prompt expects it
             })
             
             response: BaseMessage = self.llm.invoke(formatted_prompt.to_messages())
@@ -210,18 +256,42 @@ class ReActAgent(BaseAgent):
             return {"intermediate_steps": []} 
 
         self.logger.info("Executing tool: %s with args %s", agent_action.tool, agent_action.tool_input)
-        tool = self.tool_map.get(agent_action.tool)
-        if tool is None:
-            self.logger.warning("Tool '%s' not found.", agent_action.tool)
-            observation = f"Error: Tool '{agent_action.tool}' not found."
-        else:
+        
+        # First, check if we have a tool_provider from BaseAgent
+        if self.tool_provider:
             try:
-                # Use the _execute_tool helper for consistent execution/error handling
-                observation = self._execute_tool(tool, agent_action.tool_input)
+                # Use the tool provider if available
+                tool_name = agent_action.tool
+                tool_input = agent_action.tool_input
+                
+                # Convert tool_input to a dictionary if it's not already
+                if not isinstance(tool_input, dict):
+                    # If it's a simple string, use it as a single parameter
+                    # This assumes the tool takes a single unnamed parameter
+                    tool_input = {"input": tool_input}
+                
+                # Execute the tool via provider
+                observation = self.tool_provider.execute_tool(tool_name, tool_input)
+                # Ensure result is a string
+                if not isinstance(observation, str):
+                    observation = str(observation)
             except Exception as e:
-                # Should not happen if _execute_tool catches exceptions, but as a safeguard
-                self.logger.error("Unexpected error during tool execution: %s", e)
-                observation = f"Error: Failed to execute tool '{agent_action.tool}'. {e}"
+                self.logger.error("Error executing tool via provider: %s", e)
+                observation = f"Error executing tool: {str(e)}"
+        else:
+            # Fall back to the direct tool execution
+            tool = self.tool_map.get(agent_action.tool)
+            if tool is None:
+                self.logger.warning("Tool '%s' not found.", agent_action.tool)
+                observation = f"Error: Tool '{agent_action.tool}' not found."
+            else:
+                try:
+                    # Use the _execute_tool helper for consistent execution/error handling
+                    observation = self._execute_tool(tool, agent_action.tool_input)
+                except Exception as e:
+                    # Should not happen if _execute_tool catches exceptions, but as a safeguard
+                    self.logger.error("Unexpected error during tool execution: %s", e)
+                    observation = f"Error: Failed to execute tool '{agent_action.tool}'. {e}"
         
         self.logger.debug("Tool observation: %s", observation)
         # Return the observation to be added to intermediate_steps

@@ -20,12 +20,14 @@ class BaseAgent(abc.ABC): # Inherit from abc.ABC
         logger (logging.Logger): Logger instance for this agent.
         llm_configs (Dict[str, Dict]): Configuration for different LLM roles.
         _llm_cache (Dict[str, BaseLanguageModel]): Cache for instantiated LLMs.
+        tool_provider (Optional[Any]): Provider for tools the agent can use.
     """
 
     def __init__(
         self, 
         llm_configs: Dict[str, Any],
         prompt_dir: str = "",
+        tool_provider: Optional[Any] = None,
         log_level: int = logging.INFO
     ):
         """
@@ -36,6 +38,7 @@ class BaseAgent(abc.ABC): # Inherit from abc.ABC
                 Each config can be either a direct LLM instance or a
                 dictionary with configurations to create an LLM.
             prompt_dir: Directory containing prompt templates.
+            tool_provider: Optional provider for tools the agent can use.
             log_level: Logging level.
         """
         # Configure logging
@@ -52,12 +55,15 @@ class BaseAgent(abc.ABC): # Inherit from abc.ABC
         # Store configurations
         self.llm_configs = llm_configs
         self.prompt_dir = prompt_dir
+        self.tool_provider = tool_provider
         
         # Initialize LLM cache
         self._llm_cache = {}
         
         # Log initialization
         self.logger.info(f"Initializing agent with prompt directory: {prompt_dir}")
+        if tool_provider:
+            self.logger.info(f"Agent using tool provider: {tool_provider.__class__.__name__}")
         
         # Build the graph
         self.graph = None
