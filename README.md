@@ -15,8 +15,8 @@ Agent-Patterns implements proven design patterns for AI agents, reducing boilerp
 - **LLM Compiler**: Dynamic execution graph construction and optimization [(arXiv Paper)](https://arxiv.org/abs/2312.04511)
 - **REWOO (Worker-Solver)**: Separated reasoning and execution agents [(arXiv Paper)](https://arxiv.org/abs/2305.18323)
 - **LATS (Language Agent Tree Search)**: Tree search over reasoning paths [(arXiv Paper)](https://arxiv.org/abs/2310.04406)
-- **Self-Discovery**: Dynamic selection and adaptation of reasoning modules
-- **STORM**: Structured topic research with multi-perspective synthesis
+- **STORM (Topic Outlines + Multi-perspective Retrieval)**: Structured research and article generation [(NAACL Paper)](https://aclanthology.org/2024.naacl-long.347.pdf)
+- **Self-Discovery**: Dynamic selection and adaptation of reasoning modules *(Coming soon)*
 
 ## Architecture
 
@@ -71,17 +71,24 @@ LATS (Language Agent Tree Search) integrates Monte Carlo Tree Search with langua
 
 This pattern excels in complex decision-making tasks with long horizons or multiple possible paths, such as programming, interactive question-answering, web navigation, and math problem-solving. It's particularly valuable when simple sequential decision-making isn't sufficient and deeper exploration of potential action sequences is beneficial.
 
-### Self-Discovery
+### STORM
+
+STORM (Synthesis of Topic Outlines through Retrieval and Multi-perspective Question Asking) is a pattern designed for comprehensive research and content generation. It follows a structured workflow:
+
+1. It generates an initial outline by researching similar topics
+2. It identifies diverse perspectives to ensure comprehensive coverage
+3. It simulates multi-perspective conversations between researchers and experts
+4. It refines the outline based on research and reference materials
+5. It writes content for each section using the gathered references
+6. It finalizes content with proper citations and coherence
+
+This pattern is ideal for generating well-researched, balanced, and comprehensive long-form content. It's particularly useful for educational content, research summaries, balanced analysis of controversial topics, and any task requiring thorough information gathering and synthesis from multiple perspectives. The pattern was developed by Stanford researchers and is especially effective when depth, multiple viewpoints, and organized presentation are important.
+
+### Self-Discovery *(Coming soon)*
 
 Self-Discovery is a pattern where agents dynamically select and adapt reasoning modules based on the task at hand. The agent evaluates which reasoning approaches are most appropriate for a given problem and can switch between different reasoning strategies as needed.
 
 This pattern is best suited for dealing with diverse problems that might require different solving techniques, or when the most effective approach isn't known in advance. It's especially valuable for general-purpose assistants that must handle a wide range of query types with different optimal solving strategies.
-
-### STORM
-
-STORM (Structured Topic Research with Multi-perspective synthesis) is a pattern designed for comprehensive research tasks. It approaches complex topics by systematically breaking them down, exploring multiple perspectives, gathering diverse information, and synthesizing findings into coherent, balanced outputs.
-
-This pattern is ideal for in-depth research questions, literature reviews, balanced analysis of controversial topics, and any task requiring comprehensive information gathering and synthesis. It's particularly effective when thoroughness, multiple viewpoints, and structured exploration of a topic are important.
 
 ## Quick Start
 
