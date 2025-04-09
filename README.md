@@ -18,6 +18,10 @@ Agent-Patterns implements proven design patterns for AI agents, reducing boilerp
 - **STORM (Topic Outlines + Multi-perspective Retrieval)**: Structured research and article generation [(NAACL Paper)](https://aclanthology.org/2024.naacl-long.347.pdf)
 - **Self-Discovery**: Dynamic selection and adaptation of reasoning modules *(Coming soon)*
 
+### Integrations
+
+- **Model Context Protocol (MCP)**: Connect agents to standardized tool providers using Anthropic's [Model Context Protocol](https://modelcontextprotocol.io/)
+
 ## Architecture
 
 The library follows these key architectural principles:
@@ -84,11 +88,28 @@ STORM (Synthesis of Topic Outlines through Retrieval and Multi-perspective Quest
 
 This pattern is ideal for generating well-researched, balanced, and comprehensive long-form content. It's particularly useful for educational content, research summaries, balanced analysis of controversial topics, and any task requiring thorough information gathering and synthesis from multiple perspectives. The pattern was developed by Stanford researchers and is especially effective when depth, multiple viewpoints, and organized presentation are important.
 
-### Self-Discovery *(Coming soon)*
+### Self-Discovery 
 
 Self-Discovery is a pattern where agents dynamically select and adapt reasoning modules based on the task at hand. The agent evaluates which reasoning approaches are most appropriate for a given problem and can switch between different reasoning strategies as needed.
 
 This pattern is best suited for dealing with diverse problems that might require different solving techniques, or when the most effective approach isn't known in advance. It's especially valuable for general-purpose assistants that must handle a wide range of query types with different optimal solving strategies.
+
+## Integration Descriptions
+
+### Model Context Protocol (MCP)
+
+The Model Context Protocol (MCP) integration allows agents to connect with standardized tool providers following Anthropic's open protocol. This integration enables agents to access a wide ecosystem of tools without having to implement custom integrations for each one.
+
+Key features:
+- Connect to any MCP-compatible server
+- Automatic tool discovery and execution
+- Support for multiple MCP servers simultaneously
+- Standardized interface for tool providers
+
+This integration is particularly valuable when:
+- You need to connect your agents to multiple external tools
+- You want to leverage the growing ecosystem of MCP-compatible tools
+- You need a consistent interface for tool usage across different agent patterns
 
 ## Quick Start
 
@@ -127,6 +148,43 @@ llm_configs = {
 
 agent = ReflectionAgent(llm_configs=llm_configs)
 result = agent.run("Write a short story about a robot dog.")
+print(result)
+```
+
+4. Using the MCP integration:
+```python
+from agent_patterns.patterns.re_act_agent import ReActAgent
+from agent_patterns.core.tools.providers.mcp_provider import (
+    MCPToolProvider, create_mcp_server_connection
+)
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+llm_configs = {
+    "default": {
+        "provider": "openai",
+        "model_name": "gpt-4o",
+    }
+}
+
+# Create MCP server connections
+mcp_servers = [
+    create_mcp_server_connection("stdio", {
+        "command": ["python", "mcp_servers/calculator_server.py"],
+        "working_dir": "./examples"
+    })
+]
+
+# Create tool provider
+tool_provider = MCPToolProvider(mcp_servers)
+
+# Create ReAct agent with MCP tool provider
+agent = ReActAgent(
+    llm_configs=llm_configs,
+    tool_provider=tool_provider
+)
+result = agent.run("Calculate the sum of 5 and 7.")
 print(result)
 ```
 

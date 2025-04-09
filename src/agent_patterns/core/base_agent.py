@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any, Dict, Optional, Generator, Union, List, Tuple
 import abc # Use abc for abstract base class
 import importlib.util
+import asyncio
 
 from langgraph.graph import StateGraph
 from langchain_core.language_models import BaseLanguageModel
@@ -21,6 +22,8 @@ class BaseAgent(abc.ABC): # Inherit from abc.ABC
         llm_configs (Dict[str, Dict]): Configuration for different LLM roles.
         _llm_cache (Dict[str, BaseLanguageModel]): Cache for instantiated LLMs.
         tool_provider (Optional[Any]): Provider for tools the agent can use.
+        memory (Optional[Any]): Memory system for the agent.
+        memory_config (Dict[str, bool]): Configuration of which memory types to use.
     """
 
     def __init__(
@@ -28,6 +31,8 @@ class BaseAgent(abc.ABC): # Inherit from abc.ABC
         llm_configs: Dict[str, Any],
         prompt_dir: str = "",
         tool_provider: Optional[Any] = None,
+        memory: Optional[Any] = None,
+        memory_config: Optional[Dict[str, bool]] = None,
         log_level: int = logging.INFO
     ):
         """
@@ -39,6 +44,8 @@ class BaseAgent(abc.ABC): # Inherit from abc.ABC
                 dictionary with configurations to create an LLM.
             prompt_dir: Directory containing prompt templates.
             tool_provider: Optional provider for tools the agent can use.
+            memory: Optional composite memory instance.
+            memory_config: Configuration for which memory types to use.
             log_level: Logging level.
         """
         # Configure logging
@@ -56,6 +63,12 @@ class BaseAgent(abc.ABC): # Inherit from abc.ABC
         self.llm_configs = llm_configs
         self.prompt_dir = prompt_dir
         self.tool_provider = tool_provider
+        self.memory = memory
+        self.memory_config = memory_config or {
+            "semantic": True,
+            "episodic": True,
+            "procedural": False  # Off by default as it's more experimental
+        }
         
         # Initialize LLM cache
         self._llm_cache = {}
@@ -64,6 +77,10 @@ class BaseAgent(abc.ABC): # Inherit from abc.ABC
         self.logger.info(f"Initializing agent with prompt directory: {prompt_dir}")
         if tool_provider:
             self.logger.info(f"Agent using tool provider: {tool_provider.__class__.__name__}")
+        if memory:
+            memory_types = ", ".join(memory.memories.keys())
+            self.logger.info(f"Agent using memory types: {memory_types}")
+            self.logger.info(f"Memory configuration: {self.memory_config}")
         
         # Build the graph
         self.graph = None
@@ -238,6 +255,60 @@ class BaseAgent(abc.ABC): # Inherit from abc.ABC
         else:
             # Should never get here because of the earlier check, but just in case
             raise FileNotFoundError(f"Prompt template '{name}' not found and no fallback available.")
+
+    async def _retrieve_memories(self, query: str) -> Dict[str, List[Any]]:
+        """
+        Retrieve relevant memories for a query.
+        
+        Args:
+            query: The input query or context
+            
+        Returns:
+            Dictionary mapping memory types to retrieved items
+        """
+        if not self.memory:
+            return {}
+            
+        # Filter enabled memory types
+        enabled_memories = {
+            k: v for k, v in self.memory.memories.items()
+            if self.memory_config.get(k, False)
+        }
+        
+        if not enabled_memories:
+            return {}
+            
+        # Create a filtered composite memory
+        from .memory import CompositeMemory
+        filtered_memory = CompositeMemory(enabled_memories)
+        
+        # Retrieve from all enabled memories
+        return await filtered_memory.retrieve_all(query)
+    
+    def sync_retrieve_memories(self, query: str) -> Dict[str, List[Any]]:
+        """Synchronous wrapper for _retrieve_memories."""
+        return asyncio.run(self._retrieve_memories(query))
+    
+    async def _save_memory(self, memory_type: str, item: Any, **metadata) -> Optional[str]:
+        """
+        Save an item to a specific memory type if enabled.
+        
+        Args:
+            memory_type: Which memory to save to
+            item: The item to save
+            **metadata: Additional metadata
+            
+        Returns:
+            A unique identifier for the saved item, or None if memory type is disabled
+        """
+        if not self.memory or not self.memory_config.get(memory_type, False):
+            return None
+            
+        return await self.memory.save_to(memory_type, item, **metadata)
+    
+    def sync_save_memory(self, memory_type: str, item: Any, **metadata) -> Optional[str]:
+        """Synchronous wrapper for _save_memory."""
+        return asyncio.run(self._save_memory(memory_type, item, **metadata))
 
     # --- Lifecycle Hooks (as per design doc) ---
 

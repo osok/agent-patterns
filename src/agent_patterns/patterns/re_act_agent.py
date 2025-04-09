@@ -26,6 +26,7 @@ class ReActState(TypedDict):
         chat_history: The history of messages (Human, AI, Tool).
         agent_outcome: The outcome of the last agent step (AgentAction or AgentFinish).
         intermediate_steps: Accumulated list of (AgentAction, str observation) tuples.
+        memories: Dictionary of relevant memories retrieved for the current query.
         # Removed tools, max_steps, step_count - these are agent instance properties, not state
     """
     input: str
@@ -34,6 +35,8 @@ class ReActState(TypedDict):
     agent_outcome: Optional[Union[AgentAction, AgentFinish]]
     # Use Annotated list with operator.add reducer for intermediate steps
     intermediate_steps: Annotated[List[Tuple[AgentAction, str]], operator.add]
+    # Include memories in the state
+    memories: Optional[Dict[str, List[Any]]] = None
 
 # --- Agent Implementation ---
 
@@ -51,6 +54,8 @@ class ReActAgent(BaseAgent):
         tools: Optional[List[Union[BaseTool, str]]] = None,
         prompt_dir: str = "prompts", # Default prompt directory
         tool_provider: Optional[Any] = None,
+        memory: Optional[Any] = None,
+        memory_config: Optional[Dict[str, bool]] = None,
         max_steps: int = 10, # Keep max_steps as instance property
         log_level: int = logging.INFO
     ):
@@ -61,6 +66,8 @@ class ReActAgent(BaseAgent):
             tools: List of tools available to the agent. Optional if tool_provider is provided.
             prompt_dir: Directory containing prompt templates (relative to project root).
             tool_provider: Optional provider for tools the agent can use (from MCP).
+            memory: Optional composite memory instance for agent memory capabilities.
+            memory_config: Configuration for which memory types to use.
             max_steps: Maximum number of agent steps before stopping.
             log_level: Logging level.
         """
@@ -95,6 +102,8 @@ class ReActAgent(BaseAgent):
             llm_configs=llm_configs, 
             prompt_dir=prompt_dir, 
             tool_provider=tool_provider,
+            memory=memory,
+            memory_config=memory_config,
             log_level=log_level
         )
         
@@ -164,7 +173,7 @@ class ReActAgent(BaseAgent):
              # Provide a fallback or raise a more specific error if needed
              raise ValueError("Could not load required prompt template for ReAct agent.") from e
 
-    def _run_agent_llm(self, state: ReActState) -> Dict[str, Union[AgentAction, AgentFinish, List[Tuple[AgentAction, str]]]]:
+    def _run_agent_llm(self, state: ReActState) -> Dict[str, Union[AgentAction, AgentFinish, List[Tuple[AgentAction, str]], Dict[str, List[Any]]]]:
         """Runs the agent LLM to decide the next step (action or finish).
         
         Args:
@@ -176,6 +185,20 @@ class ReActAgent(BaseAgent):
         """
         self.logger.debug("Running agent LLM step.")
         prompt = self._get_agent_prompt()
+        
+        # Retrieve relevant memories if memory is available
+        memories = {}
+        if self.memory and not state.get("memories"):
+            try:
+                # Retrieve memories asynchronously
+                memories = self.sync_retrieve_memories(state["input"])
+                self.logger.debug(f"Retrieved memories for query: {state['input']}")
+            except Exception as e:
+                self.logger.warning(f"Error retrieving memories: {str(e)}")
+                # Continue without memories if retrieval fails
+        else:
+            # Use already retrieved memories if available
+            memories = state.get("memories", {})
         
         # Format the prompt with current state
         # Ensure tools are formatted correctly for the prompt
@@ -211,16 +234,49 @@ class ReActAgent(BaseAgent):
              messages = [HumanMessage(content=state["input"])]
 
         try:
-            # Use LCEL to bind tools and invoke
-            # Note: Depending on the specific LLM and how it expects tools, 
-            # you might use .bind_tools() or include descriptions in the prompt.
-            # For simplicity here, we assume prompt includes tool descriptions.
-            # llm_with_tools = self.llm.bind_tools(self.tools) # If using native tool calling LLM
+            # Format memories for inclusion in the prompt
+            memory_context = ""
+            if memories:
+                memory_sections = []
+                
+                # Add semantic memory information if available
+                if "semantic" in memories and memories["semantic"]:
+                    sem_items = memories["semantic"]
+                    semantic_context = "\n".join([f"- {json.dumps(item)}" for item in sem_items])
+                    if semantic_context:
+                        memory_sections.append(f"Semantic Memories (user information and preferences):\n{semantic_context}")
+                
+                # Add episodic memory information if available
+                if "episodic" in memories and memories["episodic"]:
+                    ep_items = memories["episodic"]
+                    # Format episodes more readably
+                    episodic_context = "\n".join([
+                        f"- {getattr(ep, 'timestamp', 'unknown').isoformat() if hasattr(getattr(ep, 'timestamp', None), 'isoformat') else 'unknown'}: {getattr(ep, 'content', str(ep))}"
+                        for ep in ep_items
+                    ])
+                    if episodic_context:
+                        memory_sections.append(f"Past Interactions:\n{episodic_context}")
+                
+                # Add procedural memory information if available
+                if "procedural" in memories and memories["procedural"]:
+                    proc_items = memories["procedural"]
+                    # Format procedures more readably
+                    procedural_context = "\n".join([
+                        f"- {getattr(proc, 'name', 'unnamed')}: {getattr(proc, 'description', 'No description')}"
+                        for proc in proc_items
+                    ])
+                    if procedural_context:
+                        memory_sections.append(f"Available Procedures:\n{procedural_context}")
+                
+                # Combine all memory sections
+                if memory_sections:
+                    memory_context = "\n\n".join(memory_sections)
             
             formatted_prompt = prompt.invoke({
                 "input": state["input"], 
                 "intermediate_steps": state.get("intermediate_steps", []), # Pass intermediate steps
-                "tools": tool_descriptions # Add tool descriptions to the prompt
+                "tools": tool_descriptions, # Add tool descriptions to the prompt
+                "memory_context": memory_context # Add memory context if available
                 # "chat_history": messages # Pass history if prompt expects it
             })
             
@@ -231,14 +287,32 @@ class ReActAgent(BaseAgent):
             # For a ReAct prompt, we expect Thought/Action or Final Answer. 
             agent_outcome = self._parse_llm_react_response(response) 
             
+            # Save the final result to memory if it's a AgentFinish
+            if isinstance(agent_outcome, AgentFinish) and self.memory:
+                try:
+                    # Store the interaction in episodic memory
+                    self.sync_save_memory(
+                        "episodic",
+                        {
+                            "content": f"Query: {state['input']}\nResponse: {agent_outcome.return_values.get('output', '')}",
+                            "importance": 0.7,  # Default importance
+                            "tags": ["interaction", "query", "response"]
+                        }
+                    )
+                    self.logger.debug("Saved interaction to episodic memory")
+                except Exception as e:
+                    self.logger.warning(f"Failed to save to memory: {str(e)}")
+            
             self.logger.debug("LLM outcome: %s", agent_outcome)
-            return {"agent_outcome": agent_outcome}
+            return {"agent_outcome": agent_outcome, "memories": memories}
 
         except Exception as e:
             self.logger.error("Error in agent LLM step: %s", e)
             # Handle LLM error, perhaps by returning a finish state with error
-            return {"agent_outcome": AgentFinish({"output": f"Agent LLM failed: {e}"}, log=f"Agent LLM failed: {e}")}
-
+            return {
+                "agent_outcome": AgentFinish({"output": f"Agent LLM failed: {e}"}, log=f"Agent LLM failed: {e}"),
+                "memories": memories
+            }
 
     def _execute_tools(self, state: ReActState) -> Dict[str, List[Tuple[AgentAction, str]]]:
         """Executes the tool specified in the agent_outcome.
@@ -293,10 +367,26 @@ class ReActAgent(BaseAgent):
                     self.logger.error("Unexpected error during tool execution: %s", e)
                     observation = f"Error: Failed to execute tool '{agent_action.tool}'. {e}"
         
+        # Store the tool use and result in memory if memory is available
+        if self.memory:
+            try:
+                # Store in episodic memory
+                self.sync_save_memory(
+                    "episodic",
+                    {
+                        "content": f"Tool use: {agent_action.tool}({agent_action.tool_input})\nResult: {observation}",
+                        "importance": 0.6,  # Default importance for tool usage
+                        "tags": ["tool-use", agent_action.tool]
+                    }
+                )
+                self.logger.debug("Saved tool use to episodic memory")
+            except Exception as e:
+                self.logger.warning(f"Failed to save tool use to memory: {str(e)}")
+        
         self.logger.debug("Tool observation: %s", observation)
         # Return the observation to be added to intermediate_steps
         # The operator.add reducer on intermediate_steps will append this tuple
-        return {"intermediate_steps": [(agent_action, observation)]} 
+        return {"intermediate_steps": [(agent_action, observation)]}
 
     def _should_execute_tools(self, state: ReActState) -> bool:
         """Determines if the agent decided to use a tool."""
@@ -402,63 +492,60 @@ class ReActAgent(BaseAgent):
 
     # Override the run method from BaseAgent to handle initial state setup for ReAct
     def run(self, input_text: str) -> Dict[str, Any]:
-        """Run the ReAct agent on the given input.
+        """Run the ReAct agent on the given input text.
         
         Args:
-            input_text: The input text/query to process
+            input_text: The input text to process.
             
         Returns:
-            Dict containing the final agent outcome.
+            A dictionary containing the final output and metadata.
         """
-        if not self.graph:
-            raise RuntimeError("Agent graph is not compiled.")
-            
-        # Initialize state according to ReActState definition
-        initial_state: ReActState = {
+        self.logger.info("Running ReAct agent on input: %s", input_text)
+        self.on_start()
+        
+        # Get memories for this input if memory is available
+        memories = {}
+        if self.memory:
+            try:
+                memories = self.sync_retrieve_memories(input_text)
+                self.logger.debug("Retrieved memories for initial query")
+            except Exception as e:
+                self.logger.warning(f"Error retrieving initial memories: {str(e)}")
+        
+        # Initialize state with the input query
+        initial_state = {
             "input": input_text,
             "chat_history": [], # Start with empty history
             "agent_outcome": None, 
-            "intermediate_steps": [] 
+            "intermediate_steps": [],
+            "memories": memories
         }
         
-        final_state = {} 
-        # Use streaming to get the final state, handling potential errors
+        # Run the graph
         try:
-            self.on_start()
-            self.logger.info("Running ReAct agent graph with input: %s", input_text)
-            # LangGraph expects inputs as a dictionary matching the state keys
-            inputs_for_graph = {"input": input_text, "chat_history": [], "intermediate_steps": []}
-            for step_output in self.graph.stream(inputs_for_graph):
-                # The final state is the last value yielded before END
-                # We just need the last snapshot
-                final_state = step_output 
+            final_state = self.graph.invoke(initial_state)
             
-            # Extract the relevant final output from the last state
-            # The structure depends on how the graph is built and what END returns
-            # Assuming the last node before END updates the state correctly.
-            # Let's get the last value for the 'agent' node if available
-            last_agent_state = final_state.get("agent", {})
-            agent_outcome = last_agent_state.get("agent_outcome")
-
+            # Get the agent outcome
+            agent_outcome = final_state.get("agent_outcome")
+            
             if isinstance(agent_outcome, AgentFinish):
-                self.logger.info("Agent finished successfully.")
-                return {"output": agent_outcome.return_values["output"]}
+                result = agent_outcome.return_values.get("output", "No output generated.")
             else:
-                # Handle cases where the graph ends unexpectedly (e.g., max iterations)
-                self.logger.warning("Agent graph finished without explicit AgentFinish.")
-                # Try to get the last observation or input as fallback
-                if final_state.get("intermediate_steps"):
-                    last_action, last_obs = final_state["intermediate_steps"][-1]
-                    return {"output": f"Agent stopped. Last observation: {last_obs}"}
-                else:
-                    return {"output": f"Agent stopped. No clear output found."}
-
-        except Exception as e:
-            self.logger.error("Agent execution failed during run: %s", e, exc_info=True)
-            # Return an error dictionary or re-raise
-            return {"error": str(e)}
-        finally:
+                # Should not happen if the graph is configured correctly
+                result = "Agent did not reach a final answer. Please try again."
+            
+            # Package the result with metadata
+            output = {
+                "output": result,
+                "intermediate_steps": final_state.get("intermediate_steps", []),
+            }
+            
             self.on_finish()
+            return output
+            
+        except Exception as e:
+            self.logger.error("Error running agent: %s", e)
+            return {"output": f"Agent run failed: {str(e)}", "error": str(e)}
 
     # Remove methods that are no longer needed or refactored:
     # _process_observation - Logic moved into LLM seeing history
