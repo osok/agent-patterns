@@ -10,6 +10,26 @@ Agent-Patterns implements proven design patterns for AI agents, reducing boilerp
 
 For comprehensive documentation of all patterns and components, see our [Documentation Site](docs/index.md).
 
+### Guides
+
+- **[Getting Started Guide](docs/guides/getting_started.md)**: Installation and your first agent
+- **[Pattern Selection Guide](docs/guides/pattern_selection.md)**: Choosing the right pattern for your use case
+- **[Advanced Customization Guide](docs/guides/advanced_customization.md)**: Extending the library
+- **[Troubleshooting Guide](docs/guides/troubleshooting.md)**: Solving common issues
+- **[Deployment Guide](docs/guides/deployment.md)**: Deploying in production environments
+- **[Migration Guide](docs/guides/migration.md)**: Migrating from other frameworks
+
+See all guides in the [Guides Index](docs/guides/index.md).
+
+### Tutorials
+
+- **[Research Assistant](docs/tutorials/research_assistant.md)**: Building an AI research assistant
+- **[Customer Support Bot](docs/tutorials/customer_support_bot.md)**: Creating a support agent
+- **[Code Generation Agent](docs/tutorials/code_generation_agent.md)**: Developing a code generator
+- **[Multi-Agent System](docs/tutorials/multi_agent_system.md)**: Building a collaborative system
+
+See all tutorials in the [Tutorials Index](docs/tutorials/index.md).
+
 ### Supported Patterns
 
 - **[ReAct (Reason + Act)](docs/patterns/re_act.md)**: Iterative reasoning and action for tool-based problem solving [(arXiv Paper)](https://arxiv.org/abs/2210.03629)
@@ -22,6 +42,17 @@ For comprehensive documentation of all patterns and components, see our [Documen
 - **[STORM](docs/patterns/storm.md)**: Self-evaluation, Think of options, Options for reasoning, Reason step by step, Mistake detection [(NAACL Paper)](https://aclanthology.org/2024.naacl-long.347.pdf)
 - **[Self-Discovery](docs/patterns/self_discovery.md)**: Agents that discover their own capabilities
 - **[Reflection and Refinement](docs/patterns/reflection_and_refinement.md)**: Structured reflection with explicit refinement steps
+
+See all patterns in the [Patterns Index](docs/patterns/index.md).
+
+### API Reference
+
+- **[Core API](docs/api/core.md)**: Base classes and core components
+- **[Patterns API](docs/api/patterns.md)**: Pattern implementations
+- **[Memory API](docs/api/memory.md)**: Memory system
+- **[Tools API](docs/api/tools.md)**: Tool system
+
+See the complete API documentation in the [API Reference Index](docs/api/index.md).
 
 ### Integrations
 
@@ -71,139 +102,6 @@ For detailed documentation, see:
 - [Memory Integration Tutorial](docs/Memory%20Integration%20Tutorial.md)
 - [Agent Memory Design](docs/Agent%20Memory%20Design.md)
 - [Memory and MCP Integration](docs/memory_and_mcp_integration.md)
-
-## Quick Start
-
-1. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
-
-2. Configure your environment:
-```bash
-# .env file
-OPENAI_API_KEY="your-key"
-THINKING_MODEL_PROVIDER=openai
-THINKING_MODEL_NAME="gpt-4-turbo"
-REFLECTION_MODEL_PROVIDER=anthropic
-REFLECTION_MODEL_NAME="claude-3.5"
-```
-
-3. Use a pattern:
-```python
-from agent_patterns.patterns.reflection_agent import ReflectionAgent
-from dotenv import load_dotenv
-import os
-
-load_dotenv()
-llm_configs = {
-    "documentation": {
-        "provider": os.getenv("DOCUMENTATION_MODEL_PROVIDER"),
-        "model_name": os.getenv("DOCUMENTATION_MODEL_NAME"),
-    },
-    "reflection": {
-        "provider": os.getenv("REFLECTION_MODEL_PROVIDER"),
-        "model_name": os.getenv("REFLECTION_MODEL_NAME"),
-    }
-}
-
-agent = ReflectionAgent(llm_configs=llm_configs)
-result = agent.run("Write a short story about a robot dog.")
-print(result)
-```
-
-4. Using memory integration:
-```python
-from agent_patterns.patterns.re_act_agent import ReActAgent
-from agent_patterns.core.memory import (
-    SemanticMemory, 
-    EpisodicMemory, 
-    CompositeMemory
-)
-from agent_patterns.core.memory.persistence import InMemoryPersistence
-import asyncio
-from dotenv import load_dotenv
-import os
-
-load_dotenv()
-llm_configs = {
-    "default": {
-        "provider": "openai",
-        "model_name": "gpt-4o",
-    }
-}
-
-# Set up memory
-persistence = InMemoryPersistence()
-asyncio.run(persistence.initialize())
-
-# Create memory components
-semantic_memory = SemanticMemory(persistence, namespace="user_semantic")
-episodic_memory = EpisodicMemory(persistence, namespace="user_episodic")
-
-# Create composite memory
-memory = CompositeMemory({
-    "semantic": semantic_memory,
-    "episodic": episodic_memory
-})
-
-# Pre-populate with user information
-asyncio.run(memory.save_to(
-    "semantic", 
-    {"entity": "user", "attribute": "name", "value": "Alice"}
-))
-
-# Create agent with memory
-agent = ReActAgent(
-    llm_configs=llm_configs,
-    memory=memory,
-    memory_config={
-        "semantic": True,  # Enable semantic memory
-        "episodic": True   # Enable episodic memory
-    }
-)
-
-# The agent will now use and update memory during conversations
-result = agent.run("Tell me a story about my favorite animal.")
-print(result)
-```
-
-5. Using the MCP integration:
-```python
-from agent_patterns.patterns.re_act_agent import ReActAgent
-from agent_patterns.core.tools.providers.mcp_provider import (
-    MCPToolProvider, create_mcp_server_connection
-)
-from dotenv import load_dotenv
-import os
-
-load_dotenv()
-llm_configs = {
-    "default": {
-        "provider": "openai",
-        "model_name": "gpt-4o",
-    }
-}
-
-# Create MCP server connections
-mcp_servers = [
-    create_mcp_server_connection("stdio", {
-        "command": ["python", "mcp_servers/calculator_server.py"],
-        "working_dir": "./examples"
-    })
-]
-
-# Create tool provider
-tool_provider = MCPToolProvider(mcp_servers)
-
-# Create ReAct agent with MCP tool provider
-agent = ReActAgent(
-    llm_configs=llm_configs,
-    tool_provider=tool_provider
-)
-result = agent.run("Calculate the sum of 5 and 7.")
-print(result)
-```
 
 ## Creating New Patterns
 
