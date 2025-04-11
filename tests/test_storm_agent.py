@@ -555,6 +555,187 @@ class TestSTORMAgent(unittest.TestCase):
         self.assertIn("references", result)
         self.assertIn("perspectives", result)
 
+    @patch("agent_patterns.core.base_agent.BaseAgent._get_llm")
+    @patch("agent_patterns.core.base_agent.BaseAgent._load_prompt_template")
+    def test_memory_integration(self, mock_load_prompt_template, mock_get_llm):
+        """Test memory integration in the agent."""
+        # Create mock memory components
+        mock_memory = MagicMock()
+        mock_memory.memories = {"semantic": MagicMock(), "episodic": MagicMock()}
+        
+        # Configure mock memory retrieval
+        mock_retrieve_memories = MagicMock(return_value={
+            "semantic": [{"fact": "Previous article on similar topic covered XYZ"}],
+            "episodic": [{"event": "Researched this topic last month"}]
+        })
+        
+        mock_save_memory = MagicMock()
+        
+        # Create a mock template
+        mock_template = MagicMock()
+        mock_load_prompt_template.return_value = mock_template
+        
+        # Create mock LLM with preset response
+        mock_llm = MagicMock()
+        mock_llm.invoke.return_value = self.mock_outline_response
+        mock_get_llm.return_value = mock_llm
+        
+        # Create agent with memory
+        agent = STORMAgent(
+            llm_configs=self.llm_configs,
+            memory=mock_memory
+        )
+        
+        # Replace memory methods with mocks
+        agent.sync_retrieve_memories = mock_retrieve_memories
+        agent.sync_save_memory = mock_save_memory
+        
+        # Test initial outline generation with memory
+        state = self._create_initial_state()
+        
+        # Run the outline generation method
+        agent._generate_initial_outline(state)
+        
+        # Verify memory was retrieved
+        mock_retrieve_memories.assert_called_with(state["input_topic"])
+        
+        # Verify prompt was formatted with memory context
+        mock_template.format.assert_called_once()
+        call_args = mock_template.format.call_args[1]
+        self.assertIn("memory_context", call_args)
+        
+        # Test finalization with memory saving
+        finalize_state = self._create_initial_state()
+        finalize_state["outline"] = [{"id": "1", "title": "Test Section"}]
+        finalize_state["sections"] = {"1": "Test content"}
+        finalize_state["references"] = {"1": [{"title": "Ref", "source": "Source"}]}
+        finalize_state["perspectives"] = ["Test perspective"]
+        
+        # Clear the mock counters
+        mock_retrieve_memories.reset_mock()
+        mock_save_memory.reset_mock()
+        
+        # Run the finalization method
+        agent._finalize_article(finalize_state)
+        
+        # Verify memory was saved
+        self.assertEqual(mock_save_memory.call_count, 2)  # Once for episodic, once for semantic
+        
+        # Check that the correct memory types were used
+        memory_calls = mock_save_memory.call_args_list
+        memory_types = [call[1]["memory_type"] for call in memory_calls]
+        self.assertIn("episodic", memory_types)
+        self.assertIn("semantic", memory_types)
+    
+    @patch("agent_patterns.core.base_agent.BaseAgent._get_llm")
+    @patch("agent_patterns.core.base_agent.BaseAgent._load_prompt_template")
+    def test_tool_provider_integration(self, mock_load_prompt_template, mock_get_llm):
+        """Test tool provider integration in the agent."""
+        # Create mock tool provider
+        mock_tool_provider = MagicMock()
+        
+        # Configure the tool provider to return mock tools
+        mock_tool_provider.list_tools.return_value = [
+            {
+                "name": "search",
+                "description": "Search for information",
+                "parameters": {"query": "string"}
+            }
+        ]
+        
+        # Mock the tool execution
+        mock_tool_provider.execute_tool.return_value = "Tool search result"
+        
+        # Create mock template
+        mock_template = MagicMock()
+        mock_load_prompt_template.return_value = mock_template
+        
+        # Create mock LLM with tool request in response
+        mock_expert_llm = MagicMock()
+        mock_expert_llm.invoke.return_value = AIMessage(content="Let me search for that.\n\nUSE TOOL: search(test query)\n\nBased on what I can find...")
+        
+        # Create mock researcher LLM
+        mock_researcher_llm = MagicMock()
+        mock_researcher_llm.invoke.return_value = AIMessage(content="Next question")
+        
+        # Setup the mock_get_llm to return different LLMs based on role
+        def get_llm_side_effect(role):
+            if role == "expert":
+                return mock_expert_llm
+            else:
+                return mock_researcher_llm
+        
+        mock_get_llm.side_effect = get_llm_side_effect
+        
+        # Create agent with tool provider
+        agent = STORMAgent(
+            llm_configs=self.llm_configs,
+            tool_provider=mock_tool_provider,
+            max_conversation_turns=1  # Limit to one turn for testing
+        )
+        
+        # Test conversation simulation with tool use
+        state = self._create_initial_state()
+        state["perspectives"] = ["Test perspective"]
+        state["outline"] = [{"id": "1", "title": "Test Section"}]
+        
+        # Run the conversation simulation method
+        result = agent._simulate_conversations(state)
+        
+        # Verify tool provider was used to list tools
+        mock_tool_provider.list_tools.assert_called()
+        
+        # Verify tool was executed
+        mock_tool_provider.execute_tool.assert_called_with("search", {"query": "test query"})
+        
+        # Verify the conversation includes the tool result
+        self.assertIn("TOOL RESULT:", result["conversations"][0]["messages"][1]["content"])
+    
+    def test_process_tool_requests(self):
+        """Test the _process_tool_requests method."""
+        # Create mock tool provider
+        mock_tool_provider = MagicMock()
+        mock_tool_provider.execute_tool.return_value = "Tool execution result"
+        
+        # Create agent with tool provider
+        agent = STORMAgent(
+            llm_configs=self.llm_configs,
+            tool_provider=mock_tool_provider
+        )
+        
+        # Test text with a tool request
+        text = "Let me look that up.\n\nUSE TOOL: search(test query)\n\nBased on these results..."
+        
+        result = agent._process_tool_requests(text)
+        
+        # Verify the tool was executed
+        mock_tool_provider.execute_tool.assert_called_with("search", {"query": "test query"})
+        
+        # Verify the result contains both original text and tool result
+        self.assertIn("Let me look that up.", result)
+        self.assertIn("USE TOOL: search(test query)", result)
+        self.assertIn("TOOL RESULT:", result)
+        self.assertIn("Tool execution result", result)
+        self.assertIn("Based on these results...", result)
+        
+        # Test with invalid tool request format
+        text_with_invalid_request = "USE TOOL: invalid request format"
+        
+        result = agent._process_tool_requests(text_with_invalid_request)
+        
+        # Verify error message is included
+        self.assertIn("ERROR: Invalid tool request format", result)
+        
+        # Test with tool execution error
+        mock_tool_provider.execute_tool.side_effect = Exception("Tool error")
+        
+        text = "USE TOOL: search(test query)"
+        
+        result = agent._process_tool_requests(text)
+        
+        # Verify error message is included
+        self.assertIn("ERROR: Failed to execute tool search", result)
+
 
 if __name__ == '__main__':
     unittest.main() 

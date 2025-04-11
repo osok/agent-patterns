@@ -77,6 +77,9 @@ class LLMCompilerAgent(BaseAgent):
         llm_configs: Dict[str, Dict],
         tools: List[BaseTool] = None,
         prompt_dir: str = "prompts",
+        tool_provider: Optional[Any] = None,
+        memory: Optional[Any] = None,
+        memory_config: Optional[Dict[str, bool]] = None,
         log_level: int = logging.INFO
     ):
         """Initialize the LLM Compiler agent.
@@ -85,10 +88,20 @@ class LLMCompilerAgent(BaseAgent):
             llm_configs: Configuration for LLM roles (e.g., {'planner': {...}, 'executor': {...}, 'joiner': {...}}).
             tools: List of LangChain tools available to the agent.
             prompt_dir: Directory containing prompt templates (relative to project root).
+            tool_provider: Optional provider for tools the agent can use.
+            memory: Optional composite memory instance.
+            memory_config: Configuration for which memory types to use.
             log_level: Logging level.
         """
         # Call BaseAgent init
-        super().__init__(llm_configs=llm_configs, prompt_dir=prompt_dir, log_level=log_level)
+        super().__init__(
+            llm_configs=llm_configs, 
+            prompt_dir=prompt_dir, 
+            tool_provider=tool_provider,
+            memory=memory,
+            memory_config=memory_config,
+            log_level=log_level
+        )
         
         # Initialize the LLMs for different roles
         try:
@@ -113,7 +126,14 @@ class LLMCompilerAgent(BaseAgent):
             for tool in self.tools
         ] if self.tools else []
         
-        self.logger.info("Initialized LLM Compiler agent with %d tools", len(self.tools))
+        # If tool_provider is available, add its tools to the descriptions
+        if self.tool_provider:
+            provider_tools = self.tool_provider.list_tools()
+            if provider_tools:
+                self.tool_descriptions.extend(provider_tools)
+                self.logger.info(f"Added {len(provider_tools)} tools from tool provider")
+        
+        self.logger.info("Initialized LLM Compiler agent with %d tools", len(self.tool_descriptions))
 
     def build_graph(self) -> None:
         """Build the LangGraph state graph for the LLM Compiler agent.
@@ -180,6 +200,22 @@ class LLMCompilerAgent(BaseAgent):
         self.logger.debug("Planning tasks for query: %s", state["input_query"])
         
         try:
+            # Retrieve relevant memories if memory is enabled
+            memories = self.sync_retrieve_memories(state["input_query"])
+            memory_context = ""
+            
+            # Format memories for inclusion in the prompt
+            if memories:
+                memory_sections = []
+                for memory_type, items in memories.items():
+                    if items:
+                        items_text = "\n- ".join([str(item) for item in items])
+                        memory_sections.append(f"### {memory_type.capitalize()} Memories:\n- {items_text}")
+                
+                if memory_sections:
+                    memory_context = "Relevant information from memory:\n\n" + "\n\n".join(memory_sections) + "\n\n"
+                    self.logger.info(f"Retrieved {sum(len(items) for items in memories.values())} memories for planning")
+            
             # Load the planning prompt template
             prompt = self._load_prompt_template("PlannerStep")
             
@@ -189,7 +225,8 @@ class LLMCompilerAgent(BaseAgent):
                 "available_tools": "\n".join([
                     f"- {tool['name']}: {tool['description']}" 
                     for tool in state["available_tools"]
-                ])
+                ]),
+                "memory_context": memory_context
             })
             
             # Get the planner response
@@ -371,20 +408,33 @@ class LLMCompilerAgent(BaseAgent):
         task = state["tasks_in_progress"][0]
         
         try:
-            # Use the tool executor to run the task
-            if self.tool_executor:
+            result = None
+            tool_name = task["tool"]
+            tool_input = task["inputs"]
+            
+            # First, try using the tool_provider if available
+            if self.tool_provider:
+                try:
+                    self.logger.debug(f"Attempting to execute tool '{tool_name}' via tool_provider")
+                    result = self.tool_provider.execute_tool(tool_name, tool_input)
+                except Exception as e:
+                    self.logger.warning(f"Tool provider failed to execute '{tool_name}': {e}")
+            
+            # If tool_provider didn't work or isn't available, try the tool_executor
+            if result is None and self.tool_executor:
                 # Find the matching tool
-                tool_name = task["tool"]
                 if any(tool.name == tool_name for tool in self.tools):
                     # Execute the tool
+                    self.logger.debug(f"Executing tool '{tool_name}' via tool_executor")
                     result = self.tool_executor.execute({
                         "tool_name": tool_name,
-                        "tool_input": task["inputs"]
+                        "tool_input": tool_input
                     })
                 else:
                     result = f"Tool '{tool_name}' not found"
-            else:
-                # Simulate result if no tools are available
+            
+            # If neither tool_provider nor tool_executor worked, simulate a result
+            if result is None:
                 result = f"Simulated result for task {task['id']} using tool {task['tool']}"
             
             # Update the task results
@@ -452,6 +502,22 @@ class LLMCompilerAgent(BaseAgent):
         self.logger.debug("Synthesizing results from %d completed tasks", len(state["tasks_completed"]))
         
         try:
+            # Retrieve relevant memories for final synthesis
+            memories = self.sync_retrieve_memories(state["input_query"])
+            memory_context = ""
+            
+            # Format memories for inclusion in the prompt
+            if memories:
+                memory_sections = []
+                for memory_type, items in memories.items():
+                    if items:
+                        items_text = "\n- ".join([str(item) for item in items])
+                        memory_sections.append(f"### {memory_type.capitalize()} Memories:\n- {items_text}")
+                
+                if memory_sections:
+                    memory_context = "Relevant information from memory:\n\n" + "\n\n".join(memory_sections) + "\n\n"
+                    self.logger.info(f"Retrieved {sum(len(items) for items in memories.values())} memories for synthesis")
+            
             # Load the joiner prompt template
             prompt = self._load_prompt_template("JoinerStep")
             
@@ -464,7 +530,8 @@ class LLMCompilerAgent(BaseAgent):
             # Format the prompt
             formatted_prompt = prompt.invoke({
                 "input_query": state["input_query"],
-                "task_results": task_results_text
+                "task_results": task_results_text,
+                "memory_context": memory_context
             })
             
             # Get the joiner response
@@ -478,6 +545,39 @@ class LLMCompilerAgent(BaseAgent):
             final_answer = response_content.replace("needs_replanning=True", "").replace("needs_replanning=False", "").strip()
             
             self.logger.debug("Synthesis complete. Needs replanning: %s", needs_replanning)
+            
+            # Save the execution results to memory if enabled
+            if self.memory:
+                # Save task execution to episodic memory
+                self.sync_save_memory(
+                    memory_type="episodic",
+                    item={
+                        "event_type": "task_execution",
+                        "query": state["input_query"],
+                        "tasks": [
+                            {
+                                "id": task["id"],
+                                "tool": task["tool"],
+                                "result": state["task_results"].get(task["id"], "No result")
+                            }
+                            for task in state["tasks_completed"]
+                        ],
+                        "final_answer": final_answer,
+                        "needed_replanning": needs_replanning
+                    },
+                    query=state["input_query"]
+                )
+                
+                # Save to semantic memory
+                self.sync_save_memory(
+                    memory_type="semantic",
+                    item={
+                        "query_type": " ".join(state["input_query"].split()[:5]),  # Use first few words as query type
+                        "answer": final_answer,
+                        "successful": not needs_replanning
+                    },
+                    query=state["input_query"]
+                )
             
             return {
                 "final_answer": final_answer,

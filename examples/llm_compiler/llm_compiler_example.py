@@ -1,21 +1,33 @@
-"""Example demonstrating the LLM Compiler agent pattern.
+"""Example demonstrating the LLM Compiler agent pattern with memory and tools.
 
 This example shows how to set up and use the LLM Compiler agent pattern 
-for parallel task execution with dependency management.
+for parallel task execution with dependency management, enhanced with memory
+capabilities and tool integration.
 """
 
 import os
 import sys
 import logging
+import asyncio
 from dotenv import load_dotenv
 from langchain_core.tools import BaseTool, tool
 import time
+from pathlib import Path
 
 # Add the parent directory to the Python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
-# Import the LLMCompilerAgent
+# Import the LLMCompilerAgent and memory components
 from src.agent_patterns.patterns import LLMCompilerAgent
+from src.agent_patterns.core.memory import (
+    SemanticMemory,
+    EpisodicMemory,
+    ProceduralMemory,
+    CompositeMemory
+)
+from src.agent_patterns.core.memory.persistence import (
+    InMemoryPersistence
+)
 
 # Load environment variables from .env file
 load_dotenv()
@@ -92,42 +104,105 @@ def convert_temperature(temp_str: str, to_unit: str) -> str:
     except Exception as e:
         return f"Error converting temperature: {str(e)}"
 
+def setup_memory():
+    """Set up a composite memory system."""
+    # Create persistence backend
+    persistence = InMemoryPersistence()
+    asyncio.run(persistence.initialize())
+    
+    # Create individual memory types
+    semantic_memory = SemanticMemory(persistence, namespace="compiler_semantic")
+    episodic_memory = EpisodicMemory(persistence, namespace="compiler_episodic")
+    procedural_memory = ProceduralMemory(persistence, namespace="compiler_procedural")
+    
+    # Create composite memory
+    memory = CompositeMemory({
+        "semantic": semantic_memory,
+        "episodic": episodic_memory,
+        "procedural": procedural_memory
+    })
+    
+    # Pre-populate with some semantic memories
+    asyncio.run(memory.save_to(
+        "semantic", 
+        {"entity": "user", "attribute": "location", "value": "San Francisco"}
+    ))
+    
+    asyncio.run(memory.save_to(
+        "semantic", 
+        {"entity": "user", "attribute": "preferred_temperature_unit", "value": "C"}
+    ))
+    
+    # Add a procedural memory for query decomposition
+    asyncio.run(memory.save_to(
+        "procedural",
+        {
+            "name": "decompose_complex_query",
+            "pattern": {
+                "template": """When decomposing a complex query:
+1. Identify independent sub-tasks that can run in parallel
+2. Establish dependencies between related sub-tasks
+3. Prioritize data gathering tasks before computation tasks
+4. Consider user preferences when relevant: preferred_temperature_unit = {preferred_temperature_unit}
+5. Be precise about what information is needed from each tool"""
+            },
+            "description": "Template for effectively decomposing complex queries",
+            "tags": ["planning", "decomposition", "efficiency"]
+        }
+    ))
+    
+    return memory
+
 def basic_example():
-    """Run a basic example of the LLM Compiler agent."""
-    logger.info("Running basic LLM Compiler example")
+    """Run a basic example of the LLM Compiler agent with memory."""
+    logger.info("Running basic LLM Compiler example with memory")
     
     # Configure LLMs for different roles
     llm_configs = {
         'planner': {
             'provider': 'openai',
-            'model': 'gpt-3.5-turbo',
+            'model_name': 'gpt-4o',
             'temperature': 0.2
         },
         'executor': {
             'provider': 'openai',
-            'model': 'gpt-3.5-turbo',
+            'model_name': 'gpt-4o',
             'temperature': 0.1
         },
         'joiner': {
             'provider': 'openai',
-            'model': 'gpt-3.5-turbo',
+            'model_name': 'gpt-4o',
             'temperature': 0.2
         }
     }
     
+    # Set up memory
+    memory = setup_memory()
+    
     # Create a list of tools
     tools = [search_web, calculate, fetch_weather, convert_temperature]
     
-    # Initialize the LLM Compiler agent
+    # Get the project root directory
+    current_dir = Path(__file__).parent.absolute()
+    project_root = current_dir.parent.parent
+    prompt_dir = str(project_root / "src" / "agent_patterns" / "prompts")
+    
+    # Initialize the LLM Compiler agent with memory
     agent = LLMCompilerAgent(
         llm_configs=llm_configs,
         tools=tools,
-        prompt_dir="src/agent_patterns/prompts",
+        prompt_dir=prompt_dir,
+        memory=memory,
+        memory_config={
+            "semantic": True,
+            "episodic": True,
+            "procedural": True
+        },
         log_level=logging.INFO
     )
     
     # User query that requires multiple tools and can benefit from parallel execution
-    query = "What's the temperature in New York City, and how many days until Christmas? Also, what's 356 * 24?"
+    query = "What's the temperature in New York City and my location, and how many days until Christmas? Also, what's 356 * 24?"
     
     # Run the agent
     logger.info(f"Running LLM Compiler agent with query: {query}")
@@ -143,45 +218,71 @@ def basic_example():
     print(f"Tasks completed: {result['metadata']['tasks_completed']}")
     print(f"Needed replanning: {result['metadata']['needed_replanning']}")
     print(f"Execution time: {end_time - start_time:.2f} seconds")
+    
+    # Show what was stored in memory
+    print("\n=== MEMORY AFTER EXECUTION ===")
+    print("Semantic memories:")
+    facts = asyncio.run(memory.retrieve_from("semantic", "", limit=5))
+    for i, fact in enumerate(facts):
+        print(f"{i+1}. {fact}")
+    
+    print("\nEpisodic memories:")
+    episodes = asyncio.run(memory.retrieve_from("episodic", "temperature", limit=5))
+    for i, episode in enumerate(episodes):
+        print(f"{i+1}. {episode.content}")
 
 def complex_query_example():
-    """Run a more complex example with interdependent tasks."""
-    logger.info("Running complex query example")
+    """Run a more complex example with interdependent tasks and memory."""
+    logger.info("Running complex query example with memory")
     
     # Configure LLMs for different roles
     llm_configs = {
         'planner': {
             'provider': 'openai',
-            'model': 'gpt-3.5-turbo',
+            'model_name': 'gpt-4o',
             'temperature': 0.2
         },
         'executor': {
             'provider': 'openai',
-            'model': 'gpt-3.5-turbo',
+            'model_name': 'gpt-4o',
             'temperature': 0.1
         },
         'joiner': {
             'provider': 'openai',
-            'model': 'gpt-3.5-turbo',
+            'model_name': 'gpt-4o',
             'temperature': 0.2
         }
     }
     
+    # Set up memory
+    memory = setup_memory()
+    
     # Create a list of tools
     tools = [search_web, calculate, fetch_weather, convert_temperature]
     
-    # Initialize the LLM Compiler agent
+    # Get the project root directory
+    current_dir = Path(__file__).parent.absolute()
+    project_root = current_dir.parent.parent
+    prompt_dir = str(project_root / "src" / "agent_patterns" / "prompts")
+    
+    # Initialize the LLM Compiler agent with memory
     agent = LLMCompilerAgent(
         llm_configs=llm_configs,
         tools=tools,
-        prompt_dir="src/agent_patterns/prompts",
+        prompt_dir=prompt_dir,
+        memory=memory,
+        memory_config={
+            "semantic": True,
+            "episodic": True,
+            "procedural": True
+        },
         log_level=logging.INFO
     )
     
     # User query with dependencies between tasks
     query = """I'm planning a trip and need some information:
-    1. What's the current weather in Tokyo and San Francisco?
-    2. Convert Tokyo's temperature to Celsius
+    1. What's the current weather in Tokyo and my current location?
+    2. Convert temperatures to my preferred temperature unit
     3. What's the average of these two cities' temperatures?
     4. How many hours is the flight between these cities?"""
     
@@ -198,38 +299,59 @@ def complex_query_example():
     print(f"Tasks planned: {result['metadata']['tasks_planned']}")
     print(f"Tasks completed: {result['metadata']['tasks_completed']}")
     print(f"Execution time: {end_time - start_time:.2f} seconds")
+    
+    # Show what was stored in memory
+    print("\n=== MEMORY AFTER EXECUTION ===")
+    print("Episodic memories from this interaction:")
+    episodes = asyncio.run(memory.retrieve_from("episodic", "trip planning", limit=5))
+    for i, episode in enumerate(episodes):
+        print(f"{i+1}. {episode.content}")
 
 def streaming_example():
-    """Run an example demonstrating streaming output."""
-    logger.info("Running streaming example")
+    """Run an example demonstrating streaming output with memory."""
+    logger.info("Running streaming example with memory")
     
     # Configure LLMs for different roles
     llm_configs = {
         'planner': {
             'provider': 'openai',
-            'model': 'gpt-3.5-turbo',
+            'model_name': 'gpt-4o',
             'temperature': 0.2
         },
         'executor': {
             'provider': 'openai',
-            'model': 'gpt-3.5-turbo',
+            'model_name': 'gpt-4o',
             'temperature': 0.1
         },
         'joiner': {
             'provider': 'openai',
-            'model': 'gpt-3.5-turbo',
+            'model_name': 'gpt-4o',
             'temperature': 0.2
         }
     }
     
+    # Set up memory
+    memory = setup_memory()
+    
     # Create a list of tools
     tools = [search_web, calculate, fetch_weather]
     
-    # Initialize the LLM Compiler agent
+    # Get the project root directory
+    current_dir = Path(__file__).parent.absolute()
+    project_root = current_dir.parent.parent
+    prompt_dir = str(project_root / "src" / "agent_patterns" / "prompts")
+    
+    # Initialize the LLM Compiler agent with memory
     agent = LLMCompilerAgent(
         llm_configs=llm_configs,
         tools=tools,
-        prompt_dir="src/agent_patterns/prompts",
+        prompt_dir=prompt_dir,
+        memory=memory,
+        memory_config={
+            "semantic": True,
+            "episodic": True,
+            "procedural": False  # Disable procedural memory for this example
+        },
         log_level=logging.INFO
     )
     
@@ -251,13 +373,13 @@ def streaming_example():
 
 def main():
     """Run all examples."""
-    print("\n========== BASIC EXAMPLE ==========")
+    print("\n========== BASIC EXAMPLE WITH MEMORY ==========")
     basic_example()
     
-    print("\n========== COMPLEX QUERY EXAMPLE ==========")
+    print("\n========== COMPLEX QUERY EXAMPLE WITH MEMORY ==========")
     complex_query_example()
     
-    print("\n========== STREAMING EXAMPLE ==========")
+    print("\n========== STREAMING EXAMPLE WITH MEMORY ==========")
     streaming_example()
 
 if __name__ == "__main__":

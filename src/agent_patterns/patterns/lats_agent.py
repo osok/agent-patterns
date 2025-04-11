@@ -62,6 +62,9 @@ class LATSAgent(BaseAgent):
         exploration_weight: C parameter for UCB formula (exploration vs exploitation)
         n_expansions: Number of child nodes to generate per expansion
         prompt_dir: Directory for prompt templates
+        tool_provider: Optional provider for tools the agent can use
+        memory: Optional composite memory instance
+        memory_config: Configuration for which memory types to use
     """
     
     def __init__(
@@ -72,9 +75,18 @@ class LATSAgent(BaseAgent):
         exploration_weight: float = 1.0,
         n_expansions: int = 3,
         prompt_dir: str = "prompts",
+        tool_provider: Optional[Any] = None,
+        memory: Optional[Any] = None,
+        memory_config: Optional[Dict[str, bool]] = None,
     ):
         """Initialize the LATS agent."""
-        super().__init__(llm_configs=llm_configs, prompt_dir=prompt_dir)
+        super().__init__(
+            llm_configs=llm_configs, 
+            prompt_dir=prompt_dir,
+            tool_provider=tool_provider,
+            memory=memory,
+            memory_config=memory_config
+        )
         self.max_iterations = max_iterations
         self.max_depth = max_depth
         self.exploration_weight = exploration_weight
@@ -270,6 +282,48 @@ class LATSAgent(BaseAgent):
         if current_node["children"]:
             return {}
         
+        # Retrieve relevant memories if memory is enabled
+        memory_context = ""
+        if self.memory:
+            # Construct a query based on the path so far
+            path_query = []
+            for node_id in current_node["path"]:
+                node = state["nodes"][node_id]
+                path_query.append(node["content"])
+            
+            query = state["input_task"] + " " + " ".join(path_query)
+            memories = self.sync_retrieve_memories(query)
+            
+            # Format memories for inclusion in the prompt
+            if memories:
+                memory_sections = []
+                for memory_type, items in memories.items():
+                    if items:
+                        items_text = "\n- ".join([str(item) for item in items])
+                        memory_sections.append(f"### {memory_type.capitalize()} Memories:\n- {items_text}")
+                
+                if memory_sections:
+                    memory_context = "Relevant information from memory:\n\n" + "\n\n".join(memory_sections) + "\n\n"
+                    self.logger.info(f"Retrieved {sum(len(items) for items in memories.values())} memories for node expansion")
+        
+        # Get available tools information if tool_provider is available
+        tools_context = ""
+        if self.tool_provider:
+            try:
+                provider_tools = self.tool_provider.list_tools()
+                if provider_tools:
+                    tool_descriptions = []
+                    for tool in provider_tools:
+                        tool_name = tool.get("name", "")
+                        tool_desc = tool.get("description", "")
+                        tool_descriptions.append(f"- {tool_name}: {tool_desc}")
+                    
+                    if tool_descriptions:
+                        tools_context = "Available tools that you can use:\n" + "\n".join(tool_descriptions) + "\n\n"
+                        self.logger.info(f"Added {len(tool_descriptions)} tools from tool provider")
+            except Exception as e:
+                self.logger.warning(f"Error retrieving tools from tool_provider: {str(e)}")
+        
         # Generate expansion options using LLM
         prompt_template = self._load_prompt_template("NodeExpansion")
         llm = self._get_llm("thinking")
@@ -288,7 +342,9 @@ class LATSAgent(BaseAgent):
             input_task=state["input_task"],
             path_so_far=path_context_str,
             current_step=current_node["content"],
-            n_expansions=self.n_expansions
+            n_expansions=self.n_expansions,
+            memory_context=memory_context,
+            tools_context=tools_context
         ))
         
         # Parse the response to extract the generated steps
@@ -351,6 +407,23 @@ class LATSAgent(BaseAgent):
         best_path = state["best_path"]
         best_path_value = state["best_path_value"]
         
+        # Retrieve relevant memories for evaluation context
+        memory_context = ""
+        if self.memory:
+            memories = self.sync_retrieve_memories(state["input_task"])
+            
+            # Format memories for inclusion in the prompt
+            if memories:
+                memory_sections = []
+                for memory_type, items in memories.items():
+                    if items:
+                        items_text = "\n- ".join([str(item) for item in items])
+                        memory_sections.append(f"### {memory_type.capitalize()} Memories:\n- {items_text}")
+                
+                if memory_sections:
+                    memory_context = "Relevant information from memory:\n\n" + "\n\n".join(memory_sections) + "\n\n"
+                    self.logger.info(f"Retrieved {sum(len(items) for items in memories.values())} memories for path evaluation")
+        
         # Evaluate each child path if they exist and haven't been evaluated yet
         for child_id in state["nodes"][current_id]["children"]:
             child_node = state["nodes"][child_id]
@@ -373,7 +446,8 @@ class LATSAgent(BaseAgent):
             
             response = llm.invoke(prompt_template.format(
                 input_task=state["input_task"],
-                path=path_content
+                path=path_content,
+                memory_context=memory_context
             ))
             
             # Parse evaluation to get a value between 0 and 1
@@ -533,6 +607,23 @@ class LATSAgent(BaseAgent):
         # Get the best path
         best_path = state["best_path"]
         
+        # Retrieve relevant memories if memory is enabled
+        memory_context = ""
+        if self.memory:
+            memories = self.sync_retrieve_memories(state["input_task"])
+            
+            # Format memories for inclusion in the prompt
+            if memories:
+                memory_sections = []
+                for memory_type, items in memories.items():
+                    if items:
+                        items_text = "\n- ".join([str(item) for item in items])
+                        memory_sections.append(f"### {memory_type.capitalize()} Memories:\n- {items_text}")
+                
+                if memory_sections:
+                    memory_context = "Relevant information from memory:\n\n" + "\n\n".join(memory_sections) + "\n\n"
+                    self.logger.info(f"Retrieved {sum(len(items) for items in memories.values())} memories for final synthesis")
+        
         if best_path:
             # Construct solution from the path
             solution_steps = []
@@ -548,13 +639,49 @@ class LATSAgent(BaseAgent):
             
             response = llm.invoke(prompt_template.format(
                 input_task=state["input_task"],
-                best_path=solution_content
+                best_path=solution_content,
+                memory_context=memory_context
             ))
             
             final_answer = response.content
         else:
             # Fallback if no path was found
             final_answer = "No solution path was found."
+        
+        # Save the path and solution to memory if enabled
+        if self.memory and best_path:
+            # Get path content
+            path_content = []
+            for node_id in best_path:
+                node = state["nodes"][node_id]
+                path_content.append(node["content"])
+            
+            # Save to episodic memory
+            self.sync_save_memory(
+                memory_type="episodic",
+                item={
+                    "event_type": "path_search",
+                    "task": state["input_task"],
+                    "path": path_content,
+                    "path_value": state["best_path_value"],
+                    "iterations": state["iterations"],
+                    "explored_paths": len(state["explored_paths"]),
+                    "final_answer": final_answer
+                },
+                task=state["input_task"]
+            )
+            
+            # Save to semantic memory
+            self.sync_save_memory(
+                memory_type="semantic",
+                item={
+                    "task_type": state["input_task"].split()[:5],  # Use first few words as task type
+                    "solution": final_answer,
+                    "path_value": state["best_path_value"],
+                    "successful": state["best_path_value"] >= 0.8  # Consider it successful if score is high
+                },
+                task=state["input_task"]
+            )
         
         return {"final_answer": final_answer}
     

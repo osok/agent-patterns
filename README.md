@@ -16,7 +16,7 @@ Agent-Patterns implements proven design patterns for AI agents, reducing boilerp
 - **REWOO (Worker-Solver)**: Separated reasoning and execution agents [(arXiv Paper)](https://arxiv.org/abs/2305.18323)
 - **LATS (Language Agent Tree Search)**: Tree search over reasoning paths [(arXiv Paper)](https://arxiv.org/abs/2310.04406)
 - **STORM (Topic Outlines + Multi-perspective Retrieval)**: Structured research and article generation [(NAACL Paper)](https://aclanthology.org/2024.naacl-long.347.pdf)
-- **Self-Discovery**: Dynamic selection and adaptation of reasoning modules *(Coming soon)*
+- **Self-Discovery**: Dynamic selection and adaptation of reasoning modules
 
 ### Integrations
 
@@ -105,11 +105,53 @@ Key features:
 - Automatic tool discovery and execution
 - Support for multiple MCP servers simultaneously
 - Standardized interface for tool providers
+- Custom tool provider implementation support
 
 This integration is particularly valuable when:
 - You need to connect your agents to multiple external tools
 - You want to leverage the growing ecosystem of MCP-compatible tools
 - You need a consistent interface for tool usage across different agent patterns
+- You want to create custom tool providers for specialized functionality
+
+The tool provider system is built on a flexible, extensible architecture:
+- **Abstract ToolProvider Interface**: Core abstraction for all tool providers
+- **MCPToolProvider Implementation**: Ready-to-use implementation for MCP servers
+- **Tool Registry**: Ability to combine tools from multiple providers
+- **Integrated Error Handling**: Specific exceptions for different error cases
+
+All agent patterns in the library support tool integration through a consistent interface, allowing tools to be integrated at the appropriate points in each agent's workflow.
+
+For detailed documentation, see:
+- [Tool Provider API Documentation](docs/Tool%20Provider%20API%20Documentation.md)
+- [MCP Tool Integration Tutorial](docs/MCP%20Tool%20Integration%20Tutorial.md)
+
+### Memory Systems
+
+All agent patterns include comprehensive memory capabilities that allow agents to store and retrieve information across interactions. The memory system enables agents to maintain context, learn from past interactions, and provide personalized responses.
+
+Key features:
+- **Multiple Memory Types**: Semantic (facts), Episodic (experiences), and Procedural (patterns)
+- **Flexible Persistence**: In-memory, file system, and vector store backends
+- **Customizable Retrieval**: Query-based memory retrieval with filtering options
+- **Seamless Integration**: Works across all agent patterns with consistent API
+
+This capability is particularly valuable when:
+- Your agents need to remember facts about users or domains
+- You want agents to learn from past interactions
+- Your use case requires context maintenance across multiple sessions
+- You need personalized responses based on history or preferences
+
+The memory system architecture consists of:
+- **Base Memory Interfaces**: Abstract base classes for different memory types
+- **Persistence Backends**: Various storage options with consistent interface
+- **Composite Memory**: Combines multiple memory types into a unified system
+- **Memory Retrieval**: Semantic search and query-based memory access
+
+Each agent pattern integrates memory at the appropriate points in its workflow, automatically retrieving relevant memories before processing and saving important information after completion.
+
+For detailed documentation, see:
+- [Memory API Documentation](docs/Memory%20API%20Documentation.md)
+- [Memory Integration Tutorial](docs/Memory%20Integration%20Tutorial.md)
 
 ## Quick Start
 
@@ -151,7 +193,63 @@ result = agent.run("Write a short story about a robot dog.")
 print(result)
 ```
 
-4. Using the MCP integration:
+4. Using memory integration:
+```python
+from agent_patterns.patterns.re_act_agent import ReActAgent
+from agent_patterns.core.memory import (
+    SemanticMemory, 
+    EpisodicMemory, 
+    CompositeMemory
+)
+from agent_patterns.core.memory.persistence import InMemoryPersistence
+import asyncio
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+llm_configs = {
+    "default": {
+        "provider": "openai",
+        "model_name": "gpt-4o",
+    }
+}
+
+# Set up memory
+persistence = InMemoryPersistence()
+asyncio.run(persistence.initialize())
+
+# Create memory components
+semantic_memory = SemanticMemory(persistence, namespace="user_semantic")
+episodic_memory = EpisodicMemory(persistence, namespace="user_episodic")
+
+# Create composite memory
+memory = CompositeMemory({
+    "semantic": semantic_memory,
+    "episodic": episodic_memory
+})
+
+# Pre-populate with user information
+asyncio.run(memory.save_to(
+    "semantic", 
+    {"entity": "user", "attribute": "name", "value": "Alice"}
+))
+
+# Create agent with memory
+agent = ReActAgent(
+    llm_configs=llm_configs,
+    memory=memory,
+    memory_config={
+        "semantic": True,  # Enable semantic memory
+        "episodic": True   # Enable episodic memory
+    }
+)
+
+# The agent will now use and update memory during conversations
+result = agent.run("Tell me a story about my favorite animal.")
+print(result)
+```
+
+5. Using the MCP integration:
 ```python
 from agent_patterns.patterns.re_act_agent import ReActAgent
 from agent_patterns.core.tools.providers.mcp_provider import (

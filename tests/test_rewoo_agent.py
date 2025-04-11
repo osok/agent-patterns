@@ -458,6 +458,218 @@ param: test
         self.assertTrue(result["execution_complete"])
         self.assertEqual(result["iteration_count"], 3)  # Started at 1, +2 iterations
 
+    def test_tool_provider_integration(self):
+        """Test that the agent can use tools from the tool_provider."""
+        # Create a mock tool provider
+        mock_tool_provider = MagicMock()
+        
+        # Configure the tool provider to return mock tools
+        mock_tool_provider.list_tools.return_value = [
+            {"name": "provider_tool", "description": "Tool from provider", "parameters": {}}
+        ]
+        
+        # Configure tool execution to return a predictable result
+        mock_tool_provider.execute_tool.return_value = "Result from provider_tool"
+        
+        # Create agent with the mock tool provider
+        agent = type(self.agent)(
+            llm_configs={
+                "planner": self.planner_llm,
+                "solver": self.solver_llm
+            },
+            tool_registry={"registry_tool": lambda **kwargs: "Result from registry_tool"},
+            tool_provider=mock_tool_provider
+        )
+        
+        # Mock the _load_prompt_template method
+        agent._load_prompt_template = MagicMock(return_value=self.prompt_template)
+        
+        # Create a sample plan with a step that would use the provider tool
+        plan = [{
+            "step_id": 1,
+            "description": "Test provider tool",
+            "details": "Use provider_tool to get information",
+            "tools": ["provider_tool"],
+            "depends_on": []
+        }]
+        
+        # Create a state for execution
+        state = {
+            "input": "Test provider tool",
+            "plan": plan,
+            "current_step_index": 0,
+            "execution_results": [],
+            "iteration_count": 0,
+            "execution_complete": False,
+            "final_answer": None
+        }
+        
+        # Configure the solver LLM to use the provider tool
+        self.solver_llm.responses["solving"] = """I'll use the provider tool.
+
+TOOL: provider_tool
+param: test
+"""
+        
+        # Execute the step
+        result_state = agent._execute_step(state)
+        
+        # Verify that the tool provider was used
+        mock_tool_provider.execute_tool.assert_called_once()
+        
+        # Check that the tool output was included in the results
+        self.assertEqual(len(result_state["execution_results"]), 1)
+        tool_outputs = result_state["execution_results"][0]["tool_outputs"]
+        self.assertEqual(len(tool_outputs), 1)
+        self.assertEqual(tool_outputs[0]["tool"], "provider_tool")
+        self.assertEqual(tool_outputs[0]["output"], "Result from provider_tool")
+
+    def test_memory_integration(self):
+        """Test that the agent can retrieve and save memory."""
+        # Create a mock memory system
+        mock_memory = MagicMock()
+        mock_memory.memories = {"semantic": MagicMock(), "episodic": MagicMock()}
+        
+        # Configure memory retrieval to return mock results
+        mock_retrieve_memories = MagicMock(return_value={
+            "semantic": [{"fact": "This is a semantic memory"}],
+            "episodic": [{"event": "This is an episodic memory"}]
+        })
+        
+        # Create a mock for saving memory
+        mock_save_memory = MagicMock()
+        
+        # Create agent with the mock memory
+        agent = type(self.agent)(
+            llm_configs={
+                "planner": self.planner_llm,
+                "solver": self.solver_llm
+            },
+            tool_registry={"search": lambda **kwargs: "Mock search result"},
+            memory=mock_memory,
+            memory_config={"semantic": True, "episodic": True}
+        )
+        
+        # Replace memory methods with mocks
+        agent.sync_retrieve_memories = mock_retrieve_memories
+        agent.sync_save_memory = mock_save_memory
+        
+        # Mock the _load_prompt_template method
+        agent._load_prompt_template = MagicMock(return_value=self.prompt_template)
+        
+        # Test memory in plan steps
+        plan_state = {
+            "input": "Test memory",
+            "plan": [],
+            "current_step_index": 0,
+            "execution_results": [],
+            "iteration_count": 0,
+            "execution_complete": False,
+            "final_answer": None
+        }
+        
+        # Execute plan steps
+        plan_result = agent._plan_steps(plan_state)
+        
+        # Verify memory was retrieved for planning
+        mock_retrieve_memories.assert_called_with("Test memory")
+        
+        # Verify memory was saved after planning
+        calls = mock_save_memory.call_args_list
+        episodic_planning_call = False
+        for call in calls:
+            args, kwargs = call
+            if kwargs.get("memory_type") == "episodic" and kwargs.get("item", {}).get("event_type") == "plan_generation":
+                episodic_planning_call = True
+                break
+        
+        self.assertTrue(episodic_planning_call, "Memory was not saved properly after planning")
+        
+        # Test memory in execute step
+        exec_state = {
+            "input": "Test memory",
+            "plan": [{
+                "step_id": 1,
+                "description": "Test memory step",
+                "details": "Use memory to find information",
+                "tools": [],
+                "depends_on": []
+            }],
+            "current_step_index": 0,
+            "execution_results": [],
+            "iteration_count": 0,
+            "execution_complete": False,
+            "final_answer": None
+        }
+        
+        # Reset the mock to clear call history
+        mock_retrieve_memories.reset_mock()
+        mock_save_memory.reset_mock()
+        
+        # Execute a step
+        exec_result = agent._execute_step(exec_state)
+        
+        # Verify memory was retrieved for step execution
+        self.assertTrue(mock_retrieve_memories.called, "Memory was not retrieved during step execution")
+        
+        # Verify memory was saved after step execution
+        calls = mock_save_memory.call_args_list
+        episodic_step_call = False
+        for call in calls:
+            args, kwargs = call
+            if kwargs.get("memory_type") == "episodic" and kwargs.get("item", {}).get("event_type") == "step_execution":
+                episodic_step_call = True
+                break
+        
+        self.assertTrue(episodic_step_call, "Memory was not saved properly after step execution")
+        
+        # Test memory in final answer
+        final_state = {
+            "input": "Test memory",
+            "plan": [{
+                "step_id": 1,
+                "description": "Test memory step",
+                "details": "Use memory to find information",
+                "tools": [],
+                "depends_on": []
+            }],
+            "current_step_index": 1,
+            "execution_results": [{
+                "step_id": 1,
+                "result": "Test result",
+                "tool_outputs": [],
+                "success": True
+            }],
+            "iteration_count": 1,
+            "execution_complete": True,
+            "final_answer": None
+        }
+        
+        # Reset the mock to clear call history
+        mock_retrieve_memories.reset_mock()
+        mock_save_memory.reset_mock()
+        
+        # Generate final answer
+        final_result = agent._format_final_answer(final_state)
+        
+        # Verify memory was retrieved for final answer
+        self.assertTrue(mock_retrieve_memories.called, "Memory was not retrieved during final answer generation")
+        
+        # Verify both types of memory were saved
+        calls = mock_save_memory.call_args_list
+        episodic_final_call = False
+        semantic_final_call = False
+        
+        for call in calls:
+            args, kwargs = call
+            if kwargs.get("memory_type") == "episodic" and kwargs.get("item", {}).get("event_type") == "final_result":
+                episodic_final_call = True
+            if kwargs.get("memory_type") == "semantic":
+                semantic_final_call = True
+        
+        self.assertTrue(episodic_final_call, "Episodic memory was not saved properly after final answer")
+        self.assertTrue(semantic_final_call, "Semantic memory was not saved properly after final answer")
+
 
 if __name__ == "__main__":
     unittest.main() 

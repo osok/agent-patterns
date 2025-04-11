@@ -57,6 +57,9 @@ class SelfDiscoveryAgent(BaseAgent):
         llm_configs: Dict[str, Dict],
         reasoning_modules_path: Optional[str] = None,
         prompt_dir: str = "prompts",
+        tool_provider: Optional[Any] = None,
+        memory: Optional[Any] = None,
+        memory_config: Optional[Dict[str, bool]] = None,
         log_level: int = logging.INFO
     ):
         """Initialize the Self-Discovery agent.
@@ -65,10 +68,20 @@ class SelfDiscoveryAgent(BaseAgent):
             llm_configs: Configuration for LLM roles (e.g., {'discovery': {...}, 'execution': {...}}).
             reasoning_modules_path: Path to JSON file containing reasoning modules (optional).
             prompt_dir: Directory containing prompt templates (relative to project root).
+            tool_provider: Optional provider for tools the agent can use.
+            memory: Optional composite memory instance.
+            memory_config: Configuration for which memory types to use.
             log_level: Logging level.
         """
         # Call BaseAgent init
-        super().__init__(llm_configs=llm_configs, prompt_dir=prompt_dir, log_level=log_level)
+        super().__init__(
+            llm_configs=llm_configs, 
+            prompt_dir=prompt_dir, 
+            tool_provider=tool_provider,
+            memory=memory,
+            memory_config=memory_config,
+            log_level=log_level
+        )
         
         # Initialize the LLMs for discovery and execution
         try:
@@ -210,6 +223,23 @@ class SelfDiscoveryAgent(BaseAgent):
         self.logger.debug("Selecting reasoning modules for task: %s", state["input"])
         
         try:
+            # Retrieve relevant memories if memory is enabled
+            memory_context = ""
+            if self.memory:
+                memories = self.sync_retrieve_memories(state["input"])
+                
+                # Format memories for inclusion in the prompt
+                if memories:
+                    memory_sections = []
+                    for memory_type, items in memories.items():
+                        if items:
+                            items_text = "\n- ".join([str(item) for item in items])
+                            memory_sections.append(f"### {memory_type.capitalize()} Memories:\n- {items_text}")
+                    
+                    if memory_sections:
+                        memory_context = "Relevant information from memory:\n\n" + "\n\n".join(memory_sections) + "\n\n"
+                        self.logger.info(f"Retrieved {sum(len(items) for items in memories.values())} memories for module selection")
+            
             # Load the selection prompt template
             prompt = self._load_prompt_template("Select")
             
@@ -220,7 +250,8 @@ class SelfDiscoveryAgent(BaseAgent):
             # Format the prompt with the task and available modules
             formatted_prompt = prompt.invoke({
                 "task": state["input"],
-                "reasoning_modules": modules_text
+                "reasoning_modules": modules_text,
+                "memory_context": memory_context
             })
             
             # Get the selection response
@@ -303,6 +334,23 @@ class SelfDiscoveryAgent(BaseAgent):
         self.logger.debug("Adapting reasoning modules to task")
         
         try:
+            # Retrieve relevant memories if memory is enabled
+            memory_context = ""
+            if self.memory:
+                memories = self.sync_retrieve_memories(state["input"])
+                
+                # Format memories for inclusion in the prompt
+                if memories:
+                    memory_sections = []
+                    for memory_type, items in memories.items():
+                        if items:
+                            items_text = "\n- ".join([str(item) for item in items])
+                            memory_sections.append(f"### {memory_type.capitalize()} Memories:\n- {items_text}")
+                    
+                    if memory_sections:
+                        memory_context = "Relevant information from memory:\n\n" + "\n\n".join(memory_sections) + "\n\n"
+                        self.logger.info(f"Retrieved {sum(len(items) for items in memories.values())} memories for module adaptation")
+            
             # Load the adaptation prompt template
             prompt = self._load_prompt_template("Adapt")
             
@@ -312,7 +360,8 @@ class SelfDiscoveryAgent(BaseAgent):
             # Format the prompt
             formatted_prompt = prompt.invoke({
                 "task": state["input"],
-                "selected_modules": selected_modules_text
+                "selected_modules": selected_modules_text,
+                "memory_context": memory_context
             })
             
             # Get the adaptation response
@@ -362,13 +411,56 @@ class SelfDiscoveryAgent(BaseAgent):
         self.logger.debug("Implementing reasoning structure")
         
         try:
+            # Retrieve relevant memories if memory is enabled
+            memory_context = ""
+            if self.memory:
+                memories = self.sync_retrieve_memories(state["input"])
+                
+                # Format memories for inclusion in the prompt
+                if memories:
+                    memory_sections = []
+                    for memory_type, items in memories.items():
+                        if items:
+                            items_text = "\n- ".join([str(item) for item in items])
+                            memory_sections.append(f"### {memory_type.capitalize()} Memories:\n- {items_text}")
+                    
+                    if memory_sections:
+                        memory_context = "Relevant information from memory:\n\n" + "\n\n".join(memory_sections) + "\n\n"
+                        self.logger.info(f"Retrieved {sum(len(items) for items in memories.values())} memories for structure implementation")
+            
+            # Get available tools information if tool_provider is available
+            tools_context = ""
+            if self.tool_provider:
+                try:
+                    provider_tools = self.tool_provider.list_tools()
+                    if provider_tools:
+                        tool_descriptions = []
+                        for tool in provider_tools:
+                            tool_name = tool.get("name", "")
+                            tool_desc = tool.get("description", "")
+                            tool_params = tool.get("parameters", {})
+                            tool_descriptions.append(f"- {tool_name}: {tool_desc}")
+                            if tool_params:
+                                param_desc = str(tool_params).replace("{", "").replace("}", "")
+                                tool_descriptions.append(f"  Parameters: {param_desc}")
+                        
+                        if tool_descriptions:
+                            tools_context = "Available tools that you can use:\n" + "\n".join(tool_descriptions) + "\n\n"
+                            tools_context += "To use these tools, clearly indicate in your response when you want to use a tool. Format your tool calls like this:\n"
+                            tools_context += "TOOL: tool_name\nparam1: value1\nparam2: value2\n\n"
+                            self.logger.info(f"Added {len(provider_tools)} tools from tool provider")
+                except Exception as e:
+                    self.logger.warning(f"Error retrieving tools from tool_provider: {str(e)}")
+            
             # Load the implementation prompt template
             prompt = self._load_prompt_template("Implement")
             
             # Format the prompt with the task and adapted modules
             formatted_prompt = prompt.invoke({
                 "task": state["input"],
-                "adapted_modules": state["adapted_modules"][0] if state["adapted_modules"] else ""
+                "adapted_modules": state["adapted_modules"][0] if state["adapted_modules"] else "",
+                "memory_context": memory_context,
+                "tools_context": tools_context
             })
             
             # Get the implementation response
@@ -469,6 +561,47 @@ class SelfDiscoveryAgent(BaseAgent):
         self.logger.debug("Executing reasoning structure")
         
         try:
+            # Retrieve relevant memories if memory is enabled
+            memory_context = ""
+            if self.memory:
+                memories = self.sync_retrieve_memories(state["input"])
+                
+                # Format memories for inclusion in the prompt
+                if memories:
+                    memory_sections = []
+                    for memory_type, items in memories.items():
+                        if items:
+                            items_text = "\n- ".join([str(item) for item in items])
+                            memory_sections.append(f"### {memory_type.capitalize()} Memories:\n- {items_text}")
+                    
+                    if memory_sections:
+                        memory_context = "Relevant information from memory:\n\n" + "\n\n".join(memory_sections) + "\n\n"
+                        self.logger.info(f"Retrieved {sum(len(items) for items in memories.values())} memories for execution")
+            
+            # Get available tools information if tool_provider is available
+            tools_context = ""
+            if self.tool_provider:
+                try:
+                    provider_tools = self.tool_provider.list_tools()
+                    if provider_tools:
+                        tool_descriptions = []
+                        for tool in provider_tools:
+                            tool_name = tool.get("name", "")
+                            tool_desc = tool.get("description", "")
+                            tool_params = tool.get("parameters", {})
+                            tool_descriptions.append(f"- {tool_name}: {tool_desc}")
+                            if tool_params:
+                                param_desc = str(tool_params).replace("{", "").replace("}", "")
+                                tool_descriptions.append(f"  Parameters: {param_desc}")
+                        
+                        if tool_descriptions:
+                            tools_context = "Available tools that you can use:\n" + "\n".join(tool_descriptions) + "\n\n"
+                            tools_context += "To use these tools, clearly indicate in your response when you want to use a tool. Format your tool calls like this:\n"
+                            tools_context += "TOOL: tool_name\nparam1: value1\nparam2: value2\n\n"
+                            self.logger.info(f"Added {len(provider_tools)} tools from tool provider")
+                except Exception as e:
+                    self.logger.warning(f"Error retrieving tools from tool_provider: {str(e)}")
+            
             # Load the execution prompt template
             prompt = self._load_prompt_template("Execute")
             
@@ -478,20 +611,43 @@ class SelfDiscoveryAgent(BaseAgent):
             # Format the prompt
             formatted_prompt = prompt.invoke({
                 "task": state["input"],
-                "reasoning_structure": structure_text
+                "reasoning_structure": structure_text,
+                "memory_context": memory_context,
+                "tools_context": tools_context
             })
             
             # Get the execution response
             execution_response = self.execution_llm.invoke(formatted_prompt.to_messages())
             
             # Extract the content from the response
-            execution_result = execution_response.content
+            execution_result_raw = execution_response.content
+            
+            # Process the response to handle any tool calls
+            execution_result = execution_result_raw
+            
+            # Check if the response contains tool calls and the tool_provider is available
+            if self.tool_provider and "TOOL:" in execution_result_raw:
+                # Extract and execute tool calls
+                execution_result = self._process_tool_calls(execution_result_raw)
             
             # Update chat history
             chat_history = list(state.get("chat_history", []))
             human_message = HumanMessage(content=f"Solve the task following the reasoning structure")
             ai_message = AIMessage(content=execution_result)
             new_history = chat_history + [human_message, ai_message]
+            
+            # Save the execution to memory if enabled
+            if self.memory:
+                self.sync_save_memory(
+                    memory_type="episodic",
+                    item={
+                        "event_type": "execution",
+                        "task": state["input"],
+                        "reasoning_structure": state["reasoning_structure"],
+                        "result": execution_result
+                    },
+                    query=state["input"]
+                )
             
             self.logger.debug("Executed reasoning structure")
             
@@ -508,6 +664,71 @@ class SelfDiscoveryAgent(BaseAgent):
                 "execution_result": fallback_result,
                 "chat_history": state.get("chat_history", [])
             }
+    
+    def _process_tool_calls(self, text: str) -> str:
+        """Process any tool calls in the execution response.
+        
+        Args:
+            text: The raw text from the LLM with possible tool calls.
+            
+        Returns:
+            Updated text with tool call results integrated.
+        """
+        if not self.tool_provider or "TOOL:" not in text:
+            return text
+        
+        result_parts = []
+        lines = text.split("\n")
+        i = 0
+        
+        while i < len(lines):
+            line = lines[i].strip()
+            
+            if line.startswith("TOOL:") or line.startswith("Tool:") or line.startswith("tool:"):
+                # Extract tool name
+                parts = line.split(":", 1)
+                if len(parts) > 1:
+                    tool_name = parts[1].strip()
+                    tool_args = {}
+                    i += 1
+                    
+                    # Extract parameters
+                    while i < len(lines) and ":" in lines[i] and not (
+                        lines[i].startswith("TOOL:") or 
+                        lines[i].startswith("Tool:") or 
+                        lines[i].startswith("tool:")
+                    ):
+                        param_parts = lines[i].split(":", 1)
+                        if len(param_parts) > 1:
+                            param_name = param_parts[0].strip()
+                            param_value = param_parts[1].strip()
+                            tool_args[param_name] = param_value
+                        i += 1
+                    
+                    # Execute the tool
+                    try:
+                        self.logger.info(f"Executing tool: {tool_name} with args: {tool_args}")
+                        tool_result = self.tool_provider.execute_tool(tool_name, tool_args)
+                        
+                        # Add the tool call and result to the output
+                        result_parts.append(f"TOOL CALL: {tool_name}")
+                        for param, value in tool_args.items():
+                            result_parts.append(f"{param}: {value}")
+                        
+                        result_parts.append("\nTOOL RESULT:")
+                        result_parts.append(str(tool_result))
+                        result_parts.append("")
+                    except Exception as e:
+                        self.logger.error(f"Error executing tool {tool_name}: {str(e)}")
+                        result_parts.append(f"TOOL CALL ERROR: {tool_name} - {str(e)}")
+                    
+                    continue  # Skip the increment at the end to account for the modified i
+            
+            # For non-tool lines, just add them to the result
+            result_parts.append(lines[i])
+            i += 1
+        
+        return "\n".join(result_parts)
 
     def _format_final_answer(self, state: SelfDiscoveryState) -> Dict[str, Union[str, Sequence[BaseMessage]]]:
         """Format the final answer based on the execution result.
@@ -528,6 +749,30 @@ class SelfDiscoveryAgent(BaseAgent):
         
         # Simple approach: Use the execution result as the final answer
         final_answer = execution_result
+        
+        # Save the final answer to memory if enabled
+        if self.memory:
+            # Save to episodic memory
+            self.sync_save_memory(
+                memory_type="episodic",
+                item={
+                    "event_type": "final_answer",
+                    "task": state["input"],
+                    "reasoning_structure": state.get("reasoning_structure", {}),
+                    "answer": final_answer
+                },
+                query=state["input"]
+            )
+            
+            # Save to semantic memory
+            self.sync_save_memory(
+                memory_type="semantic",
+                item={
+                    "task_type": " ".join(state["input"].split()[:5]),  # Use first few words as task type
+                    "solution": final_answer
+                },
+                query=state["input"]
+            )
         
         self.logger.debug("Formatted final answer")
         

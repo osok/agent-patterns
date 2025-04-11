@@ -60,6 +60,9 @@ class REWOOAgent(BaseAgent):
         llm_configs: dict, 
         tool_registry: Optional[Dict[str, Any]] = None,
         prompt_dir: str = "prompts",
+        tool_provider: Optional[Any] = None,
+        memory: Optional[Any] = None,
+        memory_config: Optional[Dict[str, bool]] = None,
         max_iterations: int = 10,
         **kwargs
     ):
@@ -70,11 +73,21 @@ class REWOOAgent(BaseAgent):
             llm_configs: Dictionary of LLM configurations for different roles
             tool_registry: Dictionary of tools available to the agent
             prompt_dir: Directory containing prompt templates
+            tool_provider: Optional provider for tools the agent can use
+            memory: Optional composite memory instance
+            memory_config: Configuration for which memory types to use
             max_iterations: Maximum number of execution iterations
         """
         self.tool_registry = tool_registry or {}
         self.max_iterations = max_iterations
-        super().__init__(llm_configs=llm_configs, prompt_dir=prompt_dir, **kwargs)
+        super().__init__(
+            llm_configs=llm_configs, 
+            prompt_dir=prompt_dir, 
+            tool_provider=tool_provider,
+            memory=memory,
+            memory_config=memory_config,
+            **kwargs
+        )
     
     def build_graph(self) -> None:
         """
@@ -215,8 +228,28 @@ class REWOOAgent(BaseAgent):
         # Generate plan using the planner LLM
         logger.info(f"Generating plan for input: {state['input']}")
         
-        # Format the prompt with the input
-        prompt_args = {"input": state["input"]}
+        # Retrieve relevant memories if memory is enabled
+        memory_context = ""
+        if self.memory:
+            memories = self.sync_retrieve_memories(state["input"])
+            
+            # Format memories for inclusion in the prompt
+            if memories:
+                memory_sections = []
+                for memory_type, items in memories.items():
+                    if items:
+                        items_text = "\n- ".join([str(item) for item in items])
+                        memory_sections.append(f"### {memory_type.capitalize()} Memories:\n- {items_text}")
+                
+                if memory_sections:
+                    memory_context = "Relevant information from memory:\n\n" + "\n\n".join(memory_sections) + "\n\n"
+                    logger.info(f"Retrieved {sum(len(items) for items in memories.values())} memories for planning")
+        
+        # Format the prompt with the input and memory context
+        prompt_args = {
+            "input": state["input"],
+            "memory_context": memory_context
+        }
         
         # Get formatted messages
         messages = prompt_template.format_messages(**prompt_args)
@@ -261,10 +294,21 @@ class REWOOAgent(BaseAgent):
                 
                 # Try to identify tool mentions in the details
                 if details:
-                    common_tools = ["search", "calculator", "database", "api", "browser", "query", "failing_tool"]
-                    for tool in common_tools:
+                    # Look for tools from the tool registry
+                    for tool in self.tool_registry.keys():
                         if tool.lower() in details.lower() and tool not in current_step["tools"]:
                             current_step["tools"].append(tool)
+                    
+                    # Look for tools from the tool provider, if available
+                    if self.tool_provider:
+                        try:
+                            provider_tools = self.tool_provider.list_tools()
+                            for tool_info in provider_tools:
+                                tool_name = tool_info.get("name", "")
+                                if tool_name.lower() in details.lower() and tool_name not in current_step["tools"]:
+                                    current_step["tools"].append(tool_name)
+                        except Exception as e:
+                            logger.warning(f"Error retrieving tools from tool_provider: {str(e)}")
                 
                 structured_plan.append(current_step)
         
@@ -329,6 +373,18 @@ class REWOOAgent(BaseAgent):
             # Then reassign ids sequentially starting from 1
             for i, step in enumerate(structured_plan, 1):
                 step["step_id"] = i
+        
+        # Save the plan to episodic memory if memory is enabled
+        if self.memory:
+            self.sync_save_memory(
+                memory_type="episodic",
+                item={
+                    "event_type": "plan_generation",
+                    "task": state["input"],
+                    "plan": [step["description"] for step in structured_plan]
+                },
+                task=state["input"]
+            )
             
         logger.info(f"Generated plan with {len(structured_plan)} steps")
         return {"plan": structured_plan}
@@ -374,6 +430,50 @@ class REWOOAgent(BaseAgent):
             step_id = result["step_id"]
             context += f"Step {step_id} result: {result['result']}\n"
         
+        # Retrieve relevant memories for this step
+        memory_context = ""
+        if self.memory:
+            step_query = f"{state['input']} - {current_step['description']}"
+            memories = self.sync_retrieve_memories(step_query)
+            
+            # Format memories for inclusion in the prompt
+            if memories:
+                memory_sections = []
+                for memory_type, items in memories.items():
+                    if items:
+                        items_text = "\n- ".join([str(item) for item in items])
+                        memory_sections.append(f"### {memory_type.capitalize()} Memories:\n- {items_text}")
+                
+                if memory_sections:
+                    memory_context = "Relevant information from memory:\n\n" + "\n\n".join(memory_sections) + "\n\n"
+                    logger.info(f"Retrieved {sum(len(items) for items in memories.values())} memories for step execution")
+        
+        # Get available tools information
+        tools_description = ""
+        
+        # First add tools from tool_registry
+        if self.tool_registry:
+            tool_descriptions = []
+            for tool_name in self.tool_registry.keys():
+                tool_descriptions.append(f"- {tool_name}")
+            if tool_descriptions:
+                tools_description += "Available tools from registry:\n" + "\n".join(tool_descriptions) + "\n\n"
+        
+        # Then add tools from tool_provider if available
+        if self.tool_provider:
+            try:
+                provider_tools = self.tool_provider.list_tools()
+                if provider_tools:
+                    provider_tool_descriptions = []
+                    for tool_info in provider_tools:
+                        tool_name = tool_info.get("name", "")
+                        tool_desc = tool_info.get("description", "")
+                        provider_tool_descriptions.append(f"- {tool_name}: {tool_desc}")
+                    if provider_tool_descriptions:
+                        tools_description += "Available tools from provider:\n" + "\n".join(provider_tool_descriptions) + "\n\n"
+            except Exception as e:
+                logger.warning(f"Error retrieving tools from tool_provider: {str(e)}")
+        
         # Get solver LLM and prompt
         solver_llm = self._get_llm("solver")
         prompt_template = self._load_prompt_template("SolverPrompt")
@@ -382,7 +482,9 @@ class REWOOAgent(BaseAgent):
         prompt_args = {
             "step_description": current_step["description"],
             "step_details": current_step.get("details", ""),
-            "context": context
+            "context": context,
+            "memory_context": memory_context,
+            "tools_description": tools_description
         }
         
         # Get formatted messages
@@ -412,9 +514,24 @@ class REWOOAgent(BaseAgent):
             tool_name = tool_call.get("name")
             tool_args = tool_call.get("args", {})
             
+            # Try to use the tool_provider first if available
+            if self.tool_provider and tool_name:
+                try:
+                    logger.info(f"Attempting to execute tool '{tool_name}' via tool_provider")
+                    result = self.tool_provider.execute_tool(tool_name, tool_args)
+                    tool_outputs.append({
+                        "tool": tool_name,
+                        "output": result
+                    })
+                    continue  # Skip to next tool call if successful
+                except Exception as e:
+                    logger.warning(f"Tool provider failed to execute '{tool_name}': {e}")
+                    # Fall back to tool_registry
+            
+            # Try using the tool_registry if the tool exists there
             if tool_name in self.tool_registry:
                 try:
-                    logger.info(f"Calling tool: {tool_name} with args: {tool_args}")
+                    logger.info(f"Calling tool from registry: {tool_name} with args: {tool_args}")
                     tool_result = self.tool_registry[tool_name](**tool_args)
                     tool_outputs.append({
                         "tool": tool_name,
@@ -449,6 +566,21 @@ class REWOOAgent(BaseAgent):
         # Get a copy of the existing execution results and append the new result
         execution_results = state.get("execution_results", []).copy()
         execution_results.append(new_result)
+        
+        # Save the step execution to episodic memory if enabled
+        if self.memory:
+            self.sync_save_memory(
+                memory_type="episodic",
+                item={
+                    "event_type": "step_execution",
+                    "task": state["input"],
+                    "step": current_step["description"],
+                    "step_index": current_step_index,
+                    "result": execution_result,
+                    "tool_outputs": [f"{output['tool']}: {output['output']}" for output in tool_outputs]
+                },
+                task=state["input"]
+            )
         
         # Move to next step and update state
         return {
@@ -485,6 +617,23 @@ class REWOOAgent(BaseAgent):
         Returns:
             Updated state with final answer
         """
+        # Retrieve relevant memories for final synthesis
+        memory_context = ""
+        if self.memory:
+            memories = self.sync_retrieve_memories(state["input"])
+            
+            # Format memories for inclusion in the prompt
+            if memories:
+                memory_sections = []
+                for memory_type, items in memories.items():
+                    if items:
+                        items_text = "\n- ".join([str(item) for item in items])
+                        memory_sections.append(f"### {memory_type.capitalize()} Memories:\n- {items_text}")
+                
+                if memory_sections:
+                    memory_context = "Relevant information from memory:\n\n" + "\n\n".join(memory_sections) + "\n\n"
+                    logger.info(f"Retrieved {sum(len(items) for items in memories.values())} memories for final synthesis")
+        
         # Get final answer LLM (can be same as solver)
         final_llm = self._get_llm("solver")
         prompt_template = self._load_prompt_template("FinalAnswerPrompt")
@@ -526,7 +675,8 @@ class REWOOAgent(BaseAgent):
         # Format the prompt with the input and execution summary
         prompt_args = {
             "input": state.get("input", "No input provided"),
-            "execution_summary": execution_summary
+            "execution_summary": execution_summary,
+            "memory_context": memory_context
         }
         
         # Get formatted messages
@@ -548,6 +698,31 @@ class REWOOAgent(BaseAgent):
             final_answer = str(final_response)
             
         logger.info("Final answer generated")
+        
+        # Save the final result to memory (both semantic and episodic)
+        if self.memory:
+            # Save to episodic memory
+            self.sync_save_memory(
+                memory_type="episodic",
+                item={
+                    "event_type": "final_result",
+                    "task": state["input"],
+                    "plan": [step["description"] for step in state["plan"]],
+                    "result": final_answer
+                },
+                task=state["input"]
+            )
+            
+            # Save to semantic memory
+            self.sync_save_memory(
+                memory_type="semantic",
+                item={
+                    "task_type": " ".join(state["input"].split()[:5]),  # Use first few words as task type
+                    "solution": final_answer,
+                    "successful": True
+                },
+                task=state["input"]
+            )
         
         return {"final_answer": final_answer}
     

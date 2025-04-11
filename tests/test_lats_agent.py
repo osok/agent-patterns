@@ -450,6 +450,156 @@ class TestLATSAgent(unittest.TestCase):
         # Check that a result was returned
         self.assertEqual(result, "Final answer: This is a comprehensive solution.")
 
+    @patch("agent_patterns.core.base_agent.BaseAgent._get_llm")
+    @patch("agent_patterns.core.base_agent.BaseAgent._load_prompt_template")
+    def test_memory_integration(self, mock_load_prompt_template, mock_get_llm):
+        """Test memory integration in LATSAgent."""
+        # Configure mocks
+        thinking_llm = MagicMock()
+        thinking_llm.invoke.return_value = AIMessage(content="1. First option: This is step one\n2. Second option: This is step two\n3. Third option: This is step three")
+        
+        evaluation_llm = MagicMock()
+        evaluation_llm.invoke.return_value = AIMessage(content="This is a good path. Score: 0.8")
+        
+        selection_llm = MagicMock()
+        selection_llm.invoke.return_value = AIMessage(content="Final answer: This is a comprehensive solution.")
+        
+        # Return different LLMs based on role
+        mock_get_llm.side_effect = lambda role: evaluation_llm if role == "evaluation" else thinking_llm
+        
+        # Mock prompt templates
+        mock_template = MagicMock()
+        mock_load_prompt_template.return_value = mock_template
+        
+        # Create mock memory system
+        mock_memory = MagicMock()
+        mock_memory.memories = {"semantic": MagicMock(), "episodic": MagicMock()}
+        
+        # Mock memory retrieval and saving methods
+        mock_retrieve_memories = MagicMock(return_value={
+            "semantic": [{"fact": "This is a semantic memory"}],
+            "episodic": [{"event": "This is an episodic memory"}]
+        })
+        
+        mock_save_memory = MagicMock()
+        
+        # Create agent with memory
+        agent = LATSAgent(
+            llm_configs=self.llm_configs,
+            memory=mock_memory,
+            memory_config={"semantic": True, "episodic": True}
+        )
+        
+        # Replace methods with mocks
+        agent.sync_retrieve_memories = mock_retrieve_memories
+        agent.sync_save_memory = mock_save_memory
+        
+        # Create initial state with a root node
+        state = self._create_initial_state()
+        updated_state = agent._initialize_search(state)
+        state.update(updated_state)
+        root_id = state["current_node_id"]
+        
+        # Test memory retrieval in node expansion
+        result = agent._expand_node(state)
+        mock_retrieve_memories.assert_called()
+        
+        # Update state with expansion results
+        state.update(result)
+        
+        # Test memory in path evaluation
+        mock_retrieve_memories.reset_mock()
+        result = agent._evaluate_paths(state)
+        mock_retrieve_memories.assert_called()
+        
+        # Update state with evaluation results
+        state.update(result)
+        
+        # Update state to have a best path
+        child_id = state["nodes"][root_id]["children"][0]
+        state["best_path"] = [root_id, child_id]
+        state["best_path_value"] = 0.8
+        
+        # Test memory in best path selection
+        mock_retrieve_memories.reset_mock()
+        mock_save_memory.reset_mock()
+        
+        result = agent._select_best_path(state)
+        
+        # Verify memory was retrieved and saved
+        mock_retrieve_memories.assert_called()
+        mock_save_memory.assert_called()
+        
+        # Verify both types of memory were saved
+        calls = mock_save_memory.call_args_list
+        saved_to_episodic = False
+        saved_to_semantic = False
+        
+        for call in calls:
+            args, kwargs = call
+            if kwargs.get("memory_type") == "episodic":
+                saved_to_episodic = True
+            if kwargs.get("memory_type") == "semantic":
+                saved_to_semantic = True
+        
+        self.assertTrue(saved_to_episodic, "Failed to save to episodic memory")
+        self.assertTrue(saved_to_semantic, "Failed to save to semantic memory")
+    
+    @patch("agent_patterns.core.base_agent.BaseAgent._get_llm")
+    @patch("agent_patterns.core.base_agent.BaseAgent._load_prompt_template")
+    def test_tool_provider_integration(self, mock_load_prompt_template, mock_get_llm):
+        """Test tool provider integration in LATSAgent."""
+        # Configure mocks
+        thinking_llm = MagicMock()
+        thinking_llm.invoke.return_value = AIMessage(content="1. First option: Use tool to search\n2. Second option: This is step two\n3. Third option: This is step three")
+        
+        evaluation_llm = MagicMock()
+        evaluation_llm.invoke.return_value = AIMessage(content="This is a good path. Score: 0.8")
+        
+        # Return different LLMs based on role
+        mock_get_llm.side_effect = lambda role: evaluation_llm if role == "evaluation" else thinking_llm
+        
+        # Mock prompt templates
+        mock_template = MagicMock()
+        mock_load_prompt_template.return_value = mock_template
+        
+        # Create mock tool provider
+        mock_tool_provider = MagicMock()
+        
+        # Configure the tool provider to return mock tools
+        mock_tool_provider.list_tools.return_value = [
+            {"name": "search", "description": "Search for information", "parameters": {}}
+        ]
+        
+        # Create agent with tool provider
+        agent = LATSAgent(
+            llm_configs=self.llm_configs,
+            tool_provider=mock_tool_provider
+        )
+        
+        # Create initial state with a root node
+        state = self._create_initial_state()
+        updated_state = agent._initialize_search(state)
+        state.update(updated_state)
+        
+        # Test tool provider in node expansion
+        result = agent._expand_node(state)
+        
+        # Verify that tool provider's list_tools was called
+        mock_tool_provider.list_tools.assert_called()
+        
+        # Verify that the prompt template was called with tools_context
+        prompt_calls = mock_template.format.call_args_list
+        tools_context_included = False
+        
+        for call in prompt_calls:
+            args, kwargs = call
+            if "tools_context" in kwargs and kwargs["tools_context"]:
+                tools_context_included = True
+                break
+        
+        self.assertTrue(tools_context_included, "tools_context not included in prompt")
+
 
 if __name__ == "__main__":
     unittest.main() 

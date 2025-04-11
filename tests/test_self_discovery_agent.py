@@ -395,6 +395,274 @@ class TestSelfDiscoveryAgent(unittest.TestCase):
         self.assertIn("error", result)
         self.assertEqual(result["error"], "Test error")
 
+    def test_memory_integration(self):
+        """Test memory integration in the agent."""
+        # Create mock memory components
+        mock_memory = MagicMock()
+        mock_memory.memories = {"semantic": MagicMock(), "episodic": MagicMock()}
+        
+        # Create mock memory retrieval and saving methods
+        mock_retrieve_memories = MagicMock(return_value={
+            "semantic": [{"fact": "This is a semantic memory"}],
+            "episodic": [{"event": "This is an episodic memory"}]
+        })
+        
+        mock_save_memory = MagicMock()
+        
+        # Create agent with memory
+        agent = SelfDiscoveryAgent(
+            llm_configs=self.llm_configs,
+            memory=mock_memory,
+            memory_config={"semantic": True, "episodic": True}
+        )
+        
+        # Replace memory methods with mocks
+        agent.sync_retrieve_memories = mock_retrieve_memories
+        agent.sync_save_memory = mock_save_memory
+        
+        # Test selecting modules with memory
+        state = {
+            "input": "Test task with memory",
+            "chat_history": [],
+            "reasoning_modules": self.test_modules
+        }
+        
+        # Mock prompt loading
+        with patch('agent_patterns.core.base_agent.BaseAgent._load_prompt_template') as mock_load_prompt:
+            mock_prompt = MagicMock()
+            mock_prompt.invoke.return_value.to_messages.return_value = []
+            mock_load_prompt.return_value = mock_prompt
+            
+            # Mock the selection response
+            parse_modules_patcher = patch.object(
+                agent,
+                '_parse_selected_modules',
+                return_value=["Test Module 1"]
+            )
+            with parse_modules_patcher:
+                # Call the _select_reasoning_modules method
+                agent._select_reasoning_modules(state)
+                
+                # Verify memory was retrieved
+                mock_retrieve_memories.assert_called_with("Test task with memory")
+                
+                # Verify prompt was invoked with memory_context
+                mock_prompt.invoke.assert_called()
+                call_args = mock_prompt.invoke.call_args[0][0]
+                self.assertIn("memory_context", call_args)
+        
+        # Test executing structure with memory and saving results
+        execute_state = {
+            "input": "Test execution with memory",
+            "chat_history": [],
+            "reasoning_structure": {
+                "steps": ["Step 1", "Step 2"]
+            }
+        }
+        
+        # Reset mock counters
+        mock_retrieve_memories.reset_mock()
+        mock_save_memory.reset_mock()
+        
+        # Mock prompt loading for execution
+        with patch('agent_patterns.core.base_agent.BaseAgent._load_prompt_template') as mock_load_prompt:
+            mock_prompt = MagicMock()
+            mock_prompt.invoke.return_value.to_messages.return_value = []
+            mock_load_prompt.return_value = mock_prompt
+            
+            # Call the execute method
+            agent._execute_reasoning_structure(execute_state)
+            
+            # Verify memory was retrieved for execution
+            mock_retrieve_memories.assert_called()
+            
+            # Verify memory was saved with the execution result
+            mock_save_memory.assert_called()
+            
+            # Verify that the correct memory type was used
+            memory_call = mock_save_memory.call_args_list[0]
+            kwargs = memory_call[1]
+            self.assertEqual(kwargs["memory_type"], "episodic")
+            self.assertEqual(kwargs["item"]["event_type"], "execution")
+        
+        # Test final answer with memory saving
+        final_state = {
+            "input": "Test final answer",
+            "execution_result": "This is the final result",
+            "reasoning_structure": {
+                "steps": ["Step 1", "Step 2"]
+            }
+        }
+        
+        # Reset mock counters
+        mock_save_memory.reset_mock()
+        
+        # Call the format final answer method
+        agent._format_final_answer(final_state)
+        
+        # Verify memory was saved for both episodic and semantic types
+        self.assertEqual(mock_save_memory.call_count, 2)
+        
+        # Check that the calls were for different memory types
+        memory_calls = mock_save_memory.call_args_list
+        
+        # Extract memory types from calls
+        memory_types = [call[1]["memory_type"] for call in memory_calls]
+        
+        # Verify both semantic and episodic memories were saved
+        self.assertIn("episodic", memory_types)
+        self.assertIn("semantic", memory_types)
+    
+    def test_tool_provider_integration(self):
+        """Test tool provider integration in the agent."""
+        # Create mock tool provider
+        mock_tool_provider = MagicMock()
+        
+        # Configure the tool provider to return mock tools
+        mock_tool_provider.list_tools.return_value = [
+            {
+                "name": "search",
+                "description": "Search for information",
+                "parameters": {"query": "string"}
+            },
+            {
+                "name": "calculator",
+                "description": "Perform calculations",
+                "parameters": {"expression": "string"}
+            }
+        ]
+        
+        # Mock the tool execution
+        mock_tool_provider.execute_tool.return_value = "Mock tool result"
+        
+        # Create agent with tool provider
+        agent = SelfDiscoveryAgent(
+            llm_configs=self.llm_configs,
+            tool_provider=mock_tool_provider
+        )
+        
+        # Test implementing structure with tools
+        implement_state = {
+            "input": "Test task with tools",
+            "chat_history": [],
+            "adapted_modules": ["Adapted module with tools"]
+        }
+        
+        # Mock prompt loading
+        with patch('agent_patterns.core.base_agent.BaseAgent._load_prompt_template') as mock_load_prompt:
+            mock_prompt = MagicMock()
+            mock_prompt.invoke.return_value.to_messages.return_value = []
+            mock_load_prompt.return_value = mock_prompt
+            
+            # Call the implement method
+            agent._implement_reasoning_structure(implement_state)
+            
+            # Verify tools were retrieved
+            mock_tool_provider.list_tools.assert_called()
+            
+            # Verify prompt was invoked with tools_context
+            mock_prompt.invoke.assert_called()
+            call_args = mock_prompt.invoke.call_args[0][0]
+            self.assertIn("tools_context", call_args)
+        
+        # Test executing structure with tool calls
+        execute_state = {
+            "input": "Test execution with tools",
+            "chat_history": [],
+            "reasoning_structure": {
+                "steps": ["Use search tool", "Analyze results"]
+            }
+        }
+        
+        # Reset mock counters
+        mock_tool_provider.list_tools.reset_mock()
+        mock_tool_provider.execute_tool.reset_mock()
+        
+        # Mock the LLM to return a response with tool calls
+        self.mock_llm.invoke.return_value = MagicMock(
+            content="Let me search for information.\n\nTOOL: search\nquery: test query\n\nBased on the search results..."
+        )
+        
+        # Mock prompt loading for execution
+        with patch('agent_patterns.core.base_agent.BaseAgent._load_prompt_template') as mock_load_prompt:
+            mock_prompt = MagicMock()
+            mock_prompt.invoke.return_value.to_messages.return_value = []
+            mock_load_prompt.return_value = mock_prompt
+            
+            # Call the execute method
+            result = agent._execute_reasoning_structure(execute_state)
+            
+            # Verify tools were retrieved
+            mock_tool_provider.list_tools.assert_called()
+            
+            # Verify tool was executed
+            mock_tool_provider.execute_tool.assert_called_with("search", {"query": "test query"})
+            
+            # Verify tool result is in the output
+            self.assertIn("TOOL RESULT", result["execution_result"])
+            self.assertIn("Mock tool result", result["execution_result"])
+    
+    def test_process_tool_calls(self):
+        """Test the _process_tool_calls method."""
+        # Create mock tool provider
+        mock_tool_provider = MagicMock()
+        mock_tool_provider.execute_tool.return_value = "Tool execution result"
+        
+        # Create agent with tool provider
+        agent = SelfDiscoveryAgent(
+            llm_configs=self.llm_configs,
+            tool_provider=mock_tool_provider
+        )
+        
+        # Test with a simple tool call
+        text = "Let me search for information.\n\nTOOL: search\nquery: test query\n\nBased on the search results..."
+        result = agent._process_tool_calls(text)
+        
+        # Verify tool was executed
+        mock_tool_provider.execute_tool.assert_called_with("search", {"query": "test query"})
+        
+        # Verify result contains the tool call and result
+        self.assertIn("TOOL CALL: search", result)
+        self.assertIn("query: test query", result)
+        self.assertIn("TOOL RESULT:", result)
+        self.assertIn("Tool execution result", result)
+        
+        # Test with multiple tool calls
+        text = """
+        Let me search for information.
+        
+        TOOL: search
+        query: first query
+        
+        Now let me calculate something.
+        
+        TOOL: calculator
+        expression: 2+2
+        """
+        
+        # Reset the mock
+        mock_tool_provider.execute_tool.reset_mock()
+        mock_tool_provider.execute_tool.return_value = "Tool execution result"
+        
+        result = agent._process_tool_calls(text)
+        
+        # Verify tools were executed
+        self.assertEqual(mock_tool_provider.execute_tool.call_count, 2)
+        
+        # Verify both tool results are in the output
+        self.assertEqual(result.count("TOOL CALL:"), 2)
+        self.assertEqual(result.count("TOOL RESULT:"), 2)
+        
+        # Test with a tool error
+        mock_tool_provider.execute_tool.side_effect = Exception("Tool error")
+        
+        text = "TOOL: search\nquery: error query"
+        result = agent._process_tool_calls(text)
+        
+        # Verify error message is in the output
+        self.assertIn("TOOL CALL ERROR:", result)
+        self.assertIn("Tool error", result)
+
 
 if __name__ == '__main__':
     unittest.main() 

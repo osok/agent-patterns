@@ -50,6 +50,9 @@ class PlanAndSolveAgent(BaseAgent):
         self,
         llm_configs: Dict[str, Dict],
         prompt_dir: str = "prompts",
+        tool_provider: Optional[Any] = None,
+        memory: Optional[Any] = None,
+        memory_config: Optional[Dict[str, bool]] = None,
         log_level: int = logging.INFO
     ):
         """Initialize the Plan and Solve agent.
@@ -57,10 +60,20 @@ class PlanAndSolveAgent(BaseAgent):
         Args:
             llm_configs: Configuration for LLM roles (e.g., {'planner': {...}, 'executor': {...}}).
             prompt_dir: Directory containing prompt templates (relative to project root).
+            tool_provider: Optional provider for tools the agent can use.
+            memory: Optional composite memory instance.
+            memory_config: Configuration for which memory types to use.
             log_level: Logging level.
         """
         # Call BaseAgent init
-        super().__init__(llm_configs=llm_configs, prompt_dir=prompt_dir, log_level=log_level)
+        super().__init__(
+            llm_configs=llm_configs, 
+            prompt_dir=prompt_dir, 
+            tool_provider=tool_provider,
+            memory=memory,
+            memory_config=memory_config,
+            log_level=log_level
+        )
         
         # Initialize the LLMs for planning and execution
         try:
@@ -131,11 +144,30 @@ class PlanAndSolveAgent(BaseAgent):
         self.logger.debug("Generating plan for task: %s", state["input"])
         
         try:
+            # Retrieve relevant memories if memory is enabled
+            memories = self.sync_retrieve_memories(state["input"])
+            memory_context = ""
+            
+            # Format memories for inclusion in the prompt
+            if memories:
+                memory_sections = []
+                for memory_type, items in memories.items():
+                    if items:
+                        items_text = "\n- ".join([str(item) for item in items])
+                        memory_sections.append(f"### {memory_type.capitalize()} Memories:\n- {items_text}")
+                
+                if memory_sections:
+                    memory_context = "Relevant information from memory:\n\n" + "\n\n".join(memory_sections) + "\n\n"
+                    self.logger.info(f"Retrieved {sum(len(items) for items in memories.values())} memories for planning")
+            
             # Load the planning prompt template
             prompt = self._load_prompt_template("PlanStep")
             
-            # Format the prompt with the task
-            formatted_prompt = prompt.invoke({"input": state["input"]})
+            # Format the prompt with the task and memory context
+            formatted_prompt = prompt.invoke({
+                "input": state["input"],
+                "memory_context": memory_context
+            })
             
             # Get the planning response
             planning_response = self.planning_llm.invoke(formatted_prompt.to_messages())
@@ -176,6 +208,18 @@ class PlanAndSolveAgent(BaseAgent):
             human_message = HumanMessage(content=f"I need to plan how to: {state['input']}")
             ai_message = AIMessage(content=f"Here's a plan to solve this task:\n\n{plan_text}")
             new_history = chat_history + [human_message, ai_message]
+            
+            # Save the plan to episodic memory if memory is enabled
+            if self.memory:
+                self.sync_save_memory(
+                    memory_type="episodic",
+                    item={
+                        "event_type": "plan_generation",
+                        "task": state["input"],
+                        "plan": steps
+                    },
+                    task=state["input"]
+                )
             
             self.logger.info("Generated plan with %d steps", len(steps))
             return {
@@ -219,6 +263,34 @@ class PlanAndSolveAgent(BaseAgent):
         self.logger.info("Executing step %d: %s", current_index + 1, current_step)
         
         try:
+            # Retrieve relevant memories for this step
+            step_query = f"{state['input']} - {current_step}"
+            memories = self.sync_retrieve_memories(step_query)
+            memory_context = ""
+            
+            # Format memories for inclusion in the prompt
+            if memories:
+                memory_sections = []
+                for memory_type, items in memories.items():
+                    if items:
+                        items_text = "\n- ".join([str(item) for item in items])
+                        memory_sections.append(f"### {memory_type.capitalize()} Memories:\n- {items_text}")
+                
+                if memory_sections:
+                    memory_context = "Relevant information from memory:\n\n" + "\n\n".join(memory_sections) + "\n\n"
+                    self.logger.info(f"Retrieved {sum(len(items) for items in memories.values())} memories for step execution")
+            
+            # Get available tools if tool_provider is present
+            tools_description = ""
+            if self.tool_provider:
+                tools = self.tool_provider.list_tools()
+                if tools:
+                    tool_descriptions = []
+                    for tool in tools:
+                        tool_descriptions.append(f"- {tool['name']}: {tool['description']}")
+                    tools_description = "Available tools:\n" + "\n".join(tool_descriptions) + "\n\n"
+                    self.logger.info(f"Found {len(tools)} available tools for step execution")
+            
             # Load the execution prompt template
             prompt = self._load_prompt_template("ExecuteStep")
             
@@ -232,18 +304,64 @@ class PlanAndSolveAgent(BaseAgent):
             formatted_prompt = prompt.invoke({
                 "input": state["input"],
                 "current_step": current_step,
-                "previous_results": previous_context
+                "previous_results": previous_context,
+                "memory_context": memory_context,
+                "tools_description": tools_description
             })
             
             # Get the execution response
             execution_response = self.execution_llm.invoke(formatted_prompt.to_messages())
             step_result = execution_response.content
             
+            # Check if the response contains a tool call
+            # Simple pattern matching for tool calls in the format: "USE_TOOL: tool_name(param1=value1, param2=value2)"
+            tool_call_pattern = r"USE_TOOL:\s+(\w+)\(([^)]*)\)"
+            tool_call_match = re.search(tool_call_pattern, step_result)
+            
+            # If a tool call is detected and tool_provider is available
+            if tool_call_match and self.tool_provider:
+                tool_name = tool_call_match.group(1)
+                tool_params_str = tool_call_match.group(2)
+                
+                # Parse parameters
+                params = {}
+                param_matches = re.finditer(r"(\w+)\s*=\s*([^,]+)(?:,|$)", tool_params_str)
+                for match in param_matches:
+                    param_name = match.group(1)
+                    param_value = match.group(2).strip().strip('"\'')
+                    params[param_name] = param_value
+                
+                try:
+                    # Execute the tool
+                    self.logger.info(f"Executing tool: {tool_name} with params {params}")
+                    tool_result = self.tool_provider.execute_tool(tool_name, params)
+                    
+                    # Append tool result to the step result
+                    step_result += f"\n\nTool Result: {tool_result}"
+                except Exception as e:
+                    error_msg = f"\n\nError executing tool {tool_name}: {str(e)}"
+                    step_result += error_msg
+                    self.logger.error(f"Tool execution error: {str(e)}")
+            
             # Update chat history with the execution interaction
             chat_history = list(state.get("chat_history", []))
             human_message = HumanMessage(content=f"Execute step {current_index + 1}: {current_step}")
             ai_message = AIMessage(content=step_result)
             new_history = chat_history + [human_message, ai_message]
+            
+            # Save the step execution result to episodic memory
+            if self.memory:
+                self.sync_save_memory(
+                    memory_type="episodic",
+                    item={
+                        "event_type": "step_execution",
+                        "task": state["input"],
+                        "step": current_step,
+                        "step_index": current_index,
+                        "result": step_result
+                    },
+                    task=state["input"]
+                )
             
             # Update step results
             new_results = list(state["step_results"])
@@ -317,12 +435,30 @@ class PlanAndSolveAgent(BaseAgent):
         execution_summary = "\n\n".join(steps_with_results)
         
         try:
+            # Retrieve relevant memories for final synthesis
+            memories = self.sync_retrieve_memories(state["input"])
+            memory_context = ""
+            
+            # Format memories for inclusion in the prompt
+            if memories:
+                memory_sections = []
+                for memory_type, items in memories.items():
+                    if items:
+                        items_text = "\n- ".join([str(item) for item in items])
+                        memory_sections.append(f"### {memory_type.capitalize()} Memories:\n- {items_text}")
+                
+                if memory_sections:
+                    memory_context = "Relevant information from memory:\n\n" + "\n\n".join(memory_sections) + "\n\n"
+                    self.logger.info(f"Retrieved {sum(len(items) for items in memories.values())} memories for final synthesis")
+            
             # Use the planning LLM to summarize the results
             system_prompt = "You are a helpful assistant that creates clear, concise summaries."
             human_prompt = f"""
             Based on the executed steps below, provide a comprehensive final answer to the original task.
 
             Original Task: {state['input']}
+
+            {memory_context}
 
             Execution Steps:
             {execution_summary}
@@ -344,6 +480,31 @@ class PlanAndSolveAgent(BaseAgent):
             human_message = HumanMessage(content="Please provide the final answer to my task")
             ai_message = AIMessage(content=final_result)
             new_history = chat_history + [human_message, ai_message]
+            
+            # Save the final result to memory (both semantic and episodic)
+            if self.memory:
+                # Save to episodic memory
+                self.sync_save_memory(
+                    memory_type="episodic",
+                    item={
+                        "event_type": "final_result",
+                        "task": state["input"],
+                        "plan": state["plan"],
+                        "result": final_result
+                    },
+                    task=state["input"]
+                )
+                
+                # Save to semantic memory
+                self.sync_save_memory(
+                    memory_type="semantic",
+                    item={
+                        "task_type": state["input"].split()[0:5],  # Use first few words as task type
+                        "solution": final_result,
+                        "successful": True
+                    },
+                    task=state["input"]
+                )
             
             self.logger.debug("Generated final result: %s", final_result[:100] + "..." if len(final_result) > 100 else final_result)
             

@@ -9,6 +9,7 @@ from langgraph.graph import StateGraph, END
 from langgraph.graph.message import add_messages
 import logging
 from pathlib import Path
+import re
 
 from agent_patterns.core.base_agent import BaseAgent
 
@@ -50,6 +51,9 @@ class ReflectionAgent(BaseAgent):
         self,
         llm_configs: Dict[str, Dict],
         prompt_dir: str = "prompts",
+        tool_provider: Optional[Any] = None,
+        memory: Optional[Any] = None,
+        memory_config: Optional[Dict[str, bool]] = None,
         log_level: int = logging.INFO
     ):
         """Initialize the Reflection agent.
@@ -57,10 +61,20 @@ class ReflectionAgent(BaseAgent):
         Args:
             llm_configs: Configuration for LLM roles (e.g., {'generator': {...}, 'critic': {...}}).
             prompt_dir: Directory containing prompt templates (relative to project root).
+            tool_provider: Optional provider for tools the agent can use.
+            memory: Optional composite memory instance.
+            memory_config: Configuration for which memory types to use.
             log_level: Logging level.
         """
         # Call BaseAgent init
-        super().__init__(llm_configs=llm_configs, prompt_dir=prompt_dir, log_level=log_level)
+        super().__init__(
+            llm_configs=llm_configs, 
+            prompt_dir=prompt_dir, 
+            tool_provider=tool_provider,
+            memory=memory,
+            memory_config=memory_config,
+            log_level=log_level
+        )
         
         # Initialize the LLMs for generation and criticism
         try:
@@ -134,17 +148,80 @@ class ReflectionAgent(BaseAgent):
         self.logger.debug("Generating initial output for: %s", state["input"])
         
         try:
+            # Retrieve relevant memories if memory is enabled
+            memories = self.sync_retrieve_memories(state["input"])
+            memory_context = ""
+            
+            # Format memories for inclusion in the prompt
+            if memories:
+                memory_sections = []
+                for memory_type, items in memories.items():
+                    if items:
+                        items_text = "\n- ".join([str(item) for item in items])
+                        memory_sections.append(f"### {memory_type.capitalize()} Memories:\n- {items_text}")
+                
+                if memory_sections:
+                    memory_context = "Relevant information from memory:\n\n" + "\n\n".join(memory_sections) + "\n\n"
+                    self.logger.info(f"Retrieved {sum(len(items) for items in memories.values())} memories for initial output")
+            
+            # Get available tools if tool_provider is present
+            tools_description = ""
+            if self.tool_provider:
+                tools = self.tool_provider.list_tools()
+                if tools:
+                    tool_descriptions = []
+                    for tool in tools:
+                        tool_descriptions.append(f"- {tool['name']}: {tool['description']}")
+                    tools_description = "Available tools:\n" + "\n".join(tool_descriptions) + "\n\n"
+                    tools_description += "To use a tool, include the following format in your response:\n"
+                    tools_description += "USE_TOOL: tool_name(param1=value1, param2=value2)\n\n"
+                    self.logger.info(f"Found {len(tools)} available tools for initial output")
+            
             # Load the generation prompt template
             prompt = self._load_prompt_template("Generate")
             
-            # Format the prompt with the user's input
-            formatted_prompt = prompt.invoke({"input": state["input"]})
+            # Format the prompt with the user's input, memory context, and tools
+            formatted_prompt = prompt.invoke({
+                "input": state["input"],
+                "memory_context": memory_context,
+                "tools_description": tools_description
+            })
             
             # Get the generation response
             generation_response = self.generator_llm.invoke(formatted_prompt.to_messages())
             
             # Extract the content from the response
             initial_output = generation_response.content
+            
+            # Check if the response contains a tool call
+            # Simple pattern matching for tool calls in the format: "USE_TOOL: tool_name(param1=value1, param2=value2)"
+            tool_call_pattern = r"USE_TOOL:\s+(\w+)\(([^)]*)\)"
+            tool_call_match = re.search(tool_call_pattern, initial_output)
+            
+            # If a tool call is detected and tool_provider is available
+            if tool_call_match and self.tool_provider:
+                tool_name = tool_call_match.group(1)
+                tool_params_str = tool_call_match.group(2)
+                
+                # Parse parameters
+                params = {}
+                param_matches = re.finditer(r"(\w+)\s*=\s*([^,]+)(?:,|$)", tool_params_str)
+                for match in param_matches:
+                    param_name = match.group(1)
+                    param_value = match.group(2).strip().strip('"\'')
+                    params[param_name] = param_value
+                
+                try:
+                    # Execute the tool
+                    self.logger.info(f"Executing tool: {tool_name} with params {params}")
+                    tool_result = self.tool_provider.execute_tool(tool_name, params)
+                    
+                    # Append tool result to the initial output
+                    initial_output += f"\n\nTool Result: {tool_result}"
+                except Exception as e:
+                    error_msg = f"\n\nError executing tool {tool_name}: {str(e)}"
+                    initial_output += error_msg
+                    self.logger.error(f"Tool execution error: {str(e)}")
             
             # Update chat history with the generation interaction
             chat_history = list(state.get("chat_history", []))
@@ -199,6 +276,20 @@ class ReflectionAgent(BaseAgent):
             human_message = HumanMessage(content=f"Please critique the response to: {state['input']}")
             ai_message = AIMessage(content=reflection)
             new_history = chat_history + [human_message, ai_message]
+            
+            # Save the reflection to episodic memory
+            if self.memory:
+                self.sync_save_memory(
+                    memory_type="episodic",
+                    item={
+                        "event_type": "reflection",
+                        "query": state["input"],
+                        "initial_output": state["initial_output"],
+                        "reflection": reflection
+                    },
+                    query=state["input"]
+                )
+                self.logger.debug("Saved reflection to episodic memory")
             
             self.logger.debug("Generated reflection: %s", reflection[:100] + "..." if len(reflection) > 100 else reflection)
             
@@ -286,6 +377,34 @@ class ReflectionAgent(BaseAgent):
             ai_message = AIMessage(content=refined_output)
             new_history = chat_history + [human_message, ai_message]
             
+            # Save the refinement to episodic memory
+            if self.memory:
+                self.sync_save_memory(
+                    memory_type="episodic",
+                    item={
+                        "event_type": "refinement",
+                        "query": state["input"],
+                        "initial_output": state["initial_output"],
+                        "reflection": state["reflection"],
+                        "refined_output": refined_output
+                    },
+                    query=state["input"]
+                )
+                
+                # Also save to semantic memory for future reference
+                self.sync_save_memory(
+                    memory_type="semantic",
+                    item={
+                        "query_type": state["input"].split()[0:5],  # Use first few words as query type
+                        "query": state["input"],
+                        "answer": refined_output,
+                        "reflection_improved": True
+                    },
+                    query=state["input"]
+                )
+                
+                self.logger.debug("Saved refinement to memory")
+            
             self.logger.debug("Generated refined output: %s", refined_output[:100] + "..." if len(refined_output) > 100 else refined_output)
             
             return {
@@ -315,6 +434,21 @@ class ReflectionAgent(BaseAgent):
         # If refinement was not needed, use the initial output as the final answer
         if not state["needs_refinement"]:
             self.logger.debug("Using initial output as final answer (no refinement needed)")
+            
+            # Save the initial output to semantic memory if no refinement was needed
+            if self.memory:
+                self.sync_save_memory(
+                    memory_type="semantic",
+                    item={
+                        "query_type": state["input"].split()[0:5],  # Use first few words as query type
+                        "query": state["input"],
+                        "answer": state["initial_output"],
+                        "reflection_improved": False
+                    },
+                    query=state["input"]
+                )
+                self.logger.debug("Saved initial output to semantic memory")
+            
             return {"final_answer": state["initial_output"]}
         
         # If we get here, refinement was done and final_answer should already be set

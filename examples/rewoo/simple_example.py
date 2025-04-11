@@ -1,20 +1,32 @@
 """
-Simple example of using the REWOO agent pattern.
+Simple example of using the REWOO agent pattern with memory and tools.
 
 This example demonstrates how to use the REWOO (Reasoning Without Observation) agent pattern
-to perform a research task with a structured plan.
+to perform a research task with a structured plan, enhanced with memory and tool integration.
 """
 
 import os
 import sys
 import logging
 import time
+import asyncio
 from typing import Dict, Any, List
+from pathlib import Path
 
 # Add the src directory to the path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from src.agent_patterns.patterns.rewoo_agent import REWOOAgent
+from src.agent_patterns.core.memory import (
+    SemanticMemory,
+    EpisodicMemory,
+    ProceduralMemory,
+    CompositeMemory
+)
+from src.agent_patterns.core.memory.persistence import (
+    InMemoryPersistence
+)
+from src.agent_patterns.core.tools.base import ToolProvider
 from langchain_openai import ChatOpenAI
 
 # Configure logging
@@ -22,10 +34,11 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-class SimpleSearchTool:
-    """Simple search tool that returns mock results."""
+class ResearchToolProvider(ToolProvider):
+    """A provider for research-related tools."""
     
     def __init__(self):
+        """Initialize with mock search data."""
         self.search_results = {
             "climate change": """
 Climate change refers to long-term shifts in temperatures and weather patterns. 
@@ -69,8 +82,44 @@ Extreme weather events related to climate change include:
 6. Reduced snowpack and earlier snowmelt
             """
         }
-        
-    def __call__(self, query: str, **kwargs) -> str:
+    
+    def list_tools(self):
+        """List available tools provided by this provider."""
+        return [
+            {
+                "name": "search",
+                "description": "Search for information on a topic",
+                "parameters": {
+                    "query": {
+                        "type": "string",
+                        "description": "The search query"
+                    }
+                }
+            },
+            {
+                "name": "calculator",
+                "description": "Perform mathematical calculations",
+                "parameters": {
+                    "expression": {
+                        "type": "string",
+                        "description": "The mathematical expression to evaluate"
+                    }
+                }
+            }
+        ]
+    
+    def execute_tool(self, tool_name, params):
+        """Execute the requested tool with the provided parameters."""
+        if tool_name == "search":
+            query = params.get("query", "")
+            return self._search(query)
+        elif tool_name == "calculator":
+            expression = params.get("expression", "")
+            return self._calculate(expression)
+        else:
+            return f"Unknown tool: {tool_name}"
+    
+    def _search(self, query: str) -> str:
         """Search for information based on query."""
         # Log the search
         logger.info(f"Searching for: {query}")
@@ -97,12 +146,8 @@ has increased by about 1.1°C since the pre-industrial era, causing various
 environmental impacts. Solutions include reducing greenhouse gas emissions
 and adapting to the changing climate.
         """
-
-
-class SimpleCalculatorTool:
-    """Simple calculator tool that evaluates mathematical expressions."""
     
-    def __call__(self, expression: str, **kwargs) -> str:
+    def _calculate(self, expression: str) -> str:
         """Evaluate a mathematical expression."""
         try:
             # Log the calculation
@@ -116,10 +161,71 @@ class SimpleCalculatorTool:
             return f"Error evaluating expression: {str(e)}"
 
 
+def setup_memory():
+    """Set up a composite memory system."""
+    # Create persistence backend
+    persistence = InMemoryPersistence()
+    asyncio.run(persistence.initialize())
+    
+    # Create individual memory types
+    semantic_memory = SemanticMemory(persistence, namespace="climate_semantic")
+    episodic_memory = EpisodicMemory(persistence, namespace="climate_episodic")
+    procedural_memory = ProceduralMemory(persistence, namespace="climate_procedural")
+    
+    # Create composite memory
+    memory = CompositeMemory({
+        "semantic": semantic_memory,
+        "episodic": episodic_memory,
+        "procedural": procedural_memory
+    })
+    
+    # Pre-populate with some semantic memories
+    asyncio.run(memory.save_to(
+        "semantic", 
+        {"entity": "climate_change", "attribute": "definition", "value": "Long-term shifts in temperatures and weather patterns"}
+    ))
+    
+    asyncio.run(memory.save_to(
+        "semantic", 
+        {"entity": "user", "attribute": "research_focus", "value": "environmental impacts and solutions"}
+    ))
+    
+    # Add a procedural memory for research methodology
+    asyncio.run(memory.save_to(
+        "procedural",
+        {
+            "name": "research_methodology",
+            "pattern": {
+                "template": """When conducting research:
+1. Start with broad overview of the topic
+2. Dive into specific subtopics
+3. Look for scientific consensus and evidence
+4. Consider alternative viewpoints
+5. Focus on {research_focus} when summarizing findings"""
+            },
+            "description": "Template for conducting thorough research",
+            "tags": ["research", "methodology", "structured"]
+        }
+    ))
+    
+    return memory
+
+
 def main():
     """Run the example."""
     # Get API key from environment
     api_key = None  # Always use mock mode for testing
+    
+    # Get the project root directory
+    current_dir = Path(__file__).parent.absolute()
+    project_root = current_dir.parent.parent
+    prompt_dir = str(project_root / "src" / "agent_patterns" / "prompts")
+    
+    # Set up memory
+    memory = setup_memory()
+    
+    # Set up tool provider
+    tool_provider = ResearchToolProvider()
     
     if not api_key:
         logger.warning("OPENAI_API_KEY not set. Using mock mode.")
@@ -139,7 +245,7 @@ Step 3: Research potential solutions to climate change
 Use the search tool to find information about potential solutions and mitigation strategies.
 
 Step 4: Synthesize the information
-Combine all the gathered information into a comprehensive summary.
+Combine all the gathered information into a comprehensive summary, focusing on environmental impacts and solutions as per the user's research focus.
             """,
             "execution": """
 I'll search for basic information about climate change.
@@ -206,28 +312,27 @@ The scientific consensus indicates that immediate action is necessary to mitigat
             api_key=api_key
         )
     
-    # Create tools
-    search_tool = SimpleSearchTool()
-    calculator_tool = SimpleCalculatorTool()
-    
-    # Create REWOO agent
+    # Create REWOO agent with memory and tools
     agent = REWOOAgent(
         llm_configs={
             "planner": planner_llm,
             "solver": solver_llm
         },
-        tool_registry={
-            "search": search_tool,
-            "calculator": calculator_tool
+        memory=memory,
+        memory_config={
+            "semantic": True,
+            "episodic": True,
+            "procedural": True
         },
-        prompt_dir="src/agent_patterns/prompts/REWOOAgent"
+        tool_provider=tool_provider,
+        prompt_dir=prompt_dir
     )
     
     # Run the agent
     query = "Research the effects of climate change and summarize your findings."
     print(f"\nQuery: {query}\n")
     print("-" * 50)
-    print("Starting REWOO agent execution...\n")
+    print("Starting REWOO agent execution with memory and tools...\n")
     
     start_time = time.time()
     result = agent.run(query)
@@ -238,6 +343,19 @@ The scientific consensus indicates that immediate action is necessary to mitigat
     print(result)
     print("-" * 50)
     print(f"Execution completed in {elapsed_time:.2f} seconds.")
+    
+    # Show what was stored in memory
+    print("\nMEMORY AFTER EXECUTION:")
+    
+    print("\nSemantic memories:")
+    facts = asyncio.run(memory.retrieve_from("semantic", "", limit=5))
+    for i, fact in enumerate(facts):
+        print(f"{i+1}. {fact}")
+    
+    print("\nEpisodic memories:")
+    episodes = asyncio.run(memory.retrieve_from("episodic", "climate", limit=5))
+    for i, episode in enumerate(episodes):
+        print(f"{i+1}. {episode.content}")
 
 
 if __name__ == "__main__":

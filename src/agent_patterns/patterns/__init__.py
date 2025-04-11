@@ -1,13 +1,26 @@
-"""Module for agent pattern implementations."""
+"""Agent patterns for different use cases.
+
+This package contains implementations of various agent patterns to solve different
+types of problems and implement different reasoning strategies."""
 
 from agent_patterns.patterns.re_act_agent import ReActAgent
-from agent_patterns.patterns.plan_and_solve_agent import PlanAndSolveAgent
 from agent_patterns.patterns.reflection_agent import ReflectionAgent
-from agent_patterns.patterns.reflexion_agent import ReflexionAgent
-from agent_patterns.patterns.llm_compiler_agent import LLMCompilerAgent
-from agent_patterns.patterns.rewoo_agent import REWOOAgent
-from agent_patterns.patterns.lats_agent import LATSAgent
-from agent_patterns.patterns.storm_agent import STORMAgent
-from agent_patterns.patterns.self_discovery_agent import SelfDiscoveryAgent
+from agent_patterns.patterns.plan_and_solve_agent import PlanAndSolveAgent
+from agent_patterns.patterns.reflection_and_refinement_agent import ReflectionAndRefinementAgent
+from agent_patterns.patterns.factory import (
+    create_plan_and_solve_agent,
+    create_react_agent,
+    create_reflection_agent,
+    create_reflection_and_refinement_agent
+)
 
-__all__ = ["ReActAgent", "PlanAndSolveAgent", "ReflectionAgent", "ReflexionAgent", "LLMCompilerAgent", "REWOOAgent", "LATSAgent", "STORMAgent", "SelfDiscoveryAgent"]
+__all__ = [
+    "ReActAgent",
+    "ReflectionAgent",
+    "PlanAndSolveAgent",
+    "ReflectionAndRefinementAgent",
+    "create_plan_and_solve_agent",
+    "create_react_agent",
+    "create_reflection_agent",
+    "create_reflection_and_refinement_agent"
+]

@@ -9,6 +9,7 @@ from langgraph.graph import StateGraph, END
 from langgraph.graph.message import add_messages
 import logging
 from pathlib import Path
+import re
 
 from agent_patterns.core.base_agent import BaseAgent
 
@@ -57,6 +58,9 @@ class ReflexionAgent(BaseAgent):
         self,
         llm_configs: Dict[str, Dict],
         prompt_dir: str = "prompts",
+        tool_provider: Optional[Any] = None,
+        memory: Optional[Any] = None,
+        memory_config: Optional[Dict[str, bool]] = None,
         max_trials: int = 3,
         log_level: int = logging.INFO
     ):
@@ -65,11 +69,21 @@ class ReflexionAgent(BaseAgent):
         Args:
             llm_configs: Configuration for LLM roles (e.g., {'planner': {...}, 'executor': {...}, 'evaluator': {...}, 'reflector': {...}}).
             prompt_dir: Directory containing prompt templates (relative to project root).
+            tool_provider: Optional provider for tools the agent can use.
+            memory: Optional composite memory instance.
+            memory_config: Configuration for which memory types to use.
             max_trials: Maximum number of trials to attempt.
             log_level: Logging level.
         """
         # Call BaseAgent init
-        super().__init__(llm_configs=llm_configs, prompt_dir=prompt_dir, log_level=log_level)
+        super().__init__(
+            llm_configs=llm_configs, 
+            prompt_dir=prompt_dir, 
+            tool_provider=tool_provider,
+            memory=memory,
+            memory_config=memory_config,
+            log_level=log_level
+        )
         
         # Initialize the LLMs for different roles
         try:
@@ -150,6 +164,22 @@ class ReflexionAgent(BaseAgent):
         self.logger.debug("Planning action for trial %d/%d", state["trial_count"], state["max_trials"])
         
         try:
+            # Retrieve relevant memories if memory is enabled
+            memories = self.sync_retrieve_memories(state["input_task"])
+            memory_context = ""
+            
+            # Format memories for inclusion in the prompt
+            if memories:
+                memory_sections = []
+                for memory_type, items in memories.items():
+                    if items:
+                        items_text = "\n- ".join([str(item) for item in items])
+                        memory_sections.append(f"### {memory_type.capitalize()} Memories:\n- {items_text}")
+                
+                if memory_sections:
+                    memory_context = "Relevant information from memory:\n\n" + "\n\n".join(memory_sections) + "\n\n"
+                    self.logger.info(f"Retrieved {sum(len(items) for items in memories.values())} memories for planning")
+            
             # Load the planning prompt template
             prompt = self._load_prompt_template("PlanActionStep")
             
@@ -158,7 +188,8 @@ class ReflexionAgent(BaseAgent):
                 "input_task": state["input_task"],
                 "reflection_memory": "\n".join(state["reflection_memory"]) if state["reflection_memory"] else "No previous reflections available.",
                 "trial_count": state["trial_count"],
-                "max_trials": state["max_trials"]
+                "max_trials": state["max_trials"],
+                "memory_context": memory_context
             })
             
             # Get the planner response
@@ -196,13 +227,27 @@ class ReflexionAgent(BaseAgent):
         self.logger.debug("Executing action for trial %d", state["trial_count"])
         
         try:
+            # Get available tools if tool_provider is present
+            tools_description = ""
+            if self.tool_provider:
+                tools = self.tool_provider.list_tools()
+                if tools:
+                    tool_descriptions = []
+                    for tool in tools:
+                        tool_descriptions.append(f"- {tool['name']}: {tool['description']}")
+                    tools_description = "Available tools:\n" + "\n".join(tool_descriptions) + "\n\n"
+                    tools_description += "To use a tool, include the following format in your response:\n"
+                    tools_description += "USE_TOOL: tool_name(param1=value1, param2=value2)\n\n"
+                    self.logger.info(f"Found {len(tools)} available tools for execution")
+            
             # Load the execution prompt template
             prompt = self._load_prompt_template("ExecuteActionStep")
             
             # Format the prompt with the plan and task
             formatted_prompt = prompt.invoke({
                 "input_task": state["input_task"],
-                "current_plan": state["current_plan"]
+                "current_plan": state["current_plan"],
+                "tools_description": tools_description
             })
             
             # Get the executor response
@@ -210,6 +255,37 @@ class ReflexionAgent(BaseAgent):
             
             # Extract the action result
             action_result = executor_response.content
+            
+            # Check if the response contains a tool call
+            if self.tool_provider:
+                # Simple pattern matching for tool calls in the format: "USE_TOOL: tool_name(param1=value1, param2=value2)"
+                tool_call_pattern = r"USE_TOOL:\s+(\w+)\(([^)]*)\)"
+                tool_call_match = re.search(tool_call_pattern, action_result)
+                
+                # If a tool call is detected
+                if tool_call_match:
+                    tool_name = tool_call_match.group(1)
+                    tool_params_str = tool_call_match.group(2)
+                    
+                    # Parse parameters
+                    params = {}
+                    param_matches = re.finditer(r"(\w+)\s*=\s*([^,]+)(?:,|$)", tool_params_str)
+                    for match in param_matches:
+                        param_name = match.group(1)
+                        param_value = match.group(2).strip().strip('"\'')
+                        params[param_name] = param_value
+                    
+                    try:
+                        # Execute the tool
+                        self.logger.info(f"Executing tool: {tool_name} with params {params}")
+                        tool_result = self.tool_provider.execute_tool(tool_name, params)
+                        
+                        # Append tool result to the action result
+                        action_result += f"\n\nTool Result: {tool_result}"
+                    except Exception as e:
+                        error_msg = f"\n\nError executing tool {tool_name}: {str(e)}"
+                        action_result += error_msg
+                        self.logger.error(f"Tool execution error: {str(e)}")
             
             self.logger.debug("Action result for trial %d: %s", state["trial_count"], 
                              action_result[:100] + "..." if len(action_result) > 100 else action_result)
@@ -301,6 +377,23 @@ class ReflexionAgent(BaseAgent):
             # Extract the reflection
             reflection = reflector_response.content
             
+            # Save reflection to episodic memory if available
+            if self.memory:
+                self.sync_save_memory(
+                    memory_type="episodic",
+                    item={
+                        "event_type": "reflexion_trial",
+                        "task": state["input_task"],
+                        "trial": state["trial_count"],
+                        "plan": state["current_plan"],
+                        "action_result": state["action_result"],
+                        "evaluation": state["evaluation"],
+                        "reflection": reflection
+                    },
+                    query=state["input_task"]
+                )
+                self.logger.debug("Saved reflection to episodic memory")
+            
             self.logger.debug("Reflection for trial %d: %s", state["trial_count"], 
                              reflection[:100] + "..." if len(reflection) > 100 else reflection)
             
@@ -376,7 +469,28 @@ class ReflexionAgent(BaseAgent):
         # Use the most recent action result as the final answer
         final_answer = state.get("action_result", "No solution found.")
         
-        # Optionally, you could use an LLM to summarize all attempts and provide a final polished answer
+        # Save the final result to semantic memory if available
+        if self.memory:
+            # Determine success status based on evaluation
+            success = False
+            if state.get("evaluation", ""):
+                evaluation = state["evaluation"].lower()
+                success_indicators = ["10/10", "9/10", "8/10", "successful", "perfect", "complete", "excellent"]
+                success = any(indicator in evaluation for indicator in success_indicators)
+            
+            self.sync_save_memory(
+                memory_type="semantic",
+                item={
+                    "task_type": state["input_task"].split()[0:5],  # Use first few words as task type
+                    "task": state["input_task"],
+                    "solution": final_answer,
+                    "trials": state["trial_count"] - 1,
+                    "successful": success,
+                    "reflection_history": state["reflection_memory"]
+                },
+                query=state["input_task"]
+            )
+            self.logger.debug("Saved final result to semantic memory")
         
         return {"final_answer": final_answer}
 

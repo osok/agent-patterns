@@ -62,6 +62,10 @@ class STORMAgent(BaseAgent):
         num_perspectives: Number of perspectives to identify (default: 3)
         max_conversation_turns: Maximum conversation turns (default: 5)
         prompt_dir: Directory for prompt templates
+        tool_provider: Optional provider for tools the agent can use
+        memory: Optional composite memory instance
+        memory_config: Configuration for which memory types to use
+        log_level: Logging level
     """
     
     def __init__(
@@ -71,9 +75,24 @@ class STORMAgent(BaseAgent):
         num_perspectives: int = 3,
         max_conversation_turns: int = 5,
         prompt_dir: str = "prompts",
+        tool_provider: Optional[Any] = None,
+        memory: Optional[Any] = None,
+        memory_config: Optional[Dict[str, bool]] = None,
         log_level: int = 20,  # INFO level
     ):
-        """Initialize the STORM agent."""
+        """Initialize the STORM agent.
+        
+        Args:
+            llm_configs: Dictionary with LLM configurations for different roles
+            search_tool: Tool for retrieving information from external sources
+            num_perspectives: Number of perspectives to identify (default: 3)
+            max_conversation_turns: Maximum conversation turns (default: 5)
+            prompt_dir: Directory for prompt templates
+            tool_provider: Optional provider for tools the agent can use
+            memory: Optional composite memory instance
+            memory_config: Configuration for which memory types to use
+            log_level: Logging level
+        """
         # Initialize search tool for retrieving information
         self.search_tool = search_tool
         self.num_perspectives = num_perspectives
@@ -87,7 +106,14 @@ class STORMAgent(BaseAgent):
                 raise ValueError(f"Missing LLM configuration for role '{role}' and no default configuration provided.")
         
         # Call BaseAgent init with configs
-        super().__init__(llm_configs=llm_configs, prompt_dir=prompt_dir, log_level=log_level)
+        super().__init__(
+            llm_configs=llm_configs, 
+            prompt_dir=prompt_dir, 
+            tool_provider=tool_provider,
+            memory=memory,
+            memory_config=memory_config,
+            log_level=log_level
+        )
     
     def build_graph(self) -> None:
         """
@@ -235,6 +261,23 @@ class STORMAgent(BaseAgent):
         """
         self.logger.info(f"Generating initial outline for topic: {state['input_topic']}")
         
+        # Retrieve relevant memories if memory is enabled
+        memory_context = ""
+        if self.memory:
+            memories = self.sync_retrieve_memories(state["input_topic"])
+            
+            # Format memories for inclusion in the prompt
+            if memories:
+                memory_sections = []
+                for memory_type, items in memories.items():
+                    if items:
+                        items_text = "\n- ".join([str(item) for item in items])
+                        memory_sections.append(f"### {memory_type.capitalize()} Memories:\n- {items_text}")
+                
+                if memory_sections:
+                    memory_context = "Relevant information from memory:\n\n" + "\n\n".join(memory_sections) + "\n\n"
+                    self.logger.info(f"Retrieved {sum(len(items) for items in memories.values())} memories for outline generation")
+        
         # Load the prompt template for outline generation
         prompt_template = self._load_prompt_template("OutlineGeneration")
         
@@ -251,10 +294,31 @@ class STORMAgent(BaseAgent):
                 self.logger.warning(f"Error during search for similar topics: {str(e)}")
                 similar_topics_info = ""
         
+        # Check if tool_provider is available and has search capabilities
+        elif self.tool_provider:
+            try:
+                # Look for search-like tools in tool_provider
+                provider_tools = self.tool_provider.list_tools()
+                search_tools = [tool for tool in provider_tools if any(keyword in tool.get("name", "").lower() for keyword in ["search", "lookup", "find", "query"])]
+                
+                if search_tools:
+                    # Use the first search-like tool
+                    search_tool = search_tools[0]
+                    search_tool_name = search_tool.get("name", "")
+                    search_result = self.tool_provider.execute_tool(
+                        search_tool_name, 
+                        {"query": f"outline for {state['input_topic']}"}
+                    )
+                    similar_topics_info = f"Information about similar topics:\n{search_result}"
+                    self.logger.info(f"Used tool_provider's {search_tool_name} tool for research")
+            except Exception as e:
+                self.logger.warning(f"Error using tool_provider for search: {str(e)}")
+        
         # Generate the outline
         response = llm.invoke(prompt_template.format(
             topic=state['input_topic'],
-            similar_topics_info=similar_topics_info
+            similar_topics_info=similar_topics_info,
+            memory_context=memory_context
         ))
         
         # Parse the response to extract the outline structure
@@ -330,6 +394,24 @@ class STORMAgent(BaseAgent):
         expert_prompt = self._load_prompt_template("ExpertRole")
         researcher_prompt = self._load_prompt_template("ResearcherRole")
         
+        # Prepare tool information if tool_provider is available
+        tools_info = ""
+        if self.tool_provider:
+            try:
+                provider_tools = self.tool_provider.list_tools()
+                if provider_tools:
+                    tool_descriptions = []
+                    for tool in provider_tools:
+                        tool_name = tool.get("name", "")
+                        tool_desc = tool.get("description", "")
+                        tool_descriptions.append(f"- {tool_name}: {tool_desc}")
+                    
+                    if tool_descriptions:
+                        tools_info = "You can use the following tools to retrieve information:\n" + "\n".join(tool_descriptions) + "\n\n"
+                        tools_info += "To use a tool, include a line in your response with the format: USE TOOL: tool_name(parameter_value)"
+            except Exception as e:
+                self.logger.warning(f"Error retrieving tools from tool_provider: {str(e)}")
+        
         # For each perspective, simulate a conversation
         for perspective in state["perspectives"]:
             # Initialize the conversation
@@ -341,7 +423,8 @@ class STORMAgent(BaseAgent):
             
             # Create system messages for the expert and researcher roles
             expert_system = SystemMessage(content=expert_prompt.format(
-                topic=state['input_topic']
+                topic=state['input_topic'],
+                tools_info=tools_info
             ).content)
             
             researcher_system = SystemMessage(content=researcher_prompt.format(
@@ -361,8 +444,10 @@ class STORMAgent(BaseAgent):
                     "content": current_question
                 })
                 
-                # If search tool is available, use it to gather information for the expert
+                # Prepare search results
                 search_results = ""
+                
+                # If search tool is available, use it to gather information for the expert
                 if self.search_tool:
                     try:
                         search_results = self.search_tool.run(f"{state['input_topic']} {current_question}")
@@ -371,21 +456,29 @@ class STORMAgent(BaseAgent):
                         search_results = ""
                 
                 # Expert responds based on search results
+                expert_message = HumanMessage(content=f"Search results: {search_results}\n\nPlease respond to the researcher's question.")
+                
                 expert_response = expert_llm.invoke([
                     expert_system,
                     *[HumanMessage(content=msg["content"]) if msg["role"] == "researcher" else AIMessage(content=msg["content"]) 
                       for msg in conversation["messages"]],
-                    HumanMessage(content=f"Search results: {search_results}\n\nPlease respond to the researcher's question.")
+                    expert_message
                 ])
+                
+                # Check if expert's response includes tool requests and the tool_provider is available
+                expert_response_content = expert_response.content
+                if self.tool_provider and "USE TOOL:" in expert_response_content:
+                    # Process any tool requests
+                    expert_response_content = self._process_tool_requests(expert_response_content)
                 
                 # Add expert's response to conversation
                 conversation["messages"].append({
                     "role": "expert",
-                    "content": expert_response.content
+                    "content": expert_response_content
                 })
                 
                 # Extract references from expert's response
-                extracted_refs = self._extract_references(expert_response.content)
+                extracted_refs = self._extract_references(expert_response_content)
                 for ref in extracted_refs:
                     if ref not in conversation["references"]:
                         conversation["references"].append(ref)
@@ -429,6 +522,50 @@ class STORMAgent(BaseAgent):
             "references": references,
             "current_step": "refine_outline"
         }
+    
+    def _process_tool_requests(self, text: str) -> str:
+        """Process any tool requests in the text.
+        
+        Args:
+            text: Text containing potential tool requests
+            
+        Returns:
+            Updated text with tool results integrated
+        """
+        if not self.tool_provider or "USE TOOL:" not in text:
+            return text
+        
+        lines = text.split('\n')
+        processed_lines = []
+        
+        for i, line in enumerate(lines):
+            processed_lines.append(line)
+            
+            if "USE TOOL:" in line:
+                # Extract tool request
+                tool_request = line.split("USE TOOL:", 1)[1].strip()
+                
+                # Parse the tool name and parameters
+                tool_match = re.match(r'(\w+)\(([^)]*)\)', tool_request)
+                if tool_match:
+                    tool_name = tool_match.group(1)
+                    tool_param = tool_match.group(2).strip()
+                    
+                    # Execute the tool
+                    try:
+                        self.logger.info(f"Executing tool: {tool_name} with parameter: {tool_param}")
+                        tool_result = self.tool_provider.execute_tool(tool_name, {"query": tool_param})
+                        
+                        # Add a separator and the tool result
+                        processed_lines.append("\nTOOL RESULT:")
+                        processed_lines.append(str(tool_result))
+                        processed_lines.append("")  # Add a blank line
+                    except Exception as e:
+                        processed_lines.append(f"\nERROR: Failed to execute tool {tool_name}: {str(e)}")
+                else:
+                    processed_lines.append("\nERROR: Invalid tool request format. Should be 'tool_name(parameter)'.")
+        
+        return '\n'.join(processed_lines)
     
     def _refine_outline(self, state: STORMState) -> Dict[str, Any]:
         """
@@ -538,6 +675,23 @@ class STORMAgent(BaseAgent):
         """
         self.logger.info(f"Finalizing article for topic: {state['input_topic']}")
         
+        # Retrieve relevant memories if memory is enabled
+        memory_context = ""
+        if self.memory:
+            memories = self.sync_retrieve_memories(state["input_topic"])
+            
+            # Format memories for inclusion in the prompt
+            if memories:
+                memory_sections = []
+                for memory_type, items in memories.items():
+                    if items:
+                        items_text = "\n- ".join([str(item) for item in items])
+                        memory_sections.append(f"### {memory_type.capitalize()} Memories:\n- {items_text}")
+                
+                if memory_sections:
+                    memory_context = "Relevant information from memory:\n\n" + "\n\n".join(memory_sections) + "\n\n"
+                    self.logger.info(f"Retrieved {sum(len(items) for items in memories.values())} memories for article finalization")
+        
         # Load the prompt template for article finalization
         prompt_template = self._load_prompt_template("ArticleFinalization")
         
@@ -569,12 +723,48 @@ class STORMAgent(BaseAgent):
         response = llm.invoke(prompt_template.format(
             topic=state['input_topic'],
             sections=sections_text,
-            bibliography=bibliography
+            bibliography=bibliography,
+            memory_context=memory_context
         ))
+        
+        # Extract the final article content
+        final_article = response.content
+        
+        # Save the final article to memory if memory is enabled
+        if self.memory:
+            # Save to episodic memory with article structure, references and content
+            self.sync_save_memory(
+                memory_type="episodic",
+                item={
+                    "event_type": "article_creation",
+                    "topic": state["input_topic"],
+                    "outline": [section.get("title", "") for section in state["outline"]],
+                    "references_count": len(references_list),
+                    "article_length": len(final_article),
+                    "perspectives": state["perspectives"]
+                },
+                query=state["input_topic"]
+            )
+            
+            # Save to semantic memory with summary of the article
+            self.sync_save_memory(
+                memory_type="semantic",
+                item={
+                    "topic": state["input_topic"],
+                    "content_type": "article",
+                    "perspectives": state["perspectives"],
+                    "sections": [section.get("title", "") for section in state["outline"]],
+                    # Use the first 200 chars of the article as a brief summary
+                    "summary": final_article[:200] + ("..." if len(final_article) > 200 else "")
+                },
+                query=state["input_topic"]
+            )
+            
+            self.logger.info("Saved final article to memory")
         
         # Return updated state with final article
         return {
-            "final_article": response.content,
+            "final_article": final_article,
             "current_step": "finished"
         }
     

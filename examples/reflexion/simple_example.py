@@ -1,7 +1,8 @@
-"""Example usage of the Reflexion Agent pattern.
+"""Example usage of the Reflexion Agent pattern with memory and tools.
 
 This example demonstrates using the ReflexionAgent to solve a problem
-through multiple trials, learning from past attempts.
+through multiple trials, learning from past attempts, with the enhanced
+capabilities of memory and tool access.
 """
 
 import os
@@ -10,13 +11,137 @@ from pathlib import Path
 from dotenv import load_dotenv
 from typing import Dict
 import logging
+import asyncio
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Add the parent directory to sys.path to import agent_patterns
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+
+# Import agent patterns modules
+from agent_patterns.patterns.reflexion_agent import ReflexionAgent
+from agent_patterns.core.memory import (
+    SemanticMemory,
+    EpisodicMemory,
+    ProceduralMemory,
+    CompositeMemory
+)
+from agent_patterns.core.memory.persistence import (
+    InMemoryPersistence
+)
+from agent_patterns.core.tools.base import ToolProvider
+
 # Load environment variables
 load_dotenv()
+
+# Simple benchmarking tool implementation
+class BenchmarkTool(ToolProvider):
+    """A simple tool to benchmark Fibonacci implementations."""
+    
+    def list_tools(self):
+        """List the available tools."""
+        return [{
+            "name": "benchmark_code",
+            "description": "Benchmark a Python function for performance",
+            "parameters": {
+                "code": {
+                    "type": "string", 
+                    "description": "The Python code to benchmark"
+                },
+                "test_case": {
+                    "type": "string",
+                    "description": "The test case to run (e.g., 'fibonacci(35)')"
+                }
+            }
+        }]
+    
+    def execute_tool(self, tool_name, params):
+        """Execute the benchmarking tool."""
+        if tool_name != "benchmark_code":
+            return f"Unknown tool: {tool_name}"
+            
+        code = params.get("code", "")
+        test_case = params.get("test_case", "fibonacci(35)")
+        
+        try:
+            # Create a temporary namespace for execution
+            namespace = {}
+            
+            # Execute the code in the namespace
+            exec(code, namespace)
+            
+            # Check if the function exists
+            function_name = test_case.split("(")[0]
+            if function_name not in namespace:
+                return f"Error: Function '{function_name}' not found in the code"
+            
+            # Import time for benchmarking
+            import time
+            
+            # Run the function and measure time
+            start_time = time.time()
+            try:
+                result = eval(test_case, namespace)
+                end_time = time.time()
+                execution_time = end_time - start_time
+                
+                return f"Result: {result}\nExecution time: {execution_time:.6f} seconds"
+            except Exception as e:
+                return f"Error during execution: {str(e)}"
+                
+        except Exception as e:
+            return f"Error in code: {str(e)}"
+
+def setup_memory():
+    """Set up a composite memory system for the Reflexion agent."""
+    # Create persistence backend
+    persistence = InMemoryPersistence()
+    asyncio.run(persistence.initialize())
+    
+    # Create individual memory types
+    semantic_memory = SemanticMemory(persistence, namespace="fibonacci_semantic")
+    episodic_memory = EpisodicMemory(persistence, namespace="fibonacci_episodic")
+    procedural_memory = ProceduralMemory(persistence, namespace="fibonacci_procedural")
+    
+    # Create composite memory
+    memory = CompositeMemory({
+        "semantic": semantic_memory,
+        "episodic": episodic_memory,
+        "procedural": procedural_memory
+    })
+    
+    # Pre-populate with some semantic memories about algorithms
+    asyncio.run(memory.save_to(
+        "semantic", 
+        {"entity": "fibonacci", "attribute": "definition", "value": "A sequence where each number is the sum of the two preceding ones"}
+    ))
+    
+    asyncio.run(memory.save_to(
+        "semantic", 
+        {"entity": "recursive_algorithm", "attribute": "limitation", "value": "can lead to exponential time complexity without memoization"}
+    ))
+    
+    # Add a procedural memory for optimizing code
+    asyncio.run(memory.save_to(
+        "procedural",
+        {
+            "name": "optimize_recursive_function",
+            "pattern": {
+                "template": """When optimizing recursive functions:
+1. Consider using memoization to avoid redundant calculations
+2. Try converting to an iterative approach
+3. Use dynamic programming for overlapping subproblems
+4. Consider space-time tradeoffs
+5. Analyze the time complexity of your solution"""
+            },
+            "description": "Template for optimizing recursive functions",
+            "tags": ["optimization", "recursion", "algorithm"]
+        }
+    ))
+    
+    return memory
 
 def setup_llm_configs() -> Dict:
     """Set up LLM configurations for the Reflexion agent roles.
@@ -52,7 +177,7 @@ def setup_llm_configs() -> Dict:
     return llm_configs
 
 def main():
-    """Run an example of the Reflexion agent solving a problem."""
+    """Run an example of the Reflexion agent solving a problem with memory and tools."""
     # Get the project root directory
     current_dir = Path(__file__).parent.absolute()
     project_root = current_dir.parent.parent
@@ -61,11 +186,24 @@ def main():
     # Set up the LLM configurations
     llm_configs = setup_llm_configs()
     
-    # Create the Reflexion agent
+    # Set up memory
+    memory = setup_memory()
+    
+    # Set up benchmark tool
+    benchmark_tool = BenchmarkTool()
+    
+    # Create the Reflexion agent with memory and tools
     agent = ReflexionAgent(
         llm_configs=llm_configs,
         prompt_dir=prompt_dir,
         max_trials=3,  # Allow up to 3 attempts
+        memory=memory,
+        memory_config={
+            "semantic": True,
+            "episodic": True,
+            "procedural": True
+        },
+        tool_provider=benchmark_tool,
         log_level=logging.INFO
     )
     
@@ -78,6 +216,7 @@ def main():
     For example, the first 10 Fibonacci numbers are: 0, 1, 1, 2, 3, 5, 8, 13, 21, 34.
     
     Your solution should be efficient enough to compute fibonacci(35) in under a second.
+    You can use the benchmark_code tool to test your solution's performance.
     """
     
     logger.info("Running Reflexion agent for Fibonacci implementation")
@@ -98,6 +237,18 @@ def main():
         print(f"Reflection {i+1}:")
         print(reflection)
         print()
+    
+    # Show what was stored in memory
+    print("\n=== MEMORY AFTER EXECUTION ===\n")
+    print("Semantic memories:")
+    facts = asyncio.run(memory.retrieve_from("semantic", "", limit=5))
+    for i, fact in enumerate(facts):
+        print(f"{i+1}. {fact}")
+    
+    print("\nEpisodic memories:")
+    episodes = asyncio.run(memory.retrieve_from("episodic", "fibonacci", limit=5))
+    for i, episode in enumerate(episodes):
+        print(f"{i+1}. {episode.content}")
 
 if __name__ == "__main__":
     main()
