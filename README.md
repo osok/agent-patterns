@@ -31,6 +31,8 @@ The library follows these key architectural principles:
 3. **Developer Clarity**: Clear documentation of responsibilities and extension points
 4. **Testability & Extensibility**: Separated components for easy testing and maintenance
 
+For a comprehensive overview of the architecture, see the [Design Documentation](docs/Design.md).
+
 ## Pattern Descriptions
 
 ### ReAct
@@ -124,6 +126,7 @@ All agent patterns in the library support tool integration through a consistent 
 For detailed documentation, see:
 - [Tool Provider API Documentation](docs/Tool%20Provider%20API%20Documentation.md)
 - [MCP Tool Integration Tutorial](docs/MCP%20Tool%20Integration%20Tutorial.md)
+- [Agent Tools Design](docs/Agent%20Tools%20Design.md.md)
 
 ### Memory Systems
 
@@ -152,6 +155,8 @@ Each agent pattern integrates memory at the appropriate points in its workflow, 
 For detailed documentation, see:
 - [Memory API Documentation](docs/Memory%20API%20Documentation.md)
 - [Memory Integration Tutorial](docs/Memory%20Integration%20Tutorial.md)
+- [Agent Memory Design](docs/Agent%20Memory%20Design.md)
+- [Memory and MCP Integration](docs/memory_and_mcp_integration.md)
 
 ## Quick Start
 
@@ -293,6 +298,8 @@ print(result)
 3. Implement node functions for each step
 4. Add prompts in `prompts/<YourPatternClass>/`
 5. Create example scripts and tests
+
+For more guidance on next steps and development, see [Next Steps](docs/Next%20Steps.md).
 
 ## Contributing
 
