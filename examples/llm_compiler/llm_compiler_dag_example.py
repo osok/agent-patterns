@@ -17,7 +17,7 @@ from langchain_core.tools import tool
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 # Import the LLMCompilerAgent
-from src.agent_patterns.patterns import LLMCompilerAgent
+from agent_patterns.patterns import LLMCompilerAgent
 
 # Load environment variables from .env file
 load_dotenv()
@@ -198,7 +198,7 @@ def main():
     agent = LLMCompilerAgent(
         llm_configs=llm_configs,
         tools=tools,
-        prompt_dir="src/agent_patterns/prompts",
+        prompt_dir="agent_patterns/prompts",
         log_level=logging.INFO
     )
     

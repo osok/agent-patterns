@@ -613,50 +613,56 @@ class LLMCompilerAgent(BaseAgent):
         Returns:
             Dict containing the final result and metadata about the process.
         """
-        if not self.graph:
-            raise RuntimeError("Agent graph is not compiled.")
-            
-        # Initialize state
-        initial_state: LLMCompilerState = {
-            "input_query": input_text,
-            "available_tools": self.tool_descriptions,
-            "task_graph": {},
-            "tasks_pending": [],
-            "tasks_in_progress": [],
-            "tasks_completed": [],
-            "task_results": {},
-            "needs_replanning": False,
-            "final_answer": None
-        }
+        self.logger.info(f"Running LLM Compiler agent with input: {input_text[:50]}...")
         
         try:
-            self.on_start()
-            self.logger.info("Running LLM Compiler agent with input: %s", input_text[:100] + "..." if len(input_text) > 100 else input_text)
+            # Prepare the initial state
+            available_tools = []
+            for tool in self.tools:
+                available_tools.append({
+                    "name": tool.name,
+                    "description": tool.description,
+                    "parameters": getattr(tool, "args_schema", None)
+                })
             
-            # Run the graph
+            initial_state: LLMCompilerState = {
+                "input_query": input_text,
+                "available_tools": available_tools,
+                "task_graph": {},
+                "tasks_pending": [],
+                "tasks_in_progress": [],
+                "tasks_completed": [],
+                "task_results": {},
+                "needs_replanning": False,
+                "final_answer": None,
+            }
+            
+            # Execute the graph
             final_state = self.graph.invoke(initial_state)
             
-            # Extract the final result
-            result = final_state.get("final_answer", "No final answer generated.")
-            
-            # Create metadata about the process
-            metadata = {
-                "tasks_planned": len(final_state["task_graph"]),
-                "tasks_completed": len(final_state["tasks_completed"]),
-                "needed_replanning": final_state.get("needs_replanning", False)
-            }
-            
-            self.logger.info("LLM Compiler agent completed successfully with %d tasks", metadata["tasks_completed"])
+            # Return the result
             return {
-                "output": result,
-                "metadata": metadata
+                "output": final_state.get("final_answer", "No final answer generated."),
+                "metadata": {
+                    "tasks_planned": len(final_state.get("task_graph", {})),
+                    "tasks_completed": len(final_state.get("tasks_completed", [])),
+                    "needed_replanning": final_state.get("needs_replanning", False),
+                    "task_graph": final_state.get("task_graph", {})
+                }
             }
-            
         except Exception as e:
-            self.logger.error("LLM Compiler agent execution failed: %s", e, exc_info=True)
-            return {"error": str(e)}
-        finally:
-            self.on_finish()
+            self.logger.error(f"LLM Compiler agent execution failed: {e}", exc_info=True)
+            
+            # Return a fallback result on error
+            return {
+                "output": f"I encountered an error during execution: {str(e)}. Please try again or reformulate your question.",
+                "metadata": {
+                    "tasks_planned": 0,
+                    "tasks_completed": 0,
+                    "needed_replanning": False,
+                    "error": str(e)
+                }
+            }
 
     def stream(self, input_text: str) -> Any:
         """Stream the LLM Compiler agent execution.
@@ -667,32 +673,38 @@ class LLMCompilerAgent(BaseAgent):
         Yields:
             State updates at each step of execution.
         """
-        if not self.graph:
-            raise RuntimeError("Agent graph is not compiled.")
-            
-        # Initialize state
-        initial_state: LLMCompilerState = {
-            "input_query": input_text,
-            "available_tools": self.tool_descriptions,
-            "task_graph": {},
-            "tasks_pending": [],
-            "tasks_in_progress": [],
-            "tasks_completed": [],
-            "task_results": {},
-            "needs_replanning": False,
-            "final_answer": None
-        }
+        self.logger.info(f"Streaming LLM Compiler agent with input: {input_text[:50]}...")
         
         try:
-            self.on_start()
-            self.logger.info("Streaming LLM Compiler agent with input: %s", input_text[:100] + "..." if len(input_text) > 100 else input_text)
+            # Prepare the initial state
+            available_tools = []
+            for tool in self.tools:
+                available_tools.append({
+                    "name": tool.name,
+                    "description": tool.description,
+                    "parameters": getattr(tool, "args_schema", None)
+                })
+            
+            initial_state: LLMCompilerState = {
+                "input_query": input_text,
+                "available_tools": available_tools,
+                "task_graph": {},
+                "tasks_pending": [],
+                "tasks_in_progress": [],
+                "tasks_completed": [],
+                "task_results": {},
+                "needs_replanning": False,
+                "final_answer": None
+            }
             
             # Stream the graph execution
             for step_output in self.graph.stream(initial_state):
                 yield step_output
                 
         except Exception as e:
-            self.logger.error("LLM Compiler agent streaming failed: %s", e, exc_info=True)
-            yield {"error": str(e)}
-        finally:
-            self.on_finish() 
+            self.logger.error(f"LLM Compiler agent streaming failed: {e}", exc_info=True)
+            # On error, yield a final error state
+            yield {
+                "error": str(e),
+                "final_answer": f"I encountered an error during execution: {str(e)}. Please try again or reformulate your question."
+            } 

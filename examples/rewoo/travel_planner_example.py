@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 Travel Planner Example using the REWOO agent pattern.
 
@@ -6,17 +7,13 @@ for creating a detailed travel itinerary with separate planning and execution ph
 """
 
 import os
-import sys
 import logging
 import time
 from typing import Dict, Any, List
 import json
 from datetime import datetime, timedelta
 
-# Add the src directory to the path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-
-from src.agent_patterns.patterns.rewoo_agent import REWOOAgent
+from agent_patterns.rewoo.agent import REWOOAgent
 from langchain_openai import ChatOpenAI
 
 # Configure logging
@@ -497,7 +494,7 @@ class AttractionSearchTool:
 def main():
     """Run the example."""
     # Get API key from environment
-    api_key = None  # Always use mock mode for testing
+    api_key = os.environ.get("OPENAI_API_KEY")
     
     if not api_key:
         logger.warning("OPENAI_API_KEY not set. Using mock mode.")
@@ -714,6 +711,16 @@ Enjoy your trip to Paris! This beautiful city has something for everyone, from w
     hotel_search_tool = HotelSearchTool()
     attraction_search_tool = AttractionSearchTool()
     
+    # Define the prompt directory
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    repo_root = os.path.dirname(os.path.dirname(script_dir))
+    src_prompt_dir = os.path.join(repo_root, "src", "agent_patterns", "prompts", "REWOOAgent")
+    prompt_dir = os.path.join(repo_root, "agent_patterns", "prompts", "REWOOAgent")
+    
+    # Use the src path if it exists, otherwise use the non-src path
+    if os.path.exists(src_prompt_dir):
+        prompt_dir = src_prompt_dir
+    
     # Create REWOO agent
     agent = REWOOAgent(
         llm_configs={
@@ -726,7 +733,7 @@ Enjoy your trip to Paris! This beautiful city has something for everyone, from w
             "hotel_search": hotel_search_tool,
             "attraction_search": attraction_search_tool
         },
-        prompt_dir="src/agent_patterns/prompts/REWOOAgent"
+        prompt_dir=prompt_dir
     )
     
     # Run the agent

@@ -9,13 +9,18 @@ import os
 import sys
 import logging
 import time
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional, Union, Tuple, ClassVar, Type
 import re
+import json
+import numpy as np
 
 # Add the src directory to the path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from src.agent_patterns.patterns.rewoo_agent import REWOOAgent
+from agent_patterns.rewoo.agent import REWOOAgent
+from agent_patterns.rewoo.types import TaskDecompositionResponse
+from agent_patterns.rewoo.tool_provider import ToolProvider
+from agent_patterns.rewoo.solution_validator import SolutionValidator
 from langchain_openai import ChatOpenAI
 
 # Configure logging
@@ -253,178 +258,36 @@ class MatrixTool:
 
 def main():
     """Run the example."""
-    # Get API key from environment
-    api_key = None  # Always use mock mode for testing
+    # Setup logging
+    logging.basicConfig(level=logging.INFO)
     
-    if not api_key:
-        logger.warning("OPENAI_API_KEY not set. Using mock mode.")
-        # Create mock implementation
-        from unittest.mock import MagicMock
-        
-        # Create a mock LLM that gives pre-scripted responses
-        mock_responses = {
-            "planning": """
-Step 1: Set up the system of equations
-Formulate the system of equations from the word problem.
-
-Step 2: Solve for the number of adult tickets
-Use the equation solver to find x (number of adult tickets).
-
-Step 3: Solve for the number of child tickets
-Determine y (number of child tickets) using the relationship and our solved value of x.
-
-Step 4: Calculate the total revenue
-Compute the total revenue using the ticket prices and quantities.
-
-Step 5: Verify the solution
-Check if our solution satisfies all the original constraints.
-            """,
-            "execution1": """
-To solve this problem, I need to set up equations based on the given information.
-
-Given:
-- A movie theater sold x adult tickets and y child tickets
-- Adult tickets cost $12 each, child tickets cost $8 each
-- The theater sold 250 tickets total
-- The total revenue was $2,600
-
-I'll set up two equations:
-1. The total number of tickets: x + y = 250
-2. The total revenue: 12x + 8y = 2600
-
-Let me rearrange the first equation to express y in terms of x:
-y = 250 - x
-
-Now I can substitute this into the revenue equation:
-12x + 8(250 - x) = 2600
-12x + 2000 - 8x = 2600
-4x + 2000 = 2600
-4x = 600
-x = 150
-
-So there were 150 adult tickets sold.
-            """,
-            "execution2": """
-Now I need to solve for the number of child tickets (y).
-
-I'll use the equation: x + y = 250
-Since we found x = 150, I can substitute:
-150 + y = 250
-y = 250 - 150
-y = 100
-
-So there were 100 child tickets sold.
-            """,
-            "execution3": """
-Let me calculate the total revenue to verify our solution.
-
-Revenue = (adult tickets × adult price) + (child tickets × child price)
-Revenue = (150 × $12) + (100 × $8)
-Revenue = $1,800 + $800
-
-Let me use the calculator tool to verify:
-
-TOOL: calculator
-expression: 150 * 12 + 100 * 8
-            """,
-            "execution4": """
-Finally, I'll verify that our solution satisfies all the original constraints.
-
-1. Total number of tickets: x + y = 150 + 100 = 250 ✓
-2. Total revenue: 12x + 8y = 12(150) + 8(100) = 1800 + 800 = $2,600 ✓
-
-Let me double-check the second constraint:
-
-TOOL: calculator
-expression: 12 * 150 + 8 * 100
-            """,
-            "final": """
-# Solution: Movie Theater Ticket Sales Problem
-
-## Problem
-A movie theater sold adult tickets for $12 each and child tickets for $8 each. If the theater sold 250 tickets and collected $2,600 in revenue, how many of each type of ticket did they sell?
-
-## Step 1: Set up the system of equations
-Let x = number of adult tickets
-Let y = number of child tickets
-
-Based on the given information:
-- Total tickets: x + y = 250
-- Total revenue: 12x + 8y = 2,600
-
-## Step 2: Solve for the number of adult tickets
-Rearranging the first equation: y = 250 - x
-
-Substituting into the second equation:
-12x + 8(250 - x) = 2,600
-12x + 2,000 - 8x = 2,600
-4x + 2,000 = 2,600
-4x = 600
-x = 150
-
-Therefore, the theater sold 150 adult tickets.
-
-## Step 3: Solve for the number of child tickets
-Using the relationship x + y = 250 and x = 150:
-150 + y = 250
-y = 100
-
-Therefore, the theater sold 100 child tickets.
-
-## Step 4: Verification
-Checking our solution:
-- Total tickets: 150 + 100 = 250 ✓
-- Total revenue: (150 × $12) + (100 × $8) = $1,800 + $800 = $2,600 ✓
-
-## Conclusion
-The theater sold 150 adult tickets and 100 child tickets.
-            """
-        }
-        
-        class MockLLM:
-            def __init__(self, responses):
-                self.responses = responses
-                self.invoke_calls = []
-                
-            def invoke(self, messages):
-                self.invoke_calls.append(messages)
-                message_str = str(messages)
-                
-                if "planning" in message_str.lower() or "plan" in message_str.lower():
-                    return mock_responses["planning"]
-                    
-                if "step" in message_str.lower() and "execution" in message_str.lower():
-                    # Return different responses based on the step number
-                    step_mention = message_str.lower().find("step")
-                    if step_mention >= 0:
-                        for i in range(1, 5):
-                            if f"step {i}" in message_str.lower():
-                                return mock_responses.get(f"execution{i}", mock_responses["execution1"])
-                    
-                    # Default execution response if step number not found
-                    return mock_responses["execution1"]
-                    
-                elif "final" in message_str.lower() or "synthesize" in message_str.lower():
-                    return mock_responses["final"]
-                    
-                return "Default response based on: " + str(messages)
-        
-        # Create mock LLMs
-        planner_llm = MockLLM(mock_responses)
-        solver_llm = MockLLM(mock_responses)
-    else:
-        # Create real OpenAI LLMs
-        planner_llm = ChatOpenAI(
-            model="gpt-4o",
-            temperature=0.7,
-            api_key=api_key
-        )
-        
-        solver_llm = ChatOpenAI(
-            model="gpt-4o",
-            temperature=0.2,
-            api_key=api_key
-        )
+    # Get the openai key from the environment
+    openai_key = os.environ.get("OPENAI_API_KEY")
+    if not openai_key:
+        raise ValueError("OPENAI_API_KEY environment variable not set")
+    
+    # Define the prompt directory
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    repo_root = os.path.dirname(os.path.dirname(script_dir))
+    src_prompt_dir = os.path.join(repo_root, "src", "agent_patterns", "prompts")
+    prompt_dir = os.path.join(repo_root, "agent_patterns", "prompts")
+    
+    # Use the src path if it exists, otherwise use the non-src path
+    if os.path.exists(src_prompt_dir):
+        prompt_dir = src_prompt_dir
+    
+    # Create real OpenAI LLMs
+    planner_llm = ChatOpenAI(
+        model="gpt-4o",
+        temperature=0.7,
+        api_key=openai_key
+    )
+    
+    solver_llm = ChatOpenAI(
+        model="gpt-4o",
+        temperature=0.2,
+        api_key=openai_key
+    )
     
     # Create tools
     calculator_tool = CalculatorTool()
@@ -446,7 +309,7 @@ The theater sold 150 adult tickets and 100 child tickets.
             "integral": integral_tool,
             "matrix": matrix_tool
         },
-        prompt_dir="src/agent_patterns/prompts/REWOOAgent"
+        prompt_dir=prompt_dir
     )
     
     # Run the agent

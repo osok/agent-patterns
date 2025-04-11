@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 # Sample code to review
 SAMPLE_CODE = """
 def calculate_statistics(numbers):
-    """Calculate basic statistics for a list of numbers."""
+    '''Calculate basic statistics for a list of numbers.'''
     total = 0
     for num in numbers:
         total += num
@@ -57,12 +57,16 @@ empty_stats = calculate_statistics(empty_data)
 """
 
 def main():
-    """Run an advanced example of the Reflection Agent for code review."""
-    
+    """Run the Reflection Agent for the code review task."""
     # Get the project root directory
-    current_dir = Path(__file__).parent.absolute()
+    current_dir = Path(os.path.dirname(os.path.abspath(__file__)))
     project_root = current_dir.parent.parent
-    prompt_dir = str(project_root / "src" / "agent_patterns" / "prompts")
+    
+    # Try to find prompts directory - check both source and package paths
+    src_prompt_dir = project_root / "src" / "agent_patterns" / "prompts"
+    pkg_prompt_dir = project_root / "agent_patterns" / "prompts"
+    
+    prompt_dir = str(src_prompt_dir if src_prompt_dir.exists() else pkg_prompt_dir)
     
     # Configure LLMs for different roles in the agent
     llm_configs = {

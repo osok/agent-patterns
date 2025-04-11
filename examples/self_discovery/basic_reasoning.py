@@ -365,7 +365,9 @@ def main():
     # Get the project root directory
     current_dir = Path(__file__).parent.absolute()
     project_root = current_dir.parent.parent
-    prompt_dir = str(project_root / "src" / "agent_patterns" / "prompts")
+    
+    # Set prompt directory path
+    prompt_dir = str(project_root / "agent_patterns" / "prompts")
     
     # Set up memory
     memory = setup_memory()
@@ -471,7 +473,9 @@ def example_with_fake_streaming():
     # Get the project root directory
     current_dir = Path(__file__).parent.absolute()
     project_root = current_dir.parent.parent
-    prompt_dir = str(project_root / "src" / "agent_patterns" / "prompts")
+    
+    # Set prompt directory path
+    prompt_dir = str(project_root / "agent_patterns" / "prompts")
     
     # Set up memory
     memory = setup_memory()

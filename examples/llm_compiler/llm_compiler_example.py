@@ -18,14 +18,14 @@ from pathlib import Path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 # Import the LLMCompilerAgent and memory components
-from src.agent_patterns.patterns import LLMCompilerAgent
-from src.agent_patterns.core.memory import (
+from agent_patterns.patterns import LLMCompilerAgent
+from agent_patterns.core.memory import (
     SemanticMemory,
     EpisodicMemory,
     ProceduralMemory,
     CompositeMemory
 )
-from src.agent_patterns.core.memory.persistence import (
+from agent_patterns.core.memory.persistence import (
     InMemoryPersistence
 )
 
@@ -104,11 +104,11 @@ def convert_temperature(temp_str: str, to_unit: str) -> str:
     except Exception as e:
         return f"Error converting temperature: {str(e)}"
 
-def setup_memory():
-    """Set up a composite memory system."""
+async def setup_memory_async():
+    """Set up a composite memory system asynchronously."""
     # Create persistence backend
     persistence = InMemoryPersistence()
-    asyncio.run(persistence.initialize())
+    await persistence.initialize()
     
     # Create individual memory types
     semantic_memory = SemanticMemory(persistence, namespace="compiler_semantic")
@@ -123,18 +123,18 @@ def setup_memory():
     })
     
     # Pre-populate with some semantic memories
-    asyncio.run(memory.save_to(
+    await memory.save_to(
         "semantic", 
         {"entity": "user", "attribute": "location", "value": "San Francisco"}
-    ))
+    )
     
-    asyncio.run(memory.save_to(
+    await memory.save_to(
         "semantic", 
         {"entity": "user", "attribute": "preferred_temperature_unit", "value": "C"}
-    ))
+    )
     
     # Add a procedural memory for query decomposition
-    asyncio.run(memory.save_to(
+    await memory.save_to(
         "procedural",
         {
             "name": "decompose_complex_query",
@@ -149,9 +149,13 @@ def setup_memory():
             "description": "Template for effectively decomposing complex queries",
             "tags": ["planning", "decomposition", "efficiency"]
         }
-    ))
+    )
     
     return memory
+
+def setup_memory():
+    """Set up a composite memory system."""
+    return asyncio.run(setup_memory_async())
 
 def basic_example():
     """Run a basic example of the LLM Compiler agent with memory."""
@@ -185,7 +189,7 @@ def basic_example():
     # Get the project root directory
     current_dir = Path(__file__).parent.absolute()
     project_root = current_dir.parent.parent
-    prompt_dir = str(project_root / "src" / "agent_patterns" / "prompts")
+    prompt_dir = str(project_root / "agent_patterns" / "prompts")
     
     # Initialize the LLM Compiler agent with memory
     agent = LLMCompilerAgent(
@@ -212,11 +216,12 @@ def basic_example():
     
     # Display the result
     print("\n=== RESULT ===")
-    print(result['output'])
+    print(result.get('output', f"Error: {result.get('error', 'Unknown error')}"))
     print("\n=== METADATA ===")
-    print(f"Tasks planned: {result['metadata']['tasks_planned']}")
-    print(f"Tasks completed: {result['metadata']['tasks_completed']}")
-    print(f"Needed replanning: {result['metadata']['needed_replanning']}")
+    metadata = result.get('metadata', {})
+    print(f"Tasks planned: {metadata.get('tasks_planned', 0)}")
+    print(f"Tasks completed: {metadata.get('tasks_completed', 0)}")
+    print(f"Needed replanning: {metadata.get('needed_replanning', False)}")
     print(f"Execution time: {end_time - start_time:.2f} seconds")
     
     # Show what was stored in memory
@@ -263,7 +268,7 @@ def complex_query_example():
     # Get the project root directory
     current_dir = Path(__file__).parent.absolute()
     project_root = current_dir.parent.parent
-    prompt_dir = str(project_root / "src" / "agent_patterns" / "prompts")
+    prompt_dir = str(project_root / "agent_patterns" / "prompts")
     
     # Initialize the LLM Compiler agent with memory
     agent = LLMCompilerAgent(
@@ -294,10 +299,11 @@ def complex_query_example():
     
     # Display the result
     print("\n=== COMPLEX QUERY RESULT ===")
-    print(result['output'])
+    print(result.get('output', f"Error: {result.get('error', 'Unknown error')}"))
     print("\n=== METADATA ===")
-    print(f"Tasks planned: {result['metadata']['tasks_planned']}")
-    print(f"Tasks completed: {result['metadata']['tasks_completed']}")
+    metadata = result.get('metadata', {})
+    print(f"Tasks planned: {metadata.get('tasks_planned', 0)}")
+    print(f"Tasks completed: {metadata.get('tasks_completed', 0)}")
     print(f"Execution time: {end_time - start_time:.2f} seconds")
     
     # Show what was stored in memory
@@ -339,7 +345,7 @@ def streaming_example():
     # Get the project root directory
     current_dir = Path(__file__).parent.absolute()
     project_root = current_dir.parent.parent
-    prompt_dir = str(project_root / "src" / "agent_patterns" / "prompts")
+    prompt_dir = str(project_root / "agent_patterns" / "prompts")
     
     # Initialize the LLM Compiler agent with memory
     agent = LLMCompilerAgent(
@@ -362,14 +368,33 @@ def streaming_example():
     logger.info(f"Streaming LLM Compiler agent with query: {query}")
     print("\n=== STREAMING EXECUTION ===")
     
+    final_result = None
+    
     for i, state_update in enumerate(agent.stream(query)):
         print(f"\nUpdate {i+1}:")
+        
+        # Check if this is an error update
+        if "error" in state_update:
+            print(f"  Error: {state_update['error']}")
+            if "final_answer" in state_update:
+                final_result = state_update["final_answer"]
+            continue
+            
+        # Check if this contains the final answer
+        if "final_answer" in state_update and state_update["final_answer"]:
+            final_result = state_update["final_answer"]
+            
         # Print a simplified version of the state update
         for key, value in state_update.items():
             if isinstance(value, (list, dict)) and len(str(value)) > 100:
                 print(f"  {key}: [complex data]")
             else:
                 print(f"  {key}: {value}")
+    
+    # Display the final result if available
+    if final_result:
+        print("\n=== FINAL RESULT ===")
+        print(final_result)
 
 def main():
     """Run all examples."""

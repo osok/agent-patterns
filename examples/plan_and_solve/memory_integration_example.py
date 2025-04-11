@@ -17,14 +17,14 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')
 # Load environment variables
 load_dotenv()
 
-from src.agent_patterns.patterns.plan_and_solve_agent import PlanAndSolveAgent
-from src.agent_patterns.core.memory import (
+from agent_patterns.patterns.plan_and_solve_agent import PlanAndSolveAgent
+from agent_patterns.core.memory import (
     SemanticMemory,
     EpisodicMemory,
     ProceduralMemory,
     CompositeMemory
 )
-from src.agent_patterns.core.memory.persistence import (
+from agent_patterns.core.memory.persistence import (
     InMemoryPersistence
 )
 

@@ -12,10 +12,8 @@ from dotenv import load_dotenv
 from typing import Dict
 import logging
 import asyncio
-
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+import json
+import time
 
 # Add the parent directory to sys.path to import agent_patterns
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
@@ -32,6 +30,11 @@ from agent_patterns.core.memory.persistence import (
     InMemoryPersistence
 )
 from agent_patterns.core.tools.base import ToolProvider
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, 
+                   format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 # Load environment variables
 load_dotenv()
@@ -94,11 +97,11 @@ class BenchmarkTool(ToolProvider):
         except Exception as e:
             return f"Error in code: {str(e)}"
 
-def setup_memory():
-    """Set up a composite memory system for the Reflexion agent."""
+async def setup_memory_async():
+    """Set up a composite memory system for the Reflexion agent asynchronously."""
     # Create persistence backend
     persistence = InMemoryPersistence()
-    asyncio.run(persistence.initialize())
+    await persistence.initialize()
     
     # Create individual memory types
     semantic_memory = SemanticMemory(persistence, namespace="fibonacci_semantic")
@@ -113,18 +116,18 @@ def setup_memory():
     })
     
     # Pre-populate with some semantic memories about algorithms
-    asyncio.run(memory.save_to(
+    await memory.save_to(
         "semantic", 
         {"entity": "fibonacci", "attribute": "definition", "value": "A sequence where each number is the sum of the two preceding ones"}
-    ))
+    )
     
-    asyncio.run(memory.save_to(
+    await memory.save_to(
         "semantic", 
         {"entity": "recursive_algorithm", "attribute": "limitation", "value": "can lead to exponential time complexity without memoization"}
-    ))
+    )
     
     # Add a procedural memory for optimizing code
-    asyncio.run(memory.save_to(
+    await memory.save_to(
         "procedural",
         {
             "name": "optimize_recursive_function",
@@ -139,9 +142,17 @@ def setup_memory():
             "description": "Template for optimizing recursive functions",
             "tags": ["optimization", "recursion", "algorithm"]
         }
-    ))
+    )
     
     return memory
+
+def setup_memory():
+    """Set up a composite memory system for the Reflexion agent."""
+    return asyncio.run(setup_memory_async())
+
+async def retrieve_memories(memory, memory_type, query, limit=5):
+    """Retrieve memories asynchronously."""
+    return await memory.retrieve_from(memory_type, query, limit=limit)
 
 def setup_llm_configs() -> Dict:
     """Set up LLM configurations for the Reflexion agent roles.
@@ -177,10 +188,12 @@ def setup_llm_configs() -> Dict:
     return llm_configs
 
 def main():
-    """Run an example of the Reflexion agent solving a problem with memory and tools."""
+    """Run a simple example of the Reflexion agent."""
     # Get the project root directory
     current_dir = Path(__file__).parent.absolute()
     project_root = current_dir.parent.parent
+
+    # Set prompt directory path (using src directory)
     prompt_dir = str(project_root / "src" / "agent_patterns" / "prompts")
     
     # Set up the LLM configurations
@@ -241,12 +254,12 @@ def main():
     # Show what was stored in memory
     print("\n=== MEMORY AFTER EXECUTION ===\n")
     print("Semantic memories:")
-    facts = asyncio.run(memory.retrieve_from("semantic", "", limit=5))
+    facts = asyncio.run(retrieve_memories(memory, "semantic", "", 5))
     for i, fact in enumerate(facts):
         print(f"{i+1}. {fact}")
     
     print("\nEpisodic memories:")
-    episodes = asyncio.run(memory.retrieve_from("episodic", "fibonacci", limit=5))
+    episodes = asyncio.run(retrieve_memories(memory, "episodic", "fibonacci", 5))
     for i, episode in enumerate(episodes):
         print(f"{i+1}. {episode.content}")
 

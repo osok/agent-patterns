@@ -37,55 +37,55 @@ Installation
 Documentation
 ------------
 
-For comprehensive documentation of all patterns and components, see our `Documentation Site <https://agent-patterns.readthedocs.io/>`_.
+For comprehensive documentation of all patterns and components, see this documentation site.
 
 Guides
 ~~~~~~
 
-- **Getting Started Guide**: Installation and your first agent
-- **Pattern Selection Guide**: Choosing the right pattern for your use case
-- **Advanced Customization Guide**: Extending the library
-- **Troubleshooting Guide**: Solving common issues
-- **Deployment Guide**: Deploying in production environments
-- **Migration Guide**: Migrating from other frameworks
+- :doc:`Getting Started Guide <guides/getting_started>`: Installation and your first agent
+- :doc:`Pattern Selection Guide <guides/pattern_selection>`: Choosing the right pattern for your use case
+- :doc:`Advanced Customization Guide <guides/advanced_customization>`: Extending the library
+- :doc:`Troubleshooting Guide <guides/troubleshooting>`: Solving common issues
+- :doc:`Deployment Guide <guides/deployment>`: Deploying in production environments
+- :doc:`Migration Guide <guides/migration>`: Migrating from other frameworks
 
-See all guides in the `Guides Index <https://agent-patterns.readthedocs.io/en/latest/guides/index.html>`_.
+See all guides in the :doc:`Guides Index <guides/index>`.
 
 Tutorials
 ~~~~~~~~~
 
-- **Research Assistant**: Building an AI research assistant
-- **Customer Support Bot**: Creating a support agent
-- **Code Generation Agent**: Developing a code generator
-- **Multi-Agent System**: Building a collaborative system
+- :doc:`Research Assistant <tutorials/research_assistant>`: Building an AI research assistant
+- :doc:`Customer Support Bot <tutorials/customer_support_bot>`: Creating a support agent
+- :doc:`Code Generation Agent <tutorials/code_generation_agent>`: Developing a code generator
+- :doc:`Multi-Agent System <tutorials/multi_agent_system>`: Building a collaborative system
 
-See all tutorials in the `Tutorials Index <https://agent-patterns.readthedocs.io/en/latest/tutorials/index.html>`_.
+See all tutorials in the :doc:`Tutorials Index <tutorials/index>`.
 
 Supported Patterns
 ~~~~~~~~~~~~~~~~~
 
-- **ReAct (Reason + Act)**: Iterative reasoning and action for tool-based problem solving `(arXiv Paper) <https://arxiv.org/abs/2210.03629>`_
-- **Plan & Solve**: Decoupled planning and execution phases `(arXiv Paper2) <https://arxiv.org/abs/2305.04091>`_
-- **Reflection**: Periodic reflection for strategic adjustments
-- **Reflexion**: ReAct with reflection capabilities for self-improvement `(arXiv Paper3) <https://arxiv.org/abs/2303.11366>`_
-- **LLM Compiler**: Dynamic execution graph construction and optimization `(arXiv Paper4) <https://arxiv.org/abs/2312.04511>`_
-- **ReWOO**: Reason, World model, Observe, Outcome for simulation `(arXiv Paper5) <https://arxiv.org/abs/2305.18323>`_
-- **LATS**: LangChain Agents Tracing System for comprehensive observability `(arXiv Paper6) <https://arxiv.org/abs/2310.04406>`_
-- **STORM**: Self-evaluation, Think of options, Options for reasoning, Reason step by step, Mistake detection `(NAACL Paper) <https://aclanthology.org/2024.naacl-long.347.pdf>`_
-- **Self-Discovery**: Agents that discover their own capabilities
-- **Reflection and Refinement**: Structured reflection with explicit refinement steps
+- :doc:`ReAct (Reason + Act) <patterns/re_act>`: Iterative reasoning and action for tool-based problem solving `(arXiv Paper) <https://arxiv.org/abs/2210.03629>`_
+- :doc:`Plan & Solve <patterns/plan_and_solve>`: Decoupled planning and execution phases `(arXiv Paper) <https://arxiv.org/abs/2305.04091>`_
+- :doc:`Reflection <patterns/reflection>`: Periodic reflection for strategic adjustments
+- :doc:`Reflexion <patterns/reflexion>`: ReAct with reflection capabilities for self-improvement `(arXiv Paper) <https://arxiv.org/abs/2303.11366>`_
+- :doc:`LLM Compiler <patterns/llm_compiler>`: Dynamic execution graph construction and optimization `(arXiv Paper) <https://arxiv.org/abs/2312.04511>`_
+- :doc:`ReWOO <patterns/rewoo>`: Reason, World model, Observe, Outcome for simulation `(arXiv Paper) <https://arxiv.org/abs/2305.18323>`_
+- :doc:`LATS <patterns/lats>`: LangChain Agents Tracing System for comprehensive observability `(arXiv Paper) <https://arxiv.org/abs/2310.04406>`_
+- :doc:`STORM <patterns/storm>`: Self-evaluation, Think of options, Options for reasoning, Reason step by step, Mistake detection `(NAACL Paper) <https://aclanthology.org/2024.naacl-long.347.pdf>`_
+- :doc:`Self-Discovery <patterns/self_discovery>`: Agents that discover their own capabilities
+- :doc:`Reflection and Refinement <patterns/reflection_and_refinement>`: Structured reflection with explicit refinement steps
 
-See all patterns in the `Patterns Index <https://agent-patterns.readthedocs.io/en/latest/patterns/index.html>`_.
+See all patterns in the :doc:`Patterns Index <patterns/index>`.
 
 API Reference
 ~~~~~~~~~~~~
 
-- **Core API**: Base classes and core components
-- **Patterns API**: Pattern implementations
-- **Memory API**: Memory system
-- **Tools API**: Tool system
+- :doc:`Core API <api/core>`: Base classes and core components
+- :doc:`Patterns API <api/patterns>`: Pattern implementations
+- :doc:`Memory API <api/memory>`: Memory system
+- :doc:`Tools API <api/tools>`: Tool system
 
-See the complete API documentation in the `API Reference Index <https://agent-patterns.readthedocs.io/en/latest/api/index.html>`_.
+See the complete API documentation in the :doc:`API Reference Index <api/index>`.
 
 Integrations
 ~~~~~~~~~~~
@@ -102,7 +102,7 @@ The library follows these key architectural principles:
 3. **Developer Clarity**: Clear documentation of responsibilities and extension points
 4. **Testability & Extensibility**: Separated components for easy testing and maintenance
 
-For a comprehensive overview of the architecture, see the `Design Documentation <https://agent-patterns.readthedocs.io/en/latest/Design.html>`_.
+For a comprehensive overview of the architecture, see the :doc:`Design Documentation <Design>`.
 
 Integration Descriptions
 -----------------------
@@ -122,9 +122,9 @@ Key features:
 
 For detailed documentation, see:
 
-- `Tool Provider API Documentation <https://agent-patterns.readthedocs.io/en/latest/Tool%20Provider%20API%20Documentation.html>`_
-- `MCP Tool Integration Tutorial <https://agent-patterns.readthedocs.io/en/latest/MCP%20Tool%20Integration%20Tutorial.html>`_
-- `Agent Tools Design <https://agent-patterns.readthedocs.io/en/latest/Agent_Tools_Design.html>`_
+- :doc:`Tool Provider API Documentation <Tool Provider API Documentation>`
+- :doc:`MCP Tool Integration Tutorial <MCP Tool Integration Tutorial>`
+- :doc:`Agent Tools Design <Agent_Tools_Design>`
 
 Memory Systems
 ~~~~~~~~~~~~~
@@ -140,10 +140,10 @@ Key features:
 
 For detailed documentation, see:
 
-- `Memory API Documentation <https://agent-patterns.readthedocs.io/en/latest/Memory%20API%20Documentation.html>`_
-- `Memory Integration Tutorial <https://agent-patterns.readthedocs.io/en/latest/Memory%20Integration%20Tutorial.html>`_
-- `Agent Memory Design <https://agent-patterns.readthedocs.io/en/latest/Agent%20Memory%20Design.html>`_
-- `Memory and MCP Integration <https://agent-patterns.readthedocs.io/en/latest/memory_and_mcp_integration.html>`_
+- :doc:`Memory API Documentation <Memory API Documentation>`
+- :doc:`Memory Integration Tutorial <Memory Integration Tutorial>`
+- :doc:`Agent Memory Design <Agent Memory Design>`
+- :doc:`Memory and MCP Integration <memory_and_mcp_integration>`
 
 Creating New Patterns
 --------------------
@@ -154,7 +154,7 @@ Creating New Patterns
 4. Add prompts in ``prompts/<YourPatternClass>/``
 5. Create example scripts and tests
 
-For more guidance on next steps and development, see `Next Steps <https://agent-patterns.readthedocs.io/en/latest/Next%20Steps.html>`_.
+For more guidance on next steps and development, see :doc:`Next Steps <Next Steps>`.
 
 Contributing
 -----------

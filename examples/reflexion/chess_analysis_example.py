@@ -4,12 +4,23 @@ This example demonstrates using the ReflexionAgent to analyze a chess position
 through multiple trials, learning from past attempts to provide better analysis.
 """
 
-import os
 import sys
+import os
+from pathlib import Path
 from dotenv import load_dotenv
 from typing import Dict
 import logging
-from pathlib import Path
+import json
+
+import chess
+
+# Add the parent directory to sys.path to import agent_patterns
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+
+# Import agent patterns modules
+from agent_patterns.patterns.reflexion_agent import ReflexionAgent
+from agent_patterns.utils.structured_string import StructuredString
+from agent_patterns.base import Task
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, 
@@ -18,8 +29,6 @@ logger = logging.getLogger(__name__)
 
 # Load environment variables
 load_dotenv()
-
-from agent_patterns.patterns.reflexion_agent import ReflexionAgent
 
 def setup_llm_configs() -> Dict:
     """Set up LLM configurations for the Reflexion agent roles.
@@ -58,10 +67,12 @@ def setup_llm_configs() -> Dict:
     return llm_configs
 
 def main():
-    """Run an example of the Reflexion agent analyzing a chess position."""
+    """Run an example of the Reflexion agent for chess analysis."""
     # Get the project root directory
     current_dir = Path(__file__).parent.absolute()
     project_root = current_dir.parent.parent
+
+    # Set prompt directory path (using src directory)
     prompt_dir = str(project_root / "src" / "agent_patterns" / "prompts")
     
     # Set up the LLM configurations

@@ -7,6 +7,7 @@ from agent_patterns.patterns.re_act_agent import ReActAgent
 from agent_patterns.patterns.reflection_agent import ReflectionAgent
 from agent_patterns.patterns.plan_and_solve_agent import PlanAndSolveAgent
 from agent_patterns.patterns.reflection_and_refinement_agent import ReflectionAndRefinementAgent
+from agent_patterns.patterns.llm_compiler_agent import LLMCompilerAgent
 from agent_patterns.patterns.factory import (
     create_plan_and_solve_agent,
     create_react_agent,
@@ -19,6 +20,7 @@ __all__ = [
     "ReflectionAgent",
     "PlanAndSolveAgent",
     "ReflectionAndRefinementAgent",
+    "LLMCompilerAgent",
     "create_plan_and_solve_agent",
     "create_react_agent",
     "create_reflection_agent",

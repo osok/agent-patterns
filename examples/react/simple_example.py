@@ -45,7 +45,7 @@ def main():
     # Get the project root directory
     current_dir = Path(__file__).parent.absolute()
     project_root = current_dir.parent.parent
-    prompt_dir = str(project_root / "src" / "agent_patterns" / "prompts")
+    prompt_dir = str(project_root / "agent_patterns" / "prompts")
     
     # Initialize the agent
     agent = ReActAgent(

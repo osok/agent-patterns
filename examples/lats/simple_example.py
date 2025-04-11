@@ -237,7 +237,16 @@ def main():
     # Get the project root directory
     current_dir = Path(__file__).parent.absolute()
     project_root = current_dir.parent.parent
-    prompt_dir = str(project_root / "src" / "agent_patterns" / "prompts")
+    
+    # Check both potential prompt directory paths
+    src_prompt_dir = project_root / "src" / "agent_patterns" / "prompts"
+    non_src_prompt_dir = project_root / "agent_patterns" / "prompts"
+    
+    # Use the path that exists
+    if src_prompt_dir.exists():
+        prompt_dir = str(src_prompt_dir)
+    else:
+        prompt_dir = str(non_src_prompt_dir)
     
     # Set up memory
     memory = setup_memory()

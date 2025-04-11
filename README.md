@@ -130,3 +130,29 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Contact
 
 [Contact information to be added]
+
+## Common Issues
+
+### Package Installation
+When installing the package via pip, you might encounter the following issues:
+
+1. **Import Errors**: The package structure is different when installed via pip vs running from source:
+   - Source code: `from src.agent_patterns...`
+   - Installed package: `from agent_patterns...`
+
+2. **Prompt Directory Path**: The examples might be looking for prompts in the wrong location:
+   - Source code: `project_root / "src" / "agent_patterns" / "prompts"`
+   - Installed package: `project_root / "agent_patterns" / "prompts"`
+
+3. **Missing Agents in __init__.py**: Some agent classes might not be included in the package's `__init__.py` files.
+
+### Fixing the Issues
+
+We provide a helper script to automatically fix import paths and prompt directory issues:
+
+```bash
+# Run from the repository root
+python tools/fix_imports.py
+```
+
+If you encounter import errors after installing the package, you may need to update the affected `__init__.py` files to include the missing classes.

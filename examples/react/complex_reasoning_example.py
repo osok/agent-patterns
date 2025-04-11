@@ -155,7 +155,15 @@ def main():
     # Get the project root directory
     current_dir = Path(__file__).parent.absolute()
     project_root = current_dir.parent.parent
-    prompt_dir = str(project_root / "src" / "agent_patterns" / "prompts")
+
+    # Try to find prompts directory - check both installed package and development paths
+    src_prompt_dir = project_root / "src" / "agent_patterns" / "prompts"
+    pkg_prompt_dir = project_root / "agent_patterns" / "prompts"
+
+    if src_prompt_dir.exists():
+        prompt_dir = str(src_prompt_dir)
+    else:
+        prompt_dir = str(pkg_prompt_dir)
     
     # Initialize the agent
     agent = ReActAgent(

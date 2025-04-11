@@ -16,7 +16,7 @@ from typing import List, Dict, Any
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 # Import the LLMCompilerAgent and ReActAgent for comparison
-from src.agent_patterns.patterns import LLMCompilerAgent, ReActAgent
+from agent_patterns.patterns import LLMCompilerAgent, ReActAgent
 
 # Load environment variables from .env file
 load_dotenv()
@@ -93,7 +93,7 @@ def run_llm_compiler(query: str, tools: List[BaseTool]) -> Dict[str, Any]:
     compiler_agent = LLMCompilerAgent(
         llm_configs=llm_configs,
         tools=tools,
-        prompt_dir="src/agent_patterns/prompts",
+        prompt_dir="agent_patterns/prompts",
         log_level=logging.INFO
     )
     
@@ -128,7 +128,7 @@ def run_sequential(query: str, tools: List[BaseTool]) -> Dict[str, Any]:
     react_agent = ReActAgent(
         llm_configs=llm_configs,
         tools=tools,
-        prompt_dir="src/agent_patterns/prompts",
+        prompt_dir="agent_patterns/prompts",
         log_level=logging.INFO
     )
     

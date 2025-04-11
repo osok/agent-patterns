@@ -161,7 +161,12 @@ def main():
     # Get the project root directory
     current_dir = Path(__file__).parent.absolute()
     project_root = current_dir.parent.parent
-    prompt_dir = str(project_root / "src" / "agent_patterns" / "prompts")
+    
+    # Try to find prompts directory - check both source and package paths
+    src_prompt_dir = os.path.join(project_root, "src", "agent_patterns", "prompts")
+    pkg_prompt_dir = os.path.join(project_root, "agent_patterns", "prompts")
+    
+    prompt_dir = src_prompt_dir if os.path.exists(src_prompt_dir) else pkg_prompt_dir
     
     # Create the agent with memory and tools
     reflection_agent = ReflectionAgent(

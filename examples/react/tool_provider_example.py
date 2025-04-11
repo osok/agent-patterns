@@ -16,9 +16,9 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')
 # Load environment variables
 load_dotenv()
 
-from src.agent_patterns.patterns.re_act_agent import ReActAgent
-from src.agent_patterns.core.tools.base import ToolProvider
-from src.agent_patterns.core.tools.registry import ToolRegistry
+from agent_patterns.patterns.re_act_agent import ReActAgent
+from agent_patterns.core.tools.base import ToolProvider
+from agent_patterns.core.tools.registry import ToolRegistry
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')

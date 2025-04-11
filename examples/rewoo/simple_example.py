@@ -16,17 +16,17 @@ from pathlib import Path
 # Add the src directory to the path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from src.agent_patterns.patterns.rewoo_agent import REWOOAgent
-from src.agent_patterns.core.memory import (
+from agent_patterns.patterns.rewoo_agent import REWOOAgent
+from agent_patterns.core.memory import (
     SemanticMemory,
     EpisodicMemory,
     ProceduralMemory,
     CompositeMemory
 )
-from src.agent_patterns.core.memory.persistence import (
+from agent_patterns.core.memory.persistence import (
     InMemoryPersistence
 )
-from src.agent_patterns.core.tools.base import ToolProvider
+from agent_patterns.core.tools.base import ToolProvider
 from langchain_openai import ChatOpenAI
 
 # Configure logging
@@ -219,7 +219,15 @@ def main():
     # Get the project root directory
     current_dir = Path(__file__).parent.absolute()
     project_root = current_dir.parent.parent
-    prompt_dir = str(project_root / "src" / "agent_patterns" / "prompts")
+
+    # Try to find prompts directory - check both installed package and development paths
+    src_prompt_dir = project_root / "src" / "agent_patterns" / "prompts"
+    pkg_prompt_dir = project_root / "agent_patterns" / "prompts"
+
+    if src_prompt_dir.exists():
+        prompt_dir = str(src_prompt_dir)
+    else:
+        prompt_dir = str(pkg_prompt_dir)
     
     # Set up memory
     memory = setup_memory()

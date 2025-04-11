@@ -76,7 +76,7 @@ def main():
         search_tool=search_tool,
         num_perspectives=2,  # Use fewer perspectives for faster demonstration
         max_conversation_turns=2,  # Use fewer turns for faster demonstration
-        prompt_dir="src/agent_patterns/prompts"
+        prompt_dir="agent_patterns/prompts"
     )
     
     # Define the topic to research

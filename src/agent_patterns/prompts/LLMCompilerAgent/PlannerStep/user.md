@@ -17,9 +17,9 @@ Please analyze the user input and create a detailed plan with the following form
    - Which previous task outputs (if any) this task depends on
 
 Example Format:
-1. task_1(tool="tool_name", inputs={"param1": "value1"})
-2. task_2(tool="tool_name", inputs={"param1": "value1"}, depends_on=[1])
-3. task_3(tool="tool_name", inputs={"param1": "value1"}, depends_on=[1, 2])
+1. task_1(tool="tool_name", inputs={{"parameter": "value"}})
+2. task_2(tool="tool_name", inputs={{"parameter": "value"}}, depends_on=[1])
+3. task_3(tool="tool_name", inputs={{"parameter": "value"}}, depends_on=[1, 2])
 
 Please create an optimized plan that maximizes parallel execution when possible.
 Consider any relevant information from memory when creating your plan. 

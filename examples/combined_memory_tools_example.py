@@ -22,18 +22,18 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 # Load environment variables
 load_dotenv()
 
-from src.agent_patterns.patterns.re_act_agent import ReActAgent
-from src.agent_patterns.core.memory import (
+from agent_patterns.patterns.re_act_agent import ReActAgent
+from agent_patterns.core.memory import (
     SemanticMemory,
     EpisodicMemory,
     ProceduralMemory,
     CompositeMemory
 )
-from src.agent_patterns.core.memory.persistence import (
+from agent_patterns.core.memory.persistence import (
     InMemoryPersistence
 )
-from src.agent_patterns.core.tools.base import ToolProvider
-from src.agent_patterns.core.tools.providers.mcp_provider import MCPToolProvider
+from agent_patterns.core.tools.base import ToolProvider
+from agent_patterns.core.tools.providers.mcp_provider import MCPToolProvider
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
