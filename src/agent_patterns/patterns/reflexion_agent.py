@@ -57,22 +57,22 @@ class ReflexionAgent(BaseAgent):
     def __init__(
         self,
         llm_configs: Dict[str, Dict],
-        prompt_dir: str = "prompts",
+        max_trials: int = 3,
+        prompt_dir: str = "src/agent_patterns/prompts",
         tool_provider: Optional[Any] = None,
         memory: Optional[Any] = None,
         memory_config: Optional[Dict[str, bool]] = None,
-        max_trials: int = 3,
         log_level: int = logging.INFO
     ):
         """Initialize the Reflexion agent.
         
         Args:
             llm_configs: Configuration for LLM roles (e.g., {'planner': {...}, 'executor': {...}, 'evaluator': {...}, 'reflector': {...}}).
+            max_trials: Maximum number of trials to attempt.
             prompt_dir: Directory containing prompt templates (relative to project root).
             tool_provider: Optional provider for tools the agent can use.
             memory: Optional composite memory instance.
             memory_config: Configuration for which memory types to use.
-            max_trials: Maximum number of trials to attempt.
             log_level: Logging level.
         """
         # Call BaseAgent init

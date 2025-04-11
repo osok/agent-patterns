@@ -59,11 +59,11 @@ class REWOOAgent(BaseAgent):
         self, 
         llm_configs: dict, 
         tool_registry: Optional[Dict[str, Any]] = None,
-        prompt_dir: str = "prompts",
+        prompt_dir: str = "src/agent_patterns/prompts",
         tool_provider: Optional[Any] = None,
         memory: Optional[Any] = None,
         memory_config: Optional[Dict[str, bool]] = None,
-        max_iterations: int = 10,
+        max_iterations: int = 5,
         **kwargs
     ):
         """

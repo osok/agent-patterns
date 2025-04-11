@@ -29,7 +29,7 @@ class BaseAgent(abc.ABC): # Inherit from abc.ABC
     def __init__(
         self, 
         llm_configs: Dict[str, Any],
-        prompt_dir: str = "",
+        prompt_dir: str = "src/agent_patterns/prompts",
         tool_provider: Optional[Any] = None,
         memory: Optional[Any] = None,
         memory_config: Optional[Dict[str, bool]] = None,

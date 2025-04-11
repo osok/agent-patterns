@@ -52,7 +52,7 @@ class ReActAgent(BaseAgent):
         self,
         llm_configs: Dict[str, Dict], # Inherited from BaseAgent
         tools: Optional[List[Union[BaseTool, str]]] = None,
-        prompt_dir: str = "prompts", # Default prompt directory
+        prompt_dir: str = "src/agent_patterns/prompts", # Default prompt directory
         tool_provider: Optional[Any] = None,
         memory: Optional[Any] = None,
         memory_config: Optional[Dict[str, bool]] = None,

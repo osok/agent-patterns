@@ -74,7 +74,7 @@ class LATSAgent(BaseAgent):
         max_depth: int = 3,
         exploration_weight: float = 1.0,
         n_expansions: int = 3,
-        prompt_dir: str = "prompts",
+        prompt_dir: str = "src/agent_patterns/prompts",
         tool_provider: Optional[Any] = None,
         memory: Optional[Any] = None,
         memory_config: Optional[Dict[str, bool]] = None,
