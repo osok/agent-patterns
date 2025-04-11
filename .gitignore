@@ -50,4 +50,10 @@ coverage.xml
 *.cover
 
 # PyPI credentials
-.pypirc
+.pypirc__pycache__/
+.pytest_cache/
+dist/
+*.pyc
+.coverage
+venv/
+.venv/
