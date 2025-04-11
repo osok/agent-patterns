@@ -1,0 +1,39 @@
+@startuml
+class LLMCompilerState {
+  +input: str
+  +chat_history: List
+  +intermediate_steps: List
+  +execution_plan: List
+  +current_step: int
+  +result: Any
+}
+
+class LLMCompilerAgent {
+  -tools: List
+  -llm: Any
+  -max_steps: int
+  
+  +__init__(llm_configs, tools, memory, memory_config)
+  +build_graph(): None
+  -_plan(state): Dict
+  -_execute_step(state): Dict
+  -_replan_if_needed(state): Dict
+  -_should_execute_next_step(state): bool
+  -_should_finish(state): bool
+  -_get_step_execution_prompt(step, context): Any
+  -_format_execution_plan(plan): List
+  +run(input_text): Dict
+}
+
+class BaseAgent {
+}
+
+LLMCompilerAgent --|> BaseAgent
+LLMCompilerAgent -- LLMCompilerState
+
+note right of LLMCompilerAgent
+  Implements the LLM Compiler pattern
+  which separates planning and execution
+  phases, similar to a compiler
+end note
+@enduml

@@ -1,0 +1,74 @@
+@startuml
+skinparam BackgroundColor transparent
+skinparam sequenceArrowColor #4285F4
+skinparam participantBorderColor #666666
+skinparam participantBackgroundColor #FEFEFE
+
+participant "Agent" as Agent
+participant "ToolRegistry" as Registry
+participant "ToolProvider1" as Provider1
+participant "ToolProvider2" as Provider2
+participant "Tool" as Tool
+
+== Tool Discovery ==
+
+Agent -> Registry: list_tools()
+activate Registry
+
+Registry -> Provider1: list_tools()
+activate Provider1
+Provider1 --> Registry: return tool specifications
+deactivate Provider1
+
+Registry -> Provider2: list_tools()
+activate Provider2
+Provider2 --> Registry: return tool specifications
+deactivate Provider2
+
+Registry --> Agent: return combined tool list
+deactivate Registry
+
+== Tool Execution ==
+
+Agent -> Registry: execute_tool("tool_name", params)
+activate Registry
+
+Registry -> Provider1: execute_tool("tool_name", params)
+activate Provider1
+Provider1 --> Registry: throw ToolNotFoundError
+deactivate Provider1
+
+Registry -> Provider2: execute_tool("tool_name", params)
+activate Provider2
+
+Provider2 -> Tool: execute with params
+activate Tool
+Tool --> Provider2: return result
+deactivate Tool
+
+Provider2 --> Registry: return result
+deactivate Provider2
+
+Registry --> Agent: return result
+deactivate Registry
+
+== Tool Execution Error Path ==
+
+Agent -> Registry: execute_tool("another_tool", invalid_params)
+activate Registry
+
+Registry -> Provider1: execute_tool("another_tool", invalid_params)
+activate Provider1
+
+Provider1 -> Tool: execute with invalid_params
+activate Tool
+Tool --> Provider1: raise error
+deactivate Tool
+
+Provider1 --> Registry: throw ToolExecutionError
+deactivate Provider1
+
+Registry --> Agent: throw ToolExecutionError
+deactivate Registry
+
+@enduml

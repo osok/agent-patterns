@@ -1,0 +1,24 @@
+@startuml
+class BaseAgent {
+  -llm: Any
+  -_memory: BaseMemory
+  -_tools: List[BaseTool]
+  +run(task: str): Any
+  +step(): Any
+  #_prompt_llm(): str
+}
+
+class Memory {
+  +add(item: Any): None
+  +get(query: str): Any
+}
+
+class Tool {
+  +name: str
+  +description: str
+  +execute(args: Dict): Any
+}
+
+BaseAgent --> Memory : uses >
+BaseAgent --> Tool : uses >
+@enduml

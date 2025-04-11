@@ -1,0 +1,30 @@
+@startuml
+actor User
+participant "Agent" as Agent
+participant "LLM" as LLM
+
+User -> Agent: run(input)
+activate Agent
+
+loop until complete
+  Agent -> LLM: think
+  activate LLM
+  LLM --> Agent: action
+  deactivate LLM
+  
+  opt reflection phase
+    Agent -> LLM: reflect
+    activate LLM
+    LLM --> Agent: reflection
+    deactivate LLM
+    
+    Agent -> LLM: refine
+    activate LLM
+    LLM --> Agent: refinement
+    deactivate LLM
+  end
+end
+
+Agent --> User: result
+deactivate Agent
+@enduml

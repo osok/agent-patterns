@@ -1,0 +1,46 @@
+@startuml
+state "Initialized" as Init
+state "Ready" as Ready
+state "Processing" as Proc {
+  state "Self Evaluation" as Eval
+  state "Options Generation" as Options
+  state "Reasoning" as Reason
+  state "Mistake Detection" as Mistake
+  state "Action Decision" as Action
+  state "Tool Execution" as Tool
+  
+  [*] --> Eval
+  Eval --> Options : evaluation complete
+  Options --> Reason : generate options
+  Reason --> Mistake : detailed reasoning
+  Mistake --> Action : identify mistakes
+  Action --> Tool : decide on tool
+  Action --> [*] : final answer
+  Tool --> Eval : new evaluation cycle
+}
+
+[*] --> Init
+Init --> Ready : build_graph()
+Ready --> Proc : run(input)
+Proc --> Ready : return result
+
+note right of Eval
+  Self-evaluation of current state
+  and understanding of the problem
+end note
+
+note right of Options
+  Generate multiple options
+  for approaching the problem
+end note
+
+note right of Reason
+  Detailed step-by-step reasoning
+  through each option
+end note
+
+note right of Mistake
+  Actively search for and
+  identify potential mistakes
+end note
+@enduml

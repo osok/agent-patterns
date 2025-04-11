@@ -1,0 +1,39 @@
+@startuml
+class ReWOOState {
+  +input: str
+  +chat_history: List
+  +intermediate_steps: List
+  +reasoning: str
+  +world_state: Dict
+  +observation: str
+  +outcome: str
+  +agent_outcome: Any
+}
+
+class ReWOOAgent {
+  -tools: List
+  -llm: Any
+  -world_model: Any
+  
+  +__init__(llm_configs, tools, memory, memory_config)
+  +build_graph(): None
+  -_reason(state): Dict
+  -_simulate_world(state): Dict
+  -_observe(state): Dict
+  -_decide_outcome(state): Dict
+  -_should_continue(state): bool
+  +run(input_text): Dict
+}
+
+class BaseAgent {
+}
+
+ReWOOAgent --|> BaseAgent
+ReWOOAgent -- ReWOOState
+
+note right of ReWOOAgent
+  Implements the ReWOO pattern
+  (Reason, World model, Observe, Outcome)
+  which uses a world model for simulation
+end note
+@enduml

@@ -1,0 +1,33 @@
+@startuml
+state "Initialized" as Init
+state "Ready" as Ready
+state "Processing" as Proc {
+  state "Thinking" as Think
+  state "Tool Execution" as Tool
+  state "Reflection" as Reflect
+  state "Refinement" as Refine
+  
+  [*] --> Think
+  Think --> Tool : decide to use tool
+  Tool --> Think : return observation
+  Think --> Reflect : reflection triggered
+  Reflect --> Refine : generate reflection
+  Refine --> Think : refined approach
+  Think --> [*] : final answer
+}
+
+[*] --> Init
+Init --> Ready : build_graph()
+Ready --> Proc : run(input)
+Proc --> Ready : return result
+
+note right of Reflect
+  Reflection on progress and
+  current approach effectiveness
+end note
+
+note right of Refine
+  Active refinement of strategy
+  based on reflection insights
+end note
+@enduml

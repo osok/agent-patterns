@@ -1,0 +1,67 @@
+@startuml
+skinparam BackgroundColor transparent
+skinparam classBackgroundColor #FEFEFE
+skinparam classBorderColor #666666
+skinparam stereotypeCBackgroundColor #A9DCDF
+
+class ReActState <<TypedDict>> {
+  +input: str
+  +chat_history: Annotated[Sequence[BaseMessage], add_messages]
+  +agent_outcome: Optional[Union[AgentAction, AgentFinish]]
+  +intermediate_steps: Annotated[List[Tuple[AgentAction, str]], operator.add]
+  +memories: Optional[Dict[str, List[Any]]]
+}
+
+class ReActAgent {
+  -tools: List[BaseTool]
+  -tool_map: Dict[str, BaseTool]
+  -max_steps: int
+  -llm: BaseLanguageModel
+  +__init__(llm_configs, tools, prompt_dir, tool_provider, memory, memory_config, max_steps, log_level)
+  +build_graph(): None
+  -_get_agent_prompt(): Any
+  -_run_agent_llm(state: ReActState): Dict
+  -_execute_tools(state: ReActState): Dict
+  -_should_execute_tools(state: ReActState): bool
+  -_parse_llm_react_response(response: BaseMessage): Union[AgentAction, AgentFinish]
+  -_execute_tool(tool: BaseTool, tool_input: Any): str
+  +run(input_text: str): Dict[str, Any]
+}
+
+class BaseAgent {
+}
+
+class BaseTool {
+}
+
+class AgentAction {
+  +tool: str
+  +tool_input: Any
+  +log: str
+}
+
+class AgentFinish {
+  +return_values: Dict
+  +log: str
+}
+
+class BaseLanguageModel {
+}
+
+class StateGraph {
+}
+
+ReActAgent --|> BaseAgent : extends
+ReActAgent --> BaseTool : uses >
+ReActAgent --> AgentAction : creates >
+ReActAgent --> AgentFinish : creates >
+ReActAgent --> BaseLanguageModel : uses >
+ReActAgent --> StateGraph : creates >
+ReActAgent -- ReActState : uses
+
+note left of ReActAgent
+  Implements the Reason+Act pattern
+  with a cycle of thinking and tool use
+end note
+
+@enduml

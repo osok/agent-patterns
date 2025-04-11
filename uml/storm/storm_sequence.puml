@@ -1,0 +1,60 @@
+@startuml
+actor "User" as User
+participant "STORMAgent" as Agent
+participant "EvaluatorLLM" as EvalLLM
+participant "OptionsLLM" as OptionsLLM
+participant "ReasonerLLM" as ReasonLLM
+participant "MistakeDetectorLLM" as MistakeLLM
+participant "ToolRegistry" as Registry
+participant "Tool" as Tool
+participant "Memory" as Memory
+
+User -> Agent: run(input_text)
+activate Agent
+
+Agent -> Memory: retrieve_memories(input_text)
+activate Memory
+Memory --> Agent: relevant memories
+deactivate Memory
+
+loop until complete
+  Agent -> EvalLLM: invoke(evaluation_prompt)
+  activate EvalLLM
+  EvalLLM --> Agent: self_evaluation
+  deactivate EvalLLM
+  
+  Agent -> OptionsLLM: invoke(options_prompt)
+  activate OptionsLLM
+  OptionsLLM --> Agent: options
+  deactivate OptionsLLM
+  
+  Agent -> ReasonLLM: invoke(reasoning_prompt)
+  activate ReasonLLM
+  ReasonLLM --> Agent: reasoning
+  deactivate ReasonLLM
+  
+  Agent -> MistakeLLM: invoke(mistake_detection_prompt)
+  activate MistakeLLM
+  MistakeLLM --> Agent: mistakes
+  deactivate MistakeLLM
+  
+  alt tool action chosen
+    Agent -> Registry: execute_tool(tool_name, tool_input)
+    activate Registry
+    Registry -> Tool: execute
+    activate Tool
+    Tool --> Registry: observation
+    deactivate Tool
+    Registry --> Agent: observation
+    deactivate Registry
+    
+    Agent -> Memory: save_memory("episodic", tool_use_record)
+  else final answer chosen
+    Agent -> Memory: save_memory("episodic", interaction_record)
+    Agent -> Memory: save_memory("procedural", reasoning_process)
+  end
+end
+
+Agent --> User: final result
+deactivate Agent
+@enduml

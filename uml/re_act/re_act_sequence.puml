@@ -1,0 +1,61 @@
+@startuml
+skinparam BackgroundColor transparent
+skinparam sequenceArrowColor #4285F4
+skinparam participantBorderColor #666666
+skinparam participantBackgroundColor #FEFEFE
+
+participant "User" as User
+participant "ReActAgent" as Agent
+participant "LLM" as LLM
+participant "ToolRegistry" as Registry
+participant "Tool" as Tool
+participant "CompositeMemory" as Memory
+
+== Initialization ==
+
+User -> Agent: create(llm_configs, tools)
+activate Agent
+Agent -> Agent: build_graph()
+Agent --> User: agent instance
+deactivate Agent
+
+== Execution ==
+
+User -> Agent: run(input_text)
+activate Agent
+
+Agent -> Memory: retrieve_memories(input_text)
+activate Memory
+Memory --> Agent: relevant memories
+deactivate Memory
+
+loop until AgentFinish or max steps
+  Agent -> LLM: invoke(_get_agent_prompt())
+  activate LLM
+  LLM --> Agent: response
+  deactivate LLM
+  
+  Agent -> Agent: _parse_llm_react_response(response)
+  
+  alt agent decides to use a tool
+    Agent -> Registry: execute_tool(tool_name, tool_input)
+    activate Registry
+    Registry -> Tool: execute
+    activate Tool
+    Tool --> Registry: observation
+    deactivate Tool
+    Registry --> Agent: observation
+    deactivate Registry
+    
+    Agent -> Memory: save_memory("episodic", tool_use_record)
+    
+  else agent decides to finish
+    Agent -> Agent: prepare final answer
+    Agent -> Memory: save_memory("episodic", interaction_record)
+  end
+end
+
+Agent --> User: final result
+deactivate Agent
+
+@enduml

@@ -1,0 +1,30 @@
+@startuml
+abstract class BaseMemory {
+  +save(item): str
+  +retrieve(query): List
+  +update(id, item): bool
+  +delete(id): bool
+  +clear(): None
+}
+
+class CompositeMemory {
+  -memories: Dict
+  +save_to(memory_type, item)
+  +retrieve_from(memory_type, query): List
+  +retrieve_all(query): Dict
+}
+
+class EpisodicMemory {
+  +save(item): str
+  +retrieve(query): List
+}
+
+class SemanticMemory {
+  +save(item): str
+  +retrieve(query): List
+}
+
+BaseMemory <|-- EpisodicMemory
+BaseMemory <|-- SemanticMemory
+CompositeMemory o-- BaseMemory
+@enduml

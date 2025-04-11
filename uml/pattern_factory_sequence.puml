@@ -1,0 +1,65 @@
+@startuml
+skinparam BackgroundColor transparent
+skinparam sequenceArrowColor #4285F4
+skinparam participantBorderColor #666666
+skinparam participantBackgroundColor #FEFEFE
+
+actor "Client" as Client
+participant "PatternFactory" as Factory
+participant "Memory Provider" as MemProvider
+participant "Tool Provider" as ToolProvider
+participant "LLM Provider" as LLMProvider
+participant "BaseAgent" as BaseAgent
+participant "Specific Pattern Agent" as Pattern
+
+== Pattern Creation ==
+
+Client -> Factory: list_available_patterns()
+activate Factory
+Factory --> Client: ["ReAct", "Reflexion", "LLMCompiler", ...]
+deactivate Factory
+
+Client -> Factory: get_default_config("ReAct")
+activate Factory
+Factory --> Client: {default config for ReAct}
+deactivate Factory
+
+Client -> Factory: create_agent("ReAct", config)
+activate Factory
+
+Factory -> MemProvider: create_memory(config["memory"])
+activate MemProvider
+MemProvider --> Factory: memory instance
+deactivate MemProvider
+
+Factory -> ToolProvider: create_tool_provider(config["tools"])
+activate ToolProvider
+ToolProvider --> Factory: tool_provider instance
+deactivate ToolProvider
+
+Factory -> LLMProvider: create_llm_configs(config["llm"])
+activate LLMProvider
+LLMProvider --> Factory: llm_configs
+deactivate LLMProvider
+
+Factory -> Pattern: __init__(llm_configs, tool_provider, memory, ...)
+activate Pattern
+Pattern -> BaseAgent: super().__init__(...)
+activate BaseAgent
+BaseAgent --> Pattern: initialized
+deactivate BaseAgent
+Pattern -> Pattern: build_graph()
+Pattern --> Factory: agent instance
+deactivate Pattern
+
+Factory --> Client: agent instance
+deactivate Factory
+
+== Agent Usage ==
+
+Client -> Pattern: run(input_data)
+activate Pattern
+Pattern --> Client: results
+deactivate Pattern
+
+@enduml

@@ -1,0 +1,33 @@
+@startuml
+actor User
+participant STORM
+participant LLM
+
+User -> STORM: run(input)
+activate STORM
+
+loop until complete
+  STORM -> LLM: evaluate
+  activate LLM
+  LLM --> STORM: evaluation
+  deactivate LLM
+  
+  STORM -> LLM: generate options
+  activate LLM
+  LLM --> STORM: options
+  deactivate LLM
+  
+  STORM -> LLM: reason
+  activate LLM
+  LLM --> STORM: reasoning
+  deactivate LLM
+  
+  STORM -> LLM: check mistakes
+  activate LLM
+  LLM --> STORM: mistakes
+  deactivate LLM
+end
+
+STORM --> User: result
+deactivate STORM
+@enduml

@@ -1,0 +1,68 @@
+@startuml
+package "Core" {
+  abstract class BaseAgent {
+    +prompt_dir: str
+    +graph: Any
+    +llm_configs: Dict
+    +build_graph(): None
+    +run(input_data): Any
+  }
+  
+  package "Memory" {
+    abstract class BaseMemory
+    class CompositeMemory
+    class EpisodicMemory
+    class SemanticMemory
+    class ProceduralMemory
+  }
+  
+  package "Tools" {
+    interface ToolProvider
+    class ToolRegistry
+  }
+}
+
+package "Patterns" {
+  class ReActAgent {
+    +build_graph(): None
+    +run(input_text): Any
+  }
+  
+  class ReflexionAgent
+  class LLMCompilerAgent
+  class SelfDiscoveryAgent
+  class LATSAgent
+  class ReflectionAgent
+  class ReWOOAgent
+  class ReflectionAndRefinementAgent
+  class PlanAndSolveAgent
+  class STORMAgent
+}
+
+class PatternFactory {
+  +create_agent(pattern, config): BaseAgent
+  +list_available_patterns(): List
+}
+
+BaseAgent <|-- ReActAgent
+BaseAgent <|-- ReflexionAgent
+BaseAgent <|-- LLMCompilerAgent
+BaseAgent <|-- SelfDiscoveryAgent
+BaseAgent <|-- LATSAgent
+BaseAgent <|-- ReflectionAgent
+BaseAgent <|-- ReWOOAgent
+BaseAgent <|-- ReflectionAndRefinementAgent
+BaseAgent <|-- PlanAndSolveAgent
+BaseAgent <|-- STORMAgent
+
+PatternFactory --> BaseAgent : creates >
+BaseAgent --> CompositeMemory : uses >
+BaseAgent --> ToolRegistry : uses >
+
+CompositeMemory o-- BaseMemory
+BaseMemory <|-- EpisodicMemory
+BaseMemory <|-- SemanticMemory
+BaseMemory <|-- ProceduralMemory
+
+ToolRegistry o-- ToolProvider
+@enduml

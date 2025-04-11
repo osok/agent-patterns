@@ -1,0 +1,22 @@
+@startuml
+abstract class ToolProvider {
+  +list_tools(): List
+  +execute_tool(tool_name, params): Any
+}
+
+class ToolRegistry {
+  -_providers: List
+  -_tools_cache: List
+  +register_provider(provider)
+  +list_tools(): List
+  +execute_tool(tool_name, params): Any
+  +invalidate_cache()
+}
+
+class ToolExecutionError
+class ToolNotFoundError
+
+ToolRegistry o-- ToolProvider
+ToolProvider ..> ToolExecutionError
+ToolProvider ..> ToolNotFoundError
+@enduml

@@ -1,0 +1,33 @@
+@startuml
+state "Initialized" as Init
+state "Ready" as Ready
+state "Processing" as Proc {
+  state "Thinking" as Think
+  state "Tool Execution" as Tool
+  state "Tracing" as Trace
+  state "Analysis" as Analyze
+  
+  [*] --> Think
+  Think --> Tool : decide to use tool
+  Tool --> Trace : record tool execution
+  Trace --> Think : continue processing
+  Think --> Analyze : tracing analysis requested
+  Analyze --> Think : analysis results
+  Think --> [*] : final answer
+}
+
+[*] --> Init
+Init --> Ready : build_graph()
+Ready --> Proc : run(input)
+Proc --> Ready : return result
+
+note right of Trace
+  Records detailed information about
+  each step of agent execution
+end note
+
+note right of Analyze
+  Analyzes trace data to provide
+  insights into agent performance
+end note
+@enduml

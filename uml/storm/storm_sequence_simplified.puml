@@ -1,0 +1,46 @@
+@startuml
+actor User
+participant STORMAgent
+participant EvaluatorLLM
+participant OptionsLLM
+participant ReasonerLLM
+participant MistakeLLM
+participant Tools
+
+User -> STORMAgent: run(input)
+activate STORMAgent
+
+loop until complete
+  STORMAgent -> EvaluatorLLM: self-evaluate
+  activate EvaluatorLLM
+  EvaluatorLLM --> STORMAgent: evaluation
+  deactivate EvaluatorLLM
+  
+  STORMAgent -> OptionsLLM: generate options
+  activate OptionsLLM
+  OptionsLLM --> STORMAgent: options
+  deactivate OptionsLLM
+  
+  STORMAgent -> ReasonerLLM: reason through options
+  activate ReasonerLLM
+  ReasonerLLM --> STORMAgent: reasoning
+  deactivate ReasonerLLM
+  
+  STORMAgent -> MistakeLLM: detect mistakes
+  activate MistakeLLM
+  MistakeLLM --> STORMAgent: mistakes
+  deactivate MistakeLLM
+  
+  alt tool action chosen
+    STORMAgent -> Tools: execute tool
+    activate Tools
+    Tools --> STORMAgent: result
+    deactivate Tools
+  else final answer
+    STORMAgent -> STORMAgent: prepare answer
+  end
+end
+
+STORMAgent --> User: final result
+deactivate STORMAgent
+@enduml

@@ -1,0 +1,41 @@
+@startuml
+state "Initialized" as Init
+state "Ready" as Ready
+state "Processing" as Proc {
+  state "Reasoning" as Reason
+  state "World Modeling" as World
+  state "Observation" as Observe
+  state "Outcome" as Outcome
+  
+  [*] --> Reason
+  Reason --> World : reason about action
+  World --> Observe : simulate world changes
+  Observe --> Outcome : observe effects
+  Outcome --> [*] : final decision
+  Outcome --> Reason : need further reasoning
+}
+
+[*] --> Init
+Init --> Ready : build_graph()
+Ready --> Proc : run(input)
+Proc --> Ready : return result
+
+note right of Reason
+  Develop reasoning for actions
+end note
+
+note right of World
+  Simulate changes in world state 
+  based on proposed actions
+end note
+
+note right of Observe
+  Observe the results of
+  simulation in world model
+end note
+
+note right of Outcome
+  Determine final outcome
+  based on observations
+end note
+@enduml

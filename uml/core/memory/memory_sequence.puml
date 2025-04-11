@@ -1,0 +1,98 @@
+@startuml
+skinparam BackgroundColor transparent
+skinparam sequenceArrowColor #4285F4
+skinparam participantBorderColor #666666
+skinparam participantBackgroundColor #FEFEFE
+
+participant "Agent" as Agent
+participant "CompositeMemory" as Composite
+participant "EpisodicMemory" as Episodic
+participant "SemanticMemory" as Semantic
+participant "ProceduralMemory" as Procedural
+participant "MemoryPersistence" as Persistence
+
+== Memory Storage (Episodic) ==
+
+Agent -> Composite: save_to("episodic", item, metadata)
+activate Composite
+
+Composite -> Episodic: save(item, metadata)
+activate Episodic
+
+Episodic -> Persistence: store("episodic", key, item, metadata)
+activate Persistence
+Persistence --> Episodic: done
+deactivate Persistence
+
+Episodic --> Composite: return memory_id
+deactivate Episodic
+
+Composite --> Agent: return memory_id
+deactivate Composite
+
+== Memory Retrieval (Multiple) ==
+
+Agent -> Composite: retrieve_all(query)
+activate Composite
+
+Composite -> Episodic: retrieve(query, limit)
+activate Episodic
+
+Episodic -> Persistence: search("episodic", query, limit)
+activate Persistence
+Persistence --> Episodic: return matching items
+deactivate Persistence
+
+Episodic --> Composite: return items
+deactivate Episodic
+
+Composite -> Semantic: retrieve(query, limit)
+activate Semantic
+
+Semantic -> Persistence: search("semantic", query, limit)
+activate Persistence
+Persistence --> Semantic: return matching items
+deactivate Persistence
+
+Semantic --> Composite: return items
+deactivate Semantic
+
+Composite -> Procedural: retrieve(query, limit)
+activate Procedural
+
+Procedural -> Persistence: search("procedural", query, limit)
+activate Persistence
+Persistence --> Procedural: return matching items
+deactivate Persistence
+
+Procedural --> Composite: return items
+deactivate Procedural
+
+Composite --> Agent: return combined results
+deactivate Composite
+
+== Memory Update ==
+
+Agent -> Composite: update_in("semantic", id, updated_item)
+activate Composite
+
+Composite -> Semantic: update(id, updated_item)
+activate Semantic
+
+Semantic -> Persistence: retrieve("semantic", id)
+activate Persistence
+Persistence --> Semantic: return existing item
+deactivate Persistence
+
+Semantic -> Persistence: store("semantic", id, updated_item, metadata)
+activate Persistence
+Persistence --> Semantic: done
+deactivate Persistence
+
+Semantic --> Composite: return success
+deactivate Semantic
+
+Composite --> Agent: return success
+deactivate Composite
+
+@enduml

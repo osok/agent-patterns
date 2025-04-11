@@ -1,0 +1,29 @@
+@startuml
+abstract class BaseAgent {
+  +prompt_dir: str
+  +graph: Any
+  +logger: Logger
+  +llm_configs: Dict
+  +tool_provider: Any
+  +memory: Any
+  
+  +__init__(llm_configs, prompt_dir, tool_provider, memory, memory_config, log_level)
+  +{abstract} build_graph(): None
+  +{abstract} run(input_data): Any
+  +stream(input_data): Generator
+  -_get_llm(role): Any
+  -_load_prompt_template(name): Any
+  -_retrieve_memories(query): Dict
+  +sync_retrieve_memories(query): Dict
+  -_save_memory(memory_type, item, **metadata)
+  +sync_save_memory(memory_type, item, **metadata)
+  +on_start(): None
+  +on_finish(): None
+}
+
+note bottom of BaseAgent
+  Abstract base class that all agent patterns
+  must inherit from. Provides core functionality
+  for memory, tools, and LLM interactions.
+end note
+@enduml

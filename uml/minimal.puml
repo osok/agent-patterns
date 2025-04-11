@@ -1,0 +1,6 @@
+@startuml
+class BaseAgent
+class ReActAgent
+
+BaseAgent <|-- ReActAgent
+@enduml

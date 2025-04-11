@@ -1,0 +1,28 @@
+@startuml
+actor User
+participant ReActAgent
+participant LLM
+participant Tools
+
+User -> ReActAgent: run(input)
+activate ReActAgent
+
+loop until complete
+  ReActAgent -> LLM: get next action
+  activate LLM
+  LLM --> ReActAgent: action
+  deactivate LLM
+  
+  alt use tool
+    ReActAgent -> Tools: execute tool
+    activate Tools
+    Tools --> ReActAgent: result
+    deactivate Tools
+  else final answer
+    ReActAgent -> ReActAgent: prepare answer
+  end
+end
+
+ReActAgent --> User: final result
+deactivate ReActAgent
+@enduml

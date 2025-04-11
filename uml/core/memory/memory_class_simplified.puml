@@ -1,0 +1,70 @@
+@startuml
+abstract class BaseMemory {
+  +{abstract} save(item, **metadata): str
+  +{abstract} retrieve(query, limit, **filters): List
+  +{abstract} update(id, item, **metadata): bool
+  +{abstract} delete(id): bool
+  +{abstract} clear(): None
+  +sync_save(item, **metadata): str
+  +sync_retrieve(query, limit, **filters): List
+  +sync_update(id, item, **metadata): bool
+  +sync_delete(id): bool
+  +sync_clear(): None
+}
+
+abstract class MemoryPersistence {
+  +{abstract} initialize(): None
+  +{abstract} store(namespace, key, value, metadata): None
+  +{abstract} retrieve(namespace, key): Any
+  +{abstract} search(namespace, query, limit, **filters): List
+  +{abstract} delete(namespace, key): bool
+  +{abstract} clear_namespace(namespace): None
+}
+
+class CompositeMemory {
+  -memories: Dict
+  -logger: Logger
+  +save_to(memory_type, item, **metadata)
+  +retrieve_from(memory_type, query, limit, **filters): List
+  +retrieve_all(query, limits, filters): Dict
+  +update_in(memory_type, id, item, **metadata): bool
+  +delete_from(memory_type, id): bool
+  +clear_all(): None
+  +clear_type(memory_type): bool
+}
+
+class EpisodicMemory {
+  -persistence: MemoryPersistence
+  +save(item, **metadata): str
+  +retrieve(query, limit, **filters): List
+  +update(id, item, **metadata): bool
+  +delete(id): bool
+  +clear(): None
+}
+
+class SemanticMemory {
+  -persistence: MemoryPersistence
+  +save(item, **metadata): str
+  +retrieve(query, limit, **filters): List
+  +update(id, item, **metadata): bool
+  +delete(id): bool
+  +clear(): None
+}
+
+class ProceduralMemory {
+  -persistence: MemoryPersistence
+  +save(item, **metadata): str
+  +retrieve(query, limit, **filters): List
+  +update(id, item, **metadata): bool
+  +delete(id): bool
+  +clear(): None
+}
+
+BaseMemory <|-- EpisodicMemory
+BaseMemory <|-- SemanticMemory
+BaseMemory <|-- ProceduralMemory
+CompositeMemory o-- BaseMemory : contains >
+EpisodicMemory --> MemoryPersistence : uses >
+SemanticMemory --> MemoryPersistence : uses >
+ProceduralMemory --> MemoryPersistence : uses >
+@enduml

@@ -1,0 +1,54 @@
+@startuml
+actor "User" as User
+participant "LLMCompilerAgent" as Agent
+participant "Planner" as Planner
+participant "Executor" as Executor
+participant "ToolRegistry" as Registry
+participant "Tool" as Tool
+participant "Memory" as Memory
+
+User -> Agent: run(input_text)
+activate Agent
+
+Agent -> Memory: retrieve_memories(input_text)
+activate Memory
+Memory --> Agent: relevant memories
+deactivate Memory
+
+Agent -> Planner: create_plan(input_text, memories)
+activate Planner
+Planner --> Agent: execution_plan
+deactivate Planner
+
+loop until all steps complete
+  Agent -> Executor: execute_step(step, context)
+  activate Executor
+  
+  Executor -> Registry: execute_tool(tool_name, tool_input)
+  activate Registry
+  Registry -> Tool: execute
+  activate Tool
+  Tool --> Registry: observation
+  deactivate Tool
+  Registry --> Executor: observation
+  deactivate Registry
+  
+  alt step succeeded
+    Executor --> Agent: step_result
+  else step failed
+    Executor --> Agent: error
+    Agent -> Planner: replan(original_plan, completed_steps, error)
+    activate Planner
+    Planner --> Agent: updated_plan
+    deactivate Planner
+  end
+  
+  deactivate Executor
+  
+  Agent -> Memory: save_memory("episodic", step_record)
+end
+
+Agent -> Memory: save_memory("procedural", execution_plan)
+Agent --> User: final result
+deactivate Agent
+@enduml

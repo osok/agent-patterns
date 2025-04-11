@@ -1,0 +1,38 @@
+@startuml
+class ReflectionState {
+  +input: str
+  +chat_history: List
+  +intermediate_steps: List
+  +reflections: List
+  +agent_outcome: Any
+}
+
+class ReflectionAgent {
+  -tools: List
+  -llm: Any
+  -reflection_frequency: int
+  -reflection_llm: Any
+  
+  +__init__(llm_configs, tools, memory, memory_config)
+  +build_graph(): None
+  -_run_agent_llm(state): Dict
+  -_execute_tools(state): Dict
+  -_reflect(state): Dict
+  -_should_execute_tools(state): bool
+  -_should_reflect(state): bool
+  -_generate_reflection(intermediate_steps): str
+  +run(input_text): Dict
+}
+
+class BaseAgent {
+}
+
+ReflectionAgent --|> BaseAgent
+ReflectionAgent -- ReflectionState
+
+note right of ReflectionAgent
+  Implements the Reflection pattern
+  which adds periodic reflection
+  to analyze progress and strategy
+end note
+@enduml

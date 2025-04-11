@@ -1,0 +1,120 @@
+@startuml
+skinparam BackgroundColor transparent
+skinparam classBackgroundColor #FEFEFE
+skinparam classBorderColor #666666
+skinparam stereotypeCBackgroundColor #A9DCDF
+skinparam packageBackgroundColor #EEEEEE
+
+package "Core" {
+  abstract class BaseAgent {
+    +prompt_dir: str
+    +graph: Optional[Any]
+    +logger: logging.Logger
+    +llm_configs: Dict[str, Dict]
+    +tool_provider: Optional[Any]
+    +memory: Optional[Any]
+    +{abstract} build_graph(): None
+    +{abstract} run(input_data: Any): Any
+  }
+  
+  package "Memory" {
+    abstract class BaseMemory
+    class CompositeMemory
+    class EpisodicMemory
+    class SemanticMemory
+    class ProceduralMemory
+  }
+  
+  package "Tools" {
+    interface ToolProvider
+    class ToolRegistry
+  }
+}
+
+package "Patterns" {
+  class ReActAgent {
+    +build_graph(): None
+    +run(input_text: str): Dict[str, Any]
+  }
+  
+  class ReflexionAgent {
+    +build_graph(): None
+    +run(input_text: str): Dict[str, Any]
+  }
+  
+  class LLMCompilerAgent {
+    +build_graph(): None
+    +run(input_text: str): Dict[str, Any]
+  }
+  
+  class SelfDiscoveryAgent {
+    +build_graph(): None
+    +run(input_text: str): Dict[str, Any]
+  }
+  
+  class LATSAgent {
+    +build_graph(): None
+    +run(input_text: str): Dict[str, Any]
+  }
+  
+  class ReflectionAgent {
+    +build_graph(): None
+    +run(input_text: str): Dict[str, Any]
+  }
+  
+  class ReWOOAgent {
+    +build_graph(): None
+    +run(input_text: str): Dict[str, Any]
+  }
+  
+  class ReflectionAndRefinementAgent {
+    +build_graph(): None
+    +run(input_text: str): Dict[str, Any]
+  }
+  
+  class PlanAndSolveAgent {
+    +build_graph(): None
+    +run(input_text: str): Dict[str, Any]
+  }
+  
+  class STORMAgent {
+    +build_graph(): None
+    +run(input_text: str): Dict[str, Any]
+  }
+}
+
+class PatternFactory {
+  +create_agent(pattern: str, config: Dict): BaseAgent
+  +list_available_patterns(): List[str]
+  +get_default_config(pattern: str): Dict
+}
+
+BaseAgent <|-- ReActAgent
+BaseAgent <|-- ReflexionAgent
+BaseAgent <|-- LLMCompilerAgent
+BaseAgent <|-- SelfDiscoveryAgent
+BaseAgent <|-- LATSAgent
+BaseAgent <|-- ReflectionAgent
+BaseAgent <|-- ReWOOAgent
+BaseAgent <|-- ReflectionAndRefinementAgent
+BaseAgent <|-- PlanAndSolveAgent
+BaseAgent <|-- STORMAgent
+
+PatternFactory --> BaseAgent : creates >
+BaseAgent --> CompositeMemory : uses >
+BaseAgent --> ToolRegistry : uses >
+
+CompositeMemory o-- BaseMemory
+BaseMemory <|-- EpisodicMemory
+BaseMemory <|-- SemanticMemory
+BaseMemory <|-- ProceduralMemory
+
+ToolRegistry o-- ToolProvider
+
+note bottom of PatternFactory
+  Factory that instantiates
+  appropriate agent patterns
+  based on configuration
+end note
+
+@enduml

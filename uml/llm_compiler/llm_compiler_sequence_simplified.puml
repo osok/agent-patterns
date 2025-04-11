@@ -1,0 +1,40 @@
+@startuml
+actor User
+participant LLMCompilerAgent
+participant Planner
+participant Executor
+participant Tools
+
+User -> LLMCompilerAgent: run(input)
+activate LLMCompilerAgent
+
+LLMCompilerAgent -> Planner: create plan
+activate Planner
+Planner --> LLMCompilerAgent: execution plan
+deactivate Planner
+
+loop for each step
+  LLMCompilerAgent -> Executor: execute step
+  activate Executor
+  
+  Executor -> Tools: use tool
+  activate Tools
+  Tools --> Executor: result
+  deactivate Tools
+  
+  alt step succeeded
+    Executor --> LLMCompilerAgent: step result
+  else step failed
+    Executor --> LLMCompilerAgent: error
+    LLMCompilerAgent -> Planner: replan
+    activate Planner
+    Planner --> LLMCompilerAgent: updated plan
+    deactivate Planner
+  end
+  
+  deactivate Executor
+end
+
+LLMCompilerAgent --> User: final result
+deactivate LLMCompilerAgent
+@enduml

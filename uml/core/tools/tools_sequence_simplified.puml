@@ -1,0 +1,24 @@
+@startuml
+actor "Agent" as Agent
+participant "ToolRegistry" as Registry
+participant "Provider1" as P1
+participant "Provider2" as P2
+participant "Tool" as Tool
+
+Agent -> Registry: list_tools()
+Registry -> P1: list_tools()
+P1 --> Registry: tools
+Registry -> P2: list_tools()
+P2 --> Registry: tools
+Registry --> Agent: combined tools
+
+Agent -> Registry: execute_tool("tool", params)
+Registry -> P1: execute_tool("tool", params)
+P1 --> Registry: not found
+
+Registry -> P2: execute_tool("tool", params)
+P2 -> Tool: execute
+Tool --> P2: result
+P2 --> Registry: result
+Registry --> Agent: result
+@enduml

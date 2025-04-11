@@ -1,0 +1,43 @@
+@startuml
+skinparam BackgroundColor transparent
+skinparam classBackgroundColor #FEFEFE
+skinparam classBorderColor #666666
+skinparam stereotypeCBackgroundColor #A9DCDF
+
+abstract class ToolProvider {
+  +{abstract} list_tools(): List[Dict[str, Any]]
+  +{abstract} execute_tool(tool_name: str, params: Dict[str, Any]): Any
+}
+
+class ToolRegistry {
+  -_providers: List[ToolProvider]
+  -_tools_cache: Optional[List[Dict[str, Any]]]
+  +__init__(providers: Optional[List[ToolProvider]])
+  +register_provider(provider: ToolProvider): None
+  +list_tools(): List[Dict[str, Any]]
+  +execute_tool(tool_name: str, params: Dict[str, Any]): Any
+  +invalidate_cache(): None
+}
+
+class ToolExecutionError {
+}
+
+class ToolNotFoundError {
+}
+
+ToolRegistry o-- ToolProvider : contains >
+ToolProvider ..> ToolExecutionError : throws >
+ToolProvider ..> ToolNotFoundError : throws >
+
+note top of ToolProvider
+  Abstract interface that must be implemented
+  by classes that provide tools to agents
+end note
+
+note right of ToolRegistry
+  Central registry that maintains
+  all tool providers and handles
+  tool discovery and execution
+end note
+
+@enduml

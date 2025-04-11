@@ -1,0 +1,31 @@
+@startuml
+state "Initialized" as Init
+state "Ready" as Ready
+state "Processing" as Proc {
+  state "Planning" as Plan
+  state "Step Execution" as Exec
+  state "Replanning" as Replan
+  
+  [*] --> Plan
+  Plan --> Exec : create execution plan
+  Exec --> Exec : execute next step
+  Exec --> Replan : execution fails or unexpected result
+  Replan --> Exec : updated plan
+  Exec --> [*] : all steps complete
+}
+
+[*] --> Init
+Init --> Ready : build_graph()
+Ready --> Proc : run(input)
+Proc --> Ready : return result
+
+note right of Plan
+  Planning phase creates a series of 
+  steps that will execute toward a solution
+end note
+
+note right of Replan
+  Replanning occurs when execution 
+  produces unexpected results
+end note
+@enduml

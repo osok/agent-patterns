@@ -1,0 +1,26 @@
+@startuml
+state "Initialized" as Init
+state "Ready" as Ready
+state "Processing" as Proc {
+  state "Evaluation" as Eval
+  state "Option Gen" as Opt
+  state "Reasoning" as Reason
+  state "Mistake Check" as Mistake
+  state "Action" as Action
+  state "Tool Use" as Tool
+  
+  [*] --> Eval
+  Eval --> Opt
+  Opt --> Reason
+  Reason --> Mistake
+  Mistake --> Action
+  Action --> Tool : use tool
+  Tool --> Eval : next cycle
+  Action --> [*] : final answer
+}
+
+[*] --> Init
+Init --> Ready : build_graph()
+Ready --> Proc : run(input)
+Proc --> Ready : return result
+@enduml

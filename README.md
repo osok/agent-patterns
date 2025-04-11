@@ -6,17 +6,22 @@ A Python library providing reusable, extensible, and well-documented base classe
 
 Agent-Patterns implements proven design patterns for AI agents, reducing boilerplate and encouraging consistent best practices. The library is especially useful for developers needing to quickly build or customize advanced AI workflows without reinventing the wheel.
 
+## Documentation
+
+For comprehensive documentation of all patterns and components, see our [Documentation Site](docs/index.md).
+
 ### Supported Patterns
 
-- **ReAct (Tool Use)**: Iterative reasoning and action for tool-based problem solving [(arXiv Paper)](https://arxiv.org/abs/2210.03629)
-- **Plan & Solve**: Decoupled planning and execution phases [(arXiv Paper)](https://arxiv.org/abs/2305.04091)
-- **Reflection**: Self-critique and refinement of generated outputs
-- **Reflexion**: Multi-trial learning with reflection memory [(arXiv Paper)](https://arxiv.org/abs/2303.11366)
-- **LLM Compiler**: Dynamic execution graph construction and optimization [(arXiv Paper)](https://arxiv.org/abs/2312.04511)
-- **REWOO (Worker-Solver)**: Separated reasoning and execution agents [(arXiv Paper)](https://arxiv.org/abs/2305.18323)
-- **LATS (Language Agent Tree Search)**: Tree search over reasoning paths [(arXiv Paper)](https://arxiv.org/abs/2310.04406)
-- **STORM (Topic Outlines + Multi-perspective Retrieval)**: Structured research and article generation [(NAACL Paper)](https://aclanthology.org/2024.naacl-long.347.pdf)
-- **Self-Discovery**: Dynamic selection and adaptation of reasoning modules
+- **[ReAct (Reason + Act)](docs/patterns/re_act.md)**: Iterative reasoning and action for tool-based problem solving [(arXiv Paper)](https://arxiv.org/abs/2210.03629)
+- **[Plan & Solve](docs/patterns/plan_and_solve.md)**: Decoupled planning and execution phases [(arXiv Paper)](https://arxiv.org/abs/2305.04091)
+- **[Reflection](docs/patterns/reflection.md)**: Periodic reflection for strategic adjustments
+- **[Reflexion](docs/patterns/reflexion.md)**: ReAct with reflection capabilities for self-improvement [(arXiv Paper)](https://arxiv.org/abs/2303.11366)
+- **[LLM Compiler](docs/patterns/llm_compiler.md)**: Dynamic execution graph construction and optimization [(arXiv Paper)](https://arxiv.org/abs/2312.04511)
+- **[ReWOO](docs/patterns/rewoo.md)**: Reason, World model, Observe, Outcome for simulation [(arXiv Paper)](https://arxiv.org/abs/2305.18323)
+- **[LATS](docs/patterns/lats.md)**: LangChain Agents Tracing System for comprehensive observability [(arXiv Paper)](https://arxiv.org/abs/2310.04406)
+- **[STORM](docs/patterns/storm.md)**: Self-evaluation, Think of options, Options for reasoning, Reason step by step, Mistake detection [(NAACL Paper)](https://aclanthology.org/2024.naacl-long.347.pdf)
+- **[Self-Discovery](docs/patterns/self_discovery.md)**: Agents that discover their own capabilities
+- **[Reflection and Refinement](docs/patterns/reflection_and_refinement.md)**: Structured reflection with explicit refinement steps
 
 ### Integrations
 
@@ -33,69 +38,6 @@ The library follows these key architectural principles:
 
 For a comprehensive overview of the architecture, see the [Design Documentation](docs/Design.md).
 
-## Pattern Descriptions
-
-### ReAct
-
-ReAct (Reasoning and Acting) is a pattern that synergizes reasoning traces and task-specific actions in an interleaved manner. The agent explicitly generates verbal reasoning to track its thought process, updates action plans, and handles exceptions while also executing actions that allow it to interface with external sources like knowledge bases or environments. 
-
-ReAct is best used for interactive tasks requiring both reasoning and tool use, such as question answering with information retrieval, fact verification, and interactive decision-making scenarios. It excels when tasks require accessing external information or when traceability and interpretability of the agent's decision process are important.
-
-### Plan & Solve
-
-Plan & Solve is a pattern that decouples the planning and execution phases of problem-solving. It first creates a strategic plan that divides complex tasks into smaller, manageable subtasks, and then systematically executes each subtask according to the plan. This approach helps address common issues like missing steps in the reasoning process.
-
-This pattern is particularly effective for multi-step reasoning tasks, mathematical problem-solving, and complex workflows that benefit from explicit planning. It's ideal when accuracy is critical and when a structured approach to breaking down problems would help avoid errors or incomplete solutions.
-
-### Reflection
-
-Reflection is a pattern where an agent evaluates its own outputs, identifies potential issues, and refines its responses. It introduces a self-critique step where the agent analyzes the quality, accuracy, and completeness of its initial response before generating an improved version.
-
-This pattern is best used when output quality and correctness are paramount, such as in content generation, code writing, and analytical tasks. It's especially valuable for reducing hallucinations, addressing reasoning errors, and enhancing the quality of complex generations without requiring external feedback.
-
-### Reflexion
-
-Reflexion enables agents to learn from previous attempts and mistakes through verbal reinforcement learning. Rather than updating model weights, Reflexion agents reflect on task feedback signals, maintaining their reflections in an episodic memory buffer to improve decision-making in subsequent attempts.
-
-This pattern excels in scenarios requiring trial-and-error learning, such as complex problem-solving, coding tasks, and interactive environments where immediate adaptation is necessary. It's particularly effective when fine-tuning a model is impractical but learning from experience is essential.
-
-### LLM Compiler
-
-LLM Compiler treats language model function calling as a compilation process that optimizes execution flow. It consists of a Function Calling Planner that formulates execution plans, a Task Fetching Unit that dispatches function calling tasks, and an Executor that runs these tasks in parallel.
-
-This pattern is ideal for workflows requiring multiple function calls that can be executed concurrently, significantly reducing latency and cost. It works best in scenarios like complex information gathering, multi-tool tasks, and when efficiency in orchestrating multiple API calls or tools is a priority.
-
-### REWOO
-
-REWOO (Reasoning WithOut Observation) decouples the reasoning process from external observations. Instead of interleaving reasoning and tool use, it separates them into distinct phases: a Worker that handles pure reasoning and planning, and a Solver that executes the actions and integrates observations.
-
-This pattern is optimal for reducing token consumption and computational complexity, especially in multi-step tasks requiring external tool calls. It's well-suited for question answering, fact verification, and any scenario where efficiently separating thinking from acting provides performance or cost benefits.
-
-### LATS
-
-LATS (Language Agent Tree Search) integrates Monte Carlo Tree Search with language models to enable better planning and decision-making. It uses LMs for both policy (action selection) and value (state evaluation) functions, leveraging self-reflection and environment feedback to guide exploration of the action space.
-
-This pattern excels in complex decision-making tasks with long horizons or multiple possible paths, such as programming, interactive question-answering, web navigation, and math problem-solving. It's particularly valuable when simple sequential decision-making isn't sufficient and deeper exploration of potential action sequences is beneficial.
-
-### STORM
-
-STORM (Synthesis of Topic Outlines through Retrieval and Multi-perspective Question Asking) is a pattern designed for comprehensive research and content generation. It follows a structured workflow:
-
-1. It generates an initial outline by researching similar topics
-2. It identifies diverse perspectives to ensure comprehensive coverage
-3. It simulates multi-perspective conversations between researchers and experts
-4. It refines the outline based on research and reference materials
-5. It writes content for each section using the gathered references
-6. It finalizes content with proper citations and coherence
-
-This pattern is ideal for generating well-researched, balanced, and comprehensive long-form content. It's particularly useful for educational content, research summaries, balanced analysis of controversial topics, and any task requiring thorough information gathering and synthesis from multiple perspectives. The pattern was developed by Stanford researchers and is especially effective when depth, multiple viewpoints, and organized presentation are important.
-
-### Self-Discovery 
-
-Self-Discovery is a pattern where agents dynamically select and adapt reasoning modules based on the task at hand. The agent evaluates which reasoning approaches are most appropriate for a given problem and can switch between different reasoning strategies as needed.
-
-This pattern is best suited for dealing with diverse problems that might require different solving techniques, or when the most effective approach isn't known in advance. It's especially valuable for general-purpose assistants that must handle a wide range of query types with different optimal solving strategies.
-
 ## Integration Descriptions
 
 ### Model Context Protocol (MCP)
@@ -108,20 +50,6 @@ Key features:
 - Support for multiple MCP servers simultaneously
 - Standardized interface for tool providers
 - Custom tool provider implementation support
-
-This integration is particularly valuable when:
-- You need to connect your agents to multiple external tools
-- You want to leverage the growing ecosystem of MCP-compatible tools
-- You need a consistent interface for tool usage across different agent patterns
-- You want to create custom tool providers for specialized functionality
-
-The tool provider system is built on a flexible, extensible architecture:
-- **Abstract ToolProvider Interface**: Core abstraction for all tool providers
-- **MCPToolProvider Implementation**: Ready-to-use implementation for MCP servers
-- **Tool Registry**: Ability to combine tools from multiple providers
-- **Integrated Error Handling**: Specific exceptions for different error cases
-
-All agent patterns in the library support tool integration through a consistent interface, allowing tools to be integrated at the appropriate points in each agent's workflow.
 
 For detailed documentation, see:
 - [Tool Provider API Documentation](docs/Tool%20Provider%20API%20Documentation.md)
@@ -137,20 +65,6 @@ Key features:
 - **Flexible Persistence**: In-memory, file system, and vector store backends
 - **Customizable Retrieval**: Query-based memory retrieval with filtering options
 - **Seamless Integration**: Works across all agent patterns with consistent API
-
-This capability is particularly valuable when:
-- Your agents need to remember facts about users or domains
-- You want agents to learn from past interactions
-- Your use case requires context maintenance across multiple sessions
-- You need personalized responses based on history or preferences
-
-The memory system architecture consists of:
-- **Base Memory Interfaces**: Abstract base classes for different memory types
-- **Persistence Backends**: Various storage options with consistent interface
-- **Composite Memory**: Combines multiple memory types into a unified system
-- **Memory Retrieval**: Semantic search and query-based memory access
-
-Each agent pattern integrates memory at the appropriate points in its workflow, automatically retrieving relevant memories before processing and saving important information after completion.
 
 For detailed documentation, see:
 - [Memory API Documentation](docs/Memory%20API%20Documentation.md)
@@ -313,7 +227,7 @@ We welcome contributions! To add a new pattern:
 
 ## License
 
-[License details to be added]
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Contact
 

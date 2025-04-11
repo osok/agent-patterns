@@ -1,0 +1,55 @@
+@startuml
+skinparam BackgroundColor transparent
+skinparam stateBorderColor #666666
+skinparam stateBackgroundColor #FEFEFE
+skinparam stateArrowColor #4285F4
+
+[*] --> Initialized : __init__()
+
+state Initialized {
+  [*] --> Ready : build_graph()
+}
+
+state Ready {
+  [*] --> Processing : run(input)
+}
+
+state Processing {
+  [*] --> Thinking
+  
+  state Thinking {
+    [*] --> DecisionMaking : retrieve_memories()
+    
+    state DecisionMaking {
+      [*] --> ToolDecision : invoke LLM
+      [*] --> FinalAnswerDecision : invoke LLM
+    }
+  }
+  
+  state ToolExecution {
+    [*] --> ExecutingTool : call tool
+    ExecutingTool --> ReceivingObservation : wait for result
+  }
+  
+  Thinking --> ToolExecution : AgentAction
+  ToolExecution --> Thinking : Return observation
+  Thinking --> [*] : AgentFinish
+
+  note bottom of ToolExecution
+    Tool execution may involve
+    external system interactions
+  end note
+}
+
+Ready --> Ready : new input
+
+Processing --> Ready : return result
+
+note right of Processing
+  Loop continues until:
+  1. Agent decides to finish
+  2. Max steps reached
+  3. Error occurs
+end note
+
+@enduml

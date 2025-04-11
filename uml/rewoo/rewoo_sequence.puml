@@ -1,0 +1,46 @@
+@startuml
+actor "User" as User
+participant "ReWOOAgent" as Agent
+participant "ReasonLLM" as ReasonLLM
+participant "WorldModelLLM" as WorldLLM
+participant "ObserveLLM" as ObserveLLM
+participant "OutcomeLLM" as OutcomeLLM
+participant "Memory" as Memory
+
+User -> Agent: run(input_text)
+activate Agent
+
+Agent -> Memory: retrieve_memories(input_text)
+activate Memory
+Memory --> Agent: relevant memories
+deactivate Memory
+
+loop until final outcome determined
+  Agent -> ReasonLLM: invoke(reasoning_prompt)
+  activate ReasonLLM
+  ReasonLLM --> Agent: reasoning
+  deactivate ReasonLLM
+  
+  Agent -> WorldLLM: invoke(world_model_prompt)
+  activate WorldLLM
+  WorldLLM --> Agent: world_state
+  deactivate WorldLLM
+  
+  Agent -> ObserveLLM: invoke(observation_prompt)
+  activate ObserveLLM
+  ObserveLLM --> Agent: observation
+  deactivate ObserveLLM
+  
+  Agent -> OutcomeLLM: invoke(outcome_prompt)
+  activate OutcomeLLM
+  OutcomeLLM --> Agent: outcome
+  deactivate OutcomeLLM
+  
+  alt final outcome determined
+    Agent -> Memory: save_memory("episodic", interaction_record)
+  end
+end
+
+Agent --> User: final result
+deactivate Agent
+@enduml

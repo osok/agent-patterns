@@ -1,0 +1,58 @@
+@startuml
+actor "User" as User
+participant "ReflectionAndRefinementAgent" as Agent
+participant "LLM" as LLM
+participant "ReflectionLLM" as ReflectionLLM
+participant "RefinementLLM" as RefinementLLM
+participant "ToolRegistry" as Registry
+participant "Tool" as Tool
+participant "Memory" as Memory
+
+User -> Agent: run(input_text)
+activate Agent
+
+Agent -> Memory: retrieve_memories(input_text)
+activate Memory
+Memory --> Agent: relevant memories
+deactivate Memory
+
+loop until complete
+  Agent -> LLM: invoke(agent_prompt)
+  activate LLM
+  LLM --> Agent: response
+  deactivate LLM
+  
+  alt agent decides to use tool
+    Agent -> Registry: execute_tool(tool_name, tool_input)
+    activate Registry
+    Registry -> Tool: execute
+    activate Tool
+    Tool --> Registry: observation
+    deactivate Tool
+    Registry --> Agent: observation
+    deactivate Registry
+    
+    Agent -> Memory: save_memory("episodic", tool_use_record)
+  else agent decides to finish
+    Agent -> Memory: save_memory("episodic", interaction_record)
+  end
+  
+  opt reflection phase triggered
+    Agent -> ReflectionLLM: invoke(reflection_prompt)
+    activate ReflectionLLM
+    ReflectionLLM --> Agent: reflection
+    deactivate ReflectionLLM
+    
+    Agent -> RefinementLLM: invoke(refinement_prompt)
+    activate RefinementLLM
+    RefinementLLM --> Agent: refinement
+    deactivate RefinementLLM
+    
+    Agent -> Memory: save_memory("semantic", reflection)
+    Agent -> Memory: save_memory("procedural", refinement)
+  end
+end
+
+Agent --> User: final result
+deactivate Agent
+@enduml

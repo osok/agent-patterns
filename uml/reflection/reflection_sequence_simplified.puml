@@ -1,0 +1,36 @@
+@startuml
+actor User
+participant ReflectionAgent
+participant LLM
+participant ReflectionLLM
+participant Tools
+
+User -> ReflectionAgent: run(input)
+activate ReflectionAgent
+
+loop until complete
+  ReflectionAgent -> LLM: get next action
+  activate LLM
+  LLM --> ReflectionAgent: action
+  deactivate LLM
+  
+  alt use tool
+    ReflectionAgent -> Tools: execute tool
+    activate Tools
+    Tools --> ReflectionAgent: result
+    deactivate Tools
+  else final answer
+    ReflectionAgent -> ReflectionAgent: prepare answer
+  end
+  
+  opt reflection frequency reached
+    ReflectionAgent -> ReflectionLLM: generate reflection
+    activate ReflectionLLM
+    ReflectionLLM --> ReflectionAgent: reflection
+    deactivate ReflectionLLM
+  end
+end
+
+ReflectionAgent --> User: final result
+deactivate ReflectionAgent
+@enduml

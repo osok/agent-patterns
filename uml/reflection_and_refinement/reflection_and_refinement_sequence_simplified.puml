@@ -1,0 +1,42 @@
+@startuml
+actor User
+participant ReflectionAndRefinementAgent
+participant LLM
+participant ReflectionLLM
+participant RefinementLLM
+participant Tools
+
+User -> ReflectionAndRefinementAgent: run(input)
+activate ReflectionAndRefinementAgent
+
+loop until complete
+  ReflectionAndRefinementAgent -> LLM: get next action
+  activate LLM
+  LLM --> ReflectionAndRefinementAgent: action
+  deactivate LLM
+  
+  alt use tool
+    ReflectionAndRefinementAgent -> Tools: execute tool
+    activate Tools
+    Tools --> ReflectionAndRefinementAgent: result
+    deactivate Tools
+  else final answer
+    ReflectionAndRefinementAgent -> ReflectionAndRefinementAgent: prepare answer
+  end
+  
+  opt reflection phase triggered
+    ReflectionAndRefinementAgent -> ReflectionLLM: generate reflection
+    activate ReflectionLLM
+    ReflectionLLM --> ReflectionAndRefinementAgent: reflection
+    deactivate ReflectionLLM
+    
+    ReflectionAndRefinementAgent -> RefinementLLM: generate refinement
+    activate RefinementLLM
+    RefinementLLM --> ReflectionAndRefinementAgent: refinement
+    deactivate RefinementLLM
+  end
+end
+
+ReflectionAndRefinementAgent --> User: final result
+deactivate ReflectionAndRefinementAgent
+@enduml

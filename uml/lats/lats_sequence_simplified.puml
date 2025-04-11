@@ -1,0 +1,40 @@
+@startuml
+actor User
+participant LATSAgent
+participant LLM
+participant Tools
+participant Tracing
+
+User -> LATSAgent: run(input)
+activate LATSAgent
+
+LATSAgent -> Tracing: start trace
+activate Tracing
+
+loop until complete
+  LATSAgent -> Tracing: record step start
+  LATSAgent -> LLM: get next action
+  activate LLM
+  LLM --> LATSAgent: action
+  deactivate LLM
+  LATSAgent -> Tracing: record step end
+  
+  alt use tool
+    LATSAgent -> Tracing: record tool start
+    LATSAgent -> Tools: execute tool
+    activate Tools
+    Tools --> LATSAgent: result
+    deactivate Tools
+    LATSAgent -> Tracing: record tool end
+  else final answer
+    LATSAgent -> Tracing: record final answer
+  end
+end
+
+LATSAgent -> Tracing: end trace
+Tracing --> LATSAgent: trace summary
+deactivate Tracing
+
+LATSAgent --> User: final result
+deactivate LATSAgent
+@enduml

@@ -1,0 +1,56 @@
+@startuml
+actor "User" as User
+participant "LATSAgent" as Agent
+participant "LLM" as LLM
+participant "ToolRegistry" as Registry
+participant "Tool" as Tool
+participant "TracingSystem" as Tracing
+participant "Memory" as Memory
+
+User -> Agent: run(input_text)
+activate Agent
+
+Agent -> Tracing: start_trace(trace_id, input_text)
+activate Tracing
+
+Agent -> Memory: retrieve_memories(input_text)
+activate Memory
+Memory --> Agent: relevant memories
+deactivate Memory
+
+loop until complete
+  Agent -> Tracing: record_step_start("thinking")
+  Agent -> LLM: invoke(agent_prompt)
+  activate LLM
+  LLM --> Agent: response
+  deactivate LLM
+  Agent -> Tracing: record_step_end("thinking", response)
+  
+  alt agent decides to use tool
+    Agent -> Tracing: record_step_start("tool_execution", tool_name)
+    Agent -> Registry: execute_tool(tool_name, tool_input)
+    activate Registry
+    Registry -> Tool: execute
+    activate Tool
+    Tool --> Registry: observation
+    deactivate Tool
+    Registry --> Agent: observation
+    deactivate Registry
+    Agent -> Tracing: record_step_end("tool_execution", observation)
+    
+    Agent -> Memory: save_memory("episodic", tool_use_record)
+  else agent decides to finish
+    Agent -> Tracing: record_step_start("final_answer")
+    Agent -> Memory: save_memory("episodic", interaction_record)
+    Agent -> Tracing: record_step_end("final_answer", result)
+  end
+end
+
+Agent -> Tracing: end_trace()
+Tracing -> Agent: trace_summary
+deactivate Tracing
+
+Agent -> Memory: save_memory("episodic", trace_summary)
+Agent --> User: final result
+deactivate Agent
+@enduml

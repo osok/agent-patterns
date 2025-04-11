@@ -1,0 +1,62 @@
+@startuml
+actor "User" as User
+participant "PlanAndSolveAgent" as Agent
+participant "PlannerLLM" as PlannerLLM
+participant "SolverLLM" as SolverLLM
+participant "ToolRegistry" as Registry
+participant "Tool" as Tool
+participant "Memory" as Memory
+
+User -> Agent: run(input_text)
+activate Agent
+
+Agent -> Memory: retrieve_memories(input_text)
+activate Memory
+Memory --> Agent: relevant memories
+deactivate Memory
+
+Agent -> PlannerLLM: invoke(planner_prompt)
+activate PlannerLLM
+PlannerLLM --> Agent: plan
+deactivate PlannerLLM
+
+Agent -> Memory: save_memory("procedural", plan)
+
+loop through plan steps
+  Agent -> SolverLLM: invoke(solver_prompt, current_step)
+  activate SolverLLM
+  SolverLLM --> Agent: step_solution
+  deactivate SolverLLM
+  
+  alt tool needed for step
+    Agent -> Registry: execute_tool(tool_name, tool_input)
+    activate Registry
+    Registry -> Tool: execute
+    activate Tool
+    Tool --> Registry: observation
+    deactivate Tool
+    Registry --> Agent: observation
+    deactivate Registry
+    
+    Agent -> Memory: save_memory("episodic", step_record)
+  end
+  
+  alt step failed or unexpected result
+    Agent -> PlannerLLM: invoke(revision_prompt)
+    activate PlannerLLM
+    PlannerLLM --> Agent: revised_plan
+    deactivate PlannerLLM
+    
+    Agent -> Memory: save_memory("procedural", revised_plan)
+  end
+end
+
+Agent -> SolverLLM: invoke(final_answer_prompt)
+activate SolverLLM
+SolverLLM --> Agent: final_answer
+deactivate SolverLLM
+
+Agent -> Memory: save_memory("episodic", solution_record)
+Agent --> User: final result
+deactivate Agent
+@enduml

@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "UML-MCP-Server": {
+      "command": "python",
+      "args": ["/ai/work/agents/mcp-servers/uml-mcp/mcp_server.py", "run"],
+      "output_dir": "/ai/work/agents/agent-patterns/uml"
+    }
+  }
+}

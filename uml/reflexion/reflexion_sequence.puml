@@ -1,0 +1,47 @@
+@startuml
+actor "User" as User
+participant "ReflexionAgent" as Agent
+participant "LLM" as LLM
+participant "ToolRegistry" as Registry
+participant "Tool" as Tool
+participant "Memory" as Memory
+
+User -> Agent: run(input_text)
+activate Agent
+
+Agent -> Memory: retrieve_memories(input_text)
+activate Memory
+Memory --> Agent: relevant memories
+deactivate Memory
+
+loop until complete or max iterations
+  Agent -> LLM: invoke(agent_prompt)
+  activate LLM
+  LLM --> Agent: response
+  deactivate LLM
+  
+  alt agent decides to use tool
+    Agent -> Registry: execute_tool(tool_name, tool_input)
+    activate Registry
+    Registry -> Tool: execute
+    activate Tool
+    Tool --> Registry: observation
+    deactivate Tool
+    Registry --> Agent: observation
+    deactivate Registry
+    
+    Agent -> LLM: invoke(reflection_prompt)
+    activate LLM
+    LLM --> Agent: reflection
+    deactivate LLM
+    
+    Agent -> Memory: save_memory("episodic", tool_use_record)
+    Agent -> Memory: save_memory("reflexion", reflection)
+  else agent decides to finish
+    Agent -> Memory: save_memory("episodic", interaction_record)
+  end
+end
+
+Agent --> User: final result
+deactivate Agent
+@enduml

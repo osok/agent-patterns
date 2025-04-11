@@ -1,0 +1,28 @@
+@startuml
+class ReflectionAndRefinementAgent {
+  -tools: List
+  -llm: Any
+  -reflection_llm: Any
+  -refinement_llm: Any
+  
+  +build_graph(): None
+  -_run_agent_llm(state): Dict
+  -_execute_tools(state): Dict
+  -_reflect(state): Dict
+  -_refine(state): Dict
+  +run(input_text): Dict
+}
+
+class BaseAgent {
+}
+
+class ReflectionAndRefinementState {
+  +input: str
+  +chat_history: List
+  +reflections: List
+  +refinements: List
+}
+
+ReflectionAndRefinementAgent --|> BaseAgent
+ReflectionAndRefinementAgent -- ReflectionAndRefinementState
+@enduml

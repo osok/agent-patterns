@@ -1,0 +1,87 @@
+@startuml
+skinparam BackgroundColor transparent
+skinparam classBackgroundColor #FEFEFE
+skinparam classBorderColor #666666
+skinparam stereotypeCBackgroundColor #A9DCDF
+
+!define abstract class as "abstract"
+
+abstract class BaseAgent {
+  +prompt_dir: str
+  +graph: Optional[Any]
+  +logger: logging.Logger
+  +llm_configs: Dict[str, Dict]
+  -_llm_cache: Dict[str, BaseLanguageModel]
+  +tool_provider: Optional[Any]
+  +memory: Optional[Any]
+  +memory_config: Dict[str, bool]
+  
+  +__init__(llm_configs, prompt_dir, tool_provider, memory, memory_config, log_level)
+  +{abstract} build_graph(): None
+  +{abstract} run(input_data: Any): Any
+  +stream(input_data: Any): Generator
+  -_get_llm(role: str): Any
+  -_load_prompt_template(name: str): Any
+  -_retrieve_memories(query: str): Dict[str, List[Any]]
+  +sync_retrieve_memories(query: str): Dict[str, List[Any]]
+  -_save_memory(memory_type: str, item: Any, **metadata): Optional[str]
+  +sync_save_memory(memory_type: str, item: Any, **metadata): Optional[str]
+  +on_start(): None
+  +on_finish(): None
+}
+
+abstract class BaseMemory<T> {
+  +{abstract} save(item: T, **metadata): str
+  +{abstract} retrieve(query: Any, limit: int, **filters): List[T]
+  +{abstract} update(id: str, item: T, **metadata): bool
+  +{abstract} delete(id: str): bool
+  +{abstract} clear(): None
+  +sync_save(item: T, **metadata): str
+  +sync_retrieve(query: Any, limit: int, **filters): List[T]
+  +sync_update(id: str, item: T, **metadata): bool
+  +sync_delete(id: str): bool
+  +sync_clear(): None
+}
+
+class CompositeMemory {
+  -memories: Dict[str, BaseMemory]
+  -logger: Logger
+  +__init__(memories: Dict[str, BaseMemory])
+  +save_to(memory_type: str, item: Any, **metadata): Optional[str]
+  +retrieve_from(memory_type: str, query: Any, limit: int, **filters): List[Any]
+  +retrieve_all(query: Any, limits: Optional[Dict[str, int]], filters: Optional[Dict[str, Dict[str, Any]]]): Dict[str, List[Any]]
+  +update_in(memory_type: str, id: str, item: Any, **metadata): bool
+  +delete_from(memory_type: str, id: str): bool
+  +clear_all(): None
+  +clear_type(memory_type: str): bool
+}
+
+abstract class ToolProvider {
+  +{abstract} list_tools(): List[Dict[str, Any]]
+  +{abstract} execute_tool(tool_name: str, params: Dict[str, Any]): Any
+}
+
+class ToolRegistry {
+  -_providers: List[ToolProvider]
+  -_tools_cache: Optional[List[Dict[str, Any]]]
+  +__init__(providers: Optional[List[ToolProvider]])
+  +register_provider(provider: ToolProvider): None
+  +list_tools(): List[Dict[str, Any]]
+  +execute_tool(tool_name: str, params: Dict[str, Any]): Any
+  +invalidate_cache(): None
+}
+
+class StateGraph {
+}
+
+class "LangChain LLM" as LLM {
+}
+
+BaseAgent --> CompositeMemory : uses >
+BaseAgent --> ToolRegistry : uses >
+BaseAgent --> StateGraph : contains >
+BaseAgent --> LLM : uses >
+CompositeMemory o-- BaseMemory : contains >
+ToolRegistry o-- ToolProvider : contains >
+
+@enduml

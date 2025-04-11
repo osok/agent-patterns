@@ -1,0 +1,27 @@
+@startuml
+state "Initialized" as Init
+state "Ready" as Ready
+state "Processing" as Proc {
+  state "Discovery" as Disc
+  state "Thinking" as Think
+  state "Tool Execution" as Tool
+  
+  [*] --> Disc : first run or explicit discovery request
+  [*] --> Think : normal operation mode
+  Disc --> Think : capabilities discovered
+  Think --> Tool : decide to use tool
+  Tool --> Think : return observation
+  Think --> [*] : final answer
+}
+
+[*] --> Init
+Init --> Ready : build_graph()
+Ready --> Proc : run(input)
+Proc --> Ready : return result
+
+note right of Disc
+  Discovery phase where agent
+  explores its capabilities
+  and available tools
+end note
+@enduml

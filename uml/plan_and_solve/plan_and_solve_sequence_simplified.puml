@@ -1,0 +1,44 @@
+@startuml
+actor User
+participant PlanAndSolveAgent
+participant PlannerLLM
+participant SolverLLM
+participant Tools
+
+User -> PlanAndSolveAgent: run(input)
+activate PlanAndSolveAgent
+
+PlanAndSolveAgent -> PlannerLLM: create plan
+activate PlannerLLM
+PlannerLLM --> PlanAndSolveAgent: plan
+deactivate PlannerLLM
+
+loop through steps
+  PlanAndSolveAgent -> SolverLLM: execute step
+  activate SolverLLM
+  SolverLLM --> PlanAndSolveAgent: solution
+  deactivate SolverLLM
+  
+  opt tool needed
+    PlanAndSolveAgent -> Tools: use tool
+    activate Tools
+    Tools --> PlanAndSolveAgent: result
+    deactivate Tools
+  end
+  
+  opt step failed
+    PlanAndSolveAgent -> PlannerLLM: revise plan
+    activate PlannerLLM
+    PlannerLLM --> PlanAndSolveAgent: revised plan
+    deactivate PlannerLLM
+  end
+end
+
+PlanAndSolveAgent -> SolverLLM: create final answer
+activate SolverLLM
+SolverLLM --> PlanAndSolveAgent: final answer
+deactivate SolverLLM
+
+PlanAndSolveAgent --> User: final result
+deactivate PlanAndSolveAgent
+@enduml

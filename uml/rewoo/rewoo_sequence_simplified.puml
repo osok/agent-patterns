@@ -1,0 +1,36 @@
+@startuml
+actor User
+participant ReWOOAgent
+participant ReasonLLM
+participant WorldLLM
+participant ObserveLLM
+participant OutcomeLLM
+
+User -> ReWOOAgent: run(input)
+activate ReWOOAgent
+
+loop until complete
+  ReWOOAgent -> ReasonLLM: reason about action
+  activate ReasonLLM
+  ReasonLLM --> ReWOOAgent: reasoning
+  deactivate ReasonLLM
+  
+  ReWOOAgent -> WorldLLM: simulate world
+  activate WorldLLM
+  WorldLLM --> ReWOOAgent: world state
+  deactivate WorldLLM
+  
+  ReWOOAgent -> ObserveLLM: observe effects
+  activate ObserveLLM
+  ObserveLLM --> ReWOOAgent: observation
+  deactivate ObserveLLM
+  
+  ReWOOAgent -> OutcomeLLM: determine outcome
+  activate OutcomeLLM
+  OutcomeLLM --> ReWOOAgent: outcome
+  deactivate OutcomeLLM
+end
+
+ReWOOAgent --> User: final result
+deactivate ReWOOAgent
+@enduml

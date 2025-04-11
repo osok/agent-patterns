@@ -1,0 +1,32 @@
+@startuml
+class ReActState {
+  +input: str
+  +chat_history: List
+  +agent_outcome: Any
+  +intermediate_steps: List
+  +memories: Dict
+}
+
+class ReActAgent {
+  -tools: List
+  -tool_map: Dict
+  -max_steps: int
+  -llm: Any
+  
+  +__init__(llm_configs, tools, prompt_dir, tool_provider, memory, memory_config, max_steps, log_level)
+  +build_graph(): None
+  -_get_agent_prompt(): Any
+  -_run_agent_llm(state): Dict
+  -_execute_tools(state): Dict
+  -_should_execute_tools(state): bool
+  -_parse_llm_react_response(response): Any
+  -_execute_tool(tool, tool_input): str
+  +run(input_text): Dict
+}
+
+class BaseAgent {
+}
+
+ReActAgent --|> BaseAgent
+ReActAgent -- ReActState
+@enduml

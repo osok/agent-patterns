@@ -1,0 +1,40 @@
+@startuml
+class PlanAndSolveState {
+  +input: str
+  +chat_history: List
+  +intermediate_steps: List
+  +plan: List
+  +current_step: int
+  +agent_outcome: Any
+}
+
+class PlanAndSolveAgent {
+  -tools: List
+  -llm: Any
+  -planner_llm: Any
+  -solver_llm: Any
+  
+  +__init__(llm_configs, tools, memory, memory_config)
+  +build_graph(): None
+  -_create_plan(state): Dict
+  -_execute_step(state): Dict
+  -_revise_plan(state): Dict
+  -_should_create_plan(state): bool
+  -_should_execute_step(state): bool
+  -_should_revise_plan(state): bool
+  -_should_finish(state): bool
+  +run(input_text): Dict
+}
+
+class BaseAgent {
+}
+
+PlanAndSolveAgent --|> BaseAgent
+PlanAndSolveAgent -- PlanAndSolveState
+
+note right of PlanAndSolveAgent
+  Implements the Plan and Solve pattern
+  which creates an explicit plan first,
+  then executes steps to solve the problem
+end note
+@enduml

@@ -1,0 +1,15 @@
+@startuml
+class BaseAgent {
+  +prompt_dir: str
+  +graph: Any
+  +logger: Logger
+  +run(input_data): Any
+}
+
+class ReActAgent {
+  +build_graph(): None
+  +run(input_text): Any
+}
+
+BaseAgent <|-- ReActAgent
+@enduml

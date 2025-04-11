@@ -1,0 +1,36 @@
+@startuml
+skinparam BackgroundColor transparent
+skinparam stateBorderColor #666666
+skinparam stateBackgroundColor #FEFEFE
+skinparam stateArrowColor #4285F4
+
+state "Memory Empty" as Empty
+state "Memory Initialized" as Initialized
+state "Memory Contains Data" as Contains
+state "Memory Retrieving" as Retrieving
+state "Memory Updating" as Updating
+state "Memory Clearing" as Clearing
+
+[*] --> Empty
+Empty --> Initialized : initialize()
+Initialized --> Contains : save(item)
+Contains --> Contains : save(additional items)
+Contains --> Retrieving : retrieve(query)
+Retrieving --> Contains : return results
+Contains --> Updating : update(id, item)
+Updating --> Contains : return success/failure
+Contains --> Clearing : clear()
+Clearing --> Empty : done
+
+state "Error States" as Error {
+  state "Item Not Found" as NotFound
+  state "Storage Error" as StorageError
+  state "Persistence Error" as PersistenceError
+}
+
+Retrieving --> NotFound : item not found
+Updating --> NotFound : item id not found
+Contains --> StorageError : storage full/error
+Initialized --> PersistenceError : backend unavailable
+
+@enduml

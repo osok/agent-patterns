@@ -1,0 +1,44 @@
+@startuml
+class STORMState {
+  +input: str
+  +chat_history: List
+  +intermediate_steps: List
+  +self_evaluation: str
+  +options: List
+  +reasoning: str
+  +mistake_detection: str
+  +agent_outcome: Any
+}
+
+class STORMAgent {
+  -tools: List
+  -llm: Any
+  -evaluator_llm: Any
+  -reasoner_llm: Any
+  
+  +__init__(llm_configs, tools, memory, memory_config)
+  +build_graph(): None
+  -_self_evaluate(state): Dict
+  -_generate_options(state): Dict
+  -_reason(state): Dict
+  -_detect_mistakes(state): Dict
+  -_decide_action(state): Dict
+  -_execute_tools(state): Dict
+  -_should_self_evaluate(state): bool
+  -_should_execute_tools(state): bool
+  +run(input_text): Dict
+}
+
+class BaseAgent {
+}
+
+STORMAgent --|> BaseAgent
+STORMAgent -- STORMState
+
+note right of STORMAgent
+  Implements the STORM pattern
+  (Self-evaluation, Think of options,
+  Options for reasoning, Reason step by step,
+  Mistake detection)
+end note
+@enduml

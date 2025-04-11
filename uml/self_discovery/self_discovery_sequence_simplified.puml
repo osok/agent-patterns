@@ -1,0 +1,33 @@
+@startuml
+actor User
+participant SelfDiscoveryAgent
+participant LLM
+participant Tools
+
+User -> SelfDiscoveryAgent: run(input)
+activate SelfDiscoveryAgent
+
+SelfDiscoveryAgent -> LLM: discover capabilities
+activate LLM
+LLM --> SelfDiscoveryAgent: capabilities
+deactivate LLM
+
+loop until complete
+  SelfDiscoveryAgent -> LLM: get next action
+  activate LLM
+  LLM --> SelfDiscoveryAgent: action
+  deactivate LLM
+  
+  alt use tool
+    SelfDiscoveryAgent -> Tools: execute tool
+    activate Tools
+    Tools --> SelfDiscoveryAgent: result
+    deactivate Tools
+  else final answer
+    SelfDiscoveryAgent -> SelfDiscoveryAgent: prepare answer
+  end
+end
+
+SelfDiscoveryAgent --> User: final result
+deactivate SelfDiscoveryAgent
+@enduml

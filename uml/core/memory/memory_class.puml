@@ -1,0 +1,116 @@
+@startuml
+skinparam BackgroundColor transparent
+skinparam classBackgroundColor #FEFEFE
+skinparam classBorderColor #666666
+skinparam stereotypeCBackgroundColor #A9DCDF
+
+abstract class BaseMemory<T> {
+  +{abstract} save(item: T, **metadata): str
+  +{abstract} retrieve(query: Any, limit: int, **filters): List[T]
+  +{abstract} update(id: str, item: T, **metadata): bool
+  +{abstract} delete(id: str): bool
+  +{abstract} clear(): None
+  +sync_save(item: T, **metadata): str
+  +sync_retrieve(query: Any, limit: int, **filters): List[T]
+  +sync_update(id: str, item: T, **metadata): bool
+  +sync_delete(id: str): bool
+  +sync_clear(): None
+}
+
+abstract class MemoryPersistence<T> {
+  +{abstract} initialize(): None
+  +{abstract} store(namespace: str, key: str, value: T, metadata: Dict): None
+  +{abstract} retrieve(namespace: str, key: str): Optional[T]
+  +{abstract} search(namespace: str, query: Any, limit: int, **filters): List[Dict]
+  +{abstract} delete(namespace: str, key: str): bool
+  +{abstract} clear_namespace(namespace: str): None
+  +sync_initialize(): None
+  +sync_store(namespace: str, key: str, value: T, metadata: Dict): None
+  +sync_retrieve(namespace: str, key: str): Optional[T]
+  +sync_search(namespace: str, query: Any, limit: int, **filters): List[Dict]
+  +sync_delete(namespace: str, key: str): bool
+  +sync_clear_namespace(namespace: str): None
+}
+
+class CompositeMemory {
+  -memories: Dict[str, BaseMemory]
+  -logger: Logger
+  +__init__(memories: Dict[str, BaseMemory])
+  +save_to(memory_type: str, item: Any, **metadata): Optional[str]
+  +retrieve_from(memory_type: str, query: Any, limit: int, **filters): List[Any]
+  +retrieve_all(query: Any, limits: Optional[Dict[str, int]], filters: Optional[Dict[str, Dict[str, Any]]]): Dict[str, List[Any]]
+  +update_in(memory_type: str, id: str, item: Any, **metadata): bool
+  +delete_from(memory_type: str, id: str): bool
+  +clear_all(): None
+  +clear_type(memory_type: str): bool
+  -_safe_retrieve(memory_type: str, memory: BaseMemory, query: Any, limit: int, **filters): List[Any]
+  -_safe_clear(memory_type: str, memory: BaseMemory): None
+  +sync_save_to(memory_type: str, item: Any, **metadata): Optional[str]
+  +sync_retrieve_from(memory_type: str, query: Any, limit: int, **filters): List[Any]
+  +sync_retrieve_all(query: Any, limits: Optional[Dict[str, int]], filters: Optional[Dict[str, Dict[str, Any]]]): Dict[str, List[Any]]
+  +sync_update_in(memory_type: str, id: str, item: Any, **metadata): bool
+  +sync_delete_from(memory_type: str, id: str): bool
+  +sync_clear_all(): None
+  +sync_clear_type(memory_type: str): bool
+}
+
+class EpisodicMemory {
+  -logger: Logger
+  -persistence: MemoryPersistence
+  -namespace: str
+  +__init__(persistence: MemoryPersistence, namespace: str)
+  +save(item: Any, **metadata): str
+  +retrieve(query: Any, limit: int, **filters): List[Any]
+  +update(id: str, item: Any, **metadata): bool
+  +delete(id: str): bool
+  +clear(): None
+}
+
+class SemanticMemory {
+  -logger: Logger
+  -persistence: MemoryPersistence
+  -namespace: str
+  +__init__(persistence: MemoryPersistence, namespace: str)
+  +save(item: Any, **metadata): str
+  +retrieve(query: Any, limit: int, **filters): List[Any]
+  +update(id: str, item: Any, **metadata): bool
+  +delete(id: str): bool
+  +clear(): None
+}
+
+class ProceduralMemory {
+  -logger: Logger
+  -persistence: MemoryPersistence
+  -namespace: str
+  +__init__(persistence: MemoryPersistence, namespace: str)
+  +save(item: Any, **metadata): str
+  +retrieve(query: Any, limit: int, **filters): List[Any]
+  +update(id: str, item: Any, **metadata): bool
+  +delete(id: str): bool
+  +clear(): None
+}
+
+BaseMemory <|-- EpisodicMemory
+BaseMemory <|-- SemanticMemory
+BaseMemory <|-- ProceduralMemory
+CompositeMemory o-- BaseMemory : contains >
+EpisodicMemory --> MemoryPersistence : uses >
+SemanticMemory --> MemoryPersistence : uses >
+ProceduralMemory --> MemoryPersistence : uses >
+
+note top of BaseMemory
+  Abstract base interface for
+  all memory types
+end note
+
+note top of MemoryPersistence
+  Abstract interface for 
+  memory storage backends
+end note
+
+note right of CompositeMemory
+  Combines multiple memory types
+  into a unified interface
+end note
+
+@enduml
