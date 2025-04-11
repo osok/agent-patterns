@@ -1,0 +1,582 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Memory Integration Tutorial &mdash; agent-patterns 0.1.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=a58bc63e"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            agent-patterns
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Memory Integration Tutorial</a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#memory-types">Memory Types</a><ul>
+<li><a class="reference internal" href="#semantic-memory">Semantic Memory</a></li>
+<li><a class="reference internal" href="#episodic-memory">Episodic Memory</a></li>
+<li><a class="reference internal" href="#procedural-memory">Procedural Memory</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#setup-and-basic-usage">Setup and Basic Usage</a><ul>
+<li><a class="reference internal" href="#step-1-create-a-persistence-layer">Step 1: Create a Persistence Layer</a></li>
+<li><a class="reference internal" href="#step-2-create-individual-memory-components">Step 2: Create Individual Memory Components</a></li>
+<li><a class="reference internal" href="#step-3-create-a-composite-memory">Step 3: Create a Composite Memory</a></li>
+<li><a class="reference internal" href="#step-4-store-information-in-memory">Step 4: Store Information in Memory</a></li>
+<li><a class="reference internal" href="#step-5-retrieve-information-from-memory">Step 5: Retrieve Information from Memory</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#integrating-with-agent-patterns">Integrating with Agent Patterns</a><ul>
+<li><a class="reference internal" href="#step-1-create-a-memory-system">Step 1: Create a Memory System</a></li>
+<li><a class="reference internal" href="#step-2-configure-the-agent-with-memory">Step 2: Configure the Agent with Memory</a></li>
+<li><a class="reference internal" href="#step-3-run-the-agent">Step 3: Run the Agent</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#advanced-memory-usage">Advanced Memory Usage</a><ul>
+<li><a class="reference internal" href="#custom-memory-retrieval">Custom Memory Retrieval</a></li>
+<li><a class="reference internal" href="#custom-memory-saving">Custom Memory Saving</a></li>
+<li><a class="reference internal" href="#memory-with-different-agent-patterns">Memory with Different Agent Patterns</a><ul>
+<li><a class="reference internal" href="#reactagent">ReActAgent</a></li>
+<li><a class="reference internal" href="#planandsolveagent">PlanAndSolveAgent</a></li>
+<li><a class="reference internal" href="#reflectionagent">ReflectionAgent</a></li>
+<li><a class="reference internal" href="#stormagent">STORMAgent</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#example-building-a-memory-enhanced-agent">Example: Building a Memory-Enhanced Agent</a></li>
+<li><a class="reference internal" href="#best-practices">Best Practices</a></li>
+<li><a class="reference internal" href="#conclusion">Conclusion</a></li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">agent-patterns</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Memory Integration Tutorial</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/Memory Integration Tutorial.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="memory-integration-tutorial">
+<h1>Memory Integration Tutorial<a class="headerlink" href="#memory-integration-tutorial" title="Link to this heading"></a></h1>
+<p>This tutorial provides step-by-step guidance on integrating memory capabilities with agent patterns in the agent-patterns library.</p>
+<section id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Link to this heading"></a></h2>
+<p>Memory systems allow agents to store and retrieve information across interactions, giving them the ability to:</p>
+<ul class="simple">
+<li><p>Remember past interactions and their outcomes</p></li>
+<li><p>Store factual knowledge for later reference</p></li>
+<li><p>Learn from experiences and apply that learning to new situations</p></li>
+<li><p>Maintain context and personalization across sessions</p></li>
+</ul>
+<p>The agent-patterns library includes a flexible memory system with different memory types inspired by human cognitive processes.</p>
+</section>
+<section id="memory-types">
+<h2>Memory Types<a class="headerlink" href="#memory-types" title="Link to this heading"></a></h2>
+<p>The library supports three primary types of memory:</p>
+<section id="semantic-memory">
+<h3>Semantic Memory<a class="headerlink" href="#semantic-memory" title="Link to this heading"></a></h3>
+<p>Stores factual knowledge and relationships. This is ideal for:</p>
+<ul class="simple">
+<li><p>User preferences</p></li>
+<li><p>Domain knowledge</p></li>
+<li><p>Entity attributes</p></li>
+</ul>
+</section>
+<section id="episodic-memory">
+<h3>Episodic Memory<a class="headerlink" href="#episodic-memory" title="Link to this heading"></a></h3>
+<p>Stores experiences and events in a sequential format. This is useful for:</p>
+<ul class="simple">
+<li><p>Conversation history</p></li>
+<li><p>Previous reasoning steps</p></li>
+<li><p>Outcomes of past actions</p></li>
+</ul>
+</section>
+<section id="procedural-memory">
+<h3>Procedural Memory<a class="headerlink" href="#procedural-memory" title="Link to this heading"></a></h3>
+<p>Stores processes, templates, and patterns. This helps with:</p>
+<ul class="simple">
+<li><p>Reasoning frameworks</p></li>
+<li><p>Response templates</p></li>
+<li><p>Problem-solving strategies</p></li>
+</ul>
+</section>
+</section>
+<section id="setup-and-basic-usage">
+<h2>Setup and Basic Usage<a class="headerlink" href="#setup-and-basic-usage" title="Link to this heading"></a></h2>
+<section id="step-1-create-a-persistence-layer">
+<h3>Step 1: Create a Persistence Layer<a class="headerlink" href="#step-1-create-a-persistence-layer" title="Link to this heading"></a></h3>
+<p>First, choose a persistence mechanism for storing memories:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory.persistence</span><span class="w"> </span><span class="kn">import</span> <span class="n">InMemoryPersistence</span>
+
+<span class="c1"># For non-persistent storage (memory only)</span>
+<span class="n">persistence</span> <span class="o">=</span> <span class="n">InMemoryPersistence</span><span class="p">()</span>
+<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">persistence</span><span class="o">.</span><span class="n">initialize</span><span class="p">())</span>
+
+<span class="c1"># For file-based persistent storage</span>
+<span class="c1"># from agent_patterns.core.memory.persistence import FileSystemPersistence</span>
+<span class="c1"># persistence = FileSystemPersistence(directory=&quot;./memory_data&quot;)</span>
+<span class="c1"># asyncio.run(persistence.initialize())</span>
+</pre></div>
+</div>
+</section>
+<section id="step-2-create-individual-memory-components">
+<h3>Step 2: Create Individual Memory Components<a class="headerlink" href="#step-2-create-individual-memory-components" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">SemanticMemory</span><span class="p">,</span>
+    <span class="n">EpisodicMemory</span><span class="p">,</span>
+    <span class="n">ProceduralMemory</span>
+<span class="p">)</span>
+
+<span class="c1"># Create individual memory types with separate namespaces</span>
+<span class="n">semantic_memory</span> <span class="o">=</span> <span class="n">SemanticMemory</span><span class="p">(</span><span class="n">persistence</span><span class="p">,</span> <span class="n">namespace</span><span class="o">=</span><span class="s2">&quot;user_semantic&quot;</span><span class="p">)</span>
+<span class="n">episodic_memory</span> <span class="o">=</span> <span class="n">EpisodicMemory</span><span class="p">(</span><span class="n">persistence</span><span class="p">,</span> <span class="n">namespace</span><span class="o">=</span><span class="s2">&quot;user_episodic&quot;</span><span class="p">)</span>
+<span class="n">procedural_memory</span> <span class="o">=</span> <span class="n">ProceduralMemory</span><span class="p">(</span><span class="n">persistence</span><span class="p">,</span> <span class="n">namespace</span><span class="o">=</span><span class="s2">&quot;user_procedural&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="step-3-create-a-composite-memory">
+<h3>Step 3: Create a Composite Memory<a class="headerlink" href="#step-3-create-a-composite-memory" title="Link to this heading"></a></h3>
+<p>Combine the individual memories into a unified interface:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompositeMemory</span>
+
+<span class="n">memory</span> <span class="o">=</span> <span class="n">CompositeMemory</span><span class="p">({</span>
+    <span class="s2">&quot;semantic&quot;</span><span class="p">:</span> <span class="n">semantic_memory</span><span class="p">,</span>
+    <span class="s2">&quot;episodic&quot;</span><span class="p">:</span> <span class="n">episodic_memory</span><span class="p">,</span>
+    <span class="s2">&quot;procedural&quot;</span><span class="p">:</span> <span class="n">procedural_memory</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+</section>
+<section id="step-4-store-information-in-memory">
+<h3>Step 4: Store Information in Memory<a class="headerlink" href="#step-4-store-information-in-memory" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Store factual knowledge in semantic memory</span>
+<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">memory</span><span class="o">.</span><span class="n">save_to</span><span class="p">(</span>
+    <span class="s2">&quot;semantic&quot;</span><span class="p">,</span> 
+    <span class="p">{</span><span class="s2">&quot;entity&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;attribute&quot;</span><span class="p">:</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;Alice&quot;</span><span class="p">}</span>
+<span class="p">))</span>
+
+<span class="c1"># Store an experience in episodic memory</span>
+<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">memory</span><span class="o">.</span><span class="n">save_to</span><span class="p">(</span>
+    <span class="s2">&quot;episodic&quot;</span><span class="p">,</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;User asked about climate change solutions&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;importance&quot;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span>
+        <span class="s2">&quot;tags&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;climate&quot;</span><span class="p">,</span> <span class="s2">&quot;question&quot;</span><span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">))</span>
+
+<span class="c1"># Store a reasoning pattern in procedural memory</span>
+<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">memory</span><span class="o">.</span><span class="n">save_to</span><span class="p">(</span>
+    <span class="s2">&quot;procedural&quot;</span><span class="p">,</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;explain_concept&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;template&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;When explaining </span><span class="si">{concept}</span><span class="s2">, follow these steps:</span>
+<span class="s2">1. Start with a simple analogy</span>
+<span class="s2">2. Define key terms</span>
+<span class="s2">3. Provide concrete examples</span>
+<span class="s2">4. Address common misconceptions</span>
+<span class="s2">5. Summarize the main points&quot;&quot;&quot;</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Template for explaining complex concepts&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;tags&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;explanation&quot;</span><span class="p">,</span> <span class="s2">&quot;teaching&quot;</span><span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">))</span>
+</pre></div>
+</div>
+</section>
+<section id="step-5-retrieve-information-from-memory">
+<h3>Step 5: Retrieve Information from Memory<a class="headerlink" href="#step-5-retrieve-information-from-memory" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get all facts about the user</span>
+<span class="n">user_info</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">memory</span><span class="o">.</span><span class="n">retrieve_from</span><span class="p">(</span><span class="s2">&quot;semantic&quot;</span><span class="p">,</span> <span class="s2">&quot;user&quot;</span><span class="p">))</span>
+
+<span class="c1"># Get relevant memories about climate</span>
+<span class="n">climate_memories</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">memory</span><span class="o">.</span><span class="n">retrieve_from</span><span class="p">(</span><span class="s2">&quot;episodic&quot;</span><span class="p">,</span> <span class="s2">&quot;climate change&quot;</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">5</span><span class="p">))</span>
+
+<span class="c1"># Get explanation patterns</span>
+<span class="n">explanation_patterns</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">memory</span><span class="o">.</span><span class="n">retrieve_from</span><span class="p">(</span><span class="s2">&quot;procedural&quot;</span><span class="p">,</span> <span class="s2">&quot;explanation&quot;</span><span class="p">))</span>
+
+<span class="c1"># Retrieve from all memory types at once</span>
+<span class="n">all_relevant</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">memory</span><span class="o">.</span><span class="n">retrieve_all</span><span class="p">(</span>
+    <span class="s2">&quot;user question climate&quot;</span><span class="p">,</span> 
+    <span class="n">limits</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;semantic&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;episodic&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;procedural&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
+<span class="p">))</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="integrating-with-agent-patterns">
+<h2>Integrating with Agent Patterns<a class="headerlink" href="#integrating-with-agent-patterns" title="Link to this heading"></a></h2>
+<p>All agent patterns in the library support memory integration through a consistent interface.</p>
+<section id="step-1-create-a-memory-system">
+<h3>Step 1: Create a Memory System<a class="headerlink" href="#step-1-create-a-memory-system" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create the memory system as shown above</span>
+<span class="n">memory</span> <span class="o">=</span> <span class="n">setup_memory</span><span class="p">()</span>  <span class="c1"># Your function that creates and initializes memory</span>
+</pre></div>
+</div>
+</section>
+<section id="step-2-configure-the-agent-with-memory">
+<h3>Step 2: Configure the Agent with Memory<a class="headerlink" href="#step-2-configure-the-agent-with-memory" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.patterns.re_act_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReActAgent</span>
+
+<span class="n">agent</span> <span class="o">=</span> <span class="n">ReActAgent</span><span class="p">(</span>
+    <span class="n">llm_configs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;provider&quot;</span><span class="p">:</span> <span class="s2">&quot;openai&quot;</span><span class="p">,</span> <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="s2">&quot;gpt-4o&quot;</span><span class="p">}},</span>
+    <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
+    <span class="n">memory_config</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;semantic&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>   <span class="c1"># Enable semantic memory</span>
+        <span class="s2">&quot;episodic&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>   <span class="c1"># Enable episodic memory</span>
+        <span class="s2">&quot;procedural&quot;</span><span class="p">:</span> <span class="kc">True</span>  <span class="c1"># Enable procedural memory</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">memory_config</span></code> parameter lets you selectively enable or disable specific memory types.</p>
+</section>
+<section id="step-3-run-the-agent">
+<h3>Step 3: Run the Agent<a class="headerlink" href="#step-3-run-the-agent" title="Link to this heading"></a></h3>
+<p>The agent will automatically:</p>
+<ol class="arabic simple">
+<li><p>Retrieve relevant memories before processing each request</p></li>
+<li><p>Save important information to memory after processing</p></li>
+<li><p>Include memory context in prompts to the LLM</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run the agent (memory retrieval and saving happens automatically)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">&quot;Tell me about climate change solutions&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="advanced-memory-usage">
+<h2>Advanced Memory Usage<a class="headerlink" href="#advanced-memory-usage" title="Link to this heading"></a></h2>
+<section id="custom-memory-retrieval">
+<h3>Custom Memory Retrieval<a class="headerlink" href="#custom-memory-retrieval" title="Link to this heading"></a></h3>
+<p>For fine-grained control over memory retrieval:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">CustomAgent</span><span class="p">(</span><span class="n">ReActAgent</span><span class="p">):</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_retrieve_relevant_memories</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Override to customize memory retrieval.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s2">&quot;personal&quot;</span> <span class="ow">in</span> <span class="n">query</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+            <span class="c1"># Focus on user-related memories for personal queries</span>
+            <span class="n">memories</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">retrieve_all</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;user </span><span class="si">{</span><span class="n">query</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">limits</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;semantic&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;episodic&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;procedural&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Use standard retrieval for other queries</span>
+            <span class="n">memories</span> <span class="o">=</span> <span class="k">await</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_retrieve_relevant_memories</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">memories</span>
+</pre></div>
+</div>
+</section>
+<section id="custom-memory-saving">
+<h3>Custom Memory Saving<a class="headerlink" href="#custom-memory-saving" title="Link to this heading"></a></h3>
+<p>To customize what gets saved to memory:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">CustomAgent</span><span class="p">(</span><span class="n">ReActAgent</span><span class="p">):</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_save_to_memory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="n">memory_items</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Override to customize memory saving.&quot;&quot;&quot;</span>
+        <span class="c1"># Save additional semantic facts</span>
+        <span class="k">if</span> <span class="s2">&quot;preference&quot;</span> <span class="ow">in</span> <span class="n">query</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+            <span class="c1"># Extract and save user preferences</span>
+            <span class="c1"># This is a simplified example - you&#39;d use an LLM to extract preferences</span>
+            <span class="k">if</span> <span class="s2">&quot;like&quot;</span> <span class="ow">in</span> <span class="n">query</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                <span class="n">preference</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;like&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">save_to</span><span class="p">(</span>
+                    <span class="s2">&quot;semantic&quot;</span><span class="p">,</span>
+                    <span class="p">{</span><span class="s2">&quot;entity&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;attribute&quot;</span><span class="p">:</span> <span class="s2">&quot;likes&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">preference</span><span class="p">}</span>
+                <span class="p">)</span>
+        
+        <span class="c1"># Continue with standard memory saving</span>
+        <span class="k">await</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_save_to_memory</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="n">memory_items</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="memory-with-different-agent-patterns">
+<h3>Memory with Different Agent Patterns<a class="headerlink" href="#memory-with-different-agent-patterns" title="Link to this heading"></a></h3>
+<p>Each agent pattern integrates memory at the appropriate points in its workflow:</p>
+<section id="reactagent">
+<h4>ReActAgent<a class="headerlink" href="#reactagent" title="Link to this heading"></a></h4>
+<p>The ReAct agent retrieves memories before each reasoning step and saves the conversation and reasoning process to episodic memory.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">agent</span> <span class="o">=</span> <span class="n">ReActAgent</span><span class="p">(</span>
+    <span class="n">llm_configs</span><span class="o">=</span><span class="n">llm_configs</span><span class="p">,</span>
+    <span class="n">tools</span><span class="o">=</span><span class="n">tools</span><span class="p">,</span>
+    <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
+    <span class="n">memory_config</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;semantic&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;episodic&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;procedural&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="planandsolveagent">
+<h4>PlanAndSolveAgent<a class="headerlink" href="#planandsolveagent" title="Link to this heading"></a></h4>
+<p>The PlanAndSolve agent retrieves memories during both the planning and execution phases, and saves the plan and results to memory.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">agent</span> <span class="o">=</span> <span class="n">PlanAndSolveAgent</span><span class="p">(</span>
+    <span class="n">llm_configs</span><span class="o">=</span><span class="n">llm_configs</span><span class="p">,</span>
+    <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
+    <span class="n">memory_config</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;semantic&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;episodic&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;procedural&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="reflectionagent">
+<h4>ReflectionAgent<a class="headerlink" href="#reflectionagent" title="Link to this heading"></a></h4>
+<p>The Reflection agent retrieves memories before generating initial output and after reflections, saving both the output and reflections to memory.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">agent</span> <span class="o">=</span> <span class="n">ReflectionAgent</span><span class="p">(</span>
+    <span class="n">llm_configs</span><span class="o">=</span><span class="n">llm_configs</span><span class="p">,</span>
+    <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
+    <span class="n">memory_config</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;semantic&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;episodic&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;procedural&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="stormagent">
+<h4>STORMAgent<a class="headerlink" href="#stormagent" title="Link to this heading"></a></h4>
+<p>The STORM agent uses memory during outline generation, perspective identification, and content synthesis phases.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">agent</span> <span class="o">=</span> <span class="n">STORMAgent</span><span class="p">(</span>
+    <span class="n">llm_configs</span><span class="o">=</span><span class="n">llm_configs</span><span class="p">,</span>
+    <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
+    <span class="n">memory_config</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;semantic&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;episodic&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;procedural&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+    <span class="n">num_perspectives</span><span class="o">=</span><span class="mi">3</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="example-building-a-memory-enhanced-agent">
+<h2>Example: Building a Memory-Enhanced Agent<a class="headerlink" href="#example-building-a-memory-enhanced-agent" title="Link to this heading"></a></h2>
+<p>Here’s a complete example of building a ReActAgent with memory:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dotenv</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dotenv</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.patterns.re_act_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReActAgent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">SemanticMemory</span><span class="p">,</span>
+    <span class="n">EpisodicMemory</span><span class="p">,</span>
+    <span class="n">ProceduralMemory</span><span class="p">,</span>
+    <span class="n">CompositeMemory</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory.persistence</span><span class="w"> </span><span class="kn">import</span> <span class="n">InMemoryPersistence</span>
+
+<span class="c1"># Load environment variables</span>
+<span class="n">load_dotenv</span><span class="p">()</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">setup_memory</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Set up a composite memory system.&quot;&quot;&quot;</span>
+    <span class="c1"># Create persistence backend</span>
+    <span class="n">persistence</span> <span class="o">=</span> <span class="n">InMemoryPersistence</span><span class="p">()</span>
+    <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">persistence</span><span class="o">.</span><span class="n">initialize</span><span class="p">())</span>
+    
+    <span class="c1"># Create individual memory types</span>
+    <span class="n">semantic_memory</span> <span class="o">=</span> <span class="n">SemanticMemory</span><span class="p">(</span><span class="n">persistence</span><span class="p">,</span> <span class="n">namespace</span><span class="o">=</span><span class="s2">&quot;user_semantic&quot;</span><span class="p">)</span>
+    <span class="n">episodic_memory</span> <span class="o">=</span> <span class="n">EpisodicMemory</span><span class="p">(</span><span class="n">persistence</span><span class="p">,</span> <span class="n">namespace</span><span class="o">=</span><span class="s2">&quot;user_episodic&quot;</span><span class="p">)</span>
+    <span class="n">procedural_memory</span> <span class="o">=</span> <span class="n">ProceduralMemory</span><span class="p">(</span><span class="n">persistence</span><span class="p">,</span> <span class="n">namespace</span><span class="o">=</span><span class="s2">&quot;user_procedural&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Create composite memory</span>
+    <span class="n">memory</span> <span class="o">=</span> <span class="n">CompositeMemory</span><span class="p">({</span>
+        <span class="s2">&quot;semantic&quot;</span><span class="p">:</span> <span class="n">semantic_memory</span><span class="p">,</span>
+        <span class="s2">&quot;episodic&quot;</span><span class="p">:</span> <span class="n">episodic_memory</span><span class="p">,</span>
+        <span class="s2">&quot;procedural&quot;</span><span class="p">:</span> <span class="n">procedural_memory</span>
+    <span class="p">})</span>
+    
+    <span class="c1"># Pre-populate with some user information</span>
+    <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">memory</span><span class="o">.</span><span class="n">save_to</span><span class="p">(</span>
+        <span class="s2">&quot;semantic&quot;</span><span class="p">,</span> 
+        <span class="p">{</span><span class="s2">&quot;entity&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;attribute&quot;</span><span class="p">:</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;Alice&quot;</span><span class="p">}</span>
+    <span class="p">))</span>
+    
+    <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">memory</span><span class="o">.</span><span class="n">save_to</span><span class="p">(</span>
+        <span class="s2">&quot;semantic&quot;</span><span class="p">,</span> 
+        <span class="p">{</span><span class="s2">&quot;entity&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;attribute&quot;</span><span class="p">:</span> <span class="s2">&quot;interests&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;AI&quot;</span><span class="p">,</span> <span class="s2">&quot;climate science&quot;</span><span class="p">,</span> <span class="s2">&quot;music&quot;</span><span class="p">]}</span>
+    <span class="p">))</span>
+    
+    <span class="c1"># Add a procedural memory for personalization</span>
+    <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">memory</span><span class="o">.</span><span class="n">save_to</span><span class="p">(</span>
+        <span class="s2">&quot;procedural&quot;</span><span class="p">,</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;personalization&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;template&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;When responding to </span><span class="si">{user_name}</span><span class="s2">:</span>
+<span class="s2">1. Consider their known interests: </span><span class="si">{interests}</span>
+<span class="s2">2. Reference previous conversations when relevant</span>
+<span class="s2">3. Use a friendly, conversational tone</span>
+<span class="s2">4. Provide depth on topics they&#39;re interested in&quot;&quot;&quot;</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Template for personalizing responses&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;tags&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;personalization&quot;</span><span class="p">]</span>
+        <span class="p">}</span>
+    <span class="p">))</span>
+    
+    <span class="k">return</span> <span class="n">memory</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+    <span class="c1"># Set up memory</span>
+    <span class="n">memory</span> <span class="o">=</span> <span class="n">setup_memory</span><span class="p">()</span>
+    
+    <span class="c1"># Configure LLM</span>
+    <span class="n">llm_configs</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;provider&quot;</span><span class="p">:</span> <span class="s2">&quot;openai&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="s2">&quot;gpt-4o&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span>
+            <span class="s2">&quot;api_key&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;OPENAI_API_KEY&quot;</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    
+    <span class="c1"># Create a ReActAgent with memory</span>
+    <span class="n">agent</span> <span class="o">=</span> <span class="n">ReActAgent</span><span class="p">(</span>
+        <span class="n">llm_configs</span><span class="o">=</span><span class="n">llm_configs</span><span class="p">,</span>
+        <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
+        <span class="n">memory_config</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;semantic&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;episodic&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;procedural&quot;</span><span class="p">:</span> <span class="kc">True</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    
+    <span class="c1"># Run a series of interactions to demonstrate memory</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;User: Tell me about AI advances&quot;</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">&quot;Tell me about AI advances&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Agent: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">User: What was I asking about earlier?&quot;</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">&quot;What was I asking about earlier?&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Agent: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">User: Tell me something related to my interests&quot;</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">&quot;Tell me something related to my interests&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Agent: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="best-practices">
+<h2>Best Practices<a class="headerlink" href="#best-practices" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>Use appropriate memory types</strong> for different kinds of information:</p>
+<ul class="simple">
+<li><p>Semantic memory for facts and attributes</p></li>
+<li><p>Episodic memory for experiences and conversations</p></li>
+<li><p>Procedural memory for templates and patterns</p></li>
+</ul>
+</li>
+<li><p><strong>Maintain namespaces</strong> to organize memories by domain or function</p></li>
+<li><p><strong>Consider memory persistence needs</strong>:</p>
+<ul class="simple">
+<li><p>InMemoryPersistence for testing and development</p></li>
+<li><p>FileSystemPersistence for simple persistence</p></li>
+<li><p>VectorStorePersistence for semantic search capabilities</p></li>
+</ul>
+</li>
+<li><p><strong>Optimize retrieval parameters</strong>:</p>
+<ul class="simple">
+<li><p>Adjust the retrieval limit based on context window sizes</p></li>
+<li><p>Use more specific queries for targeted retrieval</p></li>
+<li><p>Balance comprehensiveness with relevance</p></li>
+</ul>
+</li>
+<li><p><strong>Save important information promptly</strong>:</p>
+<ul class="simple">
+<li><p>User preferences and attributes</p></li>
+<li><p>Key decisions and reasoning</p></li>
+<li><p>Significant events in the conversation</p></li>
+</ul>
+</li>
+<li><p><strong>Respect privacy and data retention policies</strong>:</p>
+<ul class="simple">
+<li><p>Implement appropriate data retention periods</p></li>
+<li><p>Clear sensitive information when appropriate</p></li>
+<li><p>Consider user consent for persistent memory</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="conclusion">
+<h2>Conclusion<a class="headerlink" href="#conclusion" title="Link to this heading"></a></h2>
+<p>Memory integration transforms agents from stateless responders to context-aware assistants capable of personalization and learning. By incorporating the appropriate memory types and persistence mechanisms, you can build agents that remember past interactions, learn from experiences, and provide increasingly relevant and personalized responses over time.</p>
+<p>For more detailed information on the memory system API, refer to the <a class="reference internal" href="Memory%20API%20Documentation.html"><span class="std std-doc">Memory API Documentation</span></a>.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Your Name.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,247 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ReAct Pattern &mdash; agent-patterns 0.1.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a58bc63e"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            agent-patterns
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">ReAct Pattern</a><ul>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#diagrams">Diagrams</a><ul>
+<li><a class="reference internal" href="#class-structure">Class Structure</a></li>
+<li><a class="reference internal" href="#execution-flow">Execution Flow</a></li>
+<li><a class="reference internal" href="#state-transitions">State Transitions</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#use-cases">Use Cases</a></li>
+<li><a class="reference internal" href="#implementation-guide">Implementation Guide</a></li>
+<li><a class="reference internal" href="#example-references">Example References</a></li>
+<li><a class="reference internal" href="#best-practices">Best Practices</a></li>
+<li><a class="reference internal" href="#related-patterns">Related Patterns</a></li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">agent-patterns</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">ReAct Pattern</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/patterns/re_act.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="react-pattern">
+<h1>ReAct Pattern<a class="headerlink" href="#react-pattern" title="Link to this heading"></a></h1>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>The ReAct (Reason + Act) pattern implements a cycle of reasoning followed by action execution. It’s one of the foundational agent patterns that combines an LLM’s ability to reason with the capability to execute tools. The agent repeatedly follows a cycle of:</p>
+<ol class="arabic simple">
+<li><p><strong>Reasoning</strong>: The LLM analyzes the current state, including the task and any previous observations</p></li>
+<li><p><strong>Acting</strong>: The agent executes an action (typically a tool) based on its reasoning</p></li>
+<li><p><strong>Observing</strong>: The agent collects the result of the action</p></li>
+<li><p><strong>Repeating</strong>: The cycle continues until a final answer is reached</p></li>
+</ol>
+<p>This pattern is implemented using a state graph with two primary nodes: the agent node (for reasoning) and the tool execution node.</p>
+</section>
+<section id="diagrams">
+<h2>Diagrams<a class="headerlink" href="#diagrams" title="Link to this heading"></a></h2>
+<section id="class-structure">
+<h3>Class Structure<a class="headerlink" href="#class-structure" title="Link to this heading"></a></h3>
+<p><img alt="Class Diagram" src="../_images/re_act_class.png" /></p>
+<p>The ReAct pattern is implemented through:</p>
+<ul class="simple">
+<li><p><strong>ReActState</strong>: Maintains the current state of execution, including input, chat history, intermediate steps, and agent outcome</p></li>
+<li><p><strong>ReActAgent</strong>: The primary class that implements the pattern, containing methods for running the agent LLM, executing tools, and managing the state transitions</p></li>
+<li><p><strong>BaseAgent</strong>: The abstract base class from which ReActAgent inherits</p></li>
+</ul>
+</section>
+<section id="execution-flow">
+<h3>Execution Flow<a class="headerlink" href="#execution-flow" title="Link to this heading"></a></h3>
+<p><img alt="Sequence Diagram" src="../_images/re_act_sequence.png" /></p>
+<p>The execution flow follows:</p>
+<ol class="arabic simple">
+<li><p>User provides input to the ReActAgent</p></li>
+<li><p>Agent examines the input and thinks about what to do</p></li>
+<li><p>Agent decides either to use a tool or provide a final answer</p></li>
+<li><p>If using a tool, the agent executes it and receives the result</p></li>
+<li><p>Agent considers the tool’s result in the next thinking step</p></li>
+<li><p>Cycle continues until the agent decides on a final answer</p></li>
+<li><p>Final answer is returned to the user</p></li>
+</ol>
+</section>
+<section id="state-transitions">
+<h3>State Transitions<a class="headerlink" href="#state-transitions" title="Link to this heading"></a></h3>
+<p><img alt="State Diagram" src="../uml/re_act/png/re_act_state.png" /></p>
+<p>The ReAct pattern transitions through these states:</p>
+<ul class="simple">
+<li><p><strong>Initialized</strong>: Agent is created but not yet ready</p></li>
+<li><p><strong>Ready</strong>: Agent is ready to process input</p></li>
+<li><p><strong>Processing</strong>: Agent is actively working on the task</p>
+<ul>
+<li><p><strong>Thinking</strong>: Agent is reasoning about what to do next</p></li>
+<li><p><strong>Tool Execution</strong>: Agent is using a tool</p></li>
+</ul>
+</li>
+<li><p>Final state is reached when the agent determines a final answer</p></li>
+</ul>
+</section>
+</section>
+<section id="use-cases">
+<h2>Use Cases<a class="headerlink" href="#use-cases" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>Question Answering</strong>: When questions require factual information that might need lookup operations</p></li>
+<li><p><strong>Task Automation</strong>: For multi-step tasks requiring both reasoning and use of tools</p></li>
+<li><p><strong>Information Gathering</strong>: When the agent needs to collect information from multiple sources</p></li>
+<li><p><strong>Decision Making</strong>: For situations requiring both analysis and action</p></li>
+<li><p><strong>Interactive Assistance</strong>: When users need help completing tasks that involve multiple steps</p></li>
+</ul>
+</section>
+<section id="implementation-guide">
+<h2>Implementation Guide<a class="headerlink" href="#implementation-guide" title="Link to this heading"></a></h2>
+<p>Here’s a simple example of using the ReActAgent:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.patterns</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReActAgent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">ToolRegistry</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">langchain.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">tool</span>
+
+<span class="c1"># Define a simple tool</span>
+<span class="nd">@tool</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">search</span><span class="p">(</span><span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Search for information about a topic.&quot;&quot;&quot;</span>
+    <span class="c1"># In a real implementation, this would connect to a search engine</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Results for </span><span class="si">{</span><span class="n">query</span><span class="si">}</span><span class="s2">: Some relevant information...&quot;</span>
+
+<span class="c1"># Create tool registry with the search tool</span>
+<span class="n">tool_registry</span> <span class="o">=</span> <span class="n">ToolRegistry</span><span class="p">([</span><span class="n">search</span><span class="p">])</span>
+
+<span class="c1"># Configure the LLM</span>
+<span class="n">llm_configs</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;provider&quot;</span><span class="p">:</span> <span class="s2">&quot;openai&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="s2">&quot;gpt-4o&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mf">0.7</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1"># Initialize the ReAct agent</span>
+<span class="n">agent</span> <span class="o">=</span> <span class="n">ReActAgent</span><span class="p">(</span>
+    <span class="n">llm_configs</span><span class="o">=</span><span class="n">llm_configs</span><span class="p">,</span>
+    <span class="n">tool_provider</span><span class="o">=</span><span class="n">tool_registry</span>
+<span class="p">)</span>
+
+<span class="c1"># Run the agent</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">&quot;What is the capital of France and what&#39;s its population?&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="example-references">
+<h2>Example References<a class="headerlink" href="#example-references" title="Link to this heading"></a></h2>
+<p>The examples directory contains implementations of the ReAct pattern:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">examples/react_simple.py</span></code>: A basic ReAct agent implementation</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">examples/react_with_memory.py</span></code>: ReAct agent with memory capabilities</p></li>
+</ul>
+</section>
+<section id="best-practices">
+<h2>Best Practices<a class="headerlink" href="#best-practices" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Keep tool descriptions clear and specific to help the LLM decide when to use them</p></li>
+<li><p>Set an appropriate <code class="docutils literal notranslate"><span class="pre">max_steps</span></code> value to prevent infinite loops</p></li>
+<li><p>Use memory when handling complex or multi-turn interactions</p></li>
+<li><p>Structure prompts to encourage step-by-step reasoning before actions</p></li>
+<li><p>Handle tool execution errors gracefully to allow the agent to recover</p></li>
+<li><p>Add logging for better debugging and transparency</p></li>
+</ul>
+</section>
+<section id="related-patterns">
+<h2>Related Patterns<a class="headerlink" href="#related-patterns" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>Reflexion Pattern</strong>: Extends ReAct with reflection capabilities</p></li>
+<li><p><strong>Plan and Solve Pattern</strong>: More structured approach with explicit planning before action</p></li>
+<li><p><strong>LLM Compiler Pattern</strong>: Similar execution flow but with a compilation-like approach to tasks</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Your Name.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

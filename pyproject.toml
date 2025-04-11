@@ -4,10 +4,25 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "agent-patterns"
-version = "0.1.0"
+version = "0.1.1"
 description = "A library of reusable, extensible AI agent patterns using LangGraph"
 readme = "README.md"
 requires-python = ">=3.8"
+authors = [
+    {name = "Michael Caughey", email = "mcaughey001@caughey.com"}
+]
+license = {text = "MIT"}
+keywords = ["agent", "ai", "langgraph", "langchain", "patterns"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
 dependencies = [
     "langchain>=0.1.0",
     "langgraph>=0.0.10",
@@ -15,6 +30,10 @@ dependencies = [
     "openai>=1.12.0",
     "anthropic>=0.8.0"
 ]
+
+[project.urls]
+"Homepage" = "https://github.com/osok/agent-patterns"
+"Bug Tracker" = "https://github.com/osok/agent-patterns/issues"
 
 [project.optional-dependencies]
 dev = [

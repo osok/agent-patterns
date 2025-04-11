@@ -1,0 +1,868 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Building a Research Assistant &mdash; agent-patterns 0.1.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a58bc63e"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            agent-patterns
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Building a Research Assistant</a><ul>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li><a class="reference internal" href="#step-1-setting-up-the-project">Step 1: Setting Up the Project</a></li>
+<li><a class="reference internal" href="#step-2-setting-up-memory">Step 2: Setting Up Memory</a></li>
+<li><a class="reference internal" href="#step-3-setting-up-tools">Step 3: Setting Up Tools</a></li>
+<li><a class="reference internal" href="#step-4-creating-the-research-agent">Step 4: Creating the Research Agent</a></li>
+<li><a class="reference internal" href="#step-5-creating-a-research-manager">Step 5: Creating a Research Manager</a></li>
+<li><a class="reference internal" href="#step-6-using-the-research-assistant">Step 6: Using the Research Assistant</a></li>
+<li><a class="reference internal" href="#step-7-enhancing-with-source-evaluation">Step 7: Enhancing with Source Evaluation</a></li>
+<li><a class="reference internal" href="#complete-code">Complete Code</a></li>
+<li><a class="reference internal" href="#architecture-diagram">Architecture Diagram</a></li>
+<li><a class="reference internal" href="#next-steps">Next Steps</a></li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">agent-patterns</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Building a Research Assistant</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tutorials/research_assistant.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="building-a-research-assistant">
+<h1>Building a Research Assistant<a class="headerlink" href="#building-a-research-assistant" title="Link to this heading"></a></h1>
+<p>This tutorial guides you through building a research assistant agent that can search for information, analyze findings, and generate comprehensive reports.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>Research assistants need to:</p>
+<ol class="arabic simple">
+<li><p>Search for information from multiple sources</p></li>
+<li><p>Evaluate the reliability of sources</p></li>
+<li><p>Extract key information and insights</p></li>
+<li><p>Organize findings into a coherent structure</p></li>
+<li><p>Generate well-formatted reports with citations</p></li>
+</ol>
+<p>For this use case, we’ll use the STORM agent pattern, which excels at careful reasoning and self-evaluation.</p>
+</section>
+<section id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Agent Patterns library installed</p></li>
+<li><p>OpenAI API key (or other supported LLM provider)</p></li>
+<li><p>Basic Python knowledge</p></li>
+</ul>
+</section>
+<section id="step-1-setting-up-the-project">
+<h2>Step 1: Setting Up the Project<a class="headerlink" href="#step-1-setting-up-the-project" title="Link to this heading"></a></h2>
+<p>Create a new Python file called <code class="docutils literal notranslate"><span class="pre">research_assistant.py</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dotenv</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dotenv</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.patterns.storm_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">StormAgent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">SemanticMemory</span><span class="p">,</span> <span class="n">EpisodicMemory</span><span class="p">,</span> <span class="n">CompositeMemory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory.persistence</span><span class="w"> </span><span class="kn">import</span> <span class="n">InMemoryPersistence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools.providers.composite_provider</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompositeToolProvider</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools.providers.search_provider</span><span class="w"> </span><span class="kn">import</span> <span class="n">SearchToolProvider</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools.providers.wikipedia_provider</span><span class="w"> </span><span class="kn">import</span> <span class="n">WikipediaToolProvider</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools.providers.file_provider</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileToolProvider</span>
+
+<span class="c1"># Load environment variables</span>
+<span class="n">load_dotenv</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="step-2-setting-up-memory">
+<h2>Step 2: Setting Up Memory<a class="headerlink" href="#step-2-setting-up-memory" title="Link to this heading"></a></h2>
+<p>Our research assistant will benefit from both:</p>
+<ul class="simple">
+<li><p>Semantic memory: to store facts and findings</p></li>
+<li><p>Episodic memory: to remember search history and the research process</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set up memory persistence</span>
+<span class="n">persistence</span> <span class="o">=</span> <span class="n">InMemoryPersistence</span><span class="p">()</span>
+<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">persistence</span><span class="o">.</span><span class="n">initialize</span><span class="p">())</span>
+
+<span class="c1"># Create memory components</span>
+<span class="n">semantic_memory</span> <span class="o">=</span> <span class="n">SemanticMemory</span><span class="p">(</span>
+    <span class="n">persistence</span><span class="p">,</span> 
+    <span class="n">namespace</span><span class="o">=</span><span class="s2">&quot;research_findings&quot;</span>
+<span class="p">)</span>
+
+<span class="n">episodic_memory</span> <span class="o">=</span> <span class="n">EpisodicMemory</span><span class="p">(</span>
+    <span class="n">persistence</span><span class="p">,</span> 
+    <span class="n">namespace</span><span class="o">=</span><span class="s2">&quot;research_process&quot;</span>
+<span class="p">)</span>
+
+<span class="c1"># Create composite memory</span>
+<span class="n">memory</span> <span class="o">=</span> <span class="n">CompositeMemory</span><span class="p">({</span>
+    <span class="s2">&quot;semantic&quot;</span><span class="p">:</span> <span class="n">semantic_memory</span><span class="p">,</span>
+    <span class="s2">&quot;episodic&quot;</span><span class="p">:</span> <span class="n">episodic_memory</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+</section>
+<section id="step-3-setting-up-tools">
+<h2>Step 3: Setting Up Tools<a class="headerlink" href="#step-3-setting-up-tools" title="Link to this heading"></a></h2>
+<p>Our research assistant needs tools for:</p>
+<ol class="arabic simple">
+<li><p>Web search</p></li>
+<li><p>Wikipedia lookup</p></li>
+<li><p>File operations (to save research findings)</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create tool providers</span>
+<span class="n">search_provider</span> <span class="o">=</span> <span class="n">SearchToolProvider</span><span class="p">()</span>
+<span class="n">wikipedia_provider</span> <span class="o">=</span> <span class="n">WikipediaToolProvider</span><span class="p">()</span>
+<span class="n">file_provider</span> <span class="o">=</span> <span class="n">FileToolProvider</span><span class="p">(</span><span class="n">workspace_dir</span><span class="o">=</span><span class="s2">&quot;./research_workspace&quot;</span><span class="p">)</span>
+
+<span class="c1"># Combine tool providers</span>
+<span class="n">tool_provider</span> <span class="o">=</span> <span class="n">CompositeToolProvider</span><span class="p">([</span>
+    <span class="n">search_provider</span><span class="p">,</span> 
+    <span class="n">wikipedia_provider</span><span class="p">,</span> 
+    <span class="n">file_provider</span>
+<span class="p">])</span>
+</pre></div>
+</div>
+</section>
+<section id="step-4-creating-the-research-agent">
+<h2>Step 4: Creating the Research Agent<a class="headerlink" href="#step-4-creating-the-research-agent" title="Link to this heading"></a></h2>
+<p>Now, let’s create our STORM-based research assistant:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Configure LLM settings</span>
+<span class="n">llm_configs</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;provider&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;DEFAULT_MODEL_PROVIDER&quot;</span><span class="p">,</span> <span class="s2">&quot;openai&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;DEFAULT_MODEL_NAME&quot;</span><span class="p">,</span> <span class="s2">&quot;gpt-4o&quot;</span><span class="p">)</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;evaluation&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;provider&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;EVALUATION_MODEL_PROVIDER&quot;</span><span class="p">,</span> <span class="s2">&quot;anthropic&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;EVALUATION_MODEL_NAME&quot;</span><span class="p">,</span> <span class="s2">&quot;claude-3-opus-20240229&quot;</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1"># Create the research agent</span>
+<span class="n">research_agent</span> <span class="o">=</span> <span class="n">StormAgent</span><span class="p">(</span>
+    <span class="n">llm_configs</span><span class="o">=</span><span class="n">llm_configs</span><span class="p">,</span>
+    <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
+    <span class="n">memory_config</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;semantic&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;episodic&quot;</span><span class="p">:</span> <span class="kc">True</span>
+    <span class="p">},</span>
+    <span class="n">tool_provider</span><span class="o">=</span><span class="n">tool_provider</span><span class="p">,</span>
+    <span class="n">storm_config</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;evaluation_threshold&quot;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span>  <span class="c1"># Higher threshold for careful research</span>
+        <span class="s2">&quot;max_self_evaluations&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>     <span class="c1"># Allow multiple rounds of evaluation</span>
+        <span class="s2">&quot;options_to_generate&quot;</span><span class="p">:</span> <span class="mi">5</span>       <span class="c1"># Consider more options for research paths</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="step-5-creating-a-research-manager">
+<h2>Step 5: Creating a Research Manager<a class="headerlink" href="#step-5-creating-a-research-manager" title="Link to this heading"></a></h2>
+<p>Let’s wrap our research agent with a manager class that provides a more user-friendly interface:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">ResearchAssistant</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Configure and create the agent (code from above)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent</span> <span class="o">=</span> <span class="n">research_agent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_topic</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">findings</span> <span class="o">=</span> <span class="p">{}</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">research_topic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">topic</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="s2">&quot;medium&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Conduct research on a specific topic.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_topic</span> <span class="o">=</span> <span class="n">topic</span>
+        
+        <span class="c1"># Map depth to number of research iterations</span>
+        <span class="n">depth_map</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;brief&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s2">&quot;medium&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s2">&quot;deep&quot;</span><span class="p">:</span> <span class="mi">3</span>
+        <span class="p">}</span>
+        <span class="n">research_iterations</span> <span class="o">=</span> <span class="n">depth_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">depth</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        
+        <span class="n">findings</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="c1"># First, get an overview</span>
+        <span class="n">overview_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Provide a brief overview of </span><span class="si">{</span><span class="n">topic</span><span class="si">}</span><span class="s2">. What are the key aspects I should research?&quot;</span>
+        <span class="n">overview</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">overview_query</span><span class="p">)</span>
+        <span class="n">findings</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;phase&quot;</span><span class="p">:</span> <span class="s2">&quot;overview&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">overview</span><span class="p">})</span>
+        
+        <span class="c1"># Then, explore key aspects</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">research_iterations</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># First iteration focuses on main facts</span>
+                <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Research the main facts about </span><span class="si">{</span><span class="n">topic</span><span class="si">}</span><span class="s2">. Focus on verified information from reliable sources.&quot;</span>
+            <span class="k">elif</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="c1"># Second iteration looks for different perspectives</span>
+                <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Research different perspectives on </span><span class="si">{</span><span class="n">topic</span><span class="si">}</span><span class="s2">. Look for contrasting viewpoints from credible sources.&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Third iteration goes deeper</span>
+                <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Conduct in-depth research on </span><span class="si">{</span><span class="n">topic</span><span class="si">}</span><span class="s2">, focusing on recent developments and specialized information.&quot;</span>
+            
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+            <span class="n">findings</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;phase&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;research_</span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">result</span><span class="p">})</span>
+        
+        <span class="c1"># Save findings</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">findings</span><span class="p">[</span><span class="n">topic</span><span class="p">]</span> <span class="o">=</span> <span class="n">findings</span>
+        
+        <span class="k">return</span> <span class="n">findings</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate_report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">topic</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">format_type</span><span class="o">=</span><span class="s2">&quot;comprehensive&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate a formatted report based on research findings.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">topic</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">topic</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_topic</span>
+        
+        <span class="k">if</span> <span class="n">topic</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">findings</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;No research findings available for this topic.&quot;</span>
+        
+        <span class="c1"># Create a prompt based on format type</span>
+        <span class="k">if</span> <span class="n">format_type</span> <span class="o">==</span> <span class="s2">&quot;comprehensive&quot;</span><span class="p">:</span>
+            <span class="n">prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            Create a comprehensive research report on </span><span class="si">{</span><span class="n">topic</span><span class="si">}</span><span class="s2"> based on our research findings.</span>
+<span class="s2">            Include:</span>
+<span class="s2">            1. Executive summary</span>
+<span class="s2">            2. Introduction to the topic</span>
+<span class="s2">            3. Methodology</span>
+<span class="s2">            4. Key findings (with citations)</span>
+<span class="s2">            5. Analysis of different perspectives</span>
+<span class="s2">            6. Conclusions</span>
+<span class="s2">            7. References</span>
+<span class="s2">            </span>
+<span class="s2">            Our research findings:</span>
+<span class="s2">            </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">findings</span><span class="p">[</span><span class="n">topic</span><span class="p">]</span><span class="si">}</span>
+<span class="s2">            </span>
+<span class="s2">            Format the report professionally with appropriate headings and structure.</span>
+<span class="s2">            &quot;&quot;&quot;</span>
+        <span class="k">elif</span> <span class="n">format_type</span> <span class="o">==</span> <span class="s2">&quot;brief&quot;</span><span class="p">:</span>
+            <span class="n">prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            Create a brief research summary on </span><span class="si">{</span><span class="n">topic</span><span class="si">}</span><span class="s2"> based on our research findings.</span>
+<span class="s2">            Include:</span>
+<span class="s2">            1. Summary of key points</span>
+<span class="s2">            2. Most important findings</span>
+<span class="s2">            3. Brief list of sources</span>
+<span class="s2">            </span>
+<span class="s2">            Our research findings:</span>
+<span class="s2">            </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">findings</span><span class="p">[</span><span class="n">topic</span><span class="p">]</span><span class="si">}</span>
+<span class="s2">            </span>
+<span class="s2">            Keep the report concise and to the point.</span>
+<span class="s2">            &quot;&quot;&quot;</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># presentation</span>
+            <span class="n">prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            Create a presentation outline on </span><span class="si">{</span><span class="n">topic</span><span class="si">}</span><span class="s2"> based on our research findings.</span>
+<span class="s2">            Include:</span>
+<span class="s2">            1. Title slide</span>
+<span class="s2">            2. Introduction to the topic</span>
+<span class="s2">            3. 5-7 key points with supporting evidence</span>
+<span class="s2">            4. Contrasting perspectives</span>
+<span class="s2">            5. Conclusions and implications</span>
+<span class="s2">            6. References</span>
+<span class="s2">            </span>
+<span class="s2">            Our research findings:</span>
+<span class="s2">            </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">findings</span><span class="p">[</span><span class="n">topic</span><span class="p">]</span><span class="si">}</span>
+<span class="s2">            </span>
+<span class="s2">            Format as a presentation outline with key talking points.</span>
+<span class="s2">            &quot;&quot;&quot;</span>
+        
+        <span class="c1"># Generate the report</span>
+        <span class="n">report</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+        
+        <span class="c1"># Save the report</span>
+        <span class="n">file_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">topic</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;_&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2">_report.md&quot;</span>
+        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="s2">&quot;./research_outputs&quot;</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;./research_outputs/</span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error saving report: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">report</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_findings_to_memory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">topic</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Save research findings to semantic memory for future reference.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">topic</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">topic</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_topic</span>
+        
+        <span class="k">if</span> <span class="n">topic</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">findings</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;No research findings available for this topic.&quot;</span>
+        
+        <span class="c1"># Extract key facts and save to semantic memory</span>
+        <span class="n">prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        Extract 10-15 key facts from our research on </span><span class="si">{</span><span class="n">topic</span><span class="si">}</span><span class="s2">.</span>
+<span class="s2">        Format each fact as a simple statement.</span>
+<span class="s2">        </span>
+<span class="s2">        Our research findings:</span>
+<span class="s2">        </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">findings</span><span class="p">[</span><span class="n">topic</span><span class="p">]</span><span class="si">}</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+        
+        <span class="n">facts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+        
+        <span class="c1"># Parse facts and save to memory</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+        <span class="n">fact_list</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^\s*\d+\.\s*(.+)$&#39;</span><span class="p">,</span> <span class="n">facts</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span><span class="p">)</span>
+        
+        <span class="k">for</span> <span class="n">fact</span> <span class="ow">in</span> <span class="n">fact_list</span><span class="p">:</span>
+            <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">semantic_memory</span><span class="o">.</span><span class="n">save</span><span class="p">({</span>
+                <span class="s2">&quot;entity&quot;</span><span class="p">:</span> <span class="n">topic</span><span class="p">,</span>
+                <span class="s2">&quot;attribute&quot;</span><span class="p">:</span> <span class="s2">&quot;fact&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">fact</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="p">}))</span>
+        
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Saved </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">fact_list</span><span class="p">)</span><span class="si">}</span><span class="s2"> facts to memory for topic: </span><span class="si">{</span><span class="n">topic</span><span class="si">}</span><span class="s2">&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="step-6-using-the-research-assistant">
+<h2>Step 6: Using the Research Assistant<a class="headerlink" href="#step-6-using-the-research-assistant" title="Link to this heading"></a></h2>
+<p>Now let’s create a simple interface to use our research assistant:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+    <span class="c1"># Create the research assistant</span>
+    <span class="n">assistant</span> <span class="o">=</span> <span class="n">ResearchAssistant</span><span class="p">()</span>
+    
+    <span class="c1"># Get topic from user</span>
+    <span class="n">topic</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;What topic would you like to research? &quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Get research depth</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Research depth:&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;1. Brief&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;2. Medium&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;3. Deep&quot;</span><span class="p">)</span>
+    <span class="n">depth_choice</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Choose a research depth (1-3): &quot;</span><span class="p">)</span>
+    
+    <span class="n">depth_map</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;1&quot;</span><span class="p">:</span> <span class="s2">&quot;brief&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;2&quot;</span><span class="p">:</span> <span class="s2">&quot;medium&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;3&quot;</span><span class="p">:</span> <span class="s2">&quot;deep&quot;</span>
+    <span class="p">}</span>
+    <span class="n">depth</span> <span class="o">=</span> <span class="n">depth_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">depth_choice</span><span class="p">,</span> <span class="s2">&quot;medium&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Conduct research</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Researching </span><span class="si">{</span><span class="n">topic</span><span class="si">}</span><span class="s2"> at </span><span class="si">{</span><span class="n">depth</span><span class="si">}</span><span class="s2"> depth...&quot;</span><span class="p">)</span>
+    <span class="n">findings</span> <span class="o">=</span> <span class="n">assistant</span><span class="o">.</span><span class="n">research_topic</span><span class="p">(</span><span class="n">topic</span><span class="p">,</span> <span class="n">depth</span><span class="p">)</span>
+    
+    <span class="c1"># Get report type</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Report format:&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;1. Comprehensive&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;2. Brief&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;3. Presentation&quot;</span><span class="p">)</span>
+    <span class="n">format_choice</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Choose a report format (1-3): &quot;</span><span class="p">)</span>
+    
+    <span class="n">format_map</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;1&quot;</span><span class="p">:</span> <span class="s2">&quot;comprehensive&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;2&quot;</span><span class="p">:</span> <span class="s2">&quot;brief&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;3&quot;</span><span class="p">:</span> <span class="s2">&quot;presentation&quot;</span>
+    <span class="p">}</span>
+    <span class="n">format_type</span> <span class="o">=</span> <span class="n">format_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">format_choice</span><span class="p">,</span> <span class="s2">&quot;comprehensive&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Generate report</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Generating </span><span class="si">{</span><span class="n">format_type</span><span class="si">}</span><span class="s2"> report...&quot;</span><span class="p">)</span>
+    <span class="n">report</span> <span class="o">=</span> <span class="n">assistant</span><span class="o">.</span><span class="n">generate_report</span><span class="p">(</span><span class="n">format_type</span><span class="o">=</span><span class="n">format_type</span><span class="p">)</span>
+    
+    <span class="c1"># Save findings to memory</span>
+    <span class="n">assistant</span><span class="o">.</span><span class="n">save_findings_to_memory</span><span class="p">()</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Report generated and saved to ./research_outputs/</span><span class="si">{</span><span class="n">topic</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;_&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2">_report.md&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Show the first 500 characters of the report</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Report preview:&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">report</span><span class="p">[:</span><span class="mi">500</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;...&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="step-7-enhancing-with-source-evaluation">
+<h2>Step 7: Enhancing with Source Evaluation<a class="headerlink" href="#step-7-enhancing-with-source-evaluation" title="Link to this heading"></a></h2>
+<p>Let’s add a source evaluation capability to our research assistant:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Add this method to the ResearchAssistant class</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">evaluate_sources</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sources</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Evaluate the reliability and credibility of a list of sources.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">sources</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;No sources provided for evaluation.&quot;</span>
+    
+    <span class="c1"># Format sources as a string</span>
+    <span class="n">sources_text</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;- </span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="n">sources</span><span class="p">])</span>
+    
+    <span class="c1"># Create evaluation prompt</span>
+    <span class="n">prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    Evaluate the following sources in terms of reliability and credibility:</span>
+<span class="s2">    </span>
+<span class="s2">    </span><span class="si">{</span><span class="n">sources_text</span><span class="si">}</span>
+<span class="s2">    </span>
+<span class="s2">    For each source, provide:</span>
+<span class="s2">    1. Source name/URL</span>
+<span class="s2">    2. Reliability score (1-10)</span>
+<span class="s2">    3. Credibility assessment</span>
+<span class="s2">    4. Potential biases</span>
+<span class="s2">    5. Recommendation on how to use this source</span>
+<span class="s2">    </span>
+<span class="s2">    Format your response as a structured evaluation.</span>
+<span class="s2">    &quot;&quot;&quot;</span>
+    
+    <span class="c1"># Run evaluation</span>
+    <span class="n">evaluation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">evaluation</span>
+</pre></div>
+</div>
+</section>
+<section id="complete-code">
+<h2>Complete Code<a class="headerlink" href="#complete-code" title="Link to this heading"></a></h2>
+<p>Here’s the complete code for our research assistant:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dotenv</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dotenv</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.patterns.storm_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">StormAgent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">SemanticMemory</span><span class="p">,</span> <span class="n">EpisodicMemory</span><span class="p">,</span> <span class="n">CompositeMemory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory.persistence</span><span class="w"> </span><span class="kn">import</span> <span class="n">InMemoryPersistence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools.providers.composite_provider</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompositeToolProvider</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools.providers.search_provider</span><span class="w"> </span><span class="kn">import</span> <span class="n">SearchToolProvider</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools.providers.wikipedia_provider</span><span class="w"> </span><span class="kn">import</span> <span class="n">WikipediaToolProvider</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools.providers.file_provider</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileToolProvider</span>
+
+<span class="c1"># Load environment variables</span>
+<span class="n">load_dotenv</span><span class="p">()</span>
+
+<span class="c1"># Set up memory persistence</span>
+<span class="n">persistence</span> <span class="o">=</span> <span class="n">InMemoryPersistence</span><span class="p">()</span>
+<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">persistence</span><span class="o">.</span><span class="n">initialize</span><span class="p">())</span>
+
+<span class="c1"># Create memory components</span>
+<span class="n">semantic_memory</span> <span class="o">=</span> <span class="n">SemanticMemory</span><span class="p">(</span>
+    <span class="n">persistence</span><span class="p">,</span> 
+    <span class="n">namespace</span><span class="o">=</span><span class="s2">&quot;research_findings&quot;</span>
+<span class="p">)</span>
+
+<span class="n">episodic_memory</span> <span class="o">=</span> <span class="n">EpisodicMemory</span><span class="p">(</span>
+    <span class="n">persistence</span><span class="p">,</span> 
+    <span class="n">namespace</span><span class="o">=</span><span class="s2">&quot;research_process&quot;</span>
+<span class="p">)</span>
+
+<span class="c1"># Create composite memory</span>
+<span class="n">memory</span> <span class="o">=</span> <span class="n">CompositeMemory</span><span class="p">({</span>
+    <span class="s2">&quot;semantic&quot;</span><span class="p">:</span> <span class="n">semantic_memory</span><span class="p">,</span>
+    <span class="s2">&quot;episodic&quot;</span><span class="p">:</span> <span class="n">episodic_memory</span>
+<span class="p">})</span>
+
+<span class="c1"># Create tool providers</span>
+<span class="n">search_provider</span> <span class="o">=</span> <span class="n">SearchToolProvider</span><span class="p">()</span>
+<span class="n">wikipedia_provider</span> <span class="o">=</span> <span class="n">WikipediaToolProvider</span><span class="p">()</span>
+<span class="n">file_provider</span> <span class="o">=</span> <span class="n">FileToolProvider</span><span class="p">(</span><span class="n">workspace_dir</span><span class="o">=</span><span class="s2">&quot;./research_workspace&quot;</span><span class="p">)</span>
+
+<span class="c1"># Combine tool providers</span>
+<span class="n">tool_provider</span> <span class="o">=</span> <span class="n">CompositeToolProvider</span><span class="p">([</span>
+    <span class="n">search_provider</span><span class="p">,</span> 
+    <span class="n">wikipedia_provider</span><span class="p">,</span> 
+    <span class="n">file_provider</span>
+<span class="p">])</span>
+
+<span class="c1"># Configure LLM settings</span>
+<span class="n">llm_configs</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;provider&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;DEFAULT_MODEL_PROVIDER&quot;</span><span class="p">,</span> <span class="s2">&quot;openai&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;DEFAULT_MODEL_NAME&quot;</span><span class="p">,</span> <span class="s2">&quot;gpt-4o&quot;</span><span class="p">)</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;evaluation&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;provider&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;EVALUATION_MODEL_PROVIDER&quot;</span><span class="p">,</span> <span class="s2">&quot;anthropic&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;EVALUATION_MODEL_NAME&quot;</span><span class="p">,</span> <span class="s2">&quot;claude-3-opus-20240229&quot;</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1"># Create the STORM research agent</span>
+<span class="n">research_agent</span> <span class="o">=</span> <span class="n">StormAgent</span><span class="p">(</span>
+    <span class="n">llm_configs</span><span class="o">=</span><span class="n">llm_configs</span><span class="p">,</span>
+    <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
+    <span class="n">memory_config</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;semantic&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;episodic&quot;</span><span class="p">:</span> <span class="kc">True</span>
+    <span class="p">},</span>
+    <span class="n">tool_provider</span><span class="o">=</span><span class="n">tool_provider</span><span class="p">,</span>
+    <span class="n">storm_config</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;evaluation_threshold&quot;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span>
+        <span class="s2">&quot;max_self_evaluations&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="s2">&quot;options_to_generate&quot;</span><span class="p">:</span> <span class="mi">5</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ResearchAssistant</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent</span> <span class="o">=</span> <span class="n">research_agent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_topic</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">findings</span> <span class="o">=</span> <span class="p">{}</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">research_topic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">topic</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="s2">&quot;medium&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Conduct research on a specific topic.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_topic</span> <span class="o">=</span> <span class="n">topic</span>
+        
+        <span class="c1"># Map depth to number of research iterations</span>
+        <span class="n">depth_map</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;brief&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s2">&quot;medium&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s2">&quot;deep&quot;</span><span class="p">:</span> <span class="mi">3</span>
+        <span class="p">}</span>
+        <span class="n">research_iterations</span> <span class="o">=</span> <span class="n">depth_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">depth</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        
+        <span class="n">findings</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="c1"># First, get an overview</span>
+        <span class="n">overview_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Provide a brief overview of </span><span class="si">{</span><span class="n">topic</span><span class="si">}</span><span class="s2">. What are the key aspects I should research?&quot;</span>
+        <span class="n">overview</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">overview_query</span><span class="p">)</span>
+        <span class="n">findings</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;phase&quot;</span><span class="p">:</span> <span class="s2">&quot;overview&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">overview</span><span class="p">})</span>
+        
+        <span class="c1"># Then, explore key aspects</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">research_iterations</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># First iteration focuses on main facts</span>
+                <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Research the main facts about </span><span class="si">{</span><span class="n">topic</span><span class="si">}</span><span class="s2">. Focus on verified information from reliable sources.&quot;</span>
+            <span class="k">elif</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="c1"># Second iteration looks for different perspectives</span>
+                <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Research different perspectives on </span><span class="si">{</span><span class="n">topic</span><span class="si">}</span><span class="s2">. Look for contrasting viewpoints from credible sources.&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Third iteration goes deeper</span>
+                <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Conduct in-depth research on </span><span class="si">{</span><span class="n">topic</span><span class="si">}</span><span class="s2">, focusing on recent developments and specialized information.&quot;</span>
+            
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+            <span class="n">findings</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;phase&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;research_</span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">result</span><span class="p">})</span>
+        
+        <span class="c1"># Save findings</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">findings</span><span class="p">[</span><span class="n">topic</span><span class="p">]</span> <span class="o">=</span> <span class="n">findings</span>
+        
+        <span class="k">return</span> <span class="n">findings</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate_report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">topic</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">format_type</span><span class="o">=</span><span class="s2">&quot;comprehensive&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate a formatted report based on research findings.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">topic</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">topic</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_topic</span>
+        
+        <span class="k">if</span> <span class="n">topic</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">findings</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;No research findings available for this topic.&quot;</span>
+        
+        <span class="c1"># Create a prompt based on format type</span>
+        <span class="k">if</span> <span class="n">format_type</span> <span class="o">==</span> <span class="s2">&quot;comprehensive&quot;</span><span class="p">:</span>
+            <span class="n">prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            Create a comprehensive research report on </span><span class="si">{</span><span class="n">topic</span><span class="si">}</span><span class="s2"> based on our research findings.</span>
+<span class="s2">            Include:</span>
+<span class="s2">            1. Executive summary</span>
+<span class="s2">            2. Introduction to the topic</span>
+<span class="s2">            3. Methodology</span>
+<span class="s2">            4. Key findings (with citations)</span>
+<span class="s2">            5. Analysis of different perspectives</span>
+<span class="s2">            6. Conclusions</span>
+<span class="s2">            7. References</span>
+<span class="s2">            </span>
+<span class="s2">            Our research findings:</span>
+<span class="s2">            </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">findings</span><span class="p">[</span><span class="n">topic</span><span class="p">]</span><span class="si">}</span>
+<span class="s2">            </span>
+<span class="s2">            Format the report professionally with appropriate headings and structure.</span>
+<span class="s2">            &quot;&quot;&quot;</span>
+        <span class="k">elif</span> <span class="n">format_type</span> <span class="o">==</span> <span class="s2">&quot;brief&quot;</span><span class="p">:</span>
+            <span class="n">prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            Create a brief research summary on </span><span class="si">{</span><span class="n">topic</span><span class="si">}</span><span class="s2"> based on our research findings.</span>
+<span class="s2">            Include:</span>
+<span class="s2">            1. Summary of key points</span>
+<span class="s2">            2. Most important findings</span>
+<span class="s2">            3. Brief list of sources</span>
+<span class="s2">            </span>
+<span class="s2">            Our research findings:</span>
+<span class="s2">            </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">findings</span><span class="p">[</span><span class="n">topic</span><span class="p">]</span><span class="si">}</span>
+<span class="s2">            </span>
+<span class="s2">            Keep the report concise and to the point.</span>
+<span class="s2">            &quot;&quot;&quot;</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># presentation</span>
+            <span class="n">prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            Create a presentation outline on </span><span class="si">{</span><span class="n">topic</span><span class="si">}</span><span class="s2"> based on our research findings.</span>
+<span class="s2">            Include:</span>
+<span class="s2">            1. Title slide</span>
+<span class="s2">            2. Introduction to the topic</span>
+<span class="s2">            3. 5-7 key points with supporting evidence</span>
+<span class="s2">            4. Contrasting perspectives</span>
+<span class="s2">            5. Conclusions and implications</span>
+<span class="s2">            6. References</span>
+<span class="s2">            </span>
+<span class="s2">            Our research findings:</span>
+<span class="s2">            </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">findings</span><span class="p">[</span><span class="n">topic</span><span class="p">]</span><span class="si">}</span>
+<span class="s2">            </span>
+<span class="s2">            Format as a presentation outline with key talking points.</span>
+<span class="s2">            &quot;&quot;&quot;</span>
+        
+        <span class="c1"># Generate the report</span>
+        <span class="n">report</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+        
+        <span class="c1"># Save the report</span>
+        <span class="n">file_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">topic</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;_&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2">_report.md&quot;</span>
+        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="s2">&quot;./research_outputs&quot;</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;./research_outputs/</span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error saving report: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">report</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_findings_to_memory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">topic</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Save research findings to semantic memory for future reference.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">topic</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">topic</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_topic</span>
+        
+        <span class="k">if</span> <span class="n">topic</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">findings</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;No research findings available for this topic.&quot;</span>
+        
+        <span class="c1"># Extract key facts and save to semantic memory</span>
+        <span class="n">prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        Extract 10-15 key facts from our research on </span><span class="si">{</span><span class="n">topic</span><span class="si">}</span><span class="s2">.</span>
+<span class="s2">        Format each fact as a simple statement.</span>
+<span class="s2">        </span>
+<span class="s2">        Our research findings:</span>
+<span class="s2">        </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">findings</span><span class="p">[</span><span class="n">topic</span><span class="p">]</span><span class="si">}</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+        
+        <span class="n">facts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+        
+        <span class="c1"># Parse facts and save to memory</span>
+        <span class="n">fact_list</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^\s*\d+\.\s*(.+)$&#39;</span><span class="p">,</span> <span class="n">facts</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span><span class="p">)</span>
+        
+        <span class="k">for</span> <span class="n">fact</span> <span class="ow">in</span> <span class="n">fact_list</span><span class="p">:</span>
+            <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">semantic_memory</span><span class="o">.</span><span class="n">save</span><span class="p">({</span>
+                <span class="s2">&quot;entity&quot;</span><span class="p">:</span> <span class="n">topic</span><span class="p">,</span>
+                <span class="s2">&quot;attribute&quot;</span><span class="p">:</span> <span class="s2">&quot;fact&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">fact</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="p">}))</span>
+        
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Saved </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">fact_list</span><span class="p">)</span><span class="si">}</span><span class="s2"> facts to memory for topic: </span><span class="si">{</span><span class="n">topic</span><span class="si">}</span><span class="s2">&quot;</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">evaluate_sources</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sources</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluate the reliability and credibility of a list of sources.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">sources</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;No sources provided for evaluation.&quot;</span>
+        
+        <span class="c1"># Format sources as a string</span>
+        <span class="n">sources_text</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;- </span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="n">sources</span><span class="p">])</span>
+        
+        <span class="c1"># Create evaluation prompt</span>
+        <span class="n">prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        Evaluate the following sources in terms of reliability and credibility:</span>
+<span class="s2">        </span>
+<span class="s2">        </span><span class="si">{</span><span class="n">sources_text</span><span class="si">}</span>
+<span class="s2">        </span>
+<span class="s2">        For each source, provide:</span>
+<span class="s2">        1. Source name/URL</span>
+<span class="s2">        2. Reliability score (1-10)</span>
+<span class="s2">        3. Credibility assessment</span>
+<span class="s2">        4. Potential biases</span>
+<span class="s2">        5. Recommendation on how to use this source</span>
+<span class="s2">        </span>
+<span class="s2">        Format your response as a structured evaluation.</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+        
+        <span class="c1"># Run evaluation</span>
+        <span class="n">evaluation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">evaluation</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+    <span class="c1"># Create the research assistant</span>
+    <span class="n">assistant</span> <span class="o">=</span> <span class="n">ResearchAssistant</span><span class="p">()</span>
+    
+    <span class="c1"># Get topic from user</span>
+    <span class="n">topic</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;What topic would you like to research? &quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Get research depth</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Research depth:&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;1. Brief&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;2. Medium&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;3. Deep&quot;</span><span class="p">)</span>
+    <span class="n">depth_choice</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Choose a research depth (1-3): &quot;</span><span class="p">)</span>
+    
+    <span class="n">depth_map</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;1&quot;</span><span class="p">:</span> <span class="s2">&quot;brief&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;2&quot;</span><span class="p">:</span> <span class="s2">&quot;medium&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;3&quot;</span><span class="p">:</span> <span class="s2">&quot;deep&quot;</span>
+    <span class="p">}</span>
+    <span class="n">depth</span> <span class="o">=</span> <span class="n">depth_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">depth_choice</span><span class="p">,</span> <span class="s2">&quot;medium&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Conduct research</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Researching </span><span class="si">{</span><span class="n">topic</span><span class="si">}</span><span class="s2"> at </span><span class="si">{</span><span class="n">depth</span><span class="si">}</span><span class="s2"> depth...&quot;</span><span class="p">)</span>
+    <span class="n">findings</span> <span class="o">=</span> <span class="n">assistant</span><span class="o">.</span><span class="n">research_topic</span><span class="p">(</span><span class="n">topic</span><span class="p">,</span> <span class="n">depth</span><span class="p">)</span>
+    
+    <span class="c1"># Get report type</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Report format:&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;1. Comprehensive&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;2. Brief&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;3. Presentation&quot;</span><span class="p">)</span>
+    <span class="n">format_choice</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Choose a report format (1-3): &quot;</span><span class="p">)</span>
+    
+    <span class="n">format_map</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;1&quot;</span><span class="p">:</span> <span class="s2">&quot;comprehensive&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;2&quot;</span><span class="p">:</span> <span class="s2">&quot;brief&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;3&quot;</span><span class="p">:</span> <span class="s2">&quot;presentation&quot;</span>
+    <span class="p">}</span>
+    <span class="n">format_type</span> <span class="o">=</span> <span class="n">format_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">format_choice</span><span class="p">,</span> <span class="s2">&quot;comprehensive&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Generate report</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Generating </span><span class="si">{</span><span class="n">format_type</span><span class="si">}</span><span class="s2"> report...&quot;</span><span class="p">)</span>
+    <span class="n">report</span> <span class="o">=</span> <span class="n">assistant</span><span class="o">.</span><span class="n">generate_report</span><span class="p">(</span><span class="n">format_type</span><span class="o">=</span><span class="n">format_type</span><span class="p">)</span>
+    
+    <span class="c1"># Save findings to memory</span>
+    <span class="n">assistant</span><span class="o">.</span><span class="n">save_findings_to_memory</span><span class="p">()</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Report generated and saved to ./research_outputs/</span><span class="si">{</span><span class="n">topic</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;_&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2">_report.md&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Show the first 500 characters of the report</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Report preview:&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">report</span><span class="p">[:</span><span class="mi">500</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;...&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
+    
+    <span class="c1"># Option to evaluate sources</span>
+    <span class="n">evaluate_choice</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Would you like to evaluate the sources used? (y/n): &quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">evaluate_choice</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;y&#39;</span><span class="p">:</span>
+        <span class="c1"># Extract sources from report (simplified approach)</span>
+        <span class="n">sources</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;https?://[^\s\)]+&#39;</span><span class="p">,</span> <span class="n">report</span><span class="p">)</span>
+        <span class="n">sources</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">sources</span><span class="p">))</span>  <span class="c1"># Remove duplicates</span>
+        
+        <span class="k">if</span> <span class="n">sources</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Evaluating sources...&quot;</span><span class="p">)</span>
+            <span class="n">evaluation</span> <span class="o">=</span> <span class="n">assistant</span><span class="o">.</span><span class="n">evaluate_sources</span><span class="p">(</span><span class="n">sources</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Source Evaluation:&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">evaluation</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">No URLs found in the report to evaluate.&quot;</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="architecture-diagram">
+<h2>Architecture Diagram<a class="headerlink" href="#architecture-diagram" title="Link to this heading"></a></h2>
+<div class="highlight-mermaid notranslate"><div class="highlight"><pre><span></span>graph TD
+    A[User Interface] --&gt; B[Research Assistant]
+    B --&gt; C[STORM Agent]
+    C --&gt; D[Tool Provider]
+    C --&gt; E[Memory System]
+    
+    D --&gt; F[Search Provider]
+    D --&gt; G[Wikipedia Provider]
+    D --&gt; H[File Provider]
+    
+    E --&gt; I[Semantic Memory]
+    E --&gt; J[Episodic Memory]
+    
+    B --&gt; K[Research Topic]
+    B --&gt; L[Generate Report]
+    B --&gt; M[Evaluate Sources]
+    B --&gt; N[Save Findings]
+</pre></div>
+</div>
+</section>
+<section id="next-steps">
+<h2>Next Steps<a class="headerlink" href="#next-steps" title="Link to this heading"></a></h2>
+<p>You can enhance this research assistant with:</p>
+<ol class="arabic simple">
+<li><p><strong>PDF processing</strong>: Add capability to analyze academic papers and PDFs</p></li>
+<li><p><strong>Citation management</strong>: Implement proper citation tracking and formatting</p></li>
+<li><p><strong>Multi-agent research</strong>: Create specialized agents for different research tasks</p></li>
+<li><p><strong>Custom domain knowledge</strong>: Pre-populate memory with domain-specific information</p></li>
+<li><p><strong>Interactive research</strong>: Allow users to guide the research process interactively</p></li>
+</ol>
+<p>By using the STORM agent pattern, our research assistant benefits from:</p>
+<ul class="simple">
+<li><p>Careful self-evaluation of research findings</p></li>
+<li><p>Multiple options considered for research approaches</p></li>
+<li><p>Step-by-step reasoning for high-quality research</p></li>
+<li><p>Mistake detection to avoid inaccuracies</p></li>
+</ul>
+<p>This approach creates a research assistant that not only finds information but evaluates it critically and produces well-structured reports.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Your Name.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

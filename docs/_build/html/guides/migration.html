@@ -1,0 +1,1220 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Migration Guide &mdash; agent-patterns 0.1.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a58bc63e"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            agent-patterns
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Migration Guide</a><ul>
+<li><a class="reference internal" href="#migrating-from-langchain-agents">Migrating from LangChain Agents</a><ul>
+<li><a class="reference internal" href="#conceptual-mapping">Conceptual Mapping</a></li>
+<li><a class="reference internal" href="#migration-steps">Migration Steps</a></li>
+<li><a class="reference internal" href="#complete-migration-example">Complete Migration Example</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#migrating-from-autogpt">Migrating from AutoGPT</a><ul>
+<li><a class="reference internal" href="#id1">Conceptual Mapping</a></li>
+<li><a class="reference internal" href="#id2">Migration Steps</a></li>
+<li><a class="reference internal" href="#id3">Complete Migration Example</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#migrating-from-custom-implementations">Migrating from Custom Implementations</a><ul>
+<li><a class="reference internal" href="#migration-strategy">Migration Strategy</a></li>
+<li><a class="reference internal" href="#example-migrating-a-custom-agent">Example: Migrating a Custom Agent</a></li>
+<li><a class="reference internal" href="#advanced-migration-custom-pattern">Advanced Migration: Custom Pattern</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">agent-patterns</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Migration Guide</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/guides/migration.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="migration-guide">
+<h1>Migration Guide<a class="headerlink" href="#migration-guide" title="Link to this heading"></a></h1>
+<p>This guide helps you migrate from other agent frameworks to Agent Patterns.</p>
+<section id="migrating-from-langchain-agents">
+<h2>Migrating from LangChain Agents<a class="headerlink" href="#migrating-from-langchain-agents" title="Link to this heading"></a></h2>
+<p>LangChain is a popular framework for building LLM applications. This section covers how to migrate from LangChain Agents to Agent Patterns.</p>
+<section id="conceptual-mapping">
+<h3>Conceptual Mapping<a class="headerlink" href="#conceptual-mapping" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>LangChain Concept</p></th>
+<th class="head"><p>Agent Patterns Equivalent</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Agent</p></td>
+<td><p>Agent Pattern (ReAct, Reflexion, etc.)</p></td>
+</tr>
+<tr class="row-odd"><td><p>AgentExecutor</p></td>
+<td><p>BaseAgent (run method)</p></td>
+</tr>
+<tr class="row-even"><td><p>Tool</p></td>
+<td><p>Tool (from core.tools)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Memory</p></td>
+<td><p>Memory Components (SemanticMemory, EpisodicMemory)</p></td>
+</tr>
+<tr class="row-even"><td><p>PromptTemplate</p></td>
+<td><p>Externalized prompts in text files</p></td>
+</tr>
+<tr class="row-odd"><td><p>LLMChain</p></td>
+<td><p>Internal to Agent Patterns (abstracted)</p></td>
+</tr>
+<tr class="row-even"><td><p>OutputParser</p></td>
+<td><p>Internal to Agent Patterns (abstracted)</p></td>
+</tr>
+<tr class="row-odd"><td><p>ConversationChain</p></td>
+<td><p>Not directly equivalent; use ReActAgent with memory</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="migration-steps">
+<h3>Migration Steps<a class="headerlink" href="#migration-steps" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><strong>Tool Migration</strong></p></li>
+</ol>
+<p>LangChain tools can be converted to Agent Patterns tools:</p>
+<p><strong>LangChain Tool:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">langchain.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseTool</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Type</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">CalculatorTool</span><span class="p">(</span><span class="n">BaseTool</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;calculator&quot;</span>
+    <span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;Useful for performing arithmetic calculations&quot;</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="nb">eval</span><span class="p">(</span><span class="n">query</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Error: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+    
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_arun</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Agent Patterns Equivalent:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseToolProvider</span><span class="p">,</span> <span class="n">Tool</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">CalculatorToolProvider</span><span class="p">(</span><span class="n">BaseToolProvider</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_tools</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="n">Tool</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;calculator&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Useful for performing arithmetic calculations&quot;</span><span class="p">,</span>
+                <span class="n">function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">calculate</span><span class="p">,</span>
+                <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">&quot;expression&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The arithmetic expression to evaluate&quot;</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+        <span class="p">]</span>
+    
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expression</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;result&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="nb">eval</span><span class="p">(</span><span class="n">expression</span><span class="p">))}</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p><strong>Memory Migration</strong></p></li>
+</ol>
+<p>LangChain memory components can be migrated to Agent Patterns memory:</p>
+<p><strong>LangChain Memory:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">langchain.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConversationBufferMemory</span>
+
+<span class="n">memory</span> <span class="o">=</span> <span class="n">ConversationBufferMemory</span><span class="p">(</span><span class="n">return_messages</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">memory</span><span class="o">.</span><span class="n">chat_memory</span><span class="o">.</span><span class="n">add_user_message</span><span class="p">(</span><span class="s2">&quot;Hello!&quot;</span><span class="p">)</span>
+<span class="n">memory</span><span class="o">.</span><span class="n">chat_memory</span><span class="o">.</span><span class="n">add_ai_message</span><span class="p">(</span><span class="s2">&quot;Hi there!&quot;</span><span class="p">)</span>
+
+<span class="c1"># Use in agent</span>
+<span class="n">agent_executor</span> <span class="o">=</span> <span class="n">AgentExecutor</span><span class="o">.</span><span class="n">from_agent_and_tools</span><span class="p">(</span>
+    <span class="n">agent</span><span class="o">=</span><span class="n">agent</span><span class="p">,</span>
+    <span class="n">tools</span><span class="o">=</span><span class="n">tools</span><span class="p">,</span>
+    <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
+    <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Agent Patterns Equivalent:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpisodicMemory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory.persistence</span><span class="w"> </span><span class="kn">import</span> <span class="n">InMemoryPersistence</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+
+<span class="c1"># Create persistence and memory components</span>
+<span class="n">persistence</span> <span class="o">=</span> <span class="n">InMemoryPersistence</span><span class="p">()</span>
+<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">persistence</span><span class="o">.</span><span class="n">initialize</span><span class="p">())</span>
+<span class="n">episodic_memory</span> <span class="o">=</span> <span class="n">EpisodicMemory</span><span class="p">(</span><span class="n">persistence</span><span class="p">,</span> <span class="n">namespace</span><span class="o">=</span><span class="s2">&quot;conversation&quot;</span><span class="p">)</span>
+
+<span class="c1"># Add messages</span>
+<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">episodic_memory</span><span class="o">.</span><span class="n">save</span><span class="p">({</span>
+    <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;Hello!&quot;</span>
+<span class="p">}))</span>
+<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">episodic_memory</span><span class="o">.</span><span class="n">save</span><span class="p">({</span>
+    <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;assistant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;Hi there!&quot;</span>
+<span class="p">}))</span>
+
+<span class="c1"># Use in agent</span>
+<span class="n">agent</span> <span class="o">=</span> <span class="n">ReActAgent</span><span class="p">(</span>
+    <span class="n">llm_configs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;provider&quot;</span><span class="p">:</span> <span class="s2">&quot;openai&quot;</span><span class="p">,</span> <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="s2">&quot;gpt-4o&quot;</span><span class="p">}},</span>
+    <span class="n">memory</span><span class="o">=</span><span class="n">episodic_memory</span><span class="p">,</span>
+    <span class="n">memory_config</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;episodic&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p><strong>Agent Migration</strong></p></li>
+</ol>
+<p>Migrating a full LangChain agent:</p>
+<p><strong>LangChain Agent:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">langchain.agents</span><span class="w"> </span><span class="kn">import</span> <span class="n">initialize_agent</span><span class="p">,</span> <span class="n">AgentType</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">langchain.llms</span><span class="w"> </span><span class="kn">import</span> <span class="n">OpenAI</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">langchain.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">DuckDuckGoSearchRun</span>
+
+<span class="c1"># Define tools</span>
+<span class="n">search_tool</span> <span class="o">=</span> <span class="n">DuckDuckGoSearchRun</span><span class="p">()</span>
+<span class="n">tools</span> <span class="o">=</span> <span class="p">[</span><span class="n">search_tool</span><span class="p">]</span>
+
+<span class="c1"># Create LLM</span>
+<span class="n">llm</span> <span class="o">=</span> <span class="n">OpenAI</span><span class="p">(</span><span class="n">temperature</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># Create agent</span>
+<span class="n">agent</span> <span class="o">=</span> <span class="n">initialize_agent</span><span class="p">(</span>
+    <span class="n">tools</span><span class="p">,</span> 
+    <span class="n">llm</span><span class="p">,</span> 
+    <span class="n">agent</span><span class="o">=</span><span class="n">AgentType</span><span class="o">.</span><span class="n">ZERO_SHOT_REACT_DESCRIPTION</span><span class="p">,</span>
+    <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+
+<span class="c1"># Run agent</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">&quot;What is the weather in New York?&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Agent Patterns Equivalent:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.patterns.re_act_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReActAgent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools.providers.search_provider</span><span class="w"> </span><span class="kn">import</span> <span class="n">SearchToolProvider</span>
+
+<span class="c1"># Create tool provider</span>
+<span class="n">search_provider</span> <span class="o">=</span> <span class="n">SearchToolProvider</span><span class="p">()</span>
+
+<span class="c1"># Create agent</span>
+<span class="n">agent</span> <span class="o">=</span> <span class="n">ReActAgent</span><span class="p">(</span>
+    <span class="n">llm_configs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;provider&quot;</span><span class="p">:</span> <span class="s2">&quot;openai&quot;</span><span class="p">,</span> <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="s2">&quot;gpt-4o&quot;</span><span class="p">}},</span>
+    <span class="n">tool_provider</span><span class="o">=</span><span class="n">search_provider</span>
+<span class="p">)</span>
+
+<span class="c1"># Run agent</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">&quot;What is the weather in New York?&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="complete-migration-example">
+<h3>Complete Migration Example<a class="headerlink" href="#complete-migration-example" title="Link to this heading"></a></h3>
+<p><strong>Original LangChain Application:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">langchain.agents</span><span class="w"> </span><span class="kn">import</span> <span class="n">initialize_agent</span><span class="p">,</span> <span class="n">AgentType</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">langchain.llms</span><span class="w"> </span><span class="kn">import</span> <span class="n">OpenAI</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">langchain.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">DuckDuckGoSearchRun</span><span class="p">,</span> <span class="n">WikipediaQueryRun</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">langchain.utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">WikipediaAPIWrapper</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">langchain.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConversationBufferMemory</span>
+
+<span class="c1"># Create tools</span>
+<span class="n">search</span> <span class="o">=</span> <span class="n">DuckDuckGoSearchRun</span><span class="p">()</span>
+<span class="n">wikipedia</span> <span class="o">=</span> <span class="n">WikipediaQueryRun</span><span class="p">(</span><span class="n">api_wrapper</span><span class="o">=</span><span class="n">WikipediaAPIWrapper</span><span class="p">())</span>
+<span class="n">tools</span> <span class="o">=</span> <span class="p">[</span><span class="n">search</span><span class="p">,</span> <span class="n">wikipedia</span><span class="p">]</span>
+
+<span class="c1"># Set up memory</span>
+<span class="n">memory</span> <span class="o">=</span> <span class="n">ConversationBufferMemory</span><span class="p">(</span><span class="n">return_messages</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Create LLM</span>
+<span class="n">llm</span> <span class="o">=</span> <span class="n">OpenAI</span><span class="p">(</span><span class="n">temperature</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+
+<span class="c1"># Create agent</span>
+<span class="n">agent</span> <span class="o">=</span> <span class="n">initialize_agent</span><span class="p">(</span>
+    <span class="n">tools</span><span class="p">,</span>
+    <span class="n">llm</span><span class="p">,</span>
+    <span class="n">agent</span><span class="o">=</span><span class="n">AgentType</span><span class="o">.</span><span class="n">CONVERSATIONAL_REACT_DESCRIPTION</span><span class="p">,</span>
+    <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">memory</span><span class="o">=</span><span class="n">memory</span>
+<span class="p">)</span>
+
+<span class="c1"># Run agent</span>
+<span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;Tell me about the Eiffel Tower and then tell me how tall it is in feet.&quot;</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Migrated Agent Patterns Application:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.patterns.re_act_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReActAgent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools.providers.search_provider</span><span class="w"> </span><span class="kn">import</span> <span class="n">SearchToolProvider</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools.providers.wikipedia_provider</span><span class="w"> </span><span class="kn">import</span> <span class="n">WikipediaToolProvider</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpisodicMemory</span><span class="p">,</span> <span class="n">CompositeMemory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory.persistence</span><span class="w"> </span><span class="kn">import</span> <span class="n">InMemoryPersistence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools.providers.composite_provider</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompositeToolProvider</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+
+<span class="c1"># Set up memory</span>
+<span class="n">persistence</span> <span class="o">=</span> <span class="n">InMemoryPersistence</span><span class="p">()</span>
+<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">persistence</span><span class="o">.</span><span class="n">initialize</span><span class="p">())</span>
+<span class="n">memory</span> <span class="o">=</span> <span class="n">CompositeMemory</span><span class="p">({</span>
+    <span class="s2">&quot;episodic&quot;</span><span class="p">:</span> <span class="n">EpisodicMemory</span><span class="p">(</span><span class="n">persistence</span><span class="p">,</span> <span class="n">namespace</span><span class="o">=</span><span class="s2">&quot;conversation&quot;</span><span class="p">)</span>
+<span class="p">})</span>
+
+<span class="c1"># Set up tool providers</span>
+<span class="n">search_provider</span> <span class="o">=</span> <span class="n">SearchToolProvider</span><span class="p">()</span>
+<span class="n">wikipedia_provider</span> <span class="o">=</span> <span class="n">WikipediaToolProvider</span><span class="p">()</span>
+<span class="n">tool_provider</span> <span class="o">=</span> <span class="n">CompositeToolProvider</span><span class="p">([</span><span class="n">search_provider</span><span class="p">,</span> <span class="n">wikipedia_provider</span><span class="p">])</span>
+
+<span class="c1"># Create agent</span>
+<span class="n">agent</span> <span class="o">=</span> <span class="n">ReActAgent</span><span class="p">(</span>
+    <span class="n">llm_configs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;provider&quot;</span><span class="p">:</span> <span class="s2">&quot;openai&quot;</span><span class="p">,</span> <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="s2">&quot;gpt-4o&quot;</span><span class="p">,</span> <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">}},</span>
+    <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
+    <span class="n">memory_config</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;episodic&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+    <span class="n">tool_provider</span><span class="o">=</span><span class="n">tool_provider</span>
+<span class="p">)</span>
+
+<span class="c1"># Run agent</span>
+<span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;Tell me about the Eiffel Tower and then tell me how tall it is in feet.&quot;</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="migrating-from-autogpt">
+<h2>Migrating from AutoGPT<a class="headerlink" href="#migrating-from-autogpt" title="Link to this heading"></a></h2>
+<p>AutoGPT is an autonomous agent framework. This section covers migration from AutoGPT to Agent Patterns.</p>
+<section id="id1">
+<h3>Conceptual Mapping<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>AutoGPT Concept</p></th>
+<th class="head"><p>Agent Patterns Equivalent</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Agent</p></td>
+<td><p>Self-Discovery or LATS agent</p></td>
+</tr>
+<tr class="row-odd"><td><p>Memory</p></td>
+<td><p>CompositeMemory with SemanticMemory</p></td>
+</tr>
+<tr class="row-even"><td><p>Commands</p></td>
+<td><p>Tools</p></td>
+</tr>
+<tr class="row-odd"><td><p>Autonomous Mode</p></td>
+<td><p>Self-Discovery agent with continuous runs</p></td>
+</tr>
+<tr class="row-even"><td><p>Browsing</p></td>
+<td><p>Web search tools</p></td>
+</tr>
+<tr class="row-odd"><td><p>File Operations</p></td>
+<td><p>File operation tools</p></td>
+</tr>
+<tr class="row-even"><td><p>Planning</p></td>
+<td><p>Plan &amp; Solve or LLM Compiler agent</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id2">
+<h3>Migration Steps<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><strong>Command Migration</strong></p></li>
+</ol>
+<p>AutoGPT commands can be converted to Agent Patterns tools:</p>
+<p><strong>AutoGPT Command:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">google_search</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">num_results</span><span class="o">=</span><span class="mi">8</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Perform a Google search and return the results.&quot;&quot;&quot;</span>
+    <span class="n">search_results</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">duckduckgo_search</span><span class="w"> </span><span class="kn">import</span> <span class="n">ddg</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="n">ddg</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">max_results</span><span class="o">=</span><span class="n">num_results</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+            <span class="n">search_results</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;href&quot;</span><span class="p">:</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;href&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;body&quot;</span><span class="p">:</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;body&quot;</span><span class="p">]</span>
+            <span class="p">})</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Error: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">return</span> <span class="n">search_results</span>
+</pre></div>
+</div>
+<p><strong>Agent Patterns Equivalent:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseToolProvider</span><span class="p">,</span> <span class="n">Tool</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">SearchToolProvider</span><span class="p">(</span><span class="n">BaseToolProvider</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_tools</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="n">Tool</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;search&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Search the web for information&quot;</span><span class="p">,</span>
+                <span class="n">function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">search</span><span class="p">,</span>
+                <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">&quot;query&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The search query&quot;</span>
+                    <span class="p">},</span>
+                    <span class="s2">&quot;num_results&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;integer&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Number of results to return&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="mi">8</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+        <span class="p">]</span>
+    
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">num_results</span><span class="o">=</span><span class="mi">8</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">duckduckgo_search</span><span class="w"> </span><span class="kn">import</span> <span class="n">ddg</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="n">ddg</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">max_results</span><span class="o">=</span><span class="n">num_results</span><span class="p">)</span>
+            <span class="n">search_results</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+                <span class="n">search_results</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                    <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;href&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;snippet&quot;</span><span class="p">:</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;body&quot;</span><span class="p">]</span>
+                <span class="p">})</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;results&quot;</span><span class="p">:</span> <span class="n">search_results</span><span class="p">}</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p><strong>Memory Migration</strong></p></li>
+</ol>
+<p>AutoGPT memory can be migrated to Agent Patterns memory:</p>
+<p><strong>AutoGPT Memory:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">autogpt.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">LocalCache</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autogpt.workspace</span><span class="w"> </span><span class="kn">import</span> <span class="n">Workspace</span>
+
+<span class="n">workspace</span> <span class="o">=</span> <span class="n">Workspace</span><span class="p">(</span><span class="s2">&quot;workspace&quot;</span><span class="p">)</span>
+<span class="n">memory</span> <span class="o">=</span> <span class="n">LocalCache</span><span class="p">(</span><span class="n">workspace</span><span class="o">.</span><span class="n">root</span><span class="p">)</span>
+
+<span class="c1"># Store information</span>
+<span class="n">memory</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;Eiffel Tower&quot;</span><span class="p">,</span> <span class="s2">&quot;The Eiffel Tower is 330 meters tall.&quot;</span><span class="p">)</span>
+
+<span class="c1"># Retrieve information</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">memory</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Eiffel Tower&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Agent Patterns Equivalent:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">SemanticMemory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory.persistence</span><span class="w"> </span><span class="kn">import</span> <span class="n">FilePersistence</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+
+<span class="c1"># Create persistence and memory</span>
+<span class="n">persistence</span> <span class="o">=</span> <span class="n">FilePersistence</span><span class="p">(</span><span class="n">directory</span><span class="o">=</span><span class="s2">&quot;./memory_store&quot;</span><span class="p">)</span>
+<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">persistence</span><span class="o">.</span><span class="n">initialize</span><span class="p">())</span>
+<span class="n">memory</span> <span class="o">=</span> <span class="n">SemanticMemory</span><span class="p">(</span><span class="n">persistence</span><span class="p">,</span> <span class="n">namespace</span><span class="o">=</span><span class="s2">&quot;knowledge&quot;</span><span class="p">)</span>
+
+<span class="c1"># Store information</span>
+<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">memory</span><span class="o">.</span><span class="n">save</span><span class="p">({</span>
+    <span class="s2">&quot;entity&quot;</span><span class="p">:</span> <span class="s2">&quot;Eiffel Tower&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;attribute&quot;</span><span class="p">:</span> <span class="s2">&quot;height&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;330 meters&quot;</span>
+<span class="p">}))</span>
+
+<span class="c1"># Retrieve information</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">memory</span><span class="o">.</span><span class="n">retrieve</span><span class="p">(</span><span class="s2">&quot;Eiffel Tower height&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p><strong>Autonomous Agent Migration</strong></p></li>
+</ol>
+<p>Migrating an AutoGPT agent:</p>
+<p><strong>AutoGPT-like Agent:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Pseudocode based on AutoGPT concepts</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autogpt.agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autogpt.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">Config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autogpt.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">LocalCache</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autogpt.workspace</span><span class="w"> </span><span class="kn">import</span> <span class="n">Workspace</span>
+
+<span class="c1"># Configure agent</span>
+<span class="n">config</span> <span class="o">=</span> <span class="n">Config</span><span class="p">()</span>
+<span class="n">config</span><span class="o">.</span><span class="n">set_continuous_mode</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">config</span><span class="o">.</span><span class="n">set_memory_backend</span><span class="p">(</span><span class="s2">&quot;local&quot;</span><span class="p">)</span>
+
+<span class="c1"># Set up workspace and memory</span>
+<span class="n">workspace</span> <span class="o">=</span> <span class="n">Workspace</span><span class="p">(</span><span class="s2">&quot;workspace&quot;</span><span class="p">)</span>
+<span class="n">memory</span> <span class="o">=</span> <span class="n">LocalCache</span><span class="p">(</span><span class="n">workspace</span><span class="o">.</span><span class="n">root</span><span class="p">)</span>
+
+<span class="c1"># Create agent</span>
+<span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
+    <span class="n">ai_name</span><span class="o">=</span><span class="s2">&quot;Research Assistant&quot;</span><span class="p">,</span>
+    <span class="n">ai_role</span><span class="o">=</span><span class="s2">&quot;A research assistant that finds information on the web.&quot;</span><span class="p">,</span>
+    <span class="n">tools</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;google&quot;</span><span class="p">,</span> <span class="s2">&quot;memory&quot;</span><span class="p">,</span> <span class="s2">&quot;write_file&quot;</span><span class="p">],</span>
+    <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
+    <span class="n">config</span><span class="o">=</span><span class="n">config</span>
+<span class="p">)</span>
+
+<span class="c1"># Run agent</span>
+<span class="n">agent</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">&quot;Research the impact of climate change on agriculture and write a report.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Agent Patterns Equivalent:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.patterns.self_discovery_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">SelfDiscoveryAgent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">SemanticMemory</span><span class="p">,</span> <span class="n">CompositeMemory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory.persistence</span><span class="w"> </span><span class="kn">import</span> <span class="n">FilePersistence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools.providers.composite_provider</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompositeToolProvider</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools.providers.search_provider</span><span class="w"> </span><span class="kn">import</span> <span class="n">SearchToolProvider</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools.providers.file_provider</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileToolProvider</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+
+<span class="c1"># Set up memory</span>
+<span class="n">persistence</span> <span class="o">=</span> <span class="n">FilePersistence</span><span class="p">(</span><span class="n">directory</span><span class="o">=</span><span class="s2">&quot;./memory_store&quot;</span><span class="p">)</span>
+<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">persistence</span><span class="o">.</span><span class="n">initialize</span><span class="p">())</span>
+<span class="n">memory</span> <span class="o">=</span> <span class="n">CompositeMemory</span><span class="p">({</span>
+    <span class="s2">&quot;semantic&quot;</span><span class="p">:</span> <span class="n">SemanticMemory</span><span class="p">(</span><span class="n">persistence</span><span class="p">,</span> <span class="n">namespace</span><span class="o">=</span><span class="s2">&quot;knowledge&quot;</span><span class="p">)</span>
+<span class="p">})</span>
+
+<span class="c1"># Set up tools</span>
+<span class="n">search_provider</span> <span class="o">=</span> <span class="n">SearchToolProvider</span><span class="p">()</span>
+<span class="n">file_provider</span> <span class="o">=</span> <span class="n">FileToolProvider</span><span class="p">(</span><span class="n">workspace_dir</span><span class="o">=</span><span class="s2">&quot;./workspace&quot;</span><span class="p">)</span>
+<span class="n">tool_provider</span> <span class="o">=</span> <span class="n">CompositeToolProvider</span><span class="p">([</span><span class="n">search_provider</span><span class="p">,</span> <span class="n">file_provider</span><span class="p">])</span>
+
+<span class="c1"># Create agent</span>
+<span class="n">agent</span> <span class="o">=</span> <span class="n">SelfDiscoveryAgent</span><span class="p">(</span>
+    <span class="n">llm_configs</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;provider&quot;</span><span class="p">:</span> <span class="s2">&quot;openai&quot;</span><span class="p">,</span> <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="s2">&quot;gpt-4o&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;planning&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;provider&quot;</span><span class="p">:</span> <span class="s2">&quot;anthropic&quot;</span><span class="p">,</span> <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="s2">&quot;claude-3-opus-20240229&quot;</span><span class="p">}</span>
+    <span class="p">},</span>
+    <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
+    <span class="n">memory_config</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;semantic&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+    <span class="n">tool_provider</span><span class="o">=</span><span class="n">tool_provider</span><span class="p">,</span>
+    <span class="n">max_iterations</span><span class="o">=</span><span class="mi">15</span>  <span class="c1"># Control autonomous behavior</span>
+<span class="p">)</span>
+
+<span class="c1"># Run agent</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">&quot;Research the impact of climate change on agriculture and write a report.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="id3">
+<h3>Complete Migration Example<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<p><strong>Original AutoGPT-style Application:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Pseudocode based on AutoGPT concepts</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autogpt.agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autogpt.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">Config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autogpt.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">LocalCache</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autogpt.workspace</span><span class="w"> </span><span class="kn">import</span> <span class="n">Workspace</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autogpt.commands</span><span class="w"> </span><span class="kn">import</span> <span class="n">google_search</span><span class="p">,</span> <span class="n">write_file</span><span class="p">,</span> <span class="n">read_file</span>
+
+<span class="c1"># Configure agent</span>
+<span class="n">config</span> <span class="o">=</span> <span class="n">Config</span><span class="p">()</span>
+<span class="n">config</span><span class="o">.</span><span class="n">set_continuous_mode</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">config</span><span class="o">.</span><span class="n">set_memory_backend</span><span class="p">(</span><span class="s2">&quot;local&quot;</span><span class="p">)</span>
+<span class="n">config</span><span class="o">.</span><span class="n">set_max_iterations</span><span class="p">(</span><span class="mi">15</span><span class="p">)</span>
+
+<span class="c1"># Set up workspace and memory</span>
+<span class="n">workspace</span> <span class="o">=</span> <span class="n">Workspace</span><span class="p">(</span><span class="s2">&quot;workspace&quot;</span><span class="p">)</span>
+<span class="n">memory</span> <span class="o">=</span> <span class="n">LocalCache</span><span class="p">(</span><span class="n">workspace</span><span class="o">.</span><span class="n">root</span><span class="p">)</span>
+
+<span class="c1"># Define custom commands</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">analyze_sentiment</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+    <span class="c1"># Simplified sentiment analysis</span>
+    <span class="n">positive_words</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;good&quot;</span><span class="p">,</span> <span class="s2">&quot;great&quot;</span><span class="p">,</span> <span class="s2">&quot;excellent&quot;</span><span class="p">,</span> <span class="s2">&quot;positive&quot;</span><span class="p">,</span> <span class="s2">&quot;beneficial&quot;</span><span class="p">]</span>
+    <span class="n">negative_words</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;bad&quot;</span><span class="p">,</span> <span class="s2">&quot;terrible&quot;</span><span class="p">,</span> <span class="s2">&quot;negative&quot;</span><span class="p">,</span> <span class="s2">&quot;harmful&quot;</span><span class="p">,</span> <span class="s2">&quot;poor&quot;</span><span class="p">]</span>
+    
+    <span class="n">positive_count</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">word</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">positive_words</span><span class="p">)</span>
+    <span class="n">negative_count</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">word</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">negative_words</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">positive_count</span> <span class="o">&gt;</span> <span class="n">negative_count</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;Positive&quot;</span>
+    <span class="k">elif</span> <span class="n">negative_count</span> <span class="o">&gt;</span> <span class="n">positive_count</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;Negative&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;Neutral&quot;</span>
+
+<span class="c1"># Register commands</span>
+<span class="n">commands</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;google&quot;</span><span class="p">:</span> <span class="n">google_search</span><span class="p">,</span>
+    <span class="s2">&quot;write_file&quot;</span><span class="p">:</span> <span class="n">write_file</span><span class="p">,</span>
+    <span class="s2">&quot;read_file&quot;</span><span class="p">:</span> <span class="n">read_file</span><span class="p">,</span>
+    <span class="s2">&quot;analyze_sentiment&quot;</span><span class="p">:</span> <span class="n">analyze_sentiment</span>
+<span class="p">}</span>
+
+<span class="c1"># Create agent</span>
+<span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
+    <span class="n">ai_name</span><span class="o">=</span><span class="s2">&quot;Research Assistant&quot;</span><span class="p">,</span>
+    <span class="n">ai_role</span><span class="o">=</span><span class="s2">&quot;A research assistant that analyzes sentiment in news articles.&quot;</span><span class="p">,</span>
+    <span class="n">tools</span><span class="o">=</span><span class="n">commands</span><span class="p">,</span>
+    <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
+    <span class="n">config</span><span class="o">=</span><span class="n">config</span>
+<span class="p">)</span>
+
+<span class="c1"># Run agent</span>
+<span class="n">agent</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">&quot;Research recent news about climate change, analyze the sentiment of articles, and write a summary report.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Migrated Agent Patterns Application:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.patterns.self_discovery_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">SelfDiscoveryAgent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">SemanticMemory</span><span class="p">,</span> <span class="n">CompositeMemory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory.persistence</span><span class="w"> </span><span class="kn">import</span> <span class="n">FilePersistence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools.providers.composite_provider</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompositeToolProvider</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools.providers.search_provider</span><span class="w"> </span><span class="kn">import</span> <span class="n">SearchToolProvider</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools.providers.file_provider</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileToolProvider</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseToolProvider</span><span class="p">,</span> <span class="n">Tool</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+
+<span class="c1"># Custom sentiment analysis tool provider</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SentimentToolProvider</span><span class="p">(</span><span class="n">BaseToolProvider</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_tools</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="n">Tool</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;analyze_sentiment&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Analyze the sentiment of a text as positive, negative, or neutral&quot;</span><span class="p">,</span>
+                <span class="n">function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">analyze_sentiment</span><span class="p">,</span>
+                <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The text to analyze&quot;</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+        <span class="p">]</span>
+    
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">analyze_sentiment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="c1"># Simplified sentiment analysis</span>
+        <span class="n">positive_words</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;good&quot;</span><span class="p">,</span> <span class="s2">&quot;great&quot;</span><span class="p">,</span> <span class="s2">&quot;excellent&quot;</span><span class="p">,</span> <span class="s2">&quot;positive&quot;</span><span class="p">,</span> <span class="s2">&quot;beneficial&quot;</span><span class="p">]</span>
+        <span class="n">negative_words</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;bad&quot;</span><span class="p">,</span> <span class="s2">&quot;terrible&quot;</span><span class="p">,</span> <span class="s2">&quot;negative&quot;</span><span class="p">,</span> <span class="s2">&quot;harmful&quot;</span><span class="p">,</span> <span class="s2">&quot;poor&quot;</span><span class="p">]</span>
+        
+        <span class="n">positive_count</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">word</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">positive_words</span><span class="p">)</span>
+        <span class="n">negative_count</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">word</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">negative_words</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">positive_count</span> <span class="o">&gt;</span> <span class="n">negative_count</span><span class="p">:</span>
+            <span class="n">sentiment</span> <span class="o">=</span> <span class="s2">&quot;Positive&quot;</span>
+        <span class="k">elif</span> <span class="n">negative_count</span> <span class="o">&gt;</span> <span class="n">positive_count</span><span class="p">:</span>
+            <span class="n">sentiment</span> <span class="o">=</span> <span class="s2">&quot;Negative&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sentiment</span> <span class="o">=</span> <span class="s2">&quot;Neutral&quot;</span>
+        
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;sentiment&quot;</span><span class="p">:</span> <span class="n">sentiment</span><span class="p">,</span>
+            <span class="s2">&quot;positive_score&quot;</span><span class="p">:</span> <span class="n">positive_count</span><span class="p">,</span>
+            <span class="s2">&quot;negative_score&quot;</span><span class="p">:</span> <span class="n">negative_count</span>
+        <span class="p">}</span>
+
+<span class="c1"># Set up memory</span>
+<span class="n">persistence</span> <span class="o">=</span> <span class="n">FilePersistence</span><span class="p">(</span><span class="n">directory</span><span class="o">=</span><span class="s2">&quot;./memory_store&quot;</span><span class="p">)</span>
+<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">persistence</span><span class="o">.</span><span class="n">initialize</span><span class="p">())</span>
+<span class="n">memory</span> <span class="o">=</span> <span class="n">CompositeMemory</span><span class="p">({</span>
+    <span class="s2">&quot;semantic&quot;</span><span class="p">:</span> <span class="n">SemanticMemory</span><span class="p">(</span><span class="n">persistence</span><span class="p">,</span> <span class="n">namespace</span><span class="o">=</span><span class="s2">&quot;knowledge&quot;</span><span class="p">)</span>
+<span class="p">})</span>
+
+<span class="c1"># Set up tools</span>
+<span class="n">search_provider</span> <span class="o">=</span> <span class="n">SearchToolProvider</span><span class="p">()</span>
+<span class="n">file_provider</span> <span class="o">=</span> <span class="n">FileToolProvider</span><span class="p">(</span><span class="n">workspace_dir</span><span class="o">=</span><span class="s2">&quot;./workspace&quot;</span><span class="p">)</span>
+<span class="n">sentiment_provider</span> <span class="o">=</span> <span class="n">SentimentToolProvider</span><span class="p">()</span>
+<span class="n">tool_provider</span> <span class="o">=</span> <span class="n">CompositeToolProvider</span><span class="p">([</span>
+    <span class="n">search_provider</span><span class="p">,</span> 
+    <span class="n">file_provider</span><span class="p">,</span> 
+    <span class="n">sentiment_provider</span>
+<span class="p">])</span>
+
+<span class="c1"># Create agent</span>
+<span class="n">agent</span> <span class="o">=</span> <span class="n">SelfDiscoveryAgent</span><span class="p">(</span>
+    <span class="n">llm_configs</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;provider&quot;</span><span class="p">:</span> <span class="s2">&quot;openai&quot;</span><span class="p">,</span> <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="s2">&quot;gpt-4o&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;planning&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;provider&quot;</span><span class="p">:</span> <span class="s2">&quot;anthropic&quot;</span><span class="p">,</span> <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="s2">&quot;claude-3-opus-20240229&quot;</span><span class="p">}</span>
+    <span class="p">},</span>
+    <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
+    <span class="n">memory_config</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;semantic&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+    <span class="n">tool_provider</span><span class="o">=</span><span class="n">tool_provider</span><span class="p">,</span>
+    <span class="n">max_iterations</span><span class="o">=</span><span class="mi">15</span>
+<span class="p">)</span>
+
+<span class="c1"># Run agent</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">&quot;Research recent news about climate change, analyze the sentiment of articles, and write a summary report.&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="migrating-from-custom-implementations">
+<h2>Migrating from Custom Implementations<a class="headerlink" href="#migrating-from-custom-implementations" title="Link to this heading"></a></h2>
+<p>This section covers how to migrate from custom agent implementations to Agent Patterns.</p>
+<section id="migration-strategy">
+<h3>Migration Strategy<a class="headerlink" href="#migration-strategy" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><strong>Identify Components</strong>: Break down your custom implementation into:</p>
+<ul class="simple">
+<li><p>Agent logic</p></li>
+<li><p>Prompting</p></li>
+<li><p>Tool execution</p></li>
+<li><p>Memory/state management</p></li>
+<li><p>Model calling</p></li>
+</ul>
+</li>
+<li><p><strong>Select Appropriate Pattern</strong>: Choose the Agent Pattern that closest matches your implementation:</p>
+<ul class="simple">
+<li><p>Simple reasoning and tools: ReAct</p></li>
+<li><p>Planning then execution: Plan &amp; Solve</p></li>
+<li><p>Self-improvement: Reflexion or Reflection</p></li>
+<li><p>Dynamic workflows: LLM Compiler</p></li>
+<li><p>Monitoring: LATS</p></li>
+<li><p>Complex reasoning: STORM</p></li>
+</ul>
+</li>
+<li><p><strong>Map Custom Logic</strong>: Identify places where your custom logic needs to be preserved</p></li>
+<li><p><strong>Implement Migration</strong>: Either:</p>
+<ul class="simple">
+<li><p>Use an existing pattern with customization</p></li>
+<li><p>Extend BaseAgent to create a custom pattern</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="example-migrating-a-custom-agent">
+<h3>Example: Migrating a Custom Agent<a class="headerlink" href="#example-migrating-a-custom-agent" title="Link to this heading"></a></h3>
+<p><strong>Original Custom Implementation:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">openai</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">CustomAgent</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">openai</span><span class="o">.</span><span class="n">api_key</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;OPENAI_API_KEY&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conversation_history</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tools</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;search&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">search</span><span class="p">,</span>
+            <span class="s2">&quot;calculator&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculator</span>
+        <span class="p">}</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">):</span>
+        <span class="c1"># Mock search function</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Search results for: </span><span class="si">{</span><span class="n">query</span><span class="si">}</span><span class="s2">&quot;</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expression</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="nb">eval</span><span class="p">(</span><span class="n">expression</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Error: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">call_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prompt</span><span class="p">):</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">openai</span><span class="o">.</span><span class="n">ChatCompletion</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+            <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-4&quot;</span><span class="p">,</span>
+            <span class="n">messages</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">prompt</span><span class="p">}],</span>
+            <span class="n">temperature</span><span class="o">=</span><span class="mf">0.7</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">parse_tool_calls</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;USE TOOL:&quot;</span> <span class="ow">in</span> <span class="n">text</span><span class="p">:</span>
+                <span class="n">parts</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;USE TOOL:&quot;</span><span class="p">)</span>
+                <span class="n">tool_part</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                <span class="n">tool_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">tool_part</span><span class="p">)</span>
+                <span class="k">return</span> <span class="p">{</span>
+                    <span class="s2">&quot;tool&quot;</span><span class="p">:</span> <span class="n">tool_json</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tool&quot;</span><span class="p">),</span>
+                    <span class="s2">&quot;parameters&quot;</span><span class="p">:</span> <span class="n">tool_json</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;parameters&quot;</span><span class="p">,</span> <span class="p">{})</span>
+                <span class="p">}</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conversation_history</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">query</span><span class="p">})</span>
+        
+        <span class="n">prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        You are a helpful assistant that can use tools to answer questions.</span>
+<span class="s2">        Available tools:</span>
+<span class="s2">        - search: Search for information online. Parameters: </span><span class="se">{{</span><span class="s2">&quot;query&quot;: &quot;search query&quot;</span><span class="se">}}</span>
+<span class="s2">        - calculator: Perform calculations. Parameters: </span><span class="se">{{</span><span class="s2">&quot;expression&quot;: &quot;math expression&quot;</span><span class="se">}}</span>
+<span class="s2">        </span>
+<span class="s2">        Conversation history:</span>
+<span class="s2">        </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">format_history</span><span class="p">()</span><span class="si">}</span>
+<span class="s2">        </span>
+<span class="s2">        To use a tool, respond with:</span>
+<span class="s2">        USE TOOL: </span><span class="se">{{</span><span class="s2">&quot;tool&quot;: &quot;tool_name&quot;, &quot;parameters&quot;: </span><span class="se">{{</span><span class="s2">&quot;param1&quot;: &quot;value1&quot;</span><span class="se">}}}}</span>
+<span class="s2">        </span>
+<span class="s2">        User query: </span><span class="si">{</span><span class="n">query</span><span class="si">}</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+        
+        <span class="n">max_iterations</span> <span class="o">=</span> <span class="mi">5</span>
+        <span class="n">iterations</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="k">while</span> <span class="n">iterations</span> <span class="o">&lt;</span> <span class="n">max_iterations</span><span class="p">:</span>
+            <span class="n">iterations</span> <span class="o">+=</span> <span class="mi">1</span>
+            
+            <span class="c1"># Call model</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">call_model</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+            
+            <span class="c1"># Check for tool calls</span>
+            <span class="n">tool_call</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_tool_calls</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="n">tool_call</span><span class="p">:</span>
+                <span class="n">tool_name</span> <span class="o">=</span> <span class="n">tool_call</span><span class="p">[</span><span class="s2">&quot;tool&quot;</span><span class="p">]</span>
+                <span class="n">parameters</span> <span class="o">=</span> <span class="n">tool_call</span><span class="p">[</span><span class="s2">&quot;parameters&quot;</span><span class="p">]</span>
+                
+                <span class="k">if</span> <span class="n">tool_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tools</span><span class="p">:</span>
+                    <span class="c1"># Execute tool</span>
+                    <span class="k">if</span> <span class="n">tool_name</span> <span class="o">==</span> <span class="s2">&quot;search&quot;</span><span class="p">:</span>
+                        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tools</span><span class="p">[</span><span class="n">tool_name</span><span class="p">](</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;query&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+                    <span class="k">elif</span> <span class="n">tool_name</span> <span class="o">==</span> <span class="s2">&quot;calculator&quot;</span><span class="p">:</span>
+                        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tools</span><span class="p">[</span><span class="n">tool_name</span><span class="p">](</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;expression&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">result</span> <span class="o">=</span> <span class="s2">&quot;Unknown tool&quot;</span>
+                    
+                    <span class="c1"># Update conversation history</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">conversation_history</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;assistant&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">response</span><span class="p">})</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">conversation_history</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;system&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Tool result: </span><span class="si">{</span><span class="n">result</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">})</span>
+                    
+                    <span class="c1"># Update prompt</span>
+                    <span class="n">prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                    You are a helpful assistant that can use tools to answer questions.</span>
+<span class="s2">                    Available tools:</span>
+<span class="s2">                    - search: Search for information online. Parameters: </span><span class="se">{{</span><span class="s2">&quot;query&quot;: &quot;search query&quot;</span><span class="se">}}</span>
+<span class="s2">                    - calculator: Perform calculations. Parameters: </span><span class="se">{{</span><span class="s2">&quot;expression&quot;: &quot;math expression&quot;</span><span class="se">}}</span>
+<span class="s2">                    </span>
+<span class="s2">                    Conversation history:</span>
+<span class="s2">                    </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">format_history</span><span class="p">()</span><span class="si">}</span>
+<span class="s2">                    </span>
+<span class="s2">                    To use a tool, respond with:</span>
+<span class="s2">                    USE TOOL: </span><span class="se">{{</span><span class="s2">&quot;tool&quot;: &quot;tool_name&quot;, &quot;parameters&quot;: </span><span class="se">{{</span><span class="s2">&quot;param1&quot;: &quot;value1&quot;</span><span class="se">}}}}</span>
+<span class="s2">                    </span>
+<span class="s2">                    Given the tool result, provide a final answer or use another tool if needed.</span>
+<span class="s2">                    &quot;&quot;&quot;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Unknown tool: </span><span class="si">{</span><span class="n">tool_name</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Final answer</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">conversation_history</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;assistant&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">response</span><span class="p">})</span>
+                <span class="k">return</span> <span class="n">response</span>
+        
+        <span class="k">return</span> <span class="s2">&quot;Maximum iterations reached without final answer.&quot;</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">format_history</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">formatted</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">conversation_history</span><span class="p">:</span>
+            <span class="n">formatted</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;role&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;content&#39;</span><span class="p">]</span><span class="si">}</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="n">formatted</span>
+</pre></div>
+</div>
+<p><strong>Migrated to Agent Patterns:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.patterns.re_act_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReActAgent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseToolProvider</span><span class="p">,</span> <span class="n">Tool</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpisodicMemory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory.persistence</span><span class="w"> </span><span class="kn">import</span> <span class="n">InMemoryPersistence</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">CustomToolProvider</span><span class="p">(</span><span class="n">BaseToolProvider</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_tools</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="n">Tool</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;search&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Search for information online&quot;</span><span class="p">,</span>
+                <span class="n">function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">search</span><span class="p">,</span>
+                <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">&quot;query&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The search query&quot;</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">),</span>
+            <span class="n">Tool</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;calculator&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Perform calculations&quot;</span><span class="p">,</span>
+                <span class="n">function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">calculate</span><span class="p">,</span>
+                <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">&quot;expression&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The math expression to evaluate&quot;</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+        <span class="p">]</span>
+    
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">):</span>
+        <span class="c1"># Mock search function</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;results&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Search results for: </span><span class="si">{</span><span class="n">query</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">}</span>
+    
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expression</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;result&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="nb">eval</span><span class="p">(</span><span class="n">expression</span><span class="p">))}</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}</span>
+
+<span class="c1"># Set up memory</span>
+<span class="n">persistence</span> <span class="o">=</span> <span class="n">InMemoryPersistence</span><span class="p">()</span>
+<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">persistence</span><span class="o">.</span><span class="n">initialize</span><span class="p">())</span>
+<span class="n">memory</span> <span class="o">=</span> <span class="n">EpisodicMemory</span><span class="p">(</span><span class="n">persistence</span><span class="p">,</span> <span class="n">namespace</span><span class="o">=</span><span class="s2">&quot;conversation&quot;</span><span class="p">)</span>
+
+<span class="c1"># Set up tool provider</span>
+<span class="n">tool_provider</span> <span class="o">=</span> <span class="n">CustomToolProvider</span><span class="p">()</span>
+
+<span class="c1"># Create agent</span>
+<span class="n">agent</span> <span class="o">=</span> <span class="n">ReActAgent</span><span class="p">(</span>
+    <span class="n">llm_configs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;provider&quot;</span><span class="p">:</span> <span class="s2">&quot;openai&quot;</span><span class="p">,</span> <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="s2">&quot;gpt-4&quot;</span><span class="p">,</span> <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">}},</span>
+    <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
+    <span class="n">memory_config</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;episodic&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+    <span class="n">tool_provider</span><span class="o">=</span><span class="n">tool_provider</span>
+<span class="p">)</span>
+
+<span class="c1"># Run agent</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">&quot;What is the population of France and calculate 15</span><span class="si">% o</span><span class="s2">f that number.&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="advanced-migration-custom-pattern">
+<h3>Advanced Migration: Custom Pattern<a class="headerlink" href="#advanced-migration-custom-pattern" title="Link to this heading"></a></h3>
+<p>If your custom implementation doesn’t map well to existing patterns, create a custom pattern:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.base_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseAgent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">langchain.graphs</span><span class="w"> </span><span class="kn">import</span> <span class="n">Graph</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">CustomPatternAgent</span><span class="p">(</span><span class="n">BaseAgent</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Custom agent pattern based on unique workflow.&quot;&quot;&quot;</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">llm_configs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">memory_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">tool_provider</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">max_iterations</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">llm_configs</span><span class="o">=</span><span class="n">llm_configs</span><span class="p">,</span>
+            <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
+            <span class="n">memory_config</span><span class="o">=</span><span class="n">memory_config</span><span class="p">,</span>
+            <span class="n">tool_provider</span><span class="o">=</span><span class="n">tool_provider</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_iterations</span> <span class="o">=</span> <span class="n">max_iterations</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">build_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build the custom workflow graph.&quot;&quot;&quot;</span>
+        <span class="n">builder</span> <span class="o">=</span> <span class="n">Graph</span><span class="p">()</span>
+        
+        <span class="c1"># Define nodes (steps in your workflow)</span>
+        <span class="n">builder</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">&quot;start&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_node</span><span class="p">)</span>
+        <span class="n">builder</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">&quot;analyze&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">analyze_node</span><span class="p">)</span>
+        <span class="n">builder</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">&quot;plan&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">plan_node</span><span class="p">)</span>
+        <span class="n">builder</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">&quot;execute&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">execute_node</span><span class="p">)</span>
+        <span class="n">builder</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">&quot;evaluate&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluate_node</span><span class="p">)</span>
+        <span class="n">builder</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">&quot;final&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_node</span><span class="p">)</span>
+        
+        <span class="c1"># Define edges (transitions between steps)</span>
+        <span class="n">builder</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;start&quot;</span><span class="p">,</span> <span class="s2">&quot;analyze&quot;</span><span class="p">)</span>
+        <span class="n">builder</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;analyze&quot;</span><span class="p">,</span> <span class="s2">&quot;plan&quot;</span><span class="p">)</span>
+        <span class="n">builder</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;plan&quot;</span><span class="p">,</span> <span class="s2">&quot;execute&quot;</span><span class="p">)</span>
+        <span class="n">builder</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;execute&quot;</span><span class="p">,</span> <span class="s2">&quot;evaluate&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Add conditional edges</span>
+        <span class="n">builder</span><span class="o">.</span><span class="n">add_conditional_edges</span><span class="p">(</span>
+            <span class="s2">&quot;evaluate&quot;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">should_continue</span><span class="p">,</span>
+            <span class="p">{</span>
+                <span class="kc">True</span><span class="p">:</span> <span class="s2">&quot;execute&quot;</span><span class="p">,</span>
+                <span class="kc">False</span><span class="p">:</span> <span class="s2">&quot;final&quot;</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        
+        <span class="c1"># Set the entry point</span>
+        <span class="n">builder</span><span class="o">.</span><span class="n">set_entry_point</span><span class="p">(</span><span class="s2">&quot;start&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Build and return the graph</span>
+        <span class="k">return</span> <span class="n">builder</span><span class="o">.</span><span class="n">compile</span><span class="p">()</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">start_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the workflow state.&quot;&quot;&quot;</span>
+        <span class="c1"># Get the user query</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;query&quot;</span><span class="p">]</span>
+        
+        <span class="c1"># Initialize response structure</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;analysis&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;plan&quot;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s2">&quot;executions&quot;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s2">&quot;evaluations&quot;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s2">&quot;final_answer&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span>
+        <span class="p">}</span>
+        
+        <span class="c1"># Add memory context if available</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="p">:</span>
+            <span class="n">response</span><span class="p">[</span><span class="s2">&quot;memory_context&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">retrieve_from_memory</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+        
+        <span class="c1"># Update state</span>
+        <span class="n">state</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">response</span>
+        <span class="n">state</span><span class="p">[</span><span class="s2">&quot;iterations&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="k">return</span> <span class="n">state</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">analyze_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Analyze the query.&quot;&quot;&quot;</span>
+        <span class="n">prompt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_prompt</span><span class="p">(</span><span class="s2">&quot;analyze&quot;</span><span class="p">)</span>
+        <span class="n">formatted_prompt</span> <span class="o">=</span> <span class="n">prompt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">query</span><span class="o">=</span><span class="n">state</span><span class="p">[</span><span class="s2">&quot;query&quot;</span><span class="p">],</span>
+            <span class="n">memory_context</span><span class="o">=</span><span class="n">state</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;memory_context&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+        
+        <span class="n">analysis</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_llm</span><span class="p">(</span><span class="n">formatted_prompt</span><span class="p">,</span> <span class="s2">&quot;default&quot;</span><span class="p">)</span>
+        <span class="n">state</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">][</span><span class="s2">&quot;analysis&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">analysis</span>
+        
+        <span class="k">return</span> <span class="n">state</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">plan_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a plan based on analysis.&quot;&quot;&quot;</span>
+        <span class="n">prompt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_prompt</span><span class="p">(</span><span class="s2">&quot;plan&quot;</span><span class="p">)</span>
+        <span class="n">formatted_prompt</span> <span class="o">=</span> <span class="n">prompt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">query</span><span class="o">=</span><span class="n">state</span><span class="p">[</span><span class="s2">&quot;query&quot;</span><span class="p">],</span>
+            <span class="n">analysis</span><span class="o">=</span><span class="n">state</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">][</span><span class="s2">&quot;analysis&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        
+        <span class="n">plan_text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_llm</span><span class="p">(</span><span class="n">formatted_prompt</span><span class="p">,</span> <span class="s2">&quot;default&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Parse plan into steps</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+        <span class="n">steps</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\d+\.\s+(.*)&#39;</span><span class="p">,</span> <span class="n">plan_text</span><span class="p">)</span>
+        <span class="n">state</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">][</span><span class="s2">&quot;plan&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">steps</span>
+        
+        <span class="k">return</span> <span class="n">state</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">execute_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Execute the current step in the plan.&quot;&quot;&quot;</span>
+        <span class="n">current_step_index</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">][</span><span class="s2">&quot;executions&quot;</span><span class="p">])</span>
+        
+        <span class="k">if</span> <span class="n">current_step_index</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">][</span><span class="s2">&quot;plan&quot;</span><span class="p">]):</span>
+            <span class="c1"># No more steps to execute</span>
+            <span class="k">return</span> <span class="n">state</span>
+        
+        <span class="n">current_step</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">][</span><span class="s2">&quot;plan&quot;</span><span class="p">][</span><span class="n">current_step_index</span><span class="p">]</span>
+        
+        <span class="n">prompt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_prompt</span><span class="p">(</span><span class="s2">&quot;execute&quot;</span><span class="p">)</span>
+        <span class="n">formatted_prompt</span> <span class="o">=</span> <span class="n">prompt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">query</span><span class="o">=</span><span class="n">state</span><span class="p">[</span><span class="s2">&quot;query&quot;</span><span class="p">],</span>
+            <span class="n">step</span><span class="o">=</span><span class="n">current_step</span><span class="p">,</span>
+            <span class="n">previous_executions</span><span class="o">=</span><span class="n">state</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">][</span><span class="s2">&quot;executions&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        
+        <span class="n">execution_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_llm</span><span class="p">(</span><span class="n">formatted_prompt</span><span class="p">,</span> <span class="s2">&quot;default&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Check if tool use is needed</span>
+        <span class="n">tool_call</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_tool_call</span><span class="p">(</span><span class="n">execution_result</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">tool_call</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">tool_provider</span><span class="p">:</span>
+            <span class="n">tool_name</span> <span class="o">=</span> <span class="n">tool_call</span><span class="p">[</span><span class="s2">&quot;tool&quot;</span><span class="p">]</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="n">tool_call</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">]</span>
+            
+            <span class="c1"># Execute tool</span>
+            <span class="n">tool_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tool_provider</span><span class="o">.</span><span class="n">execute_tool</span><span class="p">(</span><span class="n">tool_name</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
+            
+            <span class="c1"># Update execution result</span>
+            <span class="n">execution_result</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Tool result: </span><span class="si">{</span><span class="n">tool_result</span><span class="si">}</span><span class="s2">&quot;</span>
+        
+        <span class="c1"># Add to executions</span>
+        <span class="n">state</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">][</span><span class="s2">&quot;executions&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+            <span class="s2">&quot;step&quot;</span><span class="p">:</span> <span class="n">current_step</span><span class="p">,</span>
+            <span class="s2">&quot;result&quot;</span><span class="p">:</span> <span class="n">execution_result</span>
+        <span class="p">})</span>
+        
+        <span class="k">return</span> <span class="n">state</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">evaluate_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluate the current execution.&quot;&quot;&quot;</span>
+        <span class="n">prompt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_prompt</span><span class="p">(</span><span class="s2">&quot;evaluate&quot;</span><span class="p">)</span>
+        
+        <span class="n">current_execution</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">][</span><span class="s2">&quot;executions&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        
+        <span class="n">formatted_prompt</span> <span class="o">=</span> <span class="n">prompt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">query</span><span class="o">=</span><span class="n">state</span><span class="p">[</span><span class="s2">&quot;query&quot;</span><span class="p">],</span>
+            <span class="n">step</span><span class="o">=</span><span class="n">current_execution</span><span class="p">[</span><span class="s2">&quot;step&quot;</span><span class="p">],</span>
+            <span class="n">result</span><span class="o">=</span><span class="n">current_execution</span><span class="p">[</span><span class="s2">&quot;result&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        
+        <span class="n">evaluation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_llm</span><span class="p">(</span><span class="n">formatted_prompt</span><span class="p">,</span> <span class="s2">&quot;default&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Parse evaluation score (0-10)</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+        <span class="n">score_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Score:\s*(\d+)&#39;</span><span class="p">,</span> <span class="n">evaluation</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">score_match</span><span class="p">:</span>
+            <span class="n">score</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">score_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">score</span> <span class="o">=</span> <span class="mi">5</span>  <span class="c1"># Default middle score</span>
+        
+        <span class="c1"># Add to evaluations</span>
+        <span class="n">state</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">][</span><span class="s2">&quot;evaluations&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+            <span class="s2">&quot;step&quot;</span><span class="p">:</span> <span class="n">current_execution</span><span class="p">[</span><span class="s2">&quot;step&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;evaluation&quot;</span><span class="p">:</span> <span class="n">evaluation</span><span class="p">,</span>
+            <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="n">score</span>
+        <span class="p">})</span>
+        
+        <span class="c1"># Increment iterations</span>
+        <span class="n">state</span><span class="p">[</span><span class="s2">&quot;iterations&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        
+        <span class="k">return</span> <span class="n">state</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">should_continue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Determine if execution should continue.&quot;&quot;&quot;</span>
+        <span class="c1"># Check if we&#39;ve reached max iterations</span>
+        <span class="k">if</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;iterations&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_iterations</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        
+        <span class="c1"># Check if we&#39;ve completed all plan steps</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">][</span><span class="s2">&quot;executions&quot;</span><span class="p">])</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">][</span><span class="s2">&quot;plan&quot;</span><span class="p">]):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        
+        <span class="c1"># Check the latest evaluation score</span>
+        <span class="n">latest_eval</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">][</span><span class="s2">&quot;evaluations&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">latest_eval</span><span class="p">[</span><span class="s2">&quot;score&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>  <span class="c1"># Low score indicates issues</span>
+            <span class="c1"># Retry the step, which happens by returning to execute</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        
+        <span class="c1"># Continue to next step</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">final_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate the final answer.&quot;&quot;&quot;</span>
+        <span class="n">prompt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_prompt</span><span class="p">(</span><span class="s2">&quot;final&quot;</span><span class="p">)</span>
+        
+        <span class="n">formatted_prompt</span> <span class="o">=</span> <span class="n">prompt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">query</span><span class="o">=</span><span class="n">state</span><span class="p">[</span><span class="s2">&quot;query&quot;</span><span class="p">],</span>
+            <span class="n">analysis</span><span class="o">=</span><span class="n">state</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">][</span><span class="s2">&quot;analysis&quot;</span><span class="p">],</span>
+            <span class="n">plan</span><span class="o">=</span><span class="n">state</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">][</span><span class="s2">&quot;plan&quot;</span><span class="p">],</span>
+            <span class="n">executions</span><span class="o">=</span><span class="n">state</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">][</span><span class="s2">&quot;executions&quot;</span><span class="p">],</span>
+            <span class="n">evaluations</span><span class="o">=</span><span class="n">state</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">][</span><span class="s2">&quot;evaluations&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        
+        <span class="n">final_answer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_llm</span><span class="p">(</span><span class="n">formatted_prompt</span><span class="p">,</span> <span class="s2">&quot;default&quot;</span><span class="p">)</span>
+        <span class="n">state</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">][</span><span class="s2">&quot;final_answer&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">final_answer</span>
+        
+        <span class="c1"># Save to memory if available</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">save_to_memory</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="s2">&quot;query&quot;</span><span class="p">],</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">])</span>
+        
+        <span class="k">return</span> <span class="n">state</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_parse_tool_call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse tool calls from text.&quot;&quot;&quot;</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+        
+        <span class="n">tool_pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;USE TOOL:\s*({.*})&#39;</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">tool_pattern</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">tool_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+                <span class="k">return</span> <span class="p">{</span>
+                    <span class="s2">&quot;tool&quot;</span><span class="p">:</span> <span class="n">tool_json</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tool&quot;</span><span class="p">),</span>
+                    <span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="n">tool_json</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;parameters&quot;</span><span class="p">,</span> <span class="p">{})</span>
+                <span class="p">}</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">pass</span>
+        
+        <span class="k">return</span> <span class="kc">None</span>
+</pre></div>
+</div>
+<p>Use the custom pattern:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create custom agent</span>
+<span class="n">agent</span> <span class="o">=</span> <span class="n">CustomPatternAgent</span><span class="p">(</span>
+    <span class="n">llm_configs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;provider&quot;</span><span class="p">:</span> <span class="s2">&quot;openai&quot;</span><span class="p">,</span> <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="s2">&quot;gpt-4o&quot;</span><span class="p">}},</span>
+    <span class="n">tool_provider</span><span class="o">=</span><span class="n">tool_provider</span><span class="p">,</span>
+    <span class="n">max_iterations</span><span class="o">=</span><span class="mi">5</span>
+<span class="p">)</span>
+
+<span class="c1"># Run agent</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">&quot;Analyze recent market trends for renewable energy and provide investment recommendations.&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Your Name.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

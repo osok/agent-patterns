@@ -1,0 +1,524 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tool Provider API Documentation &mdash; agent-patterns 0.1.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=a58bc63e"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            agent-patterns
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Tool Provider API Documentation</a><ul>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#core-components">Core Components</a><ul>
+<li><a class="reference internal" href="#toolprovider-interface">ToolProvider Interface</a></li>
+<li><a class="reference internal" href="#tool-format">Tool Format</a></li>
+<li><a class="reference internal" href="#tool-registry">Tool Registry</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#mcp-tool-provider">MCP Tool Provider</a><ul>
+<li><a class="reference internal" href="#mcptoolprovider">MCPToolProvider</a></li>
+<li><a class="reference internal" href="#mcp-server-connection-types">MCP Server Connection Types</a><ul>
+<li><a class="reference internal" href="#standard-input-output-stdio">1. Standard Input/Output (stdio)</a></li>
+<li><a class="reference internal" href="#http-sse-connection-planned-for-future">2. HTTP/SSE Connection (planned for future)</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#mcpserver-class">MCPServer Class</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#integration-with-agents">Integration with Agents</a></li>
+<li><a class="reference internal" href="#creating-custom-tool-providers">Creating Custom Tool Providers</a></li>
+<li><a class="reference internal" href="#creating-mcp-servers">Creating MCP Servers</a><ul>
+<li><a class="reference internal" href="#simple-mcp-server-example">Simple MCP Server Example</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#exception-handling">Exception Handling</a><ul>
+<li><a class="reference internal" href="#toolnotfounderror">ToolNotFoundError</a></li>
+<li><a class="reference internal" href="#toolexecutionerror">ToolExecutionError</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#best-practices">Best Practices</a></li>
+<li><a class="reference internal" href="#examples">Examples</a></li>
+<li><a class="reference internal" href="#conclusion">Conclusion</a></li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">agent-patterns</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Tool Provider API Documentation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/Tool Provider API Documentation.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="tool-provider-api-documentation">
+<h1>Tool Provider API Documentation<a class="headerlink" href="#tool-provider-api-documentation" title="Link to this heading"></a></h1>
+<p>This document provides detailed information about the tool provider system implementation in the agent-patterns library.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>The agent-patterns tool provider system offers a standardized way for agents to discover and use various tools without tightly coupling to specific implementations. This capability is crucial for creating flexible, powerful agents that can interact with external systems.</p>
+<p>The tool provider system is designed to be:</p>
+<ul class="simple">
+<li><p><strong>Extensible</strong>: Support for multiple tool provider implementations</p></li>
+<li><p><strong>Interoperable</strong>: Consistent interface across all agent patterns</p></li>
+<li><p><strong>Standardized</strong>: Unified format for tool definitions and parameters</p></li>
+<li><p><strong>Modular</strong>: Ability to combine tools from different providers</p></li>
+</ul>
+</section>
+<section id="core-components">
+<h2>Core Components<a class="headerlink" href="#core-components" title="Link to this heading"></a></h2>
+<section id="toolprovider-interface">
+<h3>ToolProvider Interface<a class="headerlink" href="#toolprovider-interface" title="Link to this heading"></a></h3>
+<p>All tool providers implement the abstract <code class="docutils literal notranslate"><span class="pre">ToolProvider</span></code> interface, which defines the contract for tool discovery and execution:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Any</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ToolProvider</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract interface for tool providers.&quot;&quot;&quot;</span>
+    
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">list_tools</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;List available tools with their metadata.&quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+    
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">execute_tool</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tool_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Execute a tool with the given parameters.&quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+</pre></div>
+</div>
+</section>
+<section id="tool-format">
+<h3>Tool Format<a class="headerlink" href="#tool-format" title="Link to this heading"></a></h3>
+<p>Tools are specified using a standardized format, ensuring consistency across different providers:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">tool_spec</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;calculator&quot;</span><span class="p">,</span>                <span class="c1"># Unique tool identifier</span>
+    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Perform calculations&quot;</span><span class="p">,</span> <span class="c1"># Human-readable description</span>
+    <span class="s2">&quot;parameters&quot;</span><span class="p">:</span> <span class="p">{</span>                       <span class="c1"># Parameters specification</span>
+        <span class="s2">&quot;expression&quot;</span><span class="p">:</span> <span class="p">{</span>                   <span class="c1"># Parameter name</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>             <span class="c1"># Parameter type</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Mathematical expression to evaluate&quot;</span>  <span class="c1"># Parameter description</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="tool-registry">
+<h3>Tool Registry<a class="headerlink" href="#tool-registry" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">ToolRegistry</span></code> class provides a way to combine and manage multiple tool providers:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools.registry</span><span class="w"> </span><span class="kn">import</span> <span class="n">ToolRegistry</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">ToolProvider</span>
+
+<span class="c1"># Create tool providers</span>
+<span class="n">provider1</span> <span class="o">=</span> <span class="n">SomeToolProvider</span><span class="p">()</span>
+<span class="n">provider2</span> <span class="o">=</span> <span class="n">AnotherToolProvider</span><span class="p">()</span>
+
+<span class="c1"># Create registry with multiple providers</span>
+<span class="n">registry</span> <span class="o">=</span> <span class="n">ToolRegistry</span><span class="p">([</span><span class="n">provider1</span><span class="p">,</span> <span class="n">provider2</span><span class="p">])</span>
+
+<span class="c1"># List all tools from all providers</span>
+<span class="n">all_tools</span> <span class="o">=</span> <span class="n">registry</span><span class="o">.</span><span class="n">list_tools</span><span class="p">()</span>
+
+<span class="c1"># Execute a tool (automatically finds the right provider)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">registry</span><span class="o">.</span><span class="n">execute_tool</span><span class="p">(</span><span class="s2">&quot;tool_name&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;param1&quot;</span><span class="p">:</span> <span class="s2">&quot;value1&quot;</span><span class="p">})</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="mcp-tool-provider">
+<h2>MCP Tool Provider<a class="headerlink" href="#mcp-tool-provider" title="Link to this heading"></a></h2>
+<p>The library includes a built-in implementation of the Model Context Protocol (MCP), allowing you to connect to any MCP-compatible tool servers.</p>
+<section id="mcptoolprovider">
+<h3>MCPToolProvider<a class="headerlink" href="#mcptoolprovider" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">MCPToolProvider</span></code> class allows agents to connect to one or more MCP servers:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools.providers.mcp_provider</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">MCPToolProvider</span><span class="p">,</span> 
+    <span class="n">create_mcp_server_connection</span>
+<span class="p">)</span>
+
+<span class="c1"># Create MCP server connections</span>
+<span class="n">mcp_servers</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">create_mcp_server_connection</span><span class="p">(</span><span class="s2">&quot;stdio&quot;</span><span class="p">,</span> <span class="p">{</span>
+        <span class="s2">&quot;command&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;search_server.py&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;working_dir&quot;</span><span class="p">:</span> <span class="s2">&quot;./mcp_servers&quot;</span>
+    <span class="p">}),</span>
+    <span class="n">create_mcp_server_connection</span><span class="p">(</span><span class="s2">&quot;stdio&quot;</span><span class="p">,</span> <span class="p">{</span>
+        <span class="s2">&quot;command&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;calculator_server.py&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;working_dir&quot;</span><span class="p">:</span> <span class="s2">&quot;./mcp_servers&quot;</span>
+    <span class="p">})</span>
+<span class="p">]</span>
+
+<span class="c1"># Create the tool provider</span>
+<span class="n">tool_provider</span> <span class="o">=</span> <span class="n">MCPToolProvider</span><span class="p">(</span><span class="n">mcp_servers</span><span class="p">)</span>
+
+<span class="c1"># List available tools</span>
+<span class="n">tools</span> <span class="o">=</span> <span class="n">tool_provider</span><span class="o">.</span><span class="n">list_tools</span><span class="p">()</span>
+
+<span class="c1"># Execute a tool</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">tool_provider</span><span class="o">.</span><span class="n">execute_tool</span><span class="p">(</span><span class="s2">&quot;search&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;query&quot;</span><span class="p">:</span> <span class="s2">&quot;quantum physics&quot;</span><span class="p">})</span>
+</pre></div>
+</div>
+</section>
+<section id="mcp-server-connection-types">
+<h3>MCP Server Connection Types<a class="headerlink" href="#mcp-server-connection-types" title="Link to this heading"></a></h3>
+<p>The library supports multiple ways to connect to MCP servers:</p>
+<section id="standard-input-output-stdio">
+<h4>1. Standard Input/Output (stdio)<a class="headerlink" href="#standard-input-output-stdio" title="Link to this heading"></a></h4>
+<p>Spawns an MCP server process and communicates via standard input/output:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">stdio_server</span> <span class="o">=</span> <span class="n">create_mcp_server_connection</span><span class="p">(</span><span class="s2">&quot;stdio&quot;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s2">&quot;command&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;calculator_server.py&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;working_dir&quot;</span><span class="p">:</span> <span class="s2">&quot;./examples/mcp_servers&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;env&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;DEBUG&quot;</span><span class="p">:</span> <span class="s2">&quot;true&quot;</span><span class="p">}</span>  <span class="c1"># Optional environment variables</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+</section>
+<section id="http-sse-connection-planned-for-future">
+<h4>2. HTTP/SSE Connection (planned for future)<a class="headerlink" href="#http-sse-connection-planned-for-future" title="Link to this heading"></a></h4>
+<p>Connect to a remote MCP server via HTTP or Server-Sent Events:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sse_server</span> <span class="o">=</span> <span class="n">create_mcp_server_connection</span><span class="p">(</span><span class="s2">&quot;sse&quot;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;http://localhost:8080/mcp&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;headers&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;Authorization&quot;</span><span class="p">:</span> <span class="s2">&quot;Bearer token&quot;</span><span class="p">}</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="mcpserver-class">
+<h3>MCPServer Class<a class="headerlink" href="#mcpserver-class" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">MCPServer</span></code> class handles the low-level details of communicating with an MCP server:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools.providers.mcp_provider</span><span class="w"> </span><span class="kn">import</span> <span class="n">MCPServer</span>
+
+<span class="c1"># Create server (usually you would use create_mcp_server_connection instead)</span>
+<span class="n">server</span> <span class="o">=</span> <span class="n">MCPServer</span><span class="p">(</span>
+    <span class="n">command</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;server.py&quot;</span><span class="p">],</span>
+    <span class="n">working_dir</span><span class="o">=</span><span class="s2">&quot;./servers&quot;</span><span class="p">,</span>
+    <span class="n">env</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;API_KEY&quot;</span><span class="p">:</span> <span class="s2">&quot;secret&quot;</span><span class="p">},</span>
+    <span class="n">server_id</span><span class="o">=</span><span class="s2">&quot;search-server&quot;</span>
+<span class="p">)</span>
+
+<span class="c1"># Start the server</span>
+<span class="n">server</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+<span class="c1"># List tools</span>
+<span class="n">tools</span> <span class="o">=</span> <span class="n">server</span><span class="o">.</span><span class="n">list_tools</span><span class="p">()</span>
+
+<span class="c1"># Call a tool</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">server</span><span class="o">.</span><span class="n">call_tool</span><span class="p">(</span><span class="s2">&quot;tool_name&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;param&quot;</span><span class="p">:</span> <span class="s2">&quot;value&quot;</span><span class="p">})</span>
+
+<span class="c1"># Stop the server when done</span>
+<span class="n">server</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="integration-with-agents">
+<h2>Integration with Agents<a class="headerlink" href="#integration-with-agents" title="Link to this heading"></a></h2>
+<p>All agent patterns in the library support tool provider integration through the <code class="docutils literal notranslate"><span class="pre">BaseAgent</span></code> class:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.patterns.re_act_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReActAgent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools.providers.mcp_provider</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">MCPToolProvider</span><span class="p">,</span> 
+    <span class="n">create_mcp_server_connection</span>
+<span class="p">)</span>
+
+<span class="c1"># Create MCP server connection</span>
+<span class="n">mcp_server</span> <span class="o">=</span> <span class="n">create_mcp_server_connection</span><span class="p">(</span><span class="s2">&quot;stdio&quot;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s2">&quot;command&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;calculator_server.py&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;working_dir&quot;</span><span class="p">:</span> <span class="s2">&quot;./examples/mcp_servers&quot;</span>
+<span class="p">})</span>
+
+<span class="c1"># Create tool provider</span>
+<span class="n">tool_provider</span> <span class="o">=</span> <span class="n">MCPToolProvider</span><span class="p">([</span><span class="n">mcp_server</span><span class="p">])</span>
+
+<span class="c1"># Create agent with tool provider</span>
+<span class="n">agent</span> <span class="o">=</span> <span class="n">ReActAgent</span><span class="p">(</span>
+    <span class="n">llm_configs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;provider&quot;</span><span class="p">:</span> <span class="s2">&quot;openai&quot;</span><span class="p">,</span> <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="s2">&quot;gpt-4o&quot;</span><span class="p">}},</span>
+    <span class="n">tool_provider</span><span class="o">=</span><span class="n">tool_provider</span>
+<span class="p">)</span>
+
+<span class="c1"># Run the agent (will have access to tools)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">&quot;Calculate the square root of 144&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="creating-custom-tool-providers">
+<h2>Creating Custom Tool Providers<a class="headerlink" href="#creating-custom-tool-providers" title="Link to this heading"></a></h2>
+<p>You can create custom tool providers by implementing the <code class="docutils literal notranslate"><span class="pre">ToolProvider</span></code> interface:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">ToolProvider</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Any</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">CustomToolProvider</span><span class="p">(</span><span class="n">ToolProvider</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A custom tool provider implementation.&quot;&quot;&quot;</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the tool provider.&quot;&quot;&quot;</span>
+        <span class="c1"># Initialize any resources needed</span>
+        <span class="k">pass</span>
+        
+    <span class="k">def</span><span class="w"> </span><span class="nf">list_tools</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;List the available tools.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;custom_tool&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Description of what the tool does&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;parameters&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;param1&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Description of parameter 1&quot;</span>
+                    <span class="p">},</span>
+                    <span class="s2">&quot;param2&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;integer&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Description of parameter 2&quot;</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">]</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">execute_tool</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tool_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Execute the requested tool with the provided parameters.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">tool_name</span> <span class="o">==</span> <span class="s2">&quot;custom_tool&quot;</span><span class="p">:</span>
+            <span class="c1"># Implement tool logic here</span>
+            <span class="n">param1</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;param1&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="n">param2</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;param2&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            
+            <span class="c1"># Process and return result</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Processed </span><span class="si">{</span><span class="n">param1</span><span class="si">}</span><span class="s2"> with </span><span class="si">{</span><span class="n">param2</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Handle unknown tool</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">ToolNotFoundError</span>
+            <span class="k">raise</span> <span class="n">ToolNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tool &#39;</span><span class="si">{</span><span class="n">tool_name</span><span class="si">}</span><span class="s2">&#39; not found&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="creating-mcp-servers">
+<h2>Creating MCP Servers<a class="headerlink" href="#creating-mcp-servers" title="Link to this heading"></a></h2>
+<p>While the agent-patterns library is focused on the client side of MCP, you can create your own MCP-compatible servers that agents can connect to:</p>
+<section id="simple-mcp-server-example">
+<h3>Simple MCP Server Example<a class="headerlink" href="#simple-mcp-server-example" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+
+<span class="c1"># Available tools</span>
+<span class="n">TOOLS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;echo&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Echoes the input text&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;parameters&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Text to echo&quot;</span><span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">]</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">handle_message</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Handle incoming MCP messages.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">message</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;handshake&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;handshake_response&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;success&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;v1&quot;</span>
+        <span class="p">}</span>
+    <span class="k">elif</span> <span class="n">message</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;list_tools&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;list_tools_response&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;success&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;tools&quot;</span><span class="p">:</span> <span class="n">TOOLS</span>
+        <span class="p">}</span>
+    <span class="k">elif</span> <span class="n">message</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;call_tool&quot;</span><span class="p">:</span>
+        <span class="n">tool_name</span> <span class="o">=</span> <span class="n">message</span><span class="p">[</span><span class="s2">&quot;tool&quot;</span><span class="p">]</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="n">message</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">]</span>
+        
+        <span class="k">if</span> <span class="n">tool_name</span> <span class="o">==</span> <span class="s2">&quot;echo&quot;</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;text&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;call_tool_response&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;success&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;result&quot;</span><span class="p">:</span> <span class="n">result</span>
+            <span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;call_tool_response&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;error_type&quot;</span><span class="p">:</span> <span class="s2">&quot;tool_not_found&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Tool &#39;</span><span class="si">{</span><span class="n">tool_name</span><span class="si">}</span><span class="s2">&#39; not found&quot;</span>
+            <span class="p">}</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Unknown message type: </span><span class="si">{</span><span class="n">message</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">}</span>
+
+<span class="c1"># Main loop</span>
+<span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">handle_message</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">response</span><span class="p">),</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Invalid JSON&quot;</span><span class="p">}),</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}),</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="exception-handling">
+<h2>Exception Handling<a class="headerlink" href="#exception-handling" title="Link to this heading"></a></h2>
+<p>The tool provider system defines specific exceptions for error handling:</p>
+<section id="toolnotfounderror">
+<h3>ToolNotFoundError<a class="headerlink" href="#toolnotfounderror" title="Link to this heading"></a></h3>
+<p>Raised when a requested tool doesn’t exist:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">ToolNotFoundError</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">tool_provider</span><span class="o">.</span><span class="n">execute_tool</span><span class="p">(</span><span class="s2">&quot;nonexistent_tool&quot;</span><span class="p">,</span> <span class="p">{})</span>
+<span class="k">except</span> <span class="n">ToolNotFoundError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tool not found: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="toolexecutionerror">
+<h3>ToolExecutionError<a class="headerlink" href="#toolexecutionerror" title="Link to this heading"></a></h3>
+<p>Raised when a tool execution fails:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">ToolExecutionError</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">tool_provider</span><span class="o">.</span><span class="n">execute_tool</span><span class="p">(</span><span class="s2">&quot;calculator&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;expression&quot;</span><span class="p">:</span> <span class="s2">&quot;1/0&quot;</span><span class="p">})</span>
+<span class="k">except</span> <span class="n">ToolExecutionError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tool execution failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="best-practices">
+<h2>Best Practices<a class="headerlink" href="#best-practices" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>Tool Design</strong>:</p>
+<ul class="simple">
+<li><p>Use clear, descriptive names for tools and parameters</p></li>
+<li><p>Provide comprehensive descriptions of what each tool does</p></li>
+<li><p>Properly specify parameter types and constraints</p></li>
+<li><p>Keep tools focused on doing one thing well</p></li>
+</ul>
+</li>
+<li><p><strong>Error Handling</strong>:</p>
+<ul class="simple">
+<li><p>Always handle tool execution errors in your agents</p></li>
+<li><p>Provide specific error messages that help diagnose issues</p></li>
+<li><p>Use the appropriate exception types for different error cases</p></li>
+</ul>
+</li>
+<li><p><strong>Performance</strong>:</p>
+<ul class="simple">
+<li><p>Consider caching tool descriptions when appropriate</p></li>
+<li><p>Reuse tool provider instances rather than creating new ones for each call</p></li>
+<li><p>For long-running agents, consider connection management strategies</p></li>
+</ul>
+</li>
+<li><p><strong>Security</strong>:</p>
+<ul class="simple">
+<li><p>Validate inputs before passing them to tools</p></li>
+<li><p>Be cautious about exposing sensitive operations through tools</p></li>
+<li><p>Consider implementing access controls for different tools</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Link to this heading"></a></h2>
+<p>The library includes several examples demonstrating tool provider usage:</p>
+<ol class="arabic simple">
+<li><p><strong>Basic MCP Integration</strong>: <code class="docutils literal notranslate"><span class="pre">examples/mcp/mcp_example.py</span></code></p></li>
+<li><p><strong>Custom Tool Provider</strong>: <code class="docutils literal notranslate"><span class="pre">examples/mcp/custom_provider_example.py</span></code></p></li>
+<li><p><strong>MCP Server Implementation</strong>: <code class="docutils literal notranslate"><span class="pre">examples/mcp_servers/calculator_server.py</span></code></p></li>
+<li><p><strong>Combined Memory and Tools</strong>: <code class="docutils literal notranslate"><span class="pre">examples/combined_memory_tools_example.py</span></code></p></li>
+</ol>
+<p>For a full working example of an agent using tools, see the examples directory in the repository.</p>
+</section>
+<section id="conclusion">
+<h2>Conclusion<a class="headerlink" href="#conclusion" title="Link to this heading"></a></h2>
+<p>The tool provider system offers a powerful, flexible way to extend agent capabilities through external tools. By using a standardized interface, agents can leverage a wide range of tools without being tightly coupled to specific implementations.</p>
+<p>For more information on the MCP standard, see the <a class="reference external" href="https://modelcontextprotocol.io/">Model Context Protocol specification</a>.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Your Name.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

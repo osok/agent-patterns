@@ -1,0 +1,187 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agent Patterns Documentation &mdash; agent-patterns 0.1.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=a58bc63e"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="#" class="icon icon-home">
+            agent-patterns
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Agent Patterns Documentation</a><ul>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#core-components">Core Components</a></li>
+<li><a class="reference internal" href="#patterns">Patterns</a></li>
+<li><a class="reference internal" href="#getting-started">Getting Started</a></li>
+<li><a class="reference internal" href="#examples">Examples</a></li>
+<li><a class="reference internal" href="#contributing">Contributing</a></li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">agent-patterns</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Agent Patterns Documentation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/index.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="agent-patterns-documentation">
+<h1>Agent Patterns Documentation<a class="headerlink" href="#agent-patterns-documentation" title="Link to this heading"></a></h1>
+<p>Welcome to the Agent Patterns documentation. This project provides a collection of reusable agent patterns for building sophisticated AI agents.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>Agent Patterns is a library that implements various agent architectures and patterns for large language model (LLM) applications. It provides a structured approach to building agents that can reason, use tools, maintain memory, and adapt their strategies.</p>
+</section>
+<section id="core-components">
+<h2>Core Components<a class="headerlink" href="#core-components" title="Link to this heading"></a></h2>
+<p>The library is built around these fundamental components:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="core/base_agent.html"><span class="std std-doc">Base Agent</span></a>: The foundation for all agent patterns</p></li>
+<li><p><a class="reference internal" href="core/memory.html"><span class="std std-doc">Memory System</span></a>: Enables agents to store and retrieve information</p></li>
+<li><p><a class="reference internal" href="core/tools.html"><span class="std std-doc">Tool System</span></a>: Allows agents to interact with external systems</p></li>
+</ul>
+</section>
+<section id="patterns">
+<h2>Patterns<a class="headerlink" href="#patterns" title="Link to this heading"></a></h2>
+<p>The library includes the following agent patterns:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="patterns/re_act.html"><span class="std std-doc">ReAct</span></a>: Reason + Act pattern for alternating between reasoning and action</p></li>
+<li><p><a class="reference internal" href="patterns/reflexion.html"><span class="std std-doc">Reflexion</span></a>: ReAct with reflection capabilities for self-improvement</p></li>
+<li><p><a class="reference internal" href="patterns/llm_compiler.html"><span class="std std-doc">LLM Compiler</span></a>: Compilation-like approach separating planning from execution</p></li>
+<li><p><a class="reference internal" href="patterns/self_discovery.html"><span class="std std-doc">Self-Discovery</span></a>: Agents that discover their own capabilities</p></li>
+<li><p><a class="reference internal" href="patterns/lats.html"><span class="std std-doc">LATS</span></a>: LangChain Agents Tracing System for observability</p></li>
+<li><p><a class="reference internal" href="patterns/reflection.html"><span class="std std-doc">Reflection</span></a>: Periodic reflection for strategic adjustment</p></li>
+<li><p><a class="reference internal" href="patterns/rewoo.html"><span class="std std-doc">ReWOO</span></a>: Reason, World model, Observe, Outcome for simulation</p></li>
+<li><p><a class="reference internal" href="patterns/reflection_and_refinement.html"><span class="std std-doc">Reflection and Refinement</span></a>: Structured reflection with explicit refinement</p></li>
+<li><p><a class="reference internal" href="patterns/plan_and_solve.html"><span class="std std-doc">Plan and Solve</span></a>: Two-phase approach with planning and step execution</p></li>
+<li><p><a class="reference internal" href="patterns/storm.html"><span class="std std-doc">STORM</span></a>: Comprehensive metacognitive framework for reasoning</p></li>
+</ul>
+<p>For a comparison and selection guide, see the <a class="reference internal" href="patterns/index.html"><span class="std std-doc">Patterns Overview</span></a>.</p>
+</section>
+<section id="getting-started">
+<h2>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading"></a></h2>
+<p>To use Agent Patterns in your project:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.patterns</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReActAgent</span><span class="p">,</span> <span class="n">ReflexionAgent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">ToolRegistry</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompositeMemory</span><span class="p">,</span> <span class="n">EpisodicMemory</span>
+
+<span class="c1"># Create tool registry with your tools</span>
+<span class="n">tool_registry</span> <span class="o">=</span> <span class="n">ToolRegistry</span><span class="p">([</span><span class="n">your_tools</span><span class="p">])</span>
+
+<span class="c1"># Create memory system</span>
+<span class="n">memory</span> <span class="o">=</span> <span class="n">CompositeMemory</span><span class="p">({</span>
+    <span class="s2">&quot;episodic&quot;</span><span class="p">:</span> <span class="n">EpisodicMemory</span><span class="p">()</span>
+<span class="p">})</span>
+
+<span class="c1"># Configure LLM</span>
+<span class="n">llm_configs</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;provider&quot;</span><span class="p">:</span> <span class="s2">&quot;openai&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="s2">&quot;gpt-4o&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mf">0.7</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1"># Initialize an agent</span>
+<span class="n">agent</span> <span class="o">=</span> <span class="n">ReActAgent</span><span class="p">(</span>
+    <span class="n">llm_configs</span><span class="o">=</span><span class="n">llm_configs</span><span class="p">,</span>
+    <span class="n">tool_provider</span><span class="o">=</span><span class="n">tool_registry</span><span class="p">,</span>
+    <span class="n">memory</span><span class="o">=</span><span class="n">memory</span>
+<span class="p">)</span>
+
+<span class="c1"># Run the agent</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">&quot;Your task or query here&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Link to this heading"></a></h2>
+<p>Check the <code class="docutils literal notranslate"><span class="pre">examples/</span></code> directory for implementation examples of each pattern.</p>
+</section>
+<section id="contributing">
+<h2>Contributing<a class="headerlink" href="#contributing" title="Link to this heading"></a></h2>
+<p>Contributions to Agent Patterns are welcome! See the <a class="reference external" href="https://github.com/your-repo/agent-patterns">GitHub repository</a> for more information.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Your Name.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,354 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Base Agent &mdash; agent-patterns 0.1.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a58bc63e"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            agent-patterns
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Base Agent</a><ul>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#core-features">Core Features</a><ul>
+<li><a class="reference internal" href="#llm-management">LLM Management</a></li>
+<li><a class="reference internal" href="#tool-integration">Tool Integration</a></li>
+<li><a class="reference internal" href="#memory-integration">Memory Integration</a></li>
+<li><a class="reference internal" href="#prompt-management">Prompt Management</a></li>
+<li><a class="reference internal" href="#graph-building-and-execution">Graph Building and Execution</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#implementation-details">Implementation Details</a><ul>
+<li><a class="reference internal" href="#abstract-methods">Abstract Methods</a></li>
+<li><a class="reference internal" href="#common-methods">Common Methods</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#usage-example">Usage Example</a></li>
+<li><a class="reference internal" href="#design-considerations">Design Considerations</a></li>
+<li><a class="reference internal" href="#related-documentation">Related Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">agent-patterns</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Base Agent</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/core/base_agent.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="base-agent">
+<h1>Base Agent<a class="headerlink" href="#base-agent" title="Link to this heading"></a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">BaseAgent</span></code> class is the foundation of all agent patterns in the library. It provides the core functionality and interfaces that every agent pattern builds upon.</p>
+<p><img alt="Base Agent Class Diagram" src="../_images/base_agent.png" /></p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">BaseAgent</span></code> is an abstract base class that defines the common structure and capabilities that all agent patterns share. It handles:</p>
+<ul class="simple">
+<li><p>LLM configuration and management</p></li>
+<li><p>Tool integration</p></li>
+<li><p>Memory access</p></li>
+<li><p>Prompt management</p></li>
+<li><p>Graph building and execution</p></li>
+</ul>
+<p>By standardizing these components, <code class="docutils literal notranslate"><span class="pre">BaseAgent</span></code> allows pattern implementations to focus on their unique behaviors while maintaining a consistent interface and capabilities.</p>
+</section>
+<section id="core-features">
+<h2>Core Features<a class="headerlink" href="#core-features" title="Link to this heading"></a></h2>
+<section id="llm-management">
+<h3>LLM Management<a class="headerlink" href="#llm-management" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">BaseAgent</span></code> class provides a unified way to configure and access language models:</p>
+<ul class="simple">
+<li><p><strong>Multiple LLM Configurations</strong>: Support for different LLM configurations for different roles (e.g., planning, execution, reflection)</p></li>
+<li><p><strong>LLM Caching</strong>: Efficient reuse of LLM instances</p></li>
+<li><p><strong>Provider Abstraction</strong>: Support for different LLM providers (OpenAI, Anthropic, etc.)</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example LLM configuration</span>
+<span class="n">llm_configs</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;provider&quot;</span><span class="p">:</span> <span class="s2">&quot;openai&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="s2">&quot;gpt-4o&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mf">0.7</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;reflection&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;provider&quot;</span><span class="p">:</span> <span class="s2">&quot;anthropic&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="s2">&quot;claude-3-sonnet-20240229&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mf">0.5</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1"># The agent will automatically manage these LLMs</span>
+<span class="n">agent</span> <span class="o">=</span> <span class="n">SomeAgent</span><span class="p">(</span><span class="n">llm_configs</span><span class="o">=</span><span class="n">llm_configs</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="tool-integration">
+<h3>Tool Integration<a class="headerlink" href="#tool-integration" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">BaseAgent</span></code> class provides a standardized way to integrate tools:</p>
+<ul class="simple">
+<li><p><strong>Tool Provider Interface</strong>: Abstract interface for tool providers</p></li>
+<li><p><strong>Tool Execution</strong>: Methods for executing tools and handling results</p></li>
+<li><p><strong>Tool Discovery</strong>: Support for discovering available tools</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example tool integration</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">ToolRegistry</span>
+
+<span class="c1"># Create a tool registry</span>
+<span class="n">tool_registry</span> <span class="o">=</span> <span class="n">ToolRegistry</span><span class="p">([</span><span class="n">some_tool</span><span class="p">,</span> <span class="n">another_tool</span><span class="p">])</span>
+
+<span class="c1"># Pass to the agent</span>
+<span class="n">agent</span> <span class="o">=</span> <span class="n">SomeAgent</span><span class="p">(</span>
+    <span class="n">llm_configs</span><span class="o">=</span><span class="n">llm_configs</span><span class="p">,</span>
+    <span class="n">tool_provider</span><span class="o">=</span><span class="n">tool_registry</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="memory-integration">
+<h3>Memory Integration<a class="headerlink" href="#memory-integration" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">BaseAgent</span></code> class provides built-in memory capabilities:</p>
+<ul class="simple">
+<li><p><strong>Memory Retrieval</strong>: Methods to retrieve relevant memories</p></li>
+<li><p><strong>Memory Storage</strong>: Methods to save important information</p></li>
+<li><p><strong>Memory Configuration</strong>: Control over which memory types are active</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example memory integration</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompositeMemory</span><span class="p">,</span> <span class="n">EpisodicMemory</span>
+
+<span class="c1"># Create memory</span>
+<span class="n">memory</span> <span class="o">=</span> <span class="n">CompositeMemory</span><span class="p">({</span>
+    <span class="s2">&quot;episodic&quot;</span><span class="p">:</span> <span class="n">EpisodicMemory</span><span class="p">()</span>
+<span class="p">})</span>
+
+<span class="c1"># Pass to agent with configuration</span>
+<span class="n">agent</span> <span class="o">=</span> <span class="n">SomeAgent</span><span class="p">(</span>
+    <span class="n">llm_configs</span><span class="o">=</span><span class="n">llm_configs</span><span class="p">,</span>
+    <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
+    <span class="n">memory_config</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;episodic&quot;</span><span class="p">:</span> <span class="kc">True</span>  <span class="c1"># Enable episodic memory</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="prompt-management">
+<h3>Prompt Management<a class="headerlink" href="#prompt-management" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">BaseAgent</span></code> class defines a standardized way to manage prompts:</p>
+<ul class="simple">
+<li><p><strong>External Prompt Storage</strong>: Prompts stored in files outside of code</p></li>
+<li><p><strong>Hierarchical Structure</strong>: Organized by pattern and function</p></li>
+<li><p><strong>Template Loading</strong>: Methods to load and fill templates</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Prompts are stored in:</span>
+<span class="c1"># prompts/AgentClassName/PromptName/system.md</span>
+<span class="c1"># prompts/AgentClassName/PromptName/user.md</span>
+
+<span class="c1"># And loaded automatically:</span>
+<span class="n">prompt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_prompt_template</span><span class="p">(</span><span class="s2">&quot;ThinkingPrompt&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="graph-building-and-execution">
+<h3>Graph Building and Execution<a class="headerlink" href="#graph-building-and-execution" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">BaseAgent</span></code> class uses LangGraph for execution flow:</p>
+<ul class="simple">
+<li><p><strong>Abstract Graph Building</strong>: Each pattern must implement its graph structure</p></li>
+<li><p><strong>Standard Execution</strong>: Common methods for running the agent</p></li>
+<li><p><strong>Streaming Support</strong>: Optional streaming interface for incremental results</p></li>
+</ul>
+</section>
+</section>
+<section id="implementation-details">
+<h2>Implementation Details<a class="headerlink" href="#implementation-details" title="Link to this heading"></a></h2>
+<section id="abstract-methods">
+<h3>Abstract Methods<a class="headerlink" href="#abstract-methods" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">BaseAgent</span></code> class defines these abstract methods that all patterns must implement:</p>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">build_graph()</span></code></strong>: Define the LangGraph structure for the pattern</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">run(input_data)</span></code></strong>: Execute the agent with the given input</p></li>
+</ul>
+</section>
+<section id="common-methods">
+<h3>Common Methods<a class="headerlink" href="#common-methods" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">BaseAgent</span></code> class provides these common methods:</p>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">_get_llm(role)</span></code></strong>: Get an LLM for a specific role</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">_load_prompt_template(name)</span></code></strong>: Load a prompt template</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">_retrieve_memories(query)</span></code></strong>: Retrieve relevant memories</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">sync_retrieve_memories(query)</span></code></strong>: Synchronous version of memory retrieval</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">_save_memory(memory_type,</span> <span class="pre">item,</span> <span class="pre">**metadata)</span></code></strong>: Save to memory</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">sync_save_memory(memory_type,</span> <span class="pre">item,</span> <span class="pre">**metadata)</span></code></strong>: Synchronous version of memory saving</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">on_start()</span></code></strong>: Lifecycle hook before execution</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">on_finish()</span></code></strong>: Lifecycle hook after execution</p></li>
+</ul>
+</section>
+</section>
+<section id="usage-example">
+<h2>Usage Example<a class="headerlink" href="#usage-example" title="Link to this heading"></a></h2>
+<p>Here’s a simple example of how to use methods provided by <code class="docutils literal notranslate"><span class="pre">BaseAgent</span></code> in a pattern implementation:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.base_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseAgent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">langgraph.graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">StateGraph</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">MyCustomAgent</span><span class="p">(</span><span class="n">BaseAgent</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">build_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">graph</span> <span class="o">=</span> <span class="n">StateGraph</span><span class="p">(</span><span class="n">MyState</span><span class="p">)</span>
+        
+        <span class="c1"># Define nodes</span>
+        <span class="n">graph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">&quot;think&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_think</span><span class="p">)</span>
+        <span class="n">graph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">&quot;act&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_act</span><span class="p">)</span>
+        
+        <span class="c1"># Define edges</span>
+        <span class="n">graph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;think&quot;</span><span class="p">,</span> <span class="s2">&quot;act&quot;</span><span class="p">)</span>
+        <span class="n">graph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;act&quot;</span><span class="p">,</span> <span class="s2">&quot;think&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Set entry point</span>
+        <span class="n">graph</span><span class="o">.</span><span class="n">set_entry_point</span><span class="p">(</span><span class="s2">&quot;think&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Compile</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">graph</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">compile</span><span class="p">()</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_think</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">MyState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+        <span class="c1"># Get the LLM for thinking</span>
+        <span class="n">llm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_llm</span><span class="p">(</span><span class="s2">&quot;default&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Load prompt</span>
+        <span class="n">prompt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_prompt_template</span><span class="p">(</span><span class="s2">&quot;ThinkingPrompt&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Retrieve relevant memories</span>
+        <span class="n">memories</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sync_retrieve_memories</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">input</span><span class="p">)</span>
+        
+        <span class="c1"># Generate thinking</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">llm</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">prompt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="nb">input</span><span class="o">=</span><span class="n">state</span><span class="o">.</span><span class="n">input</span><span class="p">,</span>
+            <span class="n">memories</span><span class="o">=</span><span class="n">memories</span>
+        <span class="p">))</span>
+        
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;thinking&quot;</span><span class="p">:</span> <span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">}</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_act</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">MyState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+        <span class="c1"># Execute tool if needed</span>
+        <span class="k">if</span> <span class="n">state</span><span class="o">.</span><span class="n">tool_to_use</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tool_provider</span><span class="o">.</span><span class="n">execute_tool</span><span class="p">(</span>
+                <span class="n">state</span><span class="o">.</span><span class="n">tool_to_use</span><span class="p">,</span> 
+                <span class="n">state</span><span class="o">.</span><span class="n">tool_input</span>
+            <span class="p">)</span>
+            
+            <span class="c1"># Save to memory</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sync_save_memory</span><span class="p">(</span>
+                <span class="s2">&quot;episodic&quot;</span><span class="p">,</span> 
+                <span class="sa">f</span><span class="s2">&quot;Used </span><span class="si">{</span><span class="n">state</span><span class="o">.</span><span class="n">tool_to_use</span><span class="si">}</span><span class="s2"> with result: </span><span class="si">{</span><span class="n">result</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;observation&quot;</span><span class="p">:</span> <span class="n">result</span><span class="p">}</span>
+        
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;observation&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_data</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">on_start</span><span class="p">()</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">invoke</span><span class="p">({</span><span class="s2">&quot;input&quot;</span><span class="p">:</span> <span class="n">input_data</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">on_finish</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;output&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="design-considerations">
+<h2>Design Considerations<a class="headerlink" href="#design-considerations" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">BaseAgent</span></code> class follows these design principles:</p>
+<ol class="arabic simple">
+<li><p><strong>Separation of Concerns</strong>: Each component has clear responsibilities</p></li>
+<li><p><strong>Extensibility</strong>: Easy to create new agent patterns</p></li>
+<li><p><strong>Consistency</strong>: Common interface across all patterns</p></li>
+<li><p><strong>Abstraction</strong>: Complex mechanics hidden behind simple interfaces</p></li>
+<li><p><strong>Configuration Over Code</strong>: External configuration for flexibility</p></li>
+</ol>
+</section>
+<section id="related-documentation">
+<h2>Related Documentation<a class="headerlink" href="#related-documentation" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="memory.html"><span class="std std-doc">Memory System</span></a></p></li>
+<li><p><a class="reference internal" href="tools.html"><span class="std std-doc">Tool System</span></a></p></li>
+<li><p><a class="reference internal" href="../patterns/index.html"><span class="std std-doc">Agent Pattern Overview</span></a></p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Your Name.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

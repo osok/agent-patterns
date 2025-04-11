@@ -1,0 +1,403 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tool System &mdash; agent-patterns 0.1.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a58bc63e"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            agent-patterns
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Tool System</a><ul>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#core-components">Core Components</a><ul>
+<li><a class="reference internal" href="#toolprovider">ToolProvider</a></li>
+<li><a class="reference internal" href="#toolregistry">ToolRegistry</a></li>
+<li><a class="reference internal" href="#mcptoolprovider">MCPToolProvider</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#tool-specifications">Tool Specifications</a></li>
+<li><a class="reference internal" href="#tool-execution">Tool Execution</a></li>
+<li><a class="reference internal" href="#implementation-guide">Implementation Guide</a><ul>
+<li><a class="reference internal" href="#basic-tools-setup">Basic Tools Setup</a></li>
+<li><a class="reference internal" href="#integrating-with-agents">Integrating with Agents</a></li>
+<li><a class="reference internal" href="#using-mcp-tools">Using MCP Tools</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#advanced-usage">Advanced Usage</a><ul>
+<li><a class="reference internal" href="#custom-tool-provider">Custom Tool Provider</a></li>
+<li><a class="reference internal" href="#dynamic-tool-registration">Dynamic Tool Registration</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#error-handling">Error Handling</a></li>
+<li><a class="reference internal" href="#design-considerations">Design Considerations</a></li>
+<li><a class="reference internal" href="#related-documentation">Related Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">agent-patterns</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Tool System</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/core/tools.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="tool-system">
+<h1>Tool System<a class="headerlink" href="#tool-system" title="Link to this heading"></a></h1>
+<p>The tool system enables agents to interact with external systems, APIs, and capabilities. It provides a unified interface for tool discovery, execution, and management.</p>
+<p><img alt="Tools Class Diagram" src="../_images/tools_class.png" /></p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>The tool system is designed around these key concepts:</p>
+<ul class="simple">
+<li><p><strong>Tool</strong>: A function or capability that an agent can use</p></li>
+<li><p><strong>Tool Provider</strong>: A source of tools that can be discovered and executed</p></li>
+<li><p><strong>Tool Registry</strong>: A central registry that manages multiple tool providers</p></li>
+</ul>
+<p>This design allows agents to work with tools from different sources through a consistent interface, whether they’re local functions, remote APIs, or MCP-compatible services.</p>
+</section>
+<section id="core-components">
+<h2>Core Components<a class="headerlink" href="#core-components" title="Link to this heading"></a></h2>
+<section id="toolprovider">
+<h3>ToolProvider<a class="headerlink" href="#toolprovider" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">ToolProvider</span></code> is the abstract base interface that all tool providers must implement:</p>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">list_tools()</span></code></strong>: Return a list of available tools with metadata</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">execute_tool(tool_name,</span> <span class="pre">params)</span></code></strong>: Execute a tool with the provided parameters</p></li>
+</ul>
+<p>Each tool provider is responsible for managing its own set of tools and handling tool execution.</p>
+</section>
+<section id="toolregistry">
+<h3>ToolRegistry<a class="headerlink" href="#toolregistry" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">ToolRegistry</span></code> manages multiple tool providers and provides a unified interface:</p>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">register_provider(provider)</span></code></strong>: Add a new tool provider</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">list_tools()</span></code></strong>: List all tools from all registered providers</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">execute_tool(tool_name,</span> <span class="pre">params)</span></code></strong>: Execute a tool by name</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">invalidate_cache()</span></code></strong>: Clear the tools cache to refresh available tools</p></li>
+</ul>
+<p>The registry handles routing tool execution requests to the appropriate provider and maintains a cache of available tools for efficiency.</p>
+</section>
+<section id="mcptoolprovider">
+<h3>MCPToolProvider<a class="headerlink" href="#mcptoolprovider" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">MCPToolProvider</span></code> is an implementation of <code class="docutils literal notranslate"><span class="pre">ToolProvider</span></code> that connects to MCP-compatible servers:</p>
+<ul class="simple">
+<li><p>Supports the Model Context Protocol for standardized tool interaction</p></li>
+<li><p>Allows connecting to multiple MCP servers</p></li>
+<li><p>Handles serialization/deserialization of tool parameters and results</p></li>
+<li><p>Provides error handling and retry logic</p></li>
+</ul>
+</section>
+</section>
+<section id="tool-specifications">
+<h2>Tool Specifications<a class="headerlink" href="#tool-specifications" title="Link to this heading"></a></h2>
+<p>Tools are specified with standard metadata:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;search&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Search for information on the web&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;parameters&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;properties&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;query&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The search query&quot;</span>
+            <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;required&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;query&quot;</span><span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>This format is compatible with:</p>
+<ul class="simple">
+<li><p>OpenAI Function Calling</p></li>
+<li><p>Anthropic Tool Use</p></li>
+<li><p>LangChain Tools</p></li>
+<li><p>Model Context Protocol</p></li>
+</ul>
+</section>
+<section id="tool-execution">
+<h2>Tool Execution<a class="headerlink" href="#tool-execution" title="Link to this heading"></a></h2>
+<p>When a tool is executed:</p>
+<ol class="arabic simple">
+<li><p>The agent calls <code class="docutils literal notranslate"><span class="pre">execute_tool(tool_name,</span> <span class="pre">params)</span></code></p></li>
+<li><p>The registry routes the request to the appropriate provider</p></li>
+<li><p>The provider handles parameter validation and execution</p></li>
+<li><p>The result is returned to the agent</p></li>
+<li><p>The agent incorporates the result into its reasoning</p></li>
+</ol>
+<p><img alt="Tools Sequence Diagram" src="../_images/tools_sequence.png" /></p>
+</section>
+<section id="implementation-guide">
+<h2>Implementation Guide<a class="headerlink" href="#implementation-guide" title="Link to this heading"></a></h2>
+<section id="basic-tools-setup">
+<h3>Basic Tools Setup<a class="headerlink" href="#basic-tools-setup" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">ToolRegistry</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">langchain.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">tool</span>
+
+<span class="c1"># Define simple tools using LangChain&#39;s @tool decorator</span>
+<span class="nd">@tool</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">search</span><span class="p">(</span><span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Search for information on the web.&quot;&quot;&quot;</span>
+    <span class="c1"># In a real implementation, this would access a search API</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Results for </span><span class="si">{</span><span class="n">query</span><span class="si">}</span><span class="s2">: Some relevant information...&quot;</span>
+
+<span class="nd">@tool</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">calculator</span><span class="p">(</span><span class="n">expression</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate a mathematical expression.&quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Result: </span><span class="si">{</span><span class="nb">eval</span><span class="p">(</span><span class="n">expression</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Error: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+
+<span class="c1"># Create a tool registry with these tools</span>
+<span class="n">tool_registry</span> <span class="o">=</span> <span class="n">ToolRegistry</span><span class="p">([</span><span class="n">search</span><span class="p">,</span> <span class="n">calculator</span><span class="p">])</span>
+</pre></div>
+</div>
+</section>
+<section id="integrating-with-agents">
+<h3>Integrating with Agents<a class="headerlink" href="#integrating-with-agents" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.patterns</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReActAgent</span>
+
+<span class="c1"># Configure the agent with tools</span>
+<span class="n">agent</span> <span class="o">=</span> <span class="n">ReActAgent</span><span class="p">(</span>
+    <span class="n">llm_configs</span><span class="o">=</span><span class="n">llm_configs</span><span class="p">,</span>
+    <span class="n">tool_provider</span><span class="o">=</span><span class="n">tool_registry</span>
+<span class="p">)</span>
+
+<span class="c1"># The agent will automatically:</span>
+<span class="c1"># 1. Discover available tools</span>
+<span class="c1"># 2. Use tools when appropriate</span>
+<span class="c1"># 3. Process tool results</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">&quot;What is 25 * 16?&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="using-mcp-tools">
+<h3>Using MCP Tools<a class="headerlink" href="#using-mcp-tools" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools.providers.mcp_provider</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">MCPToolProvider</span><span class="p">,</span> 
+    <span class="n">create_mcp_server_connection</span>
+<span class="p">)</span>
+
+<span class="c1"># Create MCP server connections</span>
+<span class="n">mcp_servers</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">create_mcp_server_connection</span><span class="p">(</span>
+        <span class="s2">&quot;http&quot;</span><span class="p">,</span> 
+        <span class="p">{</span><span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;http://localhost:8000/mcp&quot;</span><span class="p">}</span>
+    <span class="p">),</span>
+    <span class="n">create_mcp_server_connection</span><span class="p">(</span>
+        <span class="s2">&quot;stdio&quot;</span><span class="p">,</span> 
+        <span class="p">{</span>
+            <span class="s2">&quot;command&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;mcp_servers/calculator_server.py&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;working_dir&quot;</span><span class="p">:</span> <span class="s2">&quot;./examples&quot;</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+<span class="p">]</span>
+
+<span class="c1"># Create MCP tool provider</span>
+<span class="n">mcp_provider</span> <span class="o">=</span> <span class="n">MCPToolProvider</span><span class="p">(</span><span class="n">mcp_servers</span><span class="p">)</span>
+
+<span class="c1"># Create a registry that combines local and MCP tools</span>
+<span class="n">registry</span> <span class="o">=</span> <span class="n">ToolRegistry</span><span class="p">([</span><span class="n">search</span><span class="p">])</span>  <span class="c1"># Start with local tool</span>
+<span class="n">registry</span><span class="o">.</span><span class="n">register_provider</span><span class="p">(</span><span class="n">mcp_provider</span><span class="p">)</span>  <span class="c1"># Add MCP provider</span>
+
+<span class="c1"># Use with agent</span>
+<span class="n">agent</span> <span class="o">=</span> <span class="n">ReActAgent</span><span class="p">(</span>
+    <span class="n">llm_configs</span><span class="o">=</span><span class="n">llm_configs</span><span class="p">,</span>
+    <span class="n">tool_provider</span><span class="o">=</span><span class="n">registry</span>
+<span class="p">)</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">&quot;Calculate 35 * 12 and search for information about the result.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="advanced-usage">
+<h2>Advanced Usage<a class="headerlink" href="#advanced-usage" title="Link to this heading"></a></h2>
+<section id="custom-tool-provider">
+<h3>Custom Tool Provider<a class="headerlink" href="#custom-tool-provider" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">ToolProvider</span><span class="p">,</span> <span class="n">ToolNotFoundError</span><span class="p">,</span> <span class="n">ToolExecutionError</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">MyCustomToolProvider</span><span class="p">(</span><span class="n">ToolProvider</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tools</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;random_number&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;random_number&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Generate a random number in a range&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;parameters&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;properties&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">},</span>
+                        <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">}</span>
+                    <span class="p">},</span>
+                    <span class="s2">&quot;required&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;min&quot;</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">]</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">list_tools</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">execute_tool</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tool_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">tool_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tools</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ToolNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tool &#39;</span><span class="si">{</span><span class="n">tool_name</span><span class="si">}</span><span class="s2">&#39; not found&quot;</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">tool_name</span> <span class="o">==</span> <span class="s2">&quot;random_number&quot;</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="kn">import</span><span class="w"> </span><span class="nn">random</span>
+                <span class="n">min_val</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;min&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="n">max_val</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;max&quot;</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="n">min_val</span><span class="p">,</span> <span class="n">max_val</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ToolExecutionError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error executing </span><span class="si">{</span><span class="n">tool_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Should never get here if tool_name check is comprehensive</span>
+        <span class="k">raise</span> <span class="n">ToolNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tool &#39;</span><span class="si">{</span><span class="n">tool_name</span><span class="si">}</span><span class="s2">&#39; not implemented&quot;</span><span class="p">)</span>
+
+<span class="c1"># Use the custom provider</span>
+<span class="n">custom_provider</span> <span class="o">=</span> <span class="n">MyCustomToolProvider</span><span class="p">()</span>
+<span class="n">registry</span> <span class="o">=</span> <span class="n">ToolRegistry</span><span class="p">([</span><span class="n">custom_provider</span><span class="p">])</span>
+</pre></div>
+</div>
+</section>
+<section id="dynamic-tool-registration">
+<h3>Dynamic Tool Registration<a class="headerlink" href="#dynamic-tool-registration" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create registry</span>
+<span class="n">registry</span> <span class="o">=</span> <span class="n">ToolRegistry</span><span class="p">()</span>
+
+<span class="c1"># Register tools dynamically</span>
+<span class="nd">@tool</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">current_time</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the current time.&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+    <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%H:%M:%S&quot;</span><span class="p">)</span>
+
+<span class="n">registry</span><span class="o">.</span><span class="n">register_provider</span><span class="p">(</span><span class="n">current_time</span><span class="p">)</span>
+
+<span class="c1"># Later add more tools</span>
+<span class="nd">@tool</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">current_date</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the current date.&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+    <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="n">registry</span><span class="o">.</span><span class="n">register_provider</span><span class="p">(</span><span class="n">current_date</span><span class="p">)</span>
+<span class="n">registry</span><span class="o">.</span><span class="n">invalidate_cache</span><span class="p">()</span>  <span class="c1"># Refresh cache after adding tools</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="error-handling">
+<h2>Error Handling<a class="headerlink" href="#error-handling" title="Link to this heading"></a></h2>
+<p>The tool system provides specific exceptions for different error cases:</p>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">ToolNotFoundError</span></code></strong>: When a requested tool doesn’t exist</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">ToolExecutionError</span></code></strong>: When tool execution fails</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">MCPConnectionError</span></code></strong>: When connection to an MCP server fails</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">MCPProtocolError</span></code></strong>: When there’s an issue with the MCP protocol</p></li>
+</ul>
+<p>Proper handling of these errors allows agents to recover gracefully and try alternative approaches.</p>
+</section>
+<section id="design-considerations">
+<h2>Design Considerations<a class="headerlink" href="#design-considerations" title="Link to this heading"></a></h2>
+<p>The tool system is designed with these principles:</p>
+<ol class="arabic simple">
+<li><p><strong>Extensibility</strong>: Easy to add new tool providers</p></li>
+<li><p><strong>Standardization</strong>: Common interface for all tools</p></li>
+<li><p><strong>Separation of Concerns</strong>: Tools, providers, and registry have clear responsibilities</p></li>
+<li><p><strong>Protocol Compatibility</strong>: Works with established standards</p></li>
+<li><p><strong>Error Resilience</strong>: Robust error handling</p></li>
+</ol>
+</section>
+<section id="related-documentation">
+<h2>Related Documentation<a class="headerlink" href="#related-documentation" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="base_agent.html"><span class="std std-doc">Base Agent</span></a></p></li>
+<li><p><a class="reference internal" href="memory.html"><span class="std std-doc">Memory System</span></a></p></li>
+<li><p><a class="reference internal" href="../MCP%20Tool%20Integration%20Tutorial.html"><span class="std std-doc">MCP Tool Integration</span></a></p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Your Name.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

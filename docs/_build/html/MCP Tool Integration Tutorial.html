@@ -1,0 +1,676 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MCP Tool Integration Tutorial &mdash; agent-patterns 0.1.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=a58bc63e"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            agent-patterns
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">MCP Tool Integration Tutorial</a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#what-is-mcp">What is MCP?</a></li>
+<li><a class="reference internal" href="#basic-tool-integration">Basic Tool Integration</a><ul>
+<li><a class="reference internal" href="#step-1-set-up-an-mcp-tool-provider">Step 1: Set Up an MCP Tool Provider</a></li>
+<li><a class="reference internal" href="#step-2-configure-an-agent-with-tools">Step 2: Configure an Agent with Tools</a></li>
+<li><a class="reference internal" href="#step-3-run-the-agent">Step 3: Run the Agent</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#mcp-server-connection-types">MCP Server Connection Types</a><ul>
+<li><a class="reference internal" href="#standard-input-output-stdio">Standard Input/Output (stdio)</a></li>
+<li><a class="reference internal" href="#http-sse-connection">HTTP/SSE Connection</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#creating-a-simple-mcp-server">Creating a Simple MCP Server</a></li>
+<li><a class="reference internal" href="#advanced-tool-integration">Advanced Tool Integration</a><ul>
+<li><a class="reference internal" href="#combining-multiple-tool-providers">Combining Multiple Tool Providers</a></li>
+<li><a class="reference internal" href="#creating-a-custom-tool-provider">Creating a Custom Tool Provider</a></li>
+<li><a class="reference internal" href="#memory-aware-tool-provider">Memory-Aware Tool Provider</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#tool-integration-with-different-agent-patterns">Tool Integration with Different Agent Patterns</a><ul>
+<li><a class="reference internal" href="#reactagent">ReActAgent</a></li>
+<li><a class="reference internal" href="#planandsolveagent">PlanAndSolveAgent</a></li>
+<li><a class="reference internal" href="#reflexionagent">ReflexionAgent</a></li>
+<li><a class="reference internal" href="#llmcompileragent">LLMCompilerAgent</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#example-building-a-tool-enhanced-agent">Example: Building a Tool-Enhanced Agent</a></li>
+<li><a class="reference internal" href="#combining-memory-and-tools">Combining Memory and Tools</a></li>
+<li><a class="reference internal" href="#tool-execution-error-handling">Tool Execution Error Handling</a></li>
+<li><a class="reference internal" href="#best-practices">Best Practices</a></li>
+<li><a class="reference internal" href="#conclusion">Conclusion</a></li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">agent-patterns</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">MCP Tool Integration Tutorial</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/MCP Tool Integration Tutorial.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="mcp-tool-integration-tutorial">
+<h1>MCP Tool Integration Tutorial<a class="headerlink" href="#mcp-tool-integration-tutorial" title="Link to this heading"></a></h1>
+<p>This tutorial provides step-by-step guidance on integrating Model Context Protocol (MCP) tools with agent patterns in the agent-patterns library.</p>
+<section id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Link to this heading"></a></h2>
+<p>Tool integration allows agents to perform actions beyond just generating text, such as:</p>
+<ul class="simple">
+<li><p>Searching the web</p></li>
+<li><p>Retrieving information from databases</p></li>
+<li><p>Making calculations</p></li>
+<li><p>Interacting with APIs</p></li>
+<li><p>Accessing file systems</p></li>
+<li><p>Running system commands</p></li>
+</ul>
+<p>The agent-patterns library includes a flexible tool provider system with MCP integration, allowing agents to use a wide variety of external tools.</p>
+</section>
+<section id="what-is-mcp">
+<h2>What is MCP?<a class="headerlink" href="#what-is-mcp" title="Link to this heading"></a></h2>
+<p>The Model Context Protocol (MCP) is a standardized interface for LLM agents to interact with external tools. MCP provides:</p>
+<ul class="simple">
+<li><p>A consistent format for tool definitions</p></li>
+<li><p>Standard request/response patterns</p></li>
+<li><p>Tool discovery mechanisms</p></li>
+<li><p>Error handling conventions</p></li>
+</ul>
+<p>The protocol enables agents to work with tools from different providers without tightly coupling to specific implementations.</p>
+</section>
+<section id="basic-tool-integration">
+<h2>Basic Tool Integration<a class="headerlink" href="#basic-tool-integration" title="Link to this heading"></a></h2>
+<section id="step-1-set-up-an-mcp-tool-provider">
+<h3>Step 1: Set Up an MCP Tool Provider<a class="headerlink" href="#step-1-set-up-an-mcp-tool-provider" title="Link to this heading"></a></h3>
+<p>First, create an MCP tool provider that will manage connections to one or more MCP servers:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools.providers.mcp_provider</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">MCPToolProvider</span><span class="p">,</span> 
+    <span class="n">create_mcp_server_connection</span>
+<span class="p">)</span>
+
+<span class="c1"># Create an MCP server connection</span>
+<span class="n">mcp_server</span> <span class="o">=</span> <span class="n">create_mcp_server_connection</span><span class="p">(</span><span class="s2">&quot;stdio&quot;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s2">&quot;command&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;calculator_server.py&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;working_dir&quot;</span><span class="p">:</span> <span class="s2">&quot;./mcp_servers&quot;</span>
+<span class="p">})</span>
+
+<span class="c1"># Create the MCP tool provider</span>
+<span class="n">tool_provider</span> <span class="o">=</span> <span class="n">MCPToolProvider</span><span class="p">([</span><span class="n">mcp_server</span><span class="p">])</span>
+</pre></div>
+</div>
+</section>
+<section id="step-2-configure-an-agent-with-tools">
+<h3>Step 2: Configure an Agent with Tools<a class="headerlink" href="#step-2-configure-an-agent-with-tools" title="Link to this heading"></a></h3>
+<p>Add the tool provider to any agent pattern:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.patterns.re_act_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReActAgent</span>
+
+<span class="n">agent</span> <span class="o">=</span> <span class="n">ReActAgent</span><span class="p">(</span>
+    <span class="n">llm_configs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;provider&quot;</span><span class="p">:</span> <span class="s2">&quot;openai&quot;</span><span class="p">,</span> <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="s2">&quot;gpt-4o&quot;</span><span class="p">}},</span>
+    <span class="n">tool_provider</span><span class="o">=</span><span class="n">tool_provider</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="step-3-run-the-agent">
+<h3>Step 3: Run the Agent<a class="headerlink" href="#step-3-run-the-agent" title="Link to this heading"></a></h3>
+<p>The agent will now have access to the tools provided by the MCP server:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">&quot;Calculate the square root of 144&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="mcp-server-connection-types">
+<h2>MCP Server Connection Types<a class="headerlink" href="#mcp-server-connection-types" title="Link to this heading"></a></h2>
+<p>The library supports multiple ways to connect to MCP tool servers:</p>
+<section id="standard-input-output-stdio">
+<h3>Standard Input/Output (stdio)<a class="headerlink" href="#standard-input-output-stdio" title="Link to this heading"></a></h3>
+<p>This method spawns a process and communicates via stdin/stdout. Ideal for local tools and development:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">stdio_server</span> <span class="o">=</span> <span class="n">create_mcp_server_connection</span><span class="p">(</span><span class="s2">&quot;stdio&quot;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s2">&quot;command&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;calculator_server.py&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;working_dir&quot;</span><span class="p">:</span> <span class="s2">&quot;./mcp_servers&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;env&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;API_KEY&quot;</span><span class="p">:</span> <span class="s2">&quot;your-api-key&quot;</span><span class="p">}</span>  <span class="c1"># Optional environment variables</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+</section>
+<section id="http-sse-connection">
+<h3>HTTP/SSE Connection<a class="headerlink" href="#http-sse-connection" title="Link to this heading"></a></h3>
+<p>Connect to remote MCP servers over HTTP or Server-Sent Events:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">http_server</span> <span class="o">=</span> <span class="n">create_mcp_server_connection</span><span class="p">(</span><span class="s2">&quot;http&quot;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;http://localhost:8080/mcp&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;headers&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;Authorization&quot;</span><span class="p">:</span> <span class="s2">&quot;Bearer token&quot;</span><span class="p">}</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="creating-a-simple-mcp-server">
+<h2>Creating a Simple MCP Server<a class="headerlink" href="#creating-a-simple-mcp-server" title="Link to this heading"></a></h2>
+<p>Here’s how to create a basic MCP server that agents can connect to:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+
+<span class="c1"># Define available tools</span>
+<span class="n">TOOLS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;calculator&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Perform arithmetic calculations&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;parameters&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;expression&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The mathematical expression to evaluate&quot;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">]</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">handle_message</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Handle incoming MCP messages.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">message</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;handshake&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;handshake_response&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;success&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;v1&quot;</span>
+        <span class="p">}</span>
+    <span class="k">elif</span> <span class="n">message</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;list_tools&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;list_tools_response&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;success&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;tools&quot;</span><span class="p">:</span> <span class="n">TOOLS</span>
+        <span class="p">}</span>
+    <span class="k">elif</span> <span class="n">message</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;call_tool&quot;</span><span class="p">:</span>
+        <span class="n">tool_name</span> <span class="o">=</span> <span class="n">message</span><span class="p">[</span><span class="s2">&quot;tool&quot;</span><span class="p">]</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="n">message</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">]</span>
+        
+        <span class="k">if</span> <span class="n">tool_name</span> <span class="o">==</span> <span class="s2">&quot;calculator&quot;</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># Safely evaluate the expression</span>
+                <span class="n">expression</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;expression&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;__builtins__&quot;</span><span class="p">:</span> <span class="p">{}},</span> <span class="p">{</span><span class="s2">&quot;abs&quot;</span><span class="p">:</span> <span class="nb">abs</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="nb">max</span><span class="p">,</span> <span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="nb">min</span><span class="p">})</span>
+                
+                <span class="k">return</span> <span class="p">{</span>
+                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;call_tool_response&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;success&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;result&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+                <span class="p">}</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">{</span>
+                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;call_tool_response&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;error_type&quot;</span><span class="p">:</span> <span class="s2">&quot;evaluation_error&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Error evaluating expression: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;call_tool_response&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;error_type&quot;</span><span class="p">:</span> <span class="s2">&quot;tool_not_found&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Tool &#39;</span><span class="si">{</span><span class="n">tool_name</span><span class="si">}</span><span class="s2">&#39; not found&quot;</span>
+            <span class="p">}</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Unknown message type: </span><span class="si">{</span><span class="n">message</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">}</span>
+
+<span class="c1"># Main loop - read from stdin, write to stdout</span>
+<span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">handle_message</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">response</span><span class="p">),</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Invalid JSON&quot;</span><span class="p">}),</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}),</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Save this code to <code class="docutils literal notranslate"><span class="pre">calculator_server.py</span></code> and then connect to it using the MCP tool provider.</p>
+</section>
+<section id="advanced-tool-integration">
+<h2>Advanced Tool Integration<a class="headerlink" href="#advanced-tool-integration" title="Link to this heading"></a></h2>
+<section id="combining-multiple-tool-providers">
+<h3>Combining Multiple Tool Providers<a class="headerlink" href="#combining-multiple-tool-providers" title="Link to this heading"></a></h3>
+<p>You can combine tools from multiple sources:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools.providers.mcp_provider</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">MCPToolProvider</span><span class="p">,</span> 
+    <span class="n">create_mcp_server_connection</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools.registry</span><span class="w"> </span><span class="kn">import</span> <span class="n">ToolRegistry</span>
+
+<span class="c1"># Create connections to different MCP servers</span>
+<span class="n">calculator_server</span> <span class="o">=</span> <span class="n">create_mcp_server_connection</span><span class="p">(</span><span class="s2">&quot;stdio&quot;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s2">&quot;command&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;calculator_server.py&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;working_dir&quot;</span><span class="p">:</span> <span class="s2">&quot;./mcp_servers&quot;</span>
+<span class="p">})</span>
+
+<span class="n">search_server</span> <span class="o">=</span> <span class="n">create_mcp_server_connection</span><span class="p">(</span><span class="s2">&quot;stdio&quot;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s2">&quot;command&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;search_server.py&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;working_dir&quot;</span><span class="p">:</span> <span class="s2">&quot;./mcp_servers&quot;</span>
+<span class="p">})</span>
+
+<span class="c1"># Create individual providers</span>
+<span class="n">calculator_provider</span> <span class="o">=</span> <span class="n">MCPToolProvider</span><span class="p">([</span><span class="n">calculator_server</span><span class="p">])</span>
+<span class="n">search_provider</span> <span class="o">=</span> <span class="n">MCPToolProvider</span><span class="p">([</span><span class="n">search_server</span><span class="p">])</span>
+
+<span class="c1"># Combine providers using the registry</span>
+<span class="n">registry</span> <span class="o">=</span> <span class="n">ToolRegistry</span><span class="p">([</span><span class="n">calculator_provider</span><span class="p">,</span> <span class="n">search_provider</span><span class="p">])</span>
+
+<span class="c1"># Use the registry with an agent</span>
+<span class="n">agent</span> <span class="o">=</span> <span class="n">ReActAgent</span><span class="p">(</span>
+    <span class="n">llm_configs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;provider&quot;</span><span class="p">:</span> <span class="s2">&quot;openai&quot;</span><span class="p">,</span> <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="s2">&quot;gpt-4o&quot;</span><span class="p">}},</span>
+    <span class="n">tool_provider</span><span class="o">=</span><span class="n">registry</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="creating-a-custom-tool-provider">
+<h3>Creating a Custom Tool Provider<a class="headerlink" href="#creating-a-custom-tool-provider" title="Link to this heading"></a></h3>
+<p>You can implement custom tool providers by extending the <code class="docutils literal notranslate"><span class="pre">ToolProvider</span></code> interface:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">ToolProvider</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Any</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">CustomToolProvider</span><span class="p">(</span><span class="n">ToolProvider</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A custom tool provider implementation.&quot;&quot;&quot;</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">list_tools</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;List the available tools.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;weather&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Get weather information for a location&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;parameters&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;location&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The location to get weather for&quot;</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">]</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">execute_tool</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tool_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Execute the requested tool with the provided parameters.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">tool_name</span> <span class="o">==</span> <span class="s2">&quot;weather&quot;</span><span class="p">:</span>
+            <span class="n">location</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;location&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="c1"># In a real implementation, you&#39;d call a weather API here</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;The weather in </span><span class="si">{</span><span class="n">location</span><span class="si">}</span><span class="s2"> is sunny with a high of 75°F&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">ToolNotFoundError</span>
+            <span class="k">raise</span> <span class="n">ToolNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tool &#39;</span><span class="si">{</span><span class="n">tool_name</span><span class="si">}</span><span class="s2">&#39; not found&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="memory-aware-tool-provider">
+<h3>Memory-Aware Tool Provider<a class="headerlink" href="#memory-aware-tool-provider" title="Link to this heading"></a></h3>
+<p>You can enhance tools with memory awareness, allowing them to incorporate memory context into their execution:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">ToolProvider</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompositeMemory</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">MemoryAwareToolProvider</span><span class="p">(</span><span class="n">ToolProvider</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A tool provider that incorporates memory context into tool calls.&quot;&quot;&quot;</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_provider</span><span class="p">,</span> <span class="n">memory</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize with a base provider and optional memory.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_provider</span> <span class="o">=</span> <span class="n">base_provider</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">memory</span> <span class="o">=</span> <span class="n">memory</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">list_tools</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;List all available tools from the base provider.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_provider</span><span class="o">.</span><span class="n">list_tools</span><span class="p">()</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">execute_tool</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tool_name</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Execute a tool, potentially enhancing the call with memory context.&quot;&quot;&quot;</span>
+        <span class="c1"># If we have memory and the tool is search, add memory context</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">memory</span> <span class="ow">and</span> <span class="n">tool_name</span> <span class="o">==</span> <span class="s2">&quot;search&quot;</span><span class="p">:</span>
+            <span class="c1"># Get relevant memories</span>
+            <span class="n">memory_context</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_memory_context</span><span class="p">())</span>
+            
+            <span class="c1"># Add memory context to the parameters</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>  <span class="c1"># Make a copy to avoid modifying the original</span>
+            <span class="n">params</span><span class="p">[</span><span class="s2">&quot;memory_context&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">memory_context</span>
+        
+        <span class="c1"># Execute the tool with the potentially enhanced parameters</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_provider</span><span class="o">.</span><span class="n">execute_tool</span><span class="p">(</span><span class="n">tool_name</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+    
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_get_memory_context</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a simplified string representation of key memories.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+        
+        <span class="c1"># Retrieve relevant memories</span>
+        <span class="n">memories</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">retrieve_all</span><span class="p">(</span><span class="s2">&quot;user interests preferences&quot;</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;semantic&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">})</span>
+        
+        <span class="c1"># Extract user interests from semantic memory</span>
+        <span class="n">interests</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">memories</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;semantic&quot;</span><span class="p">,</span> <span class="p">[]):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;attribute&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;interests&quot;</span><span class="p">:</span>
+                <span class="n">interests</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="p">[]))</span>
+        
+        <span class="c1"># Create a simple context string</span>
+        <span class="k">if</span> <span class="n">interests</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;User interests: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">interests</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="tool-integration-with-different-agent-patterns">
+<h2>Tool Integration with Different Agent Patterns<a class="headerlink" href="#tool-integration-with-different-agent-patterns" title="Link to this heading"></a></h2>
+<p>Each agent pattern integrates tools at appropriate points in its workflow:</p>
+<section id="reactagent">
+<h3>ReActAgent<a class="headerlink" href="#reactagent" title="Link to this heading"></a></h3>
+<p>The ReAct agent is specifically designed for tool use, integrating tools directly into its reasoning loop:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">agent</span> <span class="o">=</span> <span class="n">ReActAgent</span><span class="p">(</span>
+    <span class="n">llm_configs</span><span class="o">=</span><span class="n">llm_configs</span><span class="p">,</span>
+    <span class="n">tool_provider</span><span class="o">=</span><span class="n">tool_provider</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="planandsolveagent">
+<h3>PlanAndSolveAgent<a class="headerlink" href="#planandsolveagent" title="Link to this heading"></a></h3>
+<p>The PlanAndSolve agent can use tools during the execution of its plan steps:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">agent</span> <span class="o">=</span> <span class="n">PlanAndSolveAgent</span><span class="p">(</span>
+    <span class="n">llm_configs</span><span class="o">=</span><span class="n">llm_configs</span><span class="p">,</span>
+    <span class="n">tool_provider</span><span class="o">=</span><span class="n">tool_provider</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="reflexionagent">
+<h3>ReflexionAgent<a class="headerlink" href="#reflexionagent" title="Link to this heading"></a></h3>
+<p>The Reflexion agent can use tools during action execution and evaluate their results during reflection:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">agent</span> <span class="o">=</span> <span class="n">ReflexionAgent</span><span class="p">(</span>
+    <span class="n">llm_configs</span><span class="o">=</span><span class="n">llm_configs</span><span class="p">,</span>
+    <span class="n">tool_provider</span><span class="o">=</span><span class="n">tool_provider</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="llmcompileragent">
+<h3>LLMCompilerAgent<a class="headerlink" href="#llmcompileragent" title="Link to this heading"></a></h3>
+<p>The LLM Compiler agent can incorporate tools into its computation graph:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">agent</span> <span class="o">=</span> <span class="n">LLMCompilerAgent</span><span class="p">(</span>
+    <span class="n">llm_configs</span><span class="o">=</span><span class="n">llm_configs</span><span class="p">,</span>
+    <span class="n">tool_provider</span><span class="o">=</span><span class="n">tool_provider</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="example-building-a-tool-enhanced-agent">
+<h2>Example: Building a Tool-Enhanced Agent<a class="headerlink" href="#example-building-a-tool-enhanced-agent" title="Link to this heading"></a></h2>
+<p>Here’s a complete example of building a ReActAgent with MCP tools:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dotenv</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dotenv</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="c1"># Add the parent directory to the path to import agent_patterns</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s1">&#39;..&#39;</span><span class="p">)))</span>
+
+<span class="c1"># Load environment variables</span>
+<span class="n">load_dotenv</span><span class="p">()</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.patterns.re_act_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReActAgent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools.providers.mcp_provider</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">MCPToolProvider</span><span class="p">,</span> 
+    <span class="n">create_mcp_server_connection</span>
+<span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run the MCP tools example.&quot;&quot;&quot;</span>
+    <span class="c1"># Get the project root directory</span>
+    <span class="n">current_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
+    <span class="n">project_root</span> <span class="o">=</span> <span class="n">current_dir</span><span class="o">.</span><span class="n">parent</span>
+    <span class="n">mcp_servers_dir</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">project_root</span> <span class="o">/</span> <span class="s2">&quot;examples&quot;</span> <span class="o">/</span> <span class="s2">&quot;mcp_servers&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Set up MCP server connections</span>
+    <span class="n">calculator_server</span> <span class="o">=</span> <span class="n">create_mcp_server_connection</span><span class="p">(</span><span class="s2">&quot;stdio&quot;</span><span class="p">,</span> <span class="p">{</span>
+        <span class="s2">&quot;command&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;calculator_server.py&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;working_dir&quot;</span><span class="p">:</span> <span class="n">mcp_servers_dir</span><span class="p">,</span>
+    <span class="p">})</span>
+    
+    <span class="n">search_server</span> <span class="o">=</span> <span class="n">create_mcp_server_connection</span><span class="p">(</span><span class="s2">&quot;stdio&quot;</span><span class="p">,</span> <span class="p">{</span>
+        <span class="s2">&quot;command&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;search_server.py&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;working_dir&quot;</span><span class="p">:</span> <span class="n">mcp_servers_dir</span><span class="p">,</span>
+    <span class="p">})</span>
+    
+    <span class="c1"># Create MCP tool provider with multiple servers</span>
+    <span class="n">tool_provider</span> <span class="o">=</span> <span class="n">MCPToolProvider</span><span class="p">([</span><span class="n">calculator_server</span><span class="p">,</span> <span class="n">search_server</span><span class="p">])</span>
+    
+    <span class="c1"># Configure LLM</span>
+    <span class="n">llm_configs</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;provider&quot;</span><span class="p">:</span> <span class="s2">&quot;openai&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="s2">&quot;gpt-4o&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span>
+            <span class="s2">&quot;api_key&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;OPENAI_API_KEY&quot;</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    
+    <span class="c1"># Create a ReActAgent with tools</span>
+    <span class="n">agent</span> <span class="o">=</span> <span class="n">ReActAgent</span><span class="p">(</span>
+        <span class="n">llm_configs</span><span class="o">=</span><span class="n">llm_configs</span><span class="p">,</span>
+        <span class="n">tool_provider</span><span class="o">=</span><span class="n">tool_provider</span>
+    <span class="p">)</span>
+    
+    <span class="c1"># Print available tools</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Available tools:&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">tool</span> <span class="ow">in</span> <span class="n">tool_provider</span><span class="o">.</span><span class="n">list_tools</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- </span><span class="si">{</span><span class="n">tool</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">tool</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Run a series of interactions to demonstrate tool usage</span>
+    <span class="n">examples</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;Calculate 15 * 7 + 22&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Search for information about quantum computing&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;What&#39;s the square root of 256?&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Find recent news about artificial intelligence&quot;</span>
+    <span class="p">]</span>
+    
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">example</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">examples</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">======= EXAMPLE </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2"> =======&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;User: </span><span class="si">{</span><span class="n">example</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Run the agent</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">example</span><span class="p">)</span>
+        
+        <span class="c1"># Display the result</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Agent response:&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">])</span>
+        
+        <span class="c1"># Print the intermediate steps to show the tool usage</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Intermediate steps:&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;intermediate_steps&quot;</span><span class="p">,</span> <span class="p">[])):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Step </span><span class="si">{</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">:&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">step</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Thought: </span><span class="si">{</span><span class="n">step</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Action: </span><span class="si">{</span><span class="n">step</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">step</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Observation: </span><span class="si">{</span><span class="n">step</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="combining-memory-and-tools">
+<h2>Combining Memory and Tools<a class="headerlink" href="#combining-memory-and-tools" title="Link to this heading"></a></h2>
+<p>For the most powerful agents, you can combine memory and tool capabilities:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.patterns.re_act_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReActAgent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompositeMemory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools.providers.mcp_provider</span><span class="w"> </span><span class="kn">import</span> <span class="n">MCPToolProvider</span>
+
+<span class="c1"># Set up memory</span>
+<span class="n">memory</span> <span class="o">=</span> <span class="n">setup_memory</span><span class="p">()</span>  <span class="c1"># Your function that creates memory</span>
+
+<span class="c1"># Set up tool provider</span>
+<span class="n">tool_provider</span> <span class="o">=</span> <span class="n">setup_tool_provider</span><span class="p">()</span>  <span class="c1"># Your function that creates tool provider</span>
+
+<span class="c1"># Create a memory-aware tool provider</span>
+<span class="n">memory_tool_provider</span> <span class="o">=</span> <span class="n">MemoryAwareToolProvider</span><span class="p">(</span><span class="n">tool_provider</span><span class="p">,</span> <span class="n">memory</span><span class="p">)</span>
+
+<span class="c1"># Create an agent with both memory and tools</span>
+<span class="n">agent</span> <span class="o">=</span> <span class="n">ReActAgent</span><span class="p">(</span>
+    <span class="n">llm_configs</span><span class="o">=</span><span class="n">llm_configs</span><span class="p">,</span>
+    <span class="n">tool_provider</span><span class="o">=</span><span class="n">memory_tool_provider</span><span class="p">,</span>
+    <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
+    <span class="n">memory_config</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;semantic&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;episodic&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;procedural&quot;</span><span class="p">:</span> <span class="kc">True</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="tool-execution-error-handling">
+<h2>Tool Execution Error Handling<a class="headerlink" href="#tool-execution-error-handling" title="Link to this heading"></a></h2>
+<p>The tool provider system includes error handling for various failure scenarios:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">ToolNotFoundError</span><span class="p">,</span> <span class="n">ToolExecutionError</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">tool_provider</span><span class="o">.</span><span class="n">execute_tool</span><span class="p">(</span><span class="s2">&quot;nonexistent_tool&quot;</span><span class="p">,</span> <span class="p">{})</span>
+<span class="k">except</span> <span class="n">ToolNotFoundError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tool not found: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="c1"># Handle missing tool appropriately</span>
+<span class="k">except</span> <span class="n">ToolExecutionError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tool execution failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="c1"># Handle execution failure appropriately</span>
+</pre></div>
+</div>
+</section>
+<section id="best-practices">
+<h2>Best Practices<a class="headerlink" href="#best-practices" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>Tool Design</strong>:</p>
+<ul class="simple">
+<li><p>Keep tools focused on doing one thing well</p></li>
+<li><p>Use clear, descriptive names and descriptions</p></li>
+<li><p>Properly document parameter requirements</p></li>
+<li><p>Return structured, consistent results</p></li>
+</ul>
+</li>
+<li><p><strong>Security Considerations</strong>:</p>
+<ul class="simple">
+<li><p>Validate inputs before executing tool actions</p></li>
+<li><p>Implement appropriate authentication for remote tools</p></li>
+<li><p>Consider sandboxing for system-level operations</p></li>
+<li><p>Be cautious about exposing sensitive functionality</p></li>
+</ul>
+</li>
+<li><p><strong>Performance Optimization</strong>:</p>
+<ul class="simple">
+<li><p>Reuse server connections when possible</p></li>
+<li><p>Implement caching for frequent tool calls</p></li>
+<li><p>Consider asynchronous tool execution for long-running operations</p></li>
+<li><p>Balance tool complexity with execution speed</p></li>
+</ul>
+</li>
+<li><p><strong>Error Handling</strong>:</p>
+<ul class="simple">
+<li><p>Implement robust error handling in tool servers</p></li>
+<li><p>Provide clear error messages that help diagnose issues</p></li>
+<li><p>Consider retry mechanisms for transient failures</p></li>
+<li><p>Avoid exposing sensitive information in error messages</p></li>
+</ul>
+</li>
+<li><p><strong>Agent Integration</strong>:</p>
+<ul class="simple">
+<li><p>Ensure prompt templates properly describe available tools</p></li>
+<li><p>Consider providing examples of tool usage in prompts</p></li>
+<li><p>Test edge cases and failure modes</p></li>
+<li><p>Implement logging to track tool usage patterns</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="conclusion">
+<h2>Conclusion<a class="headerlink" href="#conclusion" title="Link to this heading"></a></h2>
+<p>Tool integration transforms agents from passive responders to active problem solvers capable of performing real-world actions. By incorporating MCP tools, you can build agents that can access external data, perform calculations, interact with APIs, and much more.</p>
+<p>For more detailed information on the tool provider system, refer to the <a class="reference internal" href="Tool%20Provider%20API%20Documentation.html"><span class="std std-doc">Tool Provider API Documentation</span></a>.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Your Name.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

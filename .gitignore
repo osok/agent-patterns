@@ -48,3 +48,6 @@ htmlcov/
 .coverage.*
 coverage.xml
 *.cover
+
+# PyPI credentials
+.pypirc

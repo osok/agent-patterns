@@ -1,0 +1,1557 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Building a Customer Support Bot &mdash; agent-patterns 0.1.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a58bc63e"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            agent-patterns
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Building a Customer Support Bot</a><ul>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li><a class="reference internal" href="#step-1-setting-up-the-project">Step 1: Setting Up the Project</a></li>
+<li><a class="reference internal" href="#step-2-creating-custom-tools">Step 2: Creating Custom Tools</a></li>
+<li><a class="reference internal" href="#step-3-setting-up-memory">Step 3: Setting Up Memory</a></li>
+<li><a class="reference internal" href="#step-4-creating-the-support-bot-agent">Step 4: Creating the Support Bot Agent</a></li>
+<li><a class="reference internal" href="#step-5-creating-a-customer-support-interface">Step 5: Creating a Customer Support Interface</a></li>
+<li><a class="reference internal" href="#step-6-creating-a-simple-command-line-interface">Step 6: Creating a Simple Command Line Interface</a></li>
+<li><a class="reference internal" href="#step-7-adding-analytics-and-performance-tracking">Step 7: Adding Analytics and Performance Tracking</a></li>
+<li><a class="reference internal" href="#complete-code">Complete Code</a></li>
+<li><a class="reference internal" href="#architecture-diagram">Architecture Diagram</a></li>
+<li><a class="reference internal" href="#next-steps">Next Steps</a></li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">agent-patterns</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Building a Customer Support Bot</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tutorials/customer_support_bot.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="building-a-customer-support-bot">
+<h1>Building a Customer Support Bot<a class="headerlink" href="#building-a-customer-support-bot" title="Link to this heading"></a></h1>
+<p>This tutorial guides you through building a customer support bot that can handle inquiries, access knowledge bases, and manage support tickets.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>Customer support bots need to:</p>
+<ol class="arabic simple">
+<li><p>Understand customer queries in natural language</p></li>
+<li><p>Access knowledge bases to retrieve relevant information</p></li>
+<li><p>Handle multi-turn conversations while maintaining context</p></li>
+<li><p>Create and update support tickets</p></li>
+<li><p>Escalate complex issues to human agents</p></li>
+</ol>
+<p>For this use case, we’ll use the ReAct agent pattern, which excels at reasoning and tool use, with memory integration for conversation history.</p>
+</section>
+<section id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Agent Patterns library installed</p></li>
+<li><p>OpenAI API key (or other supported LLM provider)</p></li>
+<li><p>Basic Python knowledge</p></li>
+</ul>
+</section>
+<section id="step-1-setting-up-the-project">
+<h2>Step 1: Setting Up the Project<a class="headerlink" href="#step-1-setting-up-the-project" title="Link to this heading"></a></h2>
+<p>Create a new Python file called <code class="docutils literal notranslate"><span class="pre">customer_support_bot.py</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dotenv</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dotenv</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.patterns.re_act_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReActAgent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpisodicMemory</span><span class="p">,</span> <span class="n">SemanticMemory</span><span class="p">,</span> <span class="n">CompositeMemory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory.persistence</span><span class="w"> </span><span class="kn">import</span> <span class="n">InMemoryPersistence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseToolProvider</span><span class="p">,</span> <span class="n">Tool</span>
+
+<span class="c1"># Load environment variables</span>
+<span class="n">load_dotenv</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="step-2-creating-custom-tools">
+<h2>Step 2: Creating Custom Tools<a class="headerlink" href="#step-2-creating-custom-tools" title="Link to this heading"></a></h2>
+<p>We’ll create custom tools for knowledge base access and ticket management:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">CustomerSupportToolProvider</span><span class="p">(</span><span class="n">BaseToolProvider</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Tool provider for customer support operations.&quot;&quot;&quot;</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="c1"># Simulated knowledge base</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">knowledge_base</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;product_features&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;basic&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Feature A&quot;</span><span class="p">,</span> <span class="s2">&quot;Feature B&quot;</span><span class="p">,</span> <span class="s2">&quot;Feature C&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;premium&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Feature A&quot;</span><span class="p">,</span> <span class="s2">&quot;Feature B&quot;</span><span class="p">,</span> <span class="s2">&quot;Feature C&quot;</span><span class="p">,</span> <span class="s2">&quot;Feature D&quot;</span><span class="p">,</span> <span class="s2">&quot;Feature E&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;enterprise&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Feature A&quot;</span><span class="p">,</span> <span class="s2">&quot;Feature B&quot;</span><span class="p">,</span> <span class="s2">&quot;Feature C&quot;</span><span class="p">,</span> <span class="s2">&quot;Feature D&quot;</span><span class="p">,</span> <span class="s2">&quot;Feature E&quot;</span><span class="p">,</span> <span class="s2">&quot;Feature F&quot;</span><span class="p">,</span> <span class="s2">&quot;Feature G&quot;</span><span class="p">]</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;pricing&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;basic&quot;</span><span class="p">:</span> <span class="s2">&quot;$10/month&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;premium&quot;</span><span class="p">:</span> <span class="s2">&quot;$25/month&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;enterprise&quot;</span><span class="p">:</span> <span class="s2">&quot;Custom pricing&quot;</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;common_issues&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;login_problem&quot;</span><span class="p">:</span> <span class="s2">&quot;Try clearing your browser cache and cookies, then restart your browser.&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;payment_failed&quot;</span><span class="p">:</span> <span class="s2">&quot;Verify your payment information is up-to-date and try again.&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;feature_not_working&quot;</span><span class="p">:</span> <span class="s2">&quot;Ensure you&#39;re on the latest version. If the issue persists, try restarting the application.&quot;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        
+        <span class="c1"># Simulated ticket system</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tickets</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">next_ticket_id</span> <span class="o">=</span> <span class="mi">1000</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_tools</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return available tools.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="n">Tool</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;search_knowledge_base&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Search the knowledge base for information&quot;</span><span class="p">,</span>
+                <span class="n">function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">search_knowledge_base</span><span class="p">,</span>
+                <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">&quot;query&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The search query&quot;</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">),</span>
+            <span class="n">Tool</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;get_product_features&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Get features for a specific product tier&quot;</span><span class="p">,</span>
+                <span class="n">function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_product_features</span><span class="p">,</span>
+                <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">&quot;tier&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Product tier (basic, premium, or enterprise)&quot;</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">),</span>
+            <span class="n">Tool</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;get_pricing&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Get pricing information for a specific tier&quot;</span><span class="p">,</span>
+                <span class="n">function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_pricing</span><span class="p">,</span>
+                <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">&quot;tier&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Product tier (basic, premium, or enterprise)&quot;</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">),</span>
+            <span class="n">Tool</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;create_ticket&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Create a support ticket&quot;</span><span class="p">,</span>
+                <span class="n">function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">create_ticket</span><span class="p">,</span>
+                <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">&quot;customer_id&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Customer ID&quot;</span>
+                    <span class="p">},</span>
+                    <span class="s2">&quot;subject&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Ticket subject&quot;</span>
+                    <span class="p">},</span>
+                    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Detailed description of the issue&quot;</span>
+                    <span class="p">},</span>
+                    <span class="s2">&quot;priority&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Ticket priority (low, medium, high)&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;low&quot;</span><span class="p">,</span> <span class="s2">&quot;medium&quot;</span><span class="p">,</span> <span class="s2">&quot;high&quot;</span><span class="p">]</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">),</span>
+            <span class="n">Tool</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;get_ticket&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Get details of a support ticket&quot;</span><span class="p">,</span>
+                <span class="n">function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_ticket</span><span class="p">,</span>
+                <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">&quot;ticket_id&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Ticket ID&quot;</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">),</span>
+            <span class="n">Tool</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;update_ticket&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Update a support ticket&quot;</span><span class="p">,</span>
+                <span class="n">function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">update_ticket</span><span class="p">,</span>
+                <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">&quot;ticket_id&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Ticket ID&quot;</span>
+                    <span class="p">},</span>
+                    <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;New ticket status&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;open&quot;</span><span class="p">,</span> <span class="s2">&quot;in_progress&quot;</span><span class="p">,</span> <span class="s2">&quot;pending&quot;</span><span class="p">,</span> <span class="s2">&quot;resolved&quot;</span><span class="p">,</span> <span class="s2">&quot;closed&quot;</span><span class="p">]</span>
+                    <span class="p">},</span>
+                    <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Notes to add to the ticket&quot;</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">),</span>
+            <span class="n">Tool</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;escalate_to_human&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Escalate the conversation to a human agent&quot;</span><span class="p">,</span>
+                <span class="n">function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">escalate_to_human</span><span class="p">,</span>
+                <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">&quot;reason&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Reason for escalation&quot;</span>
+                    <span class="p">},</span>
+                    <span class="s2">&quot;urgency&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Urgency level&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;low&quot;</span><span class="p">,</span> <span class="s2">&quot;medium&quot;</span><span class="p">,</span> <span class="s2">&quot;high&quot;</span><span class="p">]</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+        <span class="p">]</span>
+    
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">search_knowledge_base</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Search the knowledge base for information.&quot;&quot;&quot;</span>
+        <span class="c1"># Simple keyword-based search in our simulated knowledge base</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="c1"># Search in product features</span>
+        <span class="k">for</span> <span class="n">tier</span><span class="p">,</span> <span class="n">features</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">knowledge_base</span><span class="p">[</span><span class="s2">&quot;product_features&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">features</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">query</span> <span class="ow">in</span> <span class="n">feature</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                    <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                        <span class="s2">&quot;category&quot;</span><span class="p">:</span> <span class="s2">&quot;product_features&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;tier&quot;</span><span class="p">:</span> <span class="n">tier</span><span class="p">,</span>
+                        <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">feature</span>
+                    <span class="p">})</span>
+        
+        <span class="c1"># Search in pricing</span>
+        <span class="k">for</span> <span class="n">tier</span><span class="p">,</span> <span class="n">price</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">knowledge_base</span><span class="p">[</span><span class="s2">&quot;pricing&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">query</span> <span class="ow">in</span> <span class="n">tier</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">or</span> <span class="n">query</span> <span class="ow">in</span> <span class="n">price</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                    <span class="s2">&quot;category&quot;</span><span class="p">:</span> <span class="s2">&quot;pricing&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;tier&quot;</span><span class="p">:</span> <span class="n">tier</span><span class="p">,</span>
+                    <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">price</span>
+                <span class="p">})</span>
+        
+        <span class="c1"># Search in common issues</span>
+        <span class="k">for</span> <span class="n">issue</span><span class="p">,</span> <span class="n">solution</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">knowledge_base</span><span class="p">[</span><span class="s2">&quot;common_issues&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">query</span> <span class="ow">in</span> <span class="n">issue</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">or</span> <span class="n">query</span> <span class="ow">in</span> <span class="n">solution</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                    <span class="s2">&quot;category&quot;</span><span class="p">:</span> <span class="s2">&quot;common_issues&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;issue&quot;</span><span class="p">:</span> <span class="n">issue</span><span class="p">,</span>
+                    <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">solution</span>
+                <span class="p">})</span>
+        
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;query&quot;</span><span class="p">:</span> <span class="n">query</span><span class="p">,</span>
+            <span class="s2">&quot;results&quot;</span><span class="p">:</span> <span class="n">results</span><span class="p">,</span>
+            <span class="s2">&quot;result_count&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+        <span class="p">}</span>
+    
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_product_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tier</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get features for a specific product tier.&quot;&quot;&quot;</span>
+        <span class="n">tier</span> <span class="o">=</span> <span class="n">tier</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">tier</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">knowledge_base</span><span class="p">[</span><span class="s2">&quot;product_features&quot;</span><span class="p">]:</span>
+            <span class="n">features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">knowledge_base</span><span class="p">[</span><span class="s2">&quot;product_features&quot;</span><span class="p">][</span><span class="n">tier</span><span class="p">]</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s2">&quot;tier&quot;</span><span class="p">:</span> <span class="n">tier</span><span class="p">,</span>
+                <span class="s2">&quot;features&quot;</span><span class="p">:</span> <span class="n">features</span><span class="p">,</span>
+                <span class="s2">&quot;feature_count&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
+            <span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Tier &#39;</span><span class="si">{</span><span class="n">tier</span><span class="si">}</span><span class="s2">&#39; not found&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;available_tiers&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">knowledge_base</span><span class="p">[</span><span class="s2">&quot;product_features&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="p">}</span>
+    
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_pricing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tier</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get pricing information for a specific tier.&quot;&quot;&quot;</span>
+        <span class="n">tier</span> <span class="o">=</span> <span class="n">tier</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">tier</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">knowledge_base</span><span class="p">[</span><span class="s2">&quot;pricing&quot;</span><span class="p">]:</span>
+            <span class="n">price</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">knowledge_base</span><span class="p">[</span><span class="s2">&quot;pricing&quot;</span><span class="p">][</span><span class="n">tier</span><span class="p">]</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s2">&quot;tier&quot;</span><span class="p">:</span> <span class="n">tier</span><span class="p">,</span>
+                <span class="s2">&quot;price&quot;</span><span class="p">:</span> <span class="n">price</span>
+            <span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Tier &#39;</span><span class="si">{</span><span class="n">tier</span><span class="si">}</span><span class="s2">&#39; not found&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;available_tiers&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">knowledge_base</span><span class="p">[</span><span class="s2">&quot;pricing&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="p">}</span>
+    
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">create_ticket</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">customer_id</span><span class="p">,</span> <span class="n">subject</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="s2">&quot;medium&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a support ticket.&quot;&quot;&quot;</span>
+        <span class="n">ticket_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">next_ticket_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">next_ticket_id</span> <span class="o">+=</span> <span class="mi">1</span>
+        
+        <span class="c1"># Create timestamp</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+        <span class="n">timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+        
+        <span class="c1"># Create ticket</span>
+        <span class="n">ticket</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;ticket_id&quot;</span><span class="p">:</span> <span class="n">ticket_id</span><span class="p">,</span>
+            <span class="s2">&quot;customer_id&quot;</span><span class="p">:</span> <span class="n">customer_id</span><span class="p">,</span>
+            <span class="s2">&quot;subject&quot;</span><span class="p">:</span> <span class="n">subject</span><span class="p">,</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">description</span><span class="p">,</span>
+            <span class="s2">&quot;priority&quot;</span><span class="p">:</span> <span class="n">priority</span><span class="p">,</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;open&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;created_at&quot;</span><span class="p">:</span> <span class="n">timestamp</span><span class="p">,</span>
+            <span class="s2">&quot;updated_at&quot;</span><span class="p">:</span> <span class="n">timestamp</span><span class="p">,</span>
+            <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="p">[]</span>
+        <span class="p">}</span>
+        
+        <span class="c1"># Save ticket</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tickets</span><span class="p">[</span><span class="n">ticket_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">ticket</span>
+        
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;ticket_id&quot;</span><span class="p">:</span> <span class="n">ticket_id</span><span class="p">,</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;created&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Ticket </span><span class="si">{</span><span class="n">ticket_id</span><span class="si">}</span><span class="s2"> created successfully&quot;</span>
+        <span class="p">}</span>
+    
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_ticket</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ticket_id</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get details of a support ticket.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">ticket_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tickets</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tickets</span><span class="p">[</span><span class="n">ticket_id</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Ticket </span><span class="si">{</span><span class="n">ticket_id</span><span class="si">}</span><span class="s2"> not found&quot;</span>
+            <span class="p">}</span>
+    
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">update_ticket</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ticket_id</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">notes</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update a support ticket.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">ticket_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tickets</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Ticket </span><span class="si">{</span><span class="n">ticket_id</span><span class="si">}</span><span class="s2"> not found&quot;</span>
+            <span class="p">}</span>
+        
+        <span class="n">ticket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tickets</span><span class="p">[</span><span class="n">ticket_id</span><span class="p">]</span>
+        
+        <span class="c1"># Update timestamp</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+        <span class="n">ticket</span><span class="p">[</span><span class="s2">&quot;updated_at&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+        
+        <span class="c1"># Update status if provided</span>
+        <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+            <span class="n">ticket</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">status</span>
+        
+        <span class="c1"># Add notes if provided</span>
+        <span class="k">if</span> <span class="n">notes</span><span class="p">:</span>
+            <span class="n">ticket</span><span class="p">[</span><span class="s2">&quot;notes&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">notes</span><span class="p">,</span>
+                <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="n">ticket</span><span class="p">[</span><span class="s2">&quot;updated_at&quot;</span><span class="p">]</span>
+            <span class="p">})</span>
+        
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;ticket_id&quot;</span><span class="p">:</span> <span class="n">ticket_id</span><span class="p">,</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="n">ticket</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Ticket </span><span class="si">{</span><span class="n">ticket_id</span><span class="si">}</span><span class="s2"> updated successfully&quot;</span>
+        <span class="p">}</span>
+    
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">escalate_to_human</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reason</span><span class="p">,</span> <span class="n">urgency</span><span class="o">=</span><span class="s2">&quot;medium&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Escalate the conversation to a human agent.&quot;&quot;&quot;</span>
+        <span class="c1"># In a real implementation, this would integrate with a queue system</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;escalated&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;reason&quot;</span><span class="p">:</span> <span class="n">reason</span><span class="p">,</span>
+            <span class="s2">&quot;urgency&quot;</span><span class="p">:</span> <span class="n">urgency</span><span class="p">,</span>
+            <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;This conversation has been escalated to a human agent who will respond shortly.&quot;</span>
+        <span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="step-3-setting-up-memory">
+<h2>Step 3: Setting Up Memory<a class="headerlink" href="#step-3-setting-up-memory" title="Link to this heading"></a></h2>
+<p>Our support bot needs memory to maintain conversation context:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set up memory persistence</span>
+<span class="n">persistence</span> <span class="o">=</span> <span class="n">InMemoryPersistence</span><span class="p">()</span>
+<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">persistence</span><span class="o">.</span><span class="n">initialize</span><span class="p">())</span>
+
+<span class="c1"># Create memory components</span>
+<span class="n">episodic_memory</span> <span class="o">=</span> <span class="n">EpisodicMemory</span><span class="p">(</span>
+    <span class="n">persistence</span><span class="p">,</span> 
+    <span class="n">namespace</span><span class="o">=</span><span class="s2">&quot;conversations&quot;</span>
+<span class="p">)</span>
+
+<span class="n">semantic_memory</span> <span class="o">=</span> <span class="n">SemanticMemory</span><span class="p">(</span>
+    <span class="n">persistence</span><span class="p">,</span>
+    <span class="n">namespace</span><span class="o">=</span><span class="s2">&quot;customer_info&quot;</span>
+<span class="p">)</span>
+
+<span class="c1"># Create composite memory</span>
+<span class="n">memory</span> <span class="o">=</span> <span class="n">CompositeMemory</span><span class="p">({</span>
+    <span class="s2">&quot;episodic&quot;</span><span class="p">:</span> <span class="n">episodic_memory</span><span class="p">,</span>
+    <span class="s2">&quot;semantic&quot;</span><span class="p">:</span> <span class="n">semantic_memory</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+</section>
+<section id="step-4-creating-the-support-bot-agent">
+<h2>Step 4: Creating the Support Bot Agent<a class="headerlink" href="#step-4-creating-the-support-bot-agent" title="Link to this heading"></a></h2>
+<p>Now let’s create our ReAct-based support bot:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Configure LLM settings</span>
+<span class="n">llm_configs</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;provider&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;DEFAULT_MODEL_PROVIDER&quot;</span><span class="p">,</span> <span class="s2">&quot;openai&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;DEFAULT_MODEL_NAME&quot;</span><span class="p">,</span> <span class="s2">&quot;gpt-4o&quot;</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1"># Create tool provider</span>
+<span class="n">support_tool_provider</span> <span class="o">=</span> <span class="n">CustomerSupportToolProvider</span><span class="p">()</span>
+
+<span class="c1"># Create support bot agent</span>
+<span class="n">support_agent</span> <span class="o">=</span> <span class="n">ReActAgent</span><span class="p">(</span>
+    <span class="n">llm_configs</span><span class="o">=</span><span class="n">llm_configs</span><span class="p">,</span>
+    <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
+    <span class="n">memory_config</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;episodic&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;semantic&quot;</span><span class="p">:</span> <span class="kc">True</span>
+    <span class="p">},</span>
+    <span class="n">tool_provider</span><span class="o">=</span><span class="n">support_tool_provider</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="step-5-creating-a-customer-support-interface">
+<h2>Step 5: Creating a Customer Support Interface<a class="headerlink" href="#step-5-creating-a-customer-support-interface" title="Link to this heading"></a></h2>
+<p>Let’s wrap our agent with a class that provides a user-friendly interface:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">CustomerSupportBot</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent</span> <span class="o">=</span> <span class="n">support_agent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_customer_id</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">active_conversation</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conversation_history</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">start_conversation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">customer_id</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Start a new conversation with a customer.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_customer_id</span> <span class="o">=</span> <span class="n">customer_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">active_conversation</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conversation_history</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="c1"># Store customer information if available (simulated)</span>
+        <span class="n">customer_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_customer_info</span><span class="p">(</span><span class="n">customer_id</span><span class="p">)</span>
+        
+        <span class="c1"># Save customer info to memory</span>
+        <span class="k">if</span> <span class="n">customer_info</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">customer_info</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">semantic_memory</span><span class="o">.</span><span class="n">save</span><span class="p">({</span>
+                    <span class="s2">&quot;entity&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;customer:</span><span class="si">{</span><span class="n">customer_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;attribute&quot;</span><span class="p">:</span> <span class="n">attribute</span><span class="p">,</span>
+                    <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">value</span>
+                <span class="p">}))</span>
+        
+        <span class="c1"># Prepare greeting</span>
+        <span class="n">greeting</span> <span class="o">=</span> <span class="s2">&quot;Hello! I&#39;m your AI support assistant. How can I help you today?&quot;</span>
+        
+        <span class="c1"># Add to conversation history</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conversation_history</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+            <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;assistant&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">greeting</span>
+        <span class="p">})</span>
+        
+        <span class="k">return</span> <span class="n">greeting</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_customer_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">customer_id</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Simulate retrieving customer info from a database.&quot;&quot;&quot;</span>
+        <span class="c1"># In a real implementation, this would query a customer database</span>
+        <span class="c1"># For this example, we&#39;ll return mock data</span>
+        <span class="n">customer_db</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;C12345&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;John Smith&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;john.smith@example.com&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plan&quot;</span><span class="p">:</span> <span class="s2">&quot;premium&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;signup_date&quot;</span><span class="p">:</span> <span class="s2">&quot;2023-01-15&quot;</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;C67890&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Jane Doe&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;jane.doe@example.com&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plan&quot;</span><span class="p">:</span> <span class="s2">&quot;basic&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;signup_date&quot;</span><span class="p">:</span> <span class="s2">&quot;2023-06-22&quot;</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;C24680&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Robert Johnson&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;robert.johnson@example.com&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plan&quot;</span><span class="p">:</span> <span class="s2">&quot;enterprise&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;signup_date&quot;</span><span class="p">:</span> <span class="s2">&quot;2022-11-05&quot;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        
+        <span class="k">return</span> <span class="n">customer_db</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">customer_id</span><span class="p">,</span> <span class="p">{})</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">process_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Process a customer message and generate a response.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_conversation</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;No active conversation. Please start a conversation first.&quot;</span>
+        
+        <span class="c1"># Add customer message to conversation history</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conversation_history</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+            <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">message</span>
+        <span class="p">})</span>
+        
+        <span class="c1"># Save to episodic memory</span>
+        <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">episodic_memory</span><span class="o">.</span><span class="n">save</span><span class="p">({</span>
+            <span class="s2">&quot;customer_id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_customer_id</span><span class="p">,</span>
+            <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">message</span><span class="p">,</span>
+            <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_timestamp</span><span class="p">()</span>
+        <span class="p">}))</span>
+        
+        <span class="c1"># Check for conversation ending</span>
+        <span class="k">if</span> <span class="n">message</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;bye&quot;</span><span class="p">,</span> <span class="s2">&quot;goodbye&quot;</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">,</span> <span class="s2">&quot;quit&quot;</span><span class="p">,</span> <span class="s2">&quot;exit&quot;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">active_conversation</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="s2">&quot;Thank you for contacting our support. Is there anything else I can help you with before you go?&quot;</span>
+            
+            <span class="c1"># Add to conversation history</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">conversation_history</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;assistant&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">response</span>
+            <span class="p">})</span>
+            
+            <span class="c1"># Save to episodic memory</span>
+            <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">episodic_memory</span><span class="o">.</span><span class="n">save</span><span class="p">({</span>
+                <span class="s2">&quot;customer_id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_customer_id</span><span class="p">,</span>
+                <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;assistant&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">response</span><span class="p">,</span>
+                <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_timestamp</span><span class="p">()</span>
+            <span class="p">}))</span>
+            
+            <span class="k">return</span> <span class="n">response</span>
+        
+        <span class="c1"># Create context for agent</span>
+        <span class="n">customer_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_customer_info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_customer_id</span><span class="p">)</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Customer ID: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">current_customer_id</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="n">customer_info</span><span class="p">:</span>
+            <span class="n">context</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;Name: </span><span class="si">{</span><span class="n">customer_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Unknown&#39;</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="n">context</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;Plan: </span><span class="si">{</span><span class="n">customer_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;plan&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Unknown&#39;</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        
+        <span class="c1"># Run agent with message and context</span>
+        <span class="n">prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        </span><span class="si">{</span><span class="n">context</span><span class="si">}</span>
+<span class="s2">        </span>
+<span class="s2">        You are a helpful customer support bot. The customer has sent the following message:</span>
+<span class="s2">        </span>
+<span class="s2">        </span><span class="si">{</span><span class="n">message</span><span class="si">}</span>
+<span class="s2">        </span>
+<span class="s2">        Please help the customer by providing information or using the appropriate tools.</span>
+<span class="s2">        If you need to create a ticket, use the customer&#39;s ID: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">current_customer_id</span><span class="si">}</span>
+<span class="s2">        If you can&#39;t help with something, offer to escalate to a human agent.</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+        
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+        
+        <span class="c1"># Add to conversation history</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conversation_history</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+            <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;assistant&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">response</span>
+        <span class="p">})</span>
+        
+        <span class="c1"># Save to episodic memory</span>
+        <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">episodic_memory</span><span class="o">.</span><span class="n">save</span><span class="p">({</span>
+            <span class="s2">&quot;customer_id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_customer_id</span><span class="p">,</span>
+            <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;assistant&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">response</span><span class="p">,</span>
+            <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_timestamp</span><span class="p">()</span>
+        <span class="p">}))</span>
+        
+        <span class="k">return</span> <span class="n">response</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">end_conversation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;End the current conversation.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_conversation</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;No active conversation to end.&quot;</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">active_conversation</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="s2">&quot;Conversation ended. Thank you for contacting our support.&quot;</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_conversation_history</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the current conversation history.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">conversation_history</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_timestamp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the current timestamp.&quot;&quot;&quot;</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+        <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="step-6-creating-a-simple-command-line-interface">
+<h2>Step 6: Creating a Simple Command Line Interface<a class="headerlink" href="#step-6-creating-a-simple-command-line-interface" title="Link to this heading"></a></h2>
+<p>Let’s create a simple interface to test our support bot:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+    <span class="c1"># Create the support bot</span>
+    <span class="n">bot</span> <span class="o">=</span> <span class="n">CustomerSupportBot</span><span class="p">()</span>
+    
+    <span class="c1"># Get customer ID</span>
+    <span class="n">customer_id</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Enter customer ID (e.g., C12345): &quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">customer_id</span><span class="p">:</span>
+        <span class="n">customer_id</span> <span class="o">=</span> <span class="s2">&quot;C12345&quot;</span>  <span class="c1"># Default for testing</span>
+    
+    <span class="c1"># Start conversation</span>
+    <span class="n">greeting</span> <span class="o">=</span> <span class="n">bot</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">(</span><span class="n">customer_id</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Bot: </span><span class="si">{</span><span class="n">greeting</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Main conversation loop</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="c1"># Get user input</span>
+        <span class="n">user_input</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;You: &quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Check for exit command</span>
+        <span class="k">if</span> <span class="n">user_input</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;quit&quot;</span><span class="p">,</span> <span class="s2">&quot;exit&quot;</span><span class="p">]:</span>
+            <span class="n">bot</span><span class="o">.</span><span class="n">end_conversation</span><span class="p">()</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Bot: Goodbye!&quot;</span><span class="p">)</span>
+            <span class="k">break</span>
+        
+        <span class="c1"># Process message</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">bot</span><span class="o">.</span><span class="n">process_message</span><span class="p">(</span><span class="n">user_input</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Bot: </span><span class="si">{</span><span class="n">response</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Check if conversation ended</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">bot</span><span class="o">.</span><span class="n">active_conversation</span><span class="p">:</span>
+            <span class="k">break</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="step-7-adding-analytics-and-performance-tracking">
+<h2>Step 7: Adding Analytics and Performance Tracking<a class="headerlink" href="#step-7-adding-analytics-and-performance-tracking" title="Link to this heading"></a></h2>
+<p>Let’s add basic analytics to track bot performance:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">SupportBotAnalytics</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conversations</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ticket_stats</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;created&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;resolved&quot;</span><span class="p">:</span> <span class="mi">0</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tool_usage</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">response_times</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">log_conversation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">customer_id</span><span class="p">,</span> <span class="n">conversation</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Log a completed conversation.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">customer_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">conversations</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">conversations</span><span class="p">[</span><span class="n">customer_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">conversations</span><span class="p">[</span><span class="n">customer_id</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">conversation</span><span class="p">)</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">log_ticket_creation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Log a ticket creation event.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ticket_stats</span><span class="p">[</span><span class="s2">&quot;created&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">log_ticket_resolution</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Log a ticket resolution event.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ticket_stats</span><span class="p">[</span><span class="s2">&quot;resolved&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">log_tool_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tool_name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Log a tool usage event.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">tool_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tool_usage</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tool_usage</span><span class="p">[</span><span class="n">tool_name</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">tool_usage</span><span class="p">[</span><span class="n">tool_name</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">log_response_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seconds</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Log response time in seconds.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">response_times</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">seconds</span><span class="p">)</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_average_response_time</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the average response time.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">response_times</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span>
+        
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">response_times</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">response_times</span><span class="p">)</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_most_used_tools</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the most frequently used tools.&quot;&quot;&quot;</span>
+        <span class="n">sorted_tools</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tool_usage</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span>
+            <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+            <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">sorted_tools</span><span class="p">[:</span><span class="n">limit</span><span class="p">]</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_conversation_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the total number of conversations.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">convs</span><span class="p">)</span> <span class="k">for</span> <span class="n">convs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">conversations</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_customer_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the number of unique customers.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conversations</span><span class="p">)</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate_report</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate an analytics report.&quot;&quot;&quot;</span>
+        <span class="n">report</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;conversation_count&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_conversation_count</span><span class="p">(),</span>
+            <span class="s2">&quot;customer_count&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_customer_count</span><span class="p">(),</span>
+            <span class="s2">&quot;ticket_stats&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ticket_stats</span><span class="p">,</span>
+            <span class="s2">&quot;most_used_tools&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_most_used_tools</span><span class="p">(),</span>
+            <span class="s2">&quot;average_response_time&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_average_response_time</span><span class="p">()</span>
+        <span class="p">}</span>
+        
+        <span class="k">return</span> <span class="n">report</span>
+</pre></div>
+</div>
+<p>Update the <code class="docutils literal notranslate"><span class="pre">CustomerSupportBot</span></code> class to integrate analytics:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">CustomerSupportBot</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">analytics</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent</span> <span class="o">=</span> <span class="n">support_agent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_customer_id</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">active_conversation</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conversation_history</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">analytics</span> <span class="o">=</span> <span class="n">analytics</span> <span class="ow">or</span> <span class="n">SupportBotAnalytics</span><span class="p">()</span>
+    
+    <span class="c1"># ... other methods ...</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">process_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Process a customer message and generate a response.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_conversation</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;No active conversation. Please start a conversation first.&quot;</span>
+        
+        <span class="c1"># Record start time for response time tracking</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+        <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        
+        <span class="c1"># ... existing code ...</span>
+        
+        <span class="c1"># Run agent with message and context</span>
+        <span class="n">prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        </span><span class="si">{</span><span class="n">context</span><span class="si">}</span>
+<span class="s2">        </span>
+<span class="s2">        You are a helpful customer support bot. The customer has sent the following message:</span>
+<span class="s2">        </span>
+<span class="s2">        </span><span class="si">{</span><span class="n">message</span><span class="si">}</span>
+<span class="s2">        </span>
+<span class="s2">        Please help the customer by providing information or using the appropriate tools.</span>
+<span class="s2">        If you need to create a ticket, use the customer&#39;s ID: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">current_customer_id</span><span class="si">}</span>
+<span class="s2">        If you can&#39;t help with something, offer to escalate to a human agent.</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+        
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+        
+        <span class="c1"># Log tool usage from agent response (simplified)</span>
+        <span class="k">if</span> <span class="s2">&quot;search_knowledge_base&quot;</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">analytics</span><span class="o">.</span><span class="n">log_tool_usage</span><span class="p">(</span><span class="s2">&quot;search_knowledge_base&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;create_ticket&quot;</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">analytics</span><span class="o">.</span><span class="n">log_tool_usage</span><span class="p">(</span><span class="s2">&quot;create_ticket&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">analytics</span><span class="o">.</span><span class="n">log_ticket_creation</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s2">&quot;escalate_to_human&quot;</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">analytics</span><span class="o">.</span><span class="n">log_tool_usage</span><span class="p">(</span><span class="s2">&quot;escalate_to_human&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># ... existing code ...</span>
+        
+        <span class="c1"># Log response time</span>
+        <span class="n">end_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">analytics</span><span class="o">.</span><span class="n">log_response_time</span><span class="p">(</span><span class="n">end_time</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">response</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">end_conversation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;End the current conversation.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_conversation</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;No active conversation to end.&quot;</span>
+        
+        <span class="c1"># Log the completed conversation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">analytics</span><span class="o">.</span><span class="n">log_conversation</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_customer_id</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">conversation_history</span>
+        <span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">active_conversation</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="s2">&quot;Conversation ended. Thank you for contacting our support.&quot;</span>
+</pre></div>
+</div>
+<p>Update the main function to show analytics:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+    <span class="c1"># Create analytics</span>
+    <span class="n">analytics</span> <span class="o">=</span> <span class="n">SupportBotAnalytics</span><span class="p">()</span>
+    
+    <span class="c1"># Create the support bot with analytics</span>
+    <span class="n">bot</span> <span class="o">=</span> <span class="n">CustomerSupportBot</span><span class="p">(</span><span class="n">analytics</span><span class="o">=</span><span class="n">analytics</span><span class="p">)</span>
+    
+    <span class="c1"># ... existing code ...</span>
+    
+    <span class="c1"># After conversation ends, show analytics</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Support Bot Analytics:&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
+    <span class="n">report</span> <span class="o">=</span> <span class="n">analytics</span><span class="o">.</span><span class="n">generate_report</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">report</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="complete-code">
+<h2>Complete Code<a class="headerlink" href="#complete-code" title="Link to this heading"></a></h2>
+<p>Here’s the complete code for our customer support bot:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dotenv</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dotenv</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.patterns.re_act_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReActAgent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpisodicMemory</span><span class="p">,</span> <span class="n">SemanticMemory</span><span class="p">,</span> <span class="n">CompositeMemory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory.persistence</span><span class="w"> </span><span class="kn">import</span> <span class="n">InMemoryPersistence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseToolProvider</span><span class="p">,</span> <span class="n">Tool</span>
+
+<span class="c1"># Load environment variables</span>
+<span class="n">load_dotenv</span><span class="p">()</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">CustomerSupportToolProvider</span><span class="p">(</span><span class="n">BaseToolProvider</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Tool provider for customer support operations.&quot;&quot;&quot;</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="c1"># Simulated knowledge base</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">knowledge_base</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;product_features&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;basic&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Feature A&quot;</span><span class="p">,</span> <span class="s2">&quot;Feature B&quot;</span><span class="p">,</span> <span class="s2">&quot;Feature C&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;premium&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Feature A&quot;</span><span class="p">,</span> <span class="s2">&quot;Feature B&quot;</span><span class="p">,</span> <span class="s2">&quot;Feature C&quot;</span><span class="p">,</span> <span class="s2">&quot;Feature D&quot;</span><span class="p">,</span> <span class="s2">&quot;Feature E&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;enterprise&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Feature A&quot;</span><span class="p">,</span> <span class="s2">&quot;Feature B&quot;</span><span class="p">,</span> <span class="s2">&quot;Feature C&quot;</span><span class="p">,</span> <span class="s2">&quot;Feature D&quot;</span><span class="p">,</span> <span class="s2">&quot;Feature E&quot;</span><span class="p">,</span> <span class="s2">&quot;Feature F&quot;</span><span class="p">,</span> <span class="s2">&quot;Feature G&quot;</span><span class="p">]</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;pricing&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;basic&quot;</span><span class="p">:</span> <span class="s2">&quot;$10/month&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;premium&quot;</span><span class="p">:</span> <span class="s2">&quot;$25/month&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;enterprise&quot;</span><span class="p">:</span> <span class="s2">&quot;Custom pricing&quot;</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;common_issues&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;login_problem&quot;</span><span class="p">:</span> <span class="s2">&quot;Try clearing your browser cache and cookies, then restart your browser.&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;payment_failed&quot;</span><span class="p">:</span> <span class="s2">&quot;Verify your payment information is up-to-date and try again.&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;feature_not_working&quot;</span><span class="p">:</span> <span class="s2">&quot;Ensure you&#39;re on the latest version. If the issue persists, try restarting the application.&quot;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        
+        <span class="c1"># Simulated ticket system</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tickets</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">next_ticket_id</span> <span class="o">=</span> <span class="mi">1000</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_tools</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return available tools.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="n">Tool</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;search_knowledge_base&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Search the knowledge base for information&quot;</span><span class="p">,</span>
+                <span class="n">function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">search_knowledge_base</span><span class="p">,</span>
+                <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">&quot;query&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The search query&quot;</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">),</span>
+            <span class="n">Tool</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;get_product_features&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Get features for a specific product tier&quot;</span><span class="p">,</span>
+                <span class="n">function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_product_features</span><span class="p">,</span>
+                <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">&quot;tier&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Product tier (basic, premium, or enterprise)&quot;</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">),</span>
+            <span class="n">Tool</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;get_pricing&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Get pricing information for a specific tier&quot;</span><span class="p">,</span>
+                <span class="n">function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_pricing</span><span class="p">,</span>
+                <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">&quot;tier&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Product tier (basic, premium, or enterprise)&quot;</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">),</span>
+            <span class="n">Tool</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;create_ticket&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Create a support ticket&quot;</span><span class="p">,</span>
+                <span class="n">function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">create_ticket</span><span class="p">,</span>
+                <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">&quot;customer_id&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Customer ID&quot;</span>
+                    <span class="p">},</span>
+                    <span class="s2">&quot;subject&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Ticket subject&quot;</span>
+                    <span class="p">},</span>
+                    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Detailed description of the issue&quot;</span>
+                    <span class="p">},</span>
+                    <span class="s2">&quot;priority&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Ticket priority (low, medium, high)&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;low&quot;</span><span class="p">,</span> <span class="s2">&quot;medium&quot;</span><span class="p">,</span> <span class="s2">&quot;high&quot;</span><span class="p">]</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">),</span>
+            <span class="n">Tool</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;get_ticket&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Get details of a support ticket&quot;</span><span class="p">,</span>
+                <span class="n">function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_ticket</span><span class="p">,</span>
+                <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">&quot;ticket_id&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Ticket ID&quot;</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">),</span>
+            <span class="n">Tool</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;update_ticket&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Update a support ticket&quot;</span><span class="p">,</span>
+                <span class="n">function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">update_ticket</span><span class="p">,</span>
+                <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">&quot;ticket_id&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Ticket ID&quot;</span>
+                    <span class="p">},</span>
+                    <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;New ticket status&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;open&quot;</span><span class="p">,</span> <span class="s2">&quot;in_progress&quot;</span><span class="p">,</span> <span class="s2">&quot;pending&quot;</span><span class="p">,</span> <span class="s2">&quot;resolved&quot;</span><span class="p">,</span> <span class="s2">&quot;closed&quot;</span><span class="p">]</span>
+                    <span class="p">},</span>
+                    <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Notes to add to the ticket&quot;</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">),</span>
+            <span class="n">Tool</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;escalate_to_human&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Escalate the conversation to a human agent&quot;</span><span class="p">,</span>
+                <span class="n">function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">escalate_to_human</span><span class="p">,</span>
+                <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">&quot;reason&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Reason for escalation&quot;</span>
+                    <span class="p">},</span>
+                    <span class="s2">&quot;urgency&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Urgency level&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;low&quot;</span><span class="p">,</span> <span class="s2">&quot;medium&quot;</span><span class="p">,</span> <span class="s2">&quot;high&quot;</span><span class="p">]</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+        <span class="p">]</span>
+    
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">search_knowledge_base</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Search the knowledge base for information.&quot;&quot;&quot;</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="c1"># Search in product features</span>
+        <span class="k">for</span> <span class="n">tier</span><span class="p">,</span> <span class="n">features</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">knowledge_base</span><span class="p">[</span><span class="s2">&quot;product_features&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">features</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">query</span> <span class="ow">in</span> <span class="n">feature</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                    <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                        <span class="s2">&quot;category&quot;</span><span class="p">:</span> <span class="s2">&quot;product_features&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;tier&quot;</span><span class="p">:</span> <span class="n">tier</span><span class="p">,</span>
+                        <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">feature</span>
+                    <span class="p">})</span>
+        
+        <span class="c1"># Search in pricing</span>
+        <span class="k">for</span> <span class="n">tier</span><span class="p">,</span> <span class="n">price</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">knowledge_base</span><span class="p">[</span><span class="s2">&quot;pricing&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">query</span> <span class="ow">in</span> <span class="n">tier</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">or</span> <span class="n">query</span> <span class="ow">in</span> <span class="n">price</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                    <span class="s2">&quot;category&quot;</span><span class="p">:</span> <span class="s2">&quot;pricing&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;tier&quot;</span><span class="p">:</span> <span class="n">tier</span><span class="p">,</span>
+                    <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">price</span>
+                <span class="p">})</span>
+        
+        <span class="c1"># Search in common issues</span>
+        <span class="k">for</span> <span class="n">issue</span><span class="p">,</span> <span class="n">solution</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">knowledge_base</span><span class="p">[</span><span class="s2">&quot;common_issues&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">query</span> <span class="ow">in</span> <span class="n">issue</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">or</span> <span class="n">query</span> <span class="ow">in</span> <span class="n">solution</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                    <span class="s2">&quot;category&quot;</span><span class="p">:</span> <span class="s2">&quot;common_issues&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;issue&quot;</span><span class="p">:</span> <span class="n">issue</span><span class="p">,</span>
+                    <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">solution</span>
+                <span class="p">})</span>
+        
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;query&quot;</span><span class="p">:</span> <span class="n">query</span><span class="p">,</span>
+            <span class="s2">&quot;results&quot;</span><span class="p">:</span> <span class="n">results</span><span class="p">,</span>
+            <span class="s2">&quot;result_count&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+        <span class="p">}</span>
+    
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_product_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tier</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get features for a specific product tier.&quot;&quot;&quot;</span>
+        <span class="n">tier</span> <span class="o">=</span> <span class="n">tier</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">tier</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">knowledge_base</span><span class="p">[</span><span class="s2">&quot;product_features&quot;</span><span class="p">]:</span>
+            <span class="n">features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">knowledge_base</span><span class="p">[</span><span class="s2">&quot;product_features&quot;</span><span class="p">][</span><span class="n">tier</span><span class="p">]</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s2">&quot;tier&quot;</span><span class="p">:</span> <span class="n">tier</span><span class="p">,</span>
+                <span class="s2">&quot;features&quot;</span><span class="p">:</span> <span class="n">features</span><span class="p">,</span>
+                <span class="s2">&quot;feature_count&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
+            <span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Tier &#39;</span><span class="si">{</span><span class="n">tier</span><span class="si">}</span><span class="s2">&#39; not found&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;available_tiers&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">knowledge_base</span><span class="p">[</span><span class="s2">&quot;product_features&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="p">}</span>
+    
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_pricing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tier</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get pricing information for a specific tier.&quot;&quot;&quot;</span>
+        <span class="n">tier</span> <span class="o">=</span> <span class="n">tier</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">tier</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">knowledge_base</span><span class="p">[</span><span class="s2">&quot;pricing&quot;</span><span class="p">]:</span>
+            <span class="n">price</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">knowledge_base</span><span class="p">[</span><span class="s2">&quot;pricing&quot;</span><span class="p">][</span><span class="n">tier</span><span class="p">]</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s2">&quot;tier&quot;</span><span class="p">:</span> <span class="n">tier</span><span class="p">,</span>
+                <span class="s2">&quot;price&quot;</span><span class="p">:</span> <span class="n">price</span>
+            <span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Tier &#39;</span><span class="si">{</span><span class="n">tier</span><span class="si">}</span><span class="s2">&#39; not found&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;available_tiers&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">knowledge_base</span><span class="p">[</span><span class="s2">&quot;pricing&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="p">}</span>
+    
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">create_ticket</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">customer_id</span><span class="p">,</span> <span class="n">subject</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="s2">&quot;medium&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a support ticket.&quot;&quot;&quot;</span>
+        <span class="n">ticket_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">next_ticket_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">next_ticket_id</span> <span class="o">+=</span> <span class="mi">1</span>
+        
+        <span class="c1"># Create timestamp</span>
+        <span class="n">timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+        
+        <span class="c1"># Create ticket</span>
+        <span class="n">ticket</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;ticket_id&quot;</span><span class="p">:</span> <span class="n">ticket_id</span><span class="p">,</span>
+            <span class="s2">&quot;customer_id&quot;</span><span class="p">:</span> <span class="n">customer_id</span><span class="p">,</span>
+            <span class="s2">&quot;subject&quot;</span><span class="p">:</span> <span class="n">subject</span><span class="p">,</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">description</span><span class="p">,</span>
+            <span class="s2">&quot;priority&quot;</span><span class="p">:</span> <span class="n">priority</span><span class="p">,</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;open&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;created_at&quot;</span><span class="p">:</span> <span class="n">timestamp</span><span class="p">,</span>
+            <span class="s2">&quot;updated_at&quot;</span><span class="p">:</span> <span class="n">timestamp</span><span class="p">,</span>
+            <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="p">[]</span>
+        <span class="p">}</span>
+        
+        <span class="c1"># Save ticket</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tickets</span><span class="p">[</span><span class="n">ticket_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">ticket</span>
+        
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;ticket_id&quot;</span><span class="p">:</span> <span class="n">ticket_id</span><span class="p">,</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;created&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Ticket </span><span class="si">{</span><span class="n">ticket_id</span><span class="si">}</span><span class="s2"> created successfully&quot;</span>
+        <span class="p">}</span>
+    
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_ticket</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ticket_id</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get details of a support ticket.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">ticket_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tickets</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tickets</span><span class="p">[</span><span class="n">ticket_id</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Ticket </span><span class="si">{</span><span class="n">ticket_id</span><span class="si">}</span><span class="s2"> not found&quot;</span>
+            <span class="p">}</span>
+    
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">update_ticket</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ticket_id</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">notes</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update a support ticket.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">ticket_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tickets</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Ticket </span><span class="si">{</span><span class="n">ticket_id</span><span class="si">}</span><span class="s2"> not found&quot;</span>
+            <span class="p">}</span>
+        
+        <span class="n">ticket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tickets</span><span class="p">[</span><span class="n">ticket_id</span><span class="p">]</span>
+        
+        <span class="c1"># Update timestamp</span>
+        <span class="n">ticket</span><span class="p">[</span><span class="s2">&quot;updated_at&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+        
+        <span class="c1"># Update status if provided</span>
+        <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+            <span class="n">ticket</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">status</span>
+        
+        <span class="c1"># Add notes if provided</span>
+        <span class="k">if</span> <span class="n">notes</span><span class="p">:</span>
+            <span class="n">ticket</span><span class="p">[</span><span class="s2">&quot;notes&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">notes</span><span class="p">,</span>
+                <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="n">ticket</span><span class="p">[</span><span class="s2">&quot;updated_at&quot;</span><span class="p">]</span>
+            <span class="p">})</span>
+        
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;ticket_id&quot;</span><span class="p">:</span> <span class="n">ticket_id</span><span class="p">,</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="n">ticket</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Ticket </span><span class="si">{</span><span class="n">ticket_id</span><span class="si">}</span><span class="s2"> updated successfully&quot;</span>
+        <span class="p">}</span>
+    
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">escalate_to_human</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reason</span><span class="p">,</span> <span class="n">urgency</span><span class="o">=</span><span class="s2">&quot;medium&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Escalate the conversation to a human agent.&quot;&quot;&quot;</span>
+        <span class="c1"># In a real implementation, this would integrate with a queue system</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;escalated&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;reason&quot;</span><span class="p">:</span> <span class="n">reason</span><span class="p">,</span>
+            <span class="s2">&quot;urgency&quot;</span><span class="p">:</span> <span class="n">urgency</span><span class="p">,</span>
+            <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;This conversation has been escalated to a human agent who will respond shortly.&quot;</span>
+        <span class="p">}</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">SupportBotAnalytics</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conversations</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ticket_stats</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;created&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;resolved&quot;</span><span class="p">:</span> <span class="mi">0</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tool_usage</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">response_times</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">log_conversation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">customer_id</span><span class="p">,</span> <span class="n">conversation</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Log a completed conversation.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">customer_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">conversations</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">conversations</span><span class="p">[</span><span class="n">customer_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">conversations</span><span class="p">[</span><span class="n">customer_id</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">conversation</span><span class="p">)</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">log_ticket_creation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Log a ticket creation event.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ticket_stats</span><span class="p">[</span><span class="s2">&quot;created&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">log_ticket_resolution</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Log a ticket resolution event.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ticket_stats</span><span class="p">[</span><span class="s2">&quot;resolved&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">log_tool_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tool_name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Log a tool usage event.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">tool_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tool_usage</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tool_usage</span><span class="p">[</span><span class="n">tool_name</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">tool_usage</span><span class="p">[</span><span class="n">tool_name</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">log_response_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seconds</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Log response time in seconds.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">response_times</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">seconds</span><span class="p">)</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_average_response_time</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the average response time.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">response_times</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span>
+        
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">response_times</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">response_times</span><span class="p">)</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_most_used_tools</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the most frequently used tools.&quot;&quot;&quot;</span>
+        <span class="n">sorted_tools</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tool_usage</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span>
+            <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+            <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">sorted_tools</span><span class="p">[:</span><span class="n">limit</span><span class="p">]</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_conversation_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the total number of conversations.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">convs</span><span class="p">)</span> <span class="k">for</span> <span class="n">convs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">conversations</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_customer_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the number of unique customers.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conversations</span><span class="p">)</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate_report</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate an analytics report.&quot;&quot;&quot;</span>
+        <span class="n">report</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;conversation_count&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_conversation_count</span><span class="p">(),</span>
+            <span class="s2">&quot;customer_count&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_customer_count</span><span class="p">(),</span>
+            <span class="s2">&quot;ticket_stats&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ticket_stats</span><span class="p">,</span>
+            <span class="s2">&quot;most_used_tools&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_most_used_tools</span><span class="p">(),</span>
+            <span class="s2">&quot;average_response_time&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_average_response_time</span><span class="p">()</span>
+        <span class="p">}</span>
+        
+        <span class="k">return</span> <span class="n">report</span>
+
+<span class="c1"># Set up memory persistence</span>
+<span class="n">persistence</span> <span class="o">=</span> <span class="n">InMemoryPersistence</span><span class="p">()</span>
+<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">persistence</span><span class="o">.</span><span class="n">initialize</span><span class="p">())</span>
+
+<span class="c1"># Create memory components</span>
+<span class="n">episodic_memory</span> <span class="o">=</span> <span class="n">EpisodicMemory</span><span class="p">(</span>
+    <span class="n">persistence</span><span class="p">,</span> 
+    <span class="n">namespace</span><span class="o">=</span><span class="s2">&quot;conversations&quot;</span>
+<span class="p">)</span>
+
+<span class="n">semantic_memory</span> <span class="o">=</span> <span class="n">SemanticMemory</span><span class="p">(</span>
+    <span class="n">persistence</span><span class="p">,</span>
+    <span class="n">namespace</span><span class="o">=</span><span class="s2">&quot;customer_info&quot;</span>
+<span class="p">)</span>
+
+<span class="c1"># Create composite memory</span>
+<span class="n">memory</span> <span class="o">=</span> <span class="n">CompositeMemory</span><span class="p">({</span>
+    <span class="s2">&quot;episodic&quot;</span><span class="p">:</span> <span class="n">episodic_memory</span><span class="p">,</span>
+    <span class="s2">&quot;semantic&quot;</span><span class="p">:</span> <span class="n">semantic_memory</span>
+<span class="p">})</span>
+
+<span class="c1"># Configure LLM settings</span>
+<span class="n">llm_configs</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;provider&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;DEFAULT_MODEL_PROVIDER&quot;</span><span class="p">,</span> <span class="s2">&quot;openai&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;DEFAULT_MODEL_NAME&quot;</span><span class="p">,</span> <span class="s2">&quot;gpt-4o&quot;</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1"># Create tool provider</span>
+<span class="n">support_tool_provider</span> <span class="o">=</span> <span class="n">CustomerSupportToolProvider</span><span class="p">()</span>
+
+<span class="c1"># Create support bot agent</span>
+<span class="n">support_agent</span> <span class="o">=</span> <span class="n">ReActAgent</span><span class="p">(</span>
+    <span class="n">llm_configs</span><span class="o">=</span><span class="n">llm_configs</span><span class="p">,</span>
+    <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
+    <span class="n">memory_config</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;episodic&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;semantic&quot;</span><span class="p">:</span> <span class="kc">True</span>
+    <span class="p">},</span>
+    <span class="n">tool_provider</span><span class="o">=</span><span class="n">support_tool_provider</span>
+<span class="p">)</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">CustomerSupportBot</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">analytics</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent</span> <span class="o">=</span> <span class="n">support_agent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_customer_id</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">active_conversation</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conversation_history</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">analytics</span> <span class="o">=</span> <span class="n">analytics</span> <span class="ow">or</span> <span class="n">SupportBotAnalytics</span><span class="p">()</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">start_conversation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">customer_id</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Start a new conversation with a customer.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_customer_id</span> <span class="o">=</span> <span class="n">customer_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">active_conversation</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conversation_history</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="c1"># Store customer information if available (simulated)</span>
+        <span class="n">customer_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_customer_info</span><span class="p">(</span><span class="n">customer_id</span><span class="p">)</span>
+        
+        <span class="c1"># Save customer info to memory</span>
+        <span class="k">if</span> <span class="n">customer_info</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">customer_info</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">semantic_memory</span><span class="o">.</span><span class="n">save</span><span class="p">({</span>
+                    <span class="s2">&quot;entity&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;customer:</span><span class="si">{</span><span class="n">customer_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;attribute&quot;</span><span class="p">:</span> <span class="n">attribute</span><span class="p">,</span>
+                    <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">value</span>
+                <span class="p">}))</span>
+        
+        <span class="c1"># Prepare greeting</span>
+        <span class="n">greeting</span> <span class="o">=</span> <span class="s2">&quot;Hello! I&#39;m your AI support assistant. How can I help you today?&quot;</span>
+        
+        <span class="c1"># Add to conversation history</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conversation_history</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+            <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;assistant&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">greeting</span>
+        <span class="p">})</span>
+        
+        <span class="k">return</span> <span class="n">greeting</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_customer_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">customer_id</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Simulate retrieving customer info from a database.&quot;&quot;&quot;</span>
+        <span class="c1"># In a real implementation, this would query a customer database</span>
+        <span class="c1"># For this example, we&#39;ll return mock data</span>
+        <span class="n">customer_db</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;C12345&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;John Smith&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;john.smith@example.com&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plan&quot;</span><span class="p">:</span> <span class="s2">&quot;premium&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;signup_date&quot;</span><span class="p">:</span> <span class="s2">&quot;2023-01-15&quot;</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;C67890&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Jane Doe&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;jane.doe@example.com&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plan&quot;</span><span class="p">:</span> <span class="s2">&quot;basic&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;signup_date&quot;</span><span class="p">:</span> <span class="s2">&quot;2023-06-22&quot;</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;C24680&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Robert Johnson&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;robert.johnson@example.com&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plan&quot;</span><span class="p">:</span> <span class="s2">&quot;enterprise&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;signup_date&quot;</span><span class="p">:</span> <span class="s2">&quot;2022-11-05&quot;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        
+        <span class="k">return</span> <span class="n">customer_db</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">customer_id</span><span class="p">,</span> <span class="p">{})</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">process_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Process a customer message and generate a response.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_conversation</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;No active conversation. Please start a conversation first.&quot;</span>
+        
+        <span class="c1"># Record start time for response time tracking</span>
+        <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        
+        <span class="c1"># Add customer message to conversation history</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conversation_history</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+            <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">message</span>
+        <span class="p">})</span>
+        
+        <span class="c1"># Save to episodic memory</span>
+        <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">episodic_memory</span><span class="o">.</span><span class="n">save</span><span class="p">({</span>
+            <span class="s2">&quot;customer_id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_customer_id</span><span class="p">,</span>
+            <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">message</span><span class="p">,</span>
+            <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_timestamp</span><span class="p">()</span>
+        <span class="p">}))</span>
+        
+        <span class="c1"># Check for conversation ending</span>
+        <span class="k">if</span> <span class="n">message</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;bye&quot;</span><span class="p">,</span> <span class="s2">&quot;goodbye&quot;</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">,</span> <span class="s2">&quot;quit&quot;</span><span class="p">,</span> <span class="s2">&quot;exit&quot;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">active_conversation</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="s2">&quot;Thank you for contacting our support. Is there anything else I can help you with before you go?&quot;</span>
+            
+            <span class="c1"># Add to conversation history</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">conversation_history</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;assistant&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">response</span>
+            <span class="p">})</span>
+            
+            <span class="c1"># Save to episodic memory</span>
+            <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">episodic_memory</span><span class="o">.</span><span class="n">save</span><span class="p">({</span>
+                <span class="s2">&quot;customer_id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_customer_id</span><span class="p">,</span>
+                <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;assistant&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">response</span><span class="p">,</span>
+                <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_timestamp</span><span class="p">()</span>
+            <span class="p">}))</span>
+            
+            <span class="k">return</span> <span class="n">response</span>
+        
+        <span class="c1"># Create context for agent</span>
+        <span class="n">customer_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_customer_info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_customer_id</span><span class="p">)</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Customer ID: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">current_customer_id</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="n">customer_info</span><span class="p">:</span>
+            <span class="n">context</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;Name: </span><span class="si">{</span><span class="n">customer_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Unknown&#39;</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="n">context</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;Plan: </span><span class="si">{</span><span class="n">customer_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;plan&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Unknown&#39;</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        
+        <span class="c1"># Run agent with message and context</span>
+        <span class="n">prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        </span><span class="si">{</span><span class="n">context</span><span class="si">}</span>
+<span class="s2">        </span>
+<span class="s2">        You are a helpful customer support bot. The customer has sent the following message:</span>
+<span class="s2">        </span>
+<span class="s2">        </span><span class="si">{</span><span class="n">message</span><span class="si">}</span>
+<span class="s2">        </span>
+<span class="s2">        Please help the customer by providing information or using the appropriate tools.</span>
+<span class="s2">        If you need to create a ticket, use the customer&#39;s ID: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">current_customer_id</span><span class="si">}</span>
+<span class="s2">        If you can&#39;t help with something, offer to escalate to a human agent.</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+        
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+        
+        <span class="c1"># Log tool usage from agent response (simplified)</span>
+        <span class="k">if</span> <span class="s2">&quot;search_knowledge_base&quot;</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">analytics</span><span class="o">.</span><span class="n">log_tool_usage</span><span class="p">(</span><span class="s2">&quot;search_knowledge_base&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;create_ticket&quot;</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">analytics</span><span class="o">.</span><span class="n">log_tool_usage</span><span class="p">(</span><span class="s2">&quot;create_ticket&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">analytics</span><span class="o">.</span><span class="n">log_ticket_creation</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s2">&quot;escalate_to_human&quot;</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">analytics</span><span class="o">.</span><span class="n">log_tool_usage</span><span class="p">(</span><span class="s2">&quot;escalate_to_human&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Add to conversation history</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conversation_history</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+            <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;assistant&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">response</span>
+        <span class="p">})</span>
+        
+        <span class="c1"># Save to episodic memory</span>
+        <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">episodic_memory</span><span class="o">.</span><span class="n">save</span><span class="p">({</span>
+            <span class="s2">&quot;customer_id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_customer_id</span><span class="p">,</span>
+            <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;assistant&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">response</span><span class="p">,</span>
+            <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_timestamp</span><span class="p">()</span>
+        <span class="p">}))</span>
+        
+        <span class="c1"># Log response time</span>
+        <span class="n">end_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">analytics</span><span class="o">.</span><span class="n">log_response_time</span><span class="p">(</span><span class="n">end_time</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">response</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">end_conversation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;End the current conversation.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_conversation</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;No active conversation to end.&quot;</span>
+        
+        <span class="c1"># Log the completed conversation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">analytics</span><span class="o">.</span><span class="n">log_conversation</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_customer_id</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">conversation_history</span>
+        <span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">active_conversation</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="s2">&quot;Conversation ended. Thank you for contacting our support.&quot;</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_conversation_history</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the current conversation history.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">conversation_history</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_timestamp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the current timestamp.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+    <span class="c1"># Create analytics</span>
+    <span class="n">analytics</span> <span class="o">=</span> <span class="n">SupportBotAnalytics</span><span class="p">()</span>
+    
+    <span class="c1"># Create the support bot with analytics</span>
+    <span class="n">bot</span> <span class="o">=</span> <span class="n">CustomerSupportBot</span><span class="p">(</span><span class="n">analytics</span><span class="o">=</span><span class="n">analytics</span><span class="p">)</span>
+    
+    <span class="c1"># Get customer ID</span>
+    <span class="n">customer_id</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Enter customer ID (e.g., C12345): &quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">customer_id</span><span class="p">:</span>
+        <span class="n">customer_id</span> <span class="o">=</span> <span class="s2">&quot;C12345&quot;</span>  <span class="c1"># Default for testing</span>
+    
+    <span class="c1"># Start conversation</span>
+    <span class="n">greeting</span> <span class="o">=</span> <span class="n">bot</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">(</span><span class="n">customer_id</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Bot: </span><span class="si">{</span><span class="n">greeting</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Main conversation loop</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="c1"># Get user input</span>
+        <span class="n">user_input</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;You: &quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Check for exit command</span>
+        <span class="k">if</span> <span class="n">user_input</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;quit&quot;</span><span class="p">,</span> <span class="s2">&quot;exit&quot;</span><span class="p">]:</span>
+            <span class="n">bot</span><span class="o">.</span><span class="n">end_conversation</span><span class="p">()</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Bot: Goodbye!&quot;</span><span class="p">)</span>
+            <span class="k">break</span>
+        
+        <span class="c1"># Process message</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">bot</span><span class="o">.</span><span class="n">process_message</span><span class="p">(</span><span class="n">user_input</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Bot: </span><span class="si">{</span><span class="n">response</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Check if conversation ended</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">bot</span><span class="o">.</span><span class="n">active_conversation</span><span class="p">:</span>
+            <span class="k">break</span>
+    
+    <span class="c1"># After conversation ends, show analytics</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Support Bot Analytics:&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
+    <span class="n">report</span> <span class="o">=</span> <span class="n">analytics</span><span class="o">.</span><span class="n">generate_report</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">report</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="architecture-diagram">
+<h2>Architecture Diagram<a class="headerlink" href="#architecture-diagram" title="Link to this heading"></a></h2>
+<div class="highlight-mermaid notranslate"><div class="highlight"><pre><span></span>graph TD
+    A[Customer Interface] --&gt; B[CustomerSupportBot]
+    B --&gt; C[ReAct Agent]
+    C --&gt; D[Tool Provider]
+    C --&gt; E[Memory System]
+    B --&gt; F[Analytics]
+    
+    D --&gt; G[Knowledge Base Tools]
+    D --&gt; H[Ticket Management Tools]
+    D --&gt; I[Escalation Tools]
+    
+    E --&gt; J[Episodic Memory]
+    E --&gt; K[Semantic Memory]
+    
+    F --&gt; L[Conversation Metrics]
+    F --&gt; M[Tool Usage Metrics]
+    F --&gt; N[Response Time Metrics]
+</pre></div>
+</div>
+</section>
+<section id="next-steps">
+<h2>Next Steps<a class="headerlink" href="#next-steps" title="Link to this heading"></a></h2>
+<p>You can enhance this support bot with:</p>
+<ol class="arabic simple">
+<li><p><strong>Integration with Real Systems</strong>: Connect to actual customer databases, CRMs, and ticketing systems</p></li>
+<li><p><strong>Multi-Channel Support</strong>: Add interfaces for web chat, email, SMS, and messaging platforms</p></li>
+<li><p><strong>Sentiment Analysis</strong>: Add sentiment detection to identify frustrated customers</p></li>
+<li><p><strong>Proactive Support</strong>: Implement triggered messages based on user behavior</p></li>
+<li><p><strong>Handoff Protocols</strong>: Create seamless handoffs to human agents with full context</p></li>
+</ol>
+<p>By using the ReAct agent pattern, our support bot benefits from:</p>
+<ul class="simple">
+<li><p>Tool-based problem solving capabilities</p></li>
+<li><p>Reasoning about customer issues before taking action</p></li>
+<li><p>Access to knowledge bases and ticketing systems</p></li>
+<li><p>Memory of past interactions for personalized support</p></li>
+</ul>
+<p>This approach creates a support bot that can handle routine inquiries, create tickets when needed, and know when to escalate to human agents.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Your Name.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

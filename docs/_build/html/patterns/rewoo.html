@@ -1,0 +1,260 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ReWOO Pattern &mdash; agent-patterns 0.1.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a58bc63e"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            agent-patterns
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">ReWOO Pattern</a><ul>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#diagrams">Diagrams</a><ul>
+<li><a class="reference internal" href="#class-structure">Class Structure</a></li>
+<li><a class="reference internal" href="#execution-flow">Execution Flow</a></li>
+<li><a class="reference internal" href="#state-transitions">State Transitions</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#use-cases">Use Cases</a></li>
+<li><a class="reference internal" href="#implementation-guide">Implementation Guide</a></li>
+<li><a class="reference internal" href="#example-references">Example References</a></li>
+<li><a class="reference internal" href="#best-practices">Best Practices</a></li>
+<li><a class="reference internal" href="#related-patterns">Related Patterns</a></li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">agent-patterns</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">ReWOO Pattern</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/patterns/rewoo.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="rewoo-pattern">
+<h1>ReWOO Pattern<a class="headerlink" href="#rewoo-pattern" title="Link to this heading"></a></h1>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>The ReWOO (Reason, World model, Observe, Outcome) pattern incorporates a world model into the agent architecture to simulate the effects of potential actions before executing them. This pattern involves:</p>
+<ol class="arabic simple">
+<li><p><strong>Reasoning</strong>: The agent reasons about potential actions</p></li>
+<li><p><strong>World Modeling</strong>: A world model simulates the effects of those actions</p></li>
+<li><p><strong>Observation</strong>: The agent observes the simulated outcomes</p></li>
+<li><p><strong>Outcome Selection</strong>: The agent chooses the most promising action based on simulations</p></li>
+</ol>
+<p>The key innovation is the use of a mental model or simulation to predict outcomes before taking action, enabling more informed decision-making.</p>
+</section>
+<section id="diagrams">
+<h2>Diagrams<a class="headerlink" href="#diagrams" title="Link to this heading"></a></h2>
+<section id="class-structure">
+<h3>Class Structure<a class="headerlink" href="#class-structure" title="Link to this heading"></a></h3>
+<p><img alt="Class Diagram" src="../_images/rewoo_class.png" /></p>
+<p>The ReWOO pattern is implemented through:</p>
+<ul class="simple">
+<li><p><strong>ReWOOState</strong>: Maintains state including reasoning, world state, observations, and outcomes</p></li>
+<li><p><strong>ReWOOAgent</strong>: Implements the ReWOO cycle with methods for each phase</p></li>
+<li><p><strong>BaseAgent</strong>: The abstract base class from which the ReWOO agent inherits</p></li>
+</ul>
+</section>
+<section id="execution-flow">
+<h3>Execution Flow<a class="headerlink" href="#execution-flow" title="Link to this heading"></a></h3>
+<p><img alt="Sequence Diagram" src="../_images/rewoo_sequence.png" /></p>
+<p>The execution flow follows:</p>
+<ol class="arabic simple">
+<li><p>User provides input to the ReWOOAgent</p></li>
+<li><p>The agent reasons about possible actions (Reason phase)</p></li>
+<li><p>The world model simulates the effects of these actions (World model phase)</p></li>
+<li><p>The agent observes the simulated outcomes (Observe phase)</p></li>
+<li><p>The agent selects the most promising action based on observations (Outcome phase)</p></li>
+<li><p>The cycle repeats until a final answer is determined</p></li>
+<li><p>Final result is returned to the user</p></li>
+</ol>
+</section>
+<section id="state-transitions">
+<h3>State Transitions<a class="headerlink" href="#state-transitions" title="Link to this heading"></a></h3>
+<p><img alt="State Diagram" src="../_images/rewoo_state.png" /></p>
+<p>The ReWOO pattern transitions through these states:</p>
+<ul class="simple">
+<li><p><strong>Initialized</strong>: Agent is created but not yet ready</p></li>
+<li><p><strong>Ready</strong>: Agent is ready to process input</p></li>
+<li><p><strong>Processing</strong>: Agent is actively working on the task</p>
+<ul>
+<li><p><strong>Reasoning</strong>: Agent is reasoning about possible actions</p></li>
+<li><p><strong>World Modeling</strong>: Agent is simulating effects of actions</p></li>
+<li><p><strong>Observation</strong>: Agent is analyzing simulation results</p></li>
+<li><p><strong>Outcome</strong>: Agent is selecting the best action</p></li>
+</ul>
+</li>
+<li><p>Final state is reached when the agent determines a final answer</p></li>
+</ul>
+</section>
+</section>
+<section id="use-cases">
+<h2>Use Cases<a class="headerlink" href="#use-cases" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>Decision Making</strong>: When evaluating multiple possible actions</p></li>
+<li><p><strong>Planning with Uncertainty</strong>: When outcomes are uncertain and need simulation</p></li>
+<li><p><strong>Risk Assessment</strong>: For tasks where errors could have significant consequences</p></li>
+<li><p><strong>Strategy Games</strong>: For gaming AIs that need to evaluate multiple move options</p></li>
+<li><p><strong>Creative Problem Solving</strong>: When innovative solutions need to be evaluated before implementation</p></li>
+<li><p><strong>Safety-Critical Applications</strong>: When testing actions mentally before execution is important</p></li>
+</ul>
+</section>
+<section id="implementation-guide">
+<h2>Implementation Guide<a class="headerlink" href="#implementation-guide" title="Link to this heading"></a></h2>
+<p>Here’s a simple example of using the ReWOOAgent:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.patterns</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReWOOAgent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">ToolRegistry</span>
+
+<span class="c1"># Configure the LLMs</span>
+<span class="n">llm_configs</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;provider&quot;</span><span class="p">:</span> <span class="s2">&quot;openai&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="s2">&quot;gpt-4o&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mf">0.7</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;world_model&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;provider&quot;</span><span class="p">:</span> <span class="s2">&quot;openai&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="s2">&quot;gpt-4o&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mf">0.2</span>  <span class="c1"># Lower temperature for more deterministic world model</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;observer&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;provider&quot;</span><span class="p">:</span> <span class="s2">&quot;openai&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="s2">&quot;gpt-4o&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mf">0.5</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1"># Initialize the ReWOO agent</span>
+<span class="n">agent</span> <span class="o">=</span> <span class="n">ReWOOAgent</span><span class="p">(</span>
+    <span class="n">llm_configs</span><span class="o">=</span><span class="n">llm_configs</span><span class="p">,</span>
+    <span class="n">max_steps</span><span class="o">=</span><span class="mi">10</span>
+<span class="p">)</span>
+
+<span class="c1"># The world model is built into the agent and doesn&#39;t require external tools</span>
+
+<span class="c1"># Run the agent on a decision-making task</span>
+<span class="n">scenario</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">You are the CEO of a company facing these options:</span>
+<span class="s2">1. Expand to international markets</span>
+<span class="s2">2. Focus on enhancing current product line</span>
+<span class="s2">3. Invest in new technology development</span>
+<span class="s2">Which strategic direction should the company take given current resources are limited?</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">scenario</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="example-references">
+<h2>Example References<a class="headerlink" href="#example-references" title="Link to this heading"></a></h2>
+<p>The examples directory contains implementations of the ReWOO pattern:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">examples/rewoo_basic.py</span></code>: Basic ReWOO implementation</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">examples/rewoo_complex.py</span></code>: ReWOO with more sophisticated world model</p></li>
+</ul>
+</section>
+<section id="best-practices">
+<h2>Best Practices<a class="headerlink" href="#best-practices" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Design world models appropriate to the domain (physical, social, financial, etc.)</p></li>
+<li><p>Calibrate world models against reality when possible</p></li>
+<li><p>Consider multiple scenarios in the world model phase</p></li>
+<li><p>Use low temperature settings for more deterministic world models</p></li>
+<li><p>Include probabilistic outcomes for more realistic simulations</p></li>
+<li><p>Store successful simulations in memory for future reference</p></li>
+<li><p>Implement different fidelity levels for the world model based on task requirements</p></li>
+</ul>
+</section>
+<section id="related-patterns">
+<h2>Related Patterns<a class="headerlink" href="#related-patterns" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>ReAct Pattern</strong>: ReWOO extends ReAct with simulation capabilities</p></li>
+<li><p><strong>Plan and Solve Pattern</strong>: ReWOO can be seen as planning with simulation</p></li>
+<li><p><strong>STORM Pattern</strong>: Both include detailed reasoning about possible outcomes</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Your Name.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

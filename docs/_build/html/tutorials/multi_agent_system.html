@@ -1,0 +1,1159 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Building a Multi-Agent System &mdash; agent-patterns 0.1.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a58bc63e"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            agent-patterns
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Building a Multi-Agent System</a><ul>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li><a class="reference internal" href="#step-1-setting-up-the-project">Step 1: Setting Up the Project</a></li>
+<li><a class="reference internal" href="#step-2-creating-the-memory-system">Step 2: Creating the Memory System</a></li>
+<li><a class="reference internal" href="#step-3-creating-specialized-agents">Step 3: Creating Specialized Agents</a></li>
+<li><a class="reference internal" href="#step-4-creating-the-agent-coordinator">Step 4: Creating the Agent Coordinator</a></li>
+<li><a class="reference internal" href="#step-5-creating-a-user-interface">Step 5: Creating a User Interface</a></li>
+<li><a class="reference internal" href="#step-6-adding-agent-specific-tools">Step 6: Adding Agent-Specific Tools</a></li>
+<li><a class="reference internal" href="#complete-code">Complete Code</a></li>
+<li><a class="reference internal" href="#architecture-diagram">Architecture Diagram</a></li>
+<li><a class="reference internal" href="#next-steps">Next Steps</a></li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">agent-patterns</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Building a Multi-Agent System</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tutorials/multi_agent_system.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="building-a-multi-agent-system">
+<h1>Building a Multi-Agent System<a class="headerlink" href="#building-a-multi-agent-system" title="Link to this heading"></a></h1>
+<p>This tutorial guides you through building a collaborative multi-agent system where specialized agents work together on complex tasks.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>Multi-agent systems need to:</p>
+<ol class="arabic simple">
+<li><p>Assign tasks to specialized agents based on their capabilities</p></li>
+<li><p>Coordinate communication between agents</p></li>
+<li><p>Resolve conflicts and integrate outputs from different agents</p></li>
+<li><p>Maintain a shared context across the entire system</p></li>
+<li><p>Orchestrate the workflow to achieve the main goal</p></li>
+</ol>
+<p>We’ll create a system of specialized agents using different agent patterns based on their roles.</p>
+</section>
+<section id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Agent Patterns library installed</p></li>
+<li><p>OpenAI API key (or other supported LLM provider)</p></li>
+<li><p>Basic Python knowledge</p></li>
+</ul>
+</section>
+<section id="step-1-setting-up-the-project">
+<h2>Step 1: Setting Up the Project<a class="headerlink" href="#step-1-setting-up-the-project" title="Link to this heading"></a></h2>
+<p>Create a new Python file called <code class="docutils literal notranslate"><span class="pre">multi_agent_system.py</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dotenv</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dotenv</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.patterns.re_act_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReActAgent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.patterns.reflexion_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReflexionAgent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.patterns.plan_and_solve_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">PlanAndSolveAgent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompositeMemory</span><span class="p">,</span> <span class="n">SemanticMemory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory.persistence</span><span class="w"> </span><span class="kn">import</span> <span class="n">InMemoryPersistence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseToolProvider</span><span class="p">,</span> <span class="n">Tool</span>
+
+<span class="c1"># Load environment variables</span>
+<span class="n">load_dotenv</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="step-2-creating-the-memory-system">
+<h2>Step 2: Creating the Memory System<a class="headerlink" href="#step-2-creating-the-memory-system" title="Link to this heading"></a></h2>
+<p>We’ll create a shared memory system for our agents:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set up memory persistence</span>
+<span class="n">persistence</span> <span class="o">=</span> <span class="n">InMemoryPersistence</span><span class="p">()</span>
+<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">persistence</span><span class="o">.</span><span class="n">initialize</span><span class="p">())</span>
+
+<span class="c1"># Create shared memory</span>
+<span class="n">shared_memory</span> <span class="o">=</span> <span class="n">SemanticMemory</span><span class="p">(</span>
+    <span class="n">persistence</span><span class="p">,</span> 
+    <span class="n">namespace</span><span class="o">=</span><span class="s2">&quot;shared_knowledge&quot;</span>
+<span class="p">)</span>
+
+<span class="c1"># Create composite memory</span>
+<span class="n">memory</span> <span class="o">=</span> <span class="n">CompositeMemory</span><span class="p">({</span>
+    <span class="s2">&quot;shared&quot;</span><span class="p">:</span> <span class="n">shared_memory</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+</section>
+<section id="step-3-creating-specialized-agents">
+<h2>Step 3: Creating Specialized Agents<a class="headerlink" href="#step-3-creating-specialized-agents" title="Link to this heading"></a></h2>
+<p>Let’s create three specialized agents with different capabilities:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Configure LLM settings</span>
+<span class="n">llm_configs</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;provider&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;DEFAULT_MODEL_PROVIDER&quot;</span><span class="p">,</span> <span class="s2">&quot;openai&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;DEFAULT_MODEL_NAME&quot;</span><span class="p">,</span> <span class="s2">&quot;gpt-4o&quot;</span><span class="p">)</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;planning&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;provider&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;PLANNING_MODEL_PROVIDER&quot;</span><span class="p">,</span> <span class="s2">&quot;anthropic&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;PLANNING_MODEL_NAME&quot;</span><span class="p">,</span> <span class="s2">&quot;claude-3-opus-20240229&quot;</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1"># Create the planner agent</span>
+<span class="n">planner_agent</span> <span class="o">=</span> <span class="n">PlanAndSolveAgent</span><span class="p">(</span>
+    <span class="n">llm_configs</span><span class="o">=</span><span class="n">llm_configs</span><span class="p">,</span>
+    <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
+    <span class="n">memory_config</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;shared&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+<span class="p">)</span>
+
+<span class="c1"># Create the researcher agent</span>
+<span class="n">researcher_agent</span> <span class="o">=</span> <span class="n">ReActAgent</span><span class="p">(</span>
+    <span class="n">llm_configs</span><span class="o">=</span><span class="n">llm_configs</span><span class="p">,</span>
+    <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
+    <span class="n">memory_config</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;shared&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+<span class="p">)</span>
+
+<span class="c1"># Create the writer agent</span>
+<span class="n">writer_agent</span> <span class="o">=</span> <span class="n">ReflexionAgent</span><span class="p">(</span>
+    <span class="n">llm_configs</span><span class="o">=</span><span class="n">llm_configs</span><span class="p">,</span>
+    <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
+    <span class="n">memory_config</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;shared&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+    <span class="n">reflection_config</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;reflection_threshold&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span>
+        <span class="s2">&quot;max_reflections&quot;</span><span class="p">:</span> <span class="mi">2</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="step-4-creating-the-agent-coordinator">
+<h2>Step 4: Creating the Agent Coordinator<a class="headerlink" href="#step-4-creating-the-agent-coordinator" title="Link to this heading"></a></h2>
+<p>Now, let’s create a coordinator to manage our agents:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">AgentCoordinator</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">planner</span> <span class="o">=</span> <span class="n">planner_agent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">researcher</span> <span class="o">=</span> <span class="n">researcher_agent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">writer</span> <span class="o">=</span> <span class="n">writer_agent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_state</span> <span class="o">=</span> <span class="p">{}</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">process_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_description</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Process a complex task using multiple agents.&quot;&quot;&quot;</span>
+        <span class="n">task_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_id</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_state</span><span class="p">[</span><span class="n">task_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">task_description</span><span class="p">,</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;planning&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;plan&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;research&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;draft&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;final_output&quot;</span><span class="p">:</span> <span class="kc">None</span>
+        <span class="p">}</span>
+        
+        <span class="c1"># Step 1: Create a plan</span>
+        <span class="n">plan</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_plan</span><span class="p">(</span><span class="n">task_id</span><span class="p">,</span> <span class="n">task_description</span><span class="p">)</span>
+        
+        <span class="c1"># Step 2: Conduct research</span>
+        <span class="n">research</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conduct_research</span><span class="p">(</span><span class="n">task_id</span><span class="p">,</span> <span class="n">task_description</span><span class="p">,</span> <span class="n">plan</span><span class="p">)</span>
+        
+        <span class="c1"># Step 3: Generate content</span>
+        <span class="n">draft</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_content</span><span class="p">(</span><span class="n">task_id</span><span class="p">,</span> <span class="n">task_description</span><span class="p">,</span> <span class="n">plan</span><span class="p">,</span> <span class="n">research</span><span class="p">)</span>
+        
+        <span class="c1"># Step 4: Refine and finalize</span>
+        <span class="n">final_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_refine_content</span><span class="p">(</span><span class="n">task_id</span><span class="p">,</span> <span class="n">draft</span><span class="p">)</span>
+        
+        <span class="c1"># Update task state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_state</span><span class="p">[</span><span class="n">task_id</span><span class="p">][</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;completed&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_state</span><span class="p">[</span><span class="n">task_id</span><span class="p">][</span><span class="s2">&quot;final_output&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">final_output</span>
+        
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;task_id&quot;</span><span class="p">:</span> <span class="n">task_id</span><span class="p">,</span>
+            <span class="s2">&quot;result&quot;</span><span class="p">:</span> <span class="n">final_output</span>
+        <span class="p">}</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_plan</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_id</span><span class="p">,</span> <span class="n">task_description</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Use the planner agent to create a plan.&quot;&quot;&quot;</span>
+        <span class="n">prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        Create a detailed plan to complete this task:</span>
+<span class="s2">        </span>
+<span class="s2">        </span><span class="si">{</span><span class="n">task_description</span><span class="si">}</span>
+<span class="s2">        </span>
+<span class="s2">        Break it down into steps with clear objectives for each step.</span>
+<span class="s2">        Identify what research is needed and what should be included in the final output.</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+        
+        <span class="n">plan</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">planner</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+        
+        <span class="c1"># Save to task state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_state</span><span class="p">[</span><span class="n">task_id</span><span class="p">][</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;researching&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_state</span><span class="p">[</span><span class="n">task_id</span><span class="p">][</span><span class="s2">&quot;plan&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">plan</span>
+        
+        <span class="c1"># Save to shared memory</span>
+        <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">shared_memory</span><span class="o">.</span><span class="n">save</span><span class="p">({</span>
+            <span class="s2">&quot;entity&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;task:</span><span class="si">{</span><span class="n">task_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;attribute&quot;</span><span class="p">:</span> <span class="s2">&quot;plan&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">plan</span>
+        <span class="p">}))</span>
+        
+        <span class="k">return</span> <span class="n">plan</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_conduct_research</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_id</span><span class="p">,</span> <span class="n">task_description</span><span class="p">,</span> <span class="n">plan</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Use the researcher agent to gather information.&quot;&quot;&quot;</span>
+        <span class="n">prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        Conduct research for the following task:</span>
+<span class="s2">        </span>
+<span class="s2">        </span><span class="si">{</span><span class="n">task_description</span><span class="si">}</span>
+<span class="s2">        </span>
+<span class="s2">        Using this plan:</span>
+<span class="s2">        </span><span class="si">{</span><span class="n">plan</span><span class="si">}</span>
+<span class="s2">        </span>
+<span class="s2">        Gather relevant information, data, and facts needed to complete the task.</span>
+<span class="s2">        Focus on finding reliable and accurate information.</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+        
+        <span class="n">research</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">researcher</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+        
+        <span class="c1"># Save to task state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_state</span><span class="p">[</span><span class="n">task_id</span><span class="p">][</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;writing&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_state</span><span class="p">[</span><span class="n">task_id</span><span class="p">][</span><span class="s2">&quot;research&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">research</span>
+        
+        <span class="c1"># Save to shared memory</span>
+        <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">shared_memory</span><span class="o">.</span><span class="n">save</span><span class="p">({</span>
+            <span class="s2">&quot;entity&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;task:</span><span class="si">{</span><span class="n">task_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;attribute&quot;</span><span class="p">:</span> <span class="s2">&quot;research&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">research</span>
+        <span class="p">}))</span>
+        
+        <span class="k">return</span> <span class="n">research</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_generate_content</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_id</span><span class="p">,</span> <span class="n">task_description</span><span class="p">,</span> <span class="n">plan</span><span class="p">,</span> <span class="n">research</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Use the writer agent to generate content.&quot;&quot;&quot;</span>
+        <span class="n">prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        Create content for the following task:</span>
+<span class="s2">        </span>
+<span class="s2">        </span><span class="si">{</span><span class="n">task_description</span><span class="si">}</span>
+<span class="s2">        </span>
+<span class="s2">        Using this plan:</span>
+<span class="s2">        </span><span class="si">{</span><span class="n">plan</span><span class="si">}</span>
+<span class="s2">        </span>
+<span class="s2">        And this research:</span>
+<span class="s2">        </span><span class="si">{</span><span class="n">research</span><span class="si">}</span>
+<span class="s2">        </span>
+<span class="s2">        Generate well-structured, clear, and accurate content that fulfills the task requirements.</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+        
+        <span class="n">draft</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+        
+        <span class="c1"># Save to task state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_state</span><span class="p">[</span><span class="n">task_id</span><span class="p">][</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;refining&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_state</span><span class="p">[</span><span class="n">task_id</span><span class="p">][</span><span class="s2">&quot;draft&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">draft</span>
+        
+        <span class="c1"># Save to shared memory</span>
+        <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">shared_memory</span><span class="o">.</span><span class="n">save</span><span class="p">({</span>
+            <span class="s2">&quot;entity&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;task:</span><span class="si">{</span><span class="n">task_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;attribute&quot;</span><span class="p">:</span> <span class="s2">&quot;draft&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">draft</span>
+        <span class="p">}))</span>
+        
+        <span class="k">return</span> <span class="n">draft</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_refine_content</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_id</span><span class="p">,</span> <span class="n">draft</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Use the writer agent to refine the content.&quot;&quot;&quot;</span>
+        <span class="n">prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        Refine and improve the following draft:</span>
+<span class="s2">        </span>
+<span class="s2">        </span><span class="si">{</span><span class="n">draft</span><span class="si">}</span>
+<span class="s2">        </span>
+<span class="s2">        Check for:</span>
+<span class="s2">        1. Accuracy and completeness</span>
+<span class="s2">        2. Clarity and coherence</span>
+<span class="s2">        3. Grammar and style</span>
+<span class="s2">        4. Alignment with the original task requirements</span>
+<span class="s2">        </span>
+<span class="s2">        Provide the improved version.</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+        
+        <span class="n">final_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+        
+        <span class="c1"># Save to shared memory</span>
+        <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">shared_memory</span><span class="o">.</span><span class="n">save</span><span class="p">({</span>
+            <span class="s2">&quot;entity&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;task:</span><span class="si">{</span><span class="n">task_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;attribute&quot;</span><span class="p">:</span> <span class="s2">&quot;final_output&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">final_output</span>
+        <span class="p">}))</span>
+        
+        <span class="k">return</span> <span class="n">final_output</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_task_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_id</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the current status of a task.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">task_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_state</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Task not found&quot;</span><span class="p">}</span>
+        
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_state</span><span class="p">[</span><span class="n">task_id</span><span class="p">]</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_generate_id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate a unique ID for a task.&quot;&quot;&quot;</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">uuid</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">())[:</span><span class="mi">8</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="step-5-creating-a-user-interface">
+<h2>Step 5: Creating a User Interface<a class="headerlink" href="#step-5-creating-a-user-interface" title="Link to this heading"></a></h2>
+<p>Let’s create a simple interface for our multi-agent system:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+    <span class="c1"># Create the agent coordinator</span>
+    <span class="n">coordinator</span> <span class="o">=</span> <span class="n">AgentCoordinator</span><span class="p">()</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Multi-Agent System&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;This system uses multiple specialized agents to complete complex tasks.&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Get task from user</span>
+    <span class="n">task</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Enter your task description: &quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Process the task</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Processing task...&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;This may take some time depending on the complexity of the task.&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Display progress indicators</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Progress:&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;- Planning...&quot;</span><span class="p">)</span>
+    <span class="c1"># Process the task with the coordinator</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">coordinator</span><span class="o">.</span><span class="n">process_task</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+    
+    <span class="c1"># Display the result</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Task Completed!&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;result&quot;</span><span class="p">])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Task ID: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;task_id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Option to save the result</span>
+    <span class="n">save_option</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Would you like to save the result to a file? (y/n): &quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">save_option</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;y&#39;</span><span class="p">:</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Enter filename (default: result.txt): &quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;result.txt&quot;</span>
+        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;result&quot;</span><span class="p">])</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Result saved to </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error saving file: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="step-6-adding-agent-specific-tools">
+<h2>Step 6: Adding Agent-Specific Tools<a class="headerlink" href="#step-6-adding-agent-specific-tools" title="Link to this heading"></a></h2>
+<p>Let’s enhance our agents with specialized tools:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create a tool provider for the researcher agent</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ResearchToolProvider</span><span class="p">(</span><span class="n">BaseToolProvider</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_tools</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="n">Tool</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;search_web&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Search the web for information&quot;</span><span class="p">,</span>
+                <span class="n">function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">search_web</span><span class="p">,</span>
+                <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">&quot;query&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The search query&quot;</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">),</span>
+            <span class="n">Tool</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;summarize_text&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Summarize long text&quot;</span><span class="p">,</span>
+                <span class="n">function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">summarize_text</span><span class="p">,</span>
+                <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The text to summarize&quot;</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+        <span class="p">]</span>
+    
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">search_web</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Simulate web search.&quot;&quot;&quot;</span>
+        <span class="c1"># In a real implementation, this would connect to a search API</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;query&quot;</span><span class="p">:</span> <span class="n">query</span><span class="p">,</span>
+            <span class="s2">&quot;results&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Result for </span><span class="si">{</span><span class="n">query</span><span class="si">}</span><span class="s2"> - Example 1&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;snippet&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;This is a simulated search result for </span><span class="si">{</span><span class="n">query</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="p">},</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Result for </span><span class="si">{</span><span class="n">query</span><span class="si">}</span><span class="s2"> - Example 2&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;snippet&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Another simulated search result for </span><span class="si">{</span><span class="n">query</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="p">}</span>
+            <span class="p">]</span>
+        <span class="p">}</span>
+    
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">summarize_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Simulate text summarization.&quot;&quot;&quot;</span>
+        <span class="c1"># In a real implementation, this could use a dedicated summarization model</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;original_length&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">),</span>
+            <span class="s2">&quot;summary&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Summary of the provided text: </span><span class="si">{</span><span class="n">text</span><span class="p">[:</span><span class="mi">100</span><span class="p">]</span><span class="si">}</span><span class="s2">...&quot;</span>
+        <span class="p">}</span>
+
+<span class="c1"># Update the researcher agent with the tool provider</span>
+<span class="n">researcher_agent</span> <span class="o">=</span> <span class="n">ReActAgent</span><span class="p">(</span>
+    <span class="n">llm_configs</span><span class="o">=</span><span class="n">llm_configs</span><span class="p">,</span>
+    <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
+    <span class="n">memory_config</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;shared&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+    <span class="n">tool_provider</span><span class="o">=</span><span class="n">ResearchToolProvider</span><span class="p">()</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Now, let’s update our AgentCoordinator to include a more collaborative workflow:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Add this method to the AgentCoordinator class</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">collaborative_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_description</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Process a task using a more collaborative approach.&quot;&quot;&quot;</span>
+    <span class="n">task_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_id</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">task_state</span><span class="p">[</span><span class="n">task_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">task_description</span><span class="p">,</span>
+        <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;planning&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;agent_outputs&quot;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="s2">&quot;final_output&quot;</span><span class="p">:</span> <span class="kc">None</span>
+    <span class="p">}</span>
+    
+    <span class="c1"># Step 1: Planner creates initial plan</span>
+    <span class="n">plan_prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Create a plan to address this task: </span><span class="si">{</span><span class="n">task_description</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">initial_plan</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">planner</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">plan_prompt</span><span class="p">)</span>
+    
+    <span class="c1"># Save planner output</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">task_state</span><span class="p">[</span><span class="n">task_id</span><span class="p">][</span><span class="s2">&quot;agent_outputs&quot;</span><span class="p">][</span><span class="s2">&quot;planner&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">initial_plan</span>
+    
+    <span class="c1"># Step 2: Researcher reviews plan and adds research</span>
+    <span class="n">research_prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    Review this plan and conduct necessary research:</span>
+<span class="s2">    </span>
+<span class="s2">    TASK: </span><span class="si">{</span><span class="n">task_description</span><span class="si">}</span>
+<span class="s2">    </span>
+<span class="s2">    PLAN: </span><span class="si">{</span><span class="n">initial_plan</span><span class="si">}</span>
+<span class="s2">    </span>
+<span class="s2">    Add any information, data, or facts needed to complete this task.</span>
+<span class="s2">    &quot;&quot;&quot;</span>
+    <span class="n">research_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">researcher</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">research_prompt</span><span class="p">)</span>
+    
+    <span class="c1"># Save researcher output</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">task_state</span><span class="p">[</span><span class="n">task_id</span><span class="p">][</span><span class="s2">&quot;agent_outputs&quot;</span><span class="p">][</span><span class="s2">&quot;researcher&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">research_output</span>
+    
+    <span class="c1"># Step 3: Planner refines plan based on research</span>
+    <span class="n">refine_prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    Refine your original plan based on this research:</span>
+<span class="s2">    </span>
+<span class="s2">    ORIGINAL PLAN: </span><span class="si">{</span><span class="n">initial_plan</span><span class="si">}</span>
+<span class="s2">    </span>
+<span class="s2">    RESEARCH: </span><span class="si">{</span><span class="n">research_output</span><span class="si">}</span>
+<span class="s2">    </span>
+<span class="s2">    Provide an updated plan that incorporates the research findings.</span>
+<span class="s2">    &quot;&quot;&quot;</span>
+    <span class="n">refined_plan</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">planner</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">refine_prompt</span><span class="p">)</span>
+    
+    <span class="c1"># Save refined plan</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">task_state</span><span class="p">[</span><span class="n">task_id</span><span class="p">][</span><span class="s2">&quot;agent_outputs&quot;</span><span class="p">][</span><span class="s2">&quot;refined_plan&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">refined_plan</span>
+    
+    <span class="c1"># Step 4: Writer creates content based on refined plan and research</span>
+    <span class="n">write_prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    Create content to address this task:</span>
+<span class="s2">    </span>
+<span class="s2">    TASK: </span><span class="si">{</span><span class="n">task_description</span><span class="si">}</span>
+<span class="s2">    </span>
+<span class="s2">    REFINED PLAN: </span><span class="si">{</span><span class="n">refined_plan</span><span class="si">}</span>
+<span class="s2">    </span>
+<span class="s2">    RESEARCH: </span><span class="si">{</span><span class="n">research_output</span><span class="si">}</span>
+<span class="s2">    </span>
+<span class="s2">    Provide well-structured content that fulfills the requirements.</span>
+<span class="s2">    &quot;&quot;&quot;</span>
+    <span class="n">draft</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">write_prompt</span><span class="p">)</span>
+    
+    <span class="c1"># Save draft</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">task_state</span><span class="p">[</span><span class="n">task_id</span><span class="p">][</span><span class="s2">&quot;agent_outputs&quot;</span><span class="p">][</span><span class="s2">&quot;draft&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">draft</span>
+    
+    <span class="c1"># Step 5: All agents review and provide feedback</span>
+    <span class="c1"># Planner review</span>
+    <span class="n">planner_review_prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    Review this draft and evaluate if it fulfills the plan:</span>
+<span class="s2">    </span>
+<span class="s2">    TASK: </span><span class="si">{</span><span class="n">task_description</span><span class="si">}</span>
+<span class="s2">    PLAN: </span><span class="si">{</span><span class="n">refined_plan</span><span class="si">}</span>
+<span class="s2">    DRAFT: </span><span class="si">{</span><span class="n">draft</span><span class="si">}</span>
+<span class="s2">    </span>
+<span class="s2">    Identify any missing elements or areas for improvement.</span>
+<span class="s2">    &quot;&quot;&quot;</span>
+    <span class="n">planner_feedback</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">planner</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">planner_review_prompt</span><span class="p">)</span>
+    
+    <span class="c1"># Researcher review</span>
+    <span class="n">researcher_review_prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    Review this draft and evaluate if it accurately uses the research:</span>
+<span class="s2">    </span>
+<span class="s2">    TASK: </span><span class="si">{</span><span class="n">task_description</span><span class="si">}</span>
+<span class="s2">    RESEARCH: </span><span class="si">{</span><span class="n">research_output</span><span class="si">}</span>
+<span class="s2">    DRAFT: </span><span class="si">{</span><span class="n">draft</span><span class="si">}</span>
+<span class="s2">    </span>
+<span class="s2">    Identify any factual errors or missing information.</span>
+<span class="s2">    &quot;&quot;&quot;</span>
+    <span class="n">researcher_feedback</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">researcher</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">researcher_review_prompt</span><span class="p">)</span>
+    
+    <span class="c1"># Save feedback</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">task_state</span><span class="p">[</span><span class="n">task_id</span><span class="p">][</span><span class="s2">&quot;agent_outputs&quot;</span><span class="p">][</span><span class="s2">&quot;planner_feedback&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">planner_feedback</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">task_state</span><span class="p">[</span><span class="n">task_id</span><span class="p">][</span><span class="s2">&quot;agent_outputs&quot;</span><span class="p">][</span><span class="s2">&quot;researcher_feedback&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">researcher_feedback</span>
+    
+    <span class="c1"># Step 6: Writer improves draft based on feedback</span>
+    <span class="n">improve_prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    Improve this draft based on feedback:</span>
+<span class="s2">    </span>
+<span class="s2">    DRAFT: </span><span class="si">{</span><span class="n">draft</span><span class="si">}</span>
+<span class="s2">    </span>
+<span class="s2">    PLANNER FEEDBACK: </span><span class="si">{</span><span class="n">planner_feedback</span><span class="si">}</span>
+<span class="s2">    </span>
+<span class="s2">    RESEARCHER FEEDBACK: </span><span class="si">{</span><span class="n">researcher_feedback</span><span class="si">}</span>
+<span class="s2">    </span>
+<span class="s2">    Provide an improved version that addresses all feedback.</span>
+<span class="s2">    &quot;&quot;&quot;</span>
+    <span class="n">improved_draft</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">improve_prompt</span><span class="p">)</span>
+    
+    <span class="c1"># Save improved draft</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">task_state</span><span class="p">[</span><span class="n">task_id</span><span class="p">][</span><span class="s2">&quot;agent_outputs&quot;</span><span class="p">][</span><span class="s2">&quot;improved_draft&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">improved_draft</span>
+    
+    <span class="c1"># Step 7: Final review and polishing</span>
+    <span class="n">final_prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    This is the final review of the content:</span>
+<span class="s2">    </span>
+<span class="s2">    TASK: </span><span class="si">{</span><span class="n">task_description</span><span class="si">}</span>
+<span class="s2">    </span>
+<span class="s2">    CONTENT: </span><span class="si">{</span><span class="n">improved_draft</span><span class="si">}</span>
+<span class="s2">    </span>
+<span class="s2">    Perform a final polish, ensuring the content is complete, accurate,</span>
+<span class="s2">    well-organized, and fully addresses the original task.</span>
+<span class="s2">    &quot;&quot;&quot;</span>
+    <span class="n">final_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">final_prompt</span><span class="p">)</span>
+    
+    <span class="c1"># Update task state</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">task_state</span><span class="p">[</span><span class="n">task_id</span><span class="p">][</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;completed&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">task_state</span><span class="p">[</span><span class="n">task_id</span><span class="p">][</span><span class="s2">&quot;final_output&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">final_output</span>
+    
+    <span class="c1"># Save to shared memory</span>
+    <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">shared_memory</span><span class="o">.</span><span class="n">save</span><span class="p">({</span>
+        <span class="s2">&quot;entity&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;task:</span><span class="si">{</span><span class="n">task_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;attribute&quot;</span><span class="p">:</span> <span class="s2">&quot;final_output&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">final_output</span>
+    <span class="p">}))</span>
+    
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;task_id&quot;</span><span class="p">:</span> <span class="n">task_id</span><span class="p">,</span>
+        <span class="s2">&quot;result&quot;</span><span class="p">:</span> <span class="n">final_output</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="complete-code">
+<h2>Complete Code<a class="headerlink" href="#complete-code" title="Link to this heading"></a></h2>
+<p>Here’s a simplified version of the complete code:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">uuid</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dotenv</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dotenv</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.patterns.re_act_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReActAgent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.patterns.reflexion_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReflexionAgent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.patterns.plan_and_solve_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">PlanAndSolveAgent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompositeMemory</span><span class="p">,</span> <span class="n">SemanticMemory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory.persistence</span><span class="w"> </span><span class="kn">import</span> <span class="n">InMemoryPersistence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseToolProvider</span><span class="p">,</span> <span class="n">Tool</span>
+
+<span class="c1"># Load environment variables</span>
+<span class="n">load_dotenv</span><span class="p">()</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ResearchToolProvider</span><span class="p">(</span><span class="n">BaseToolProvider</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_tools</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="n">Tool</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;search_web&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Search the web for information&quot;</span><span class="p">,</span>
+                <span class="n">function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">search_web</span><span class="p">,</span>
+                <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">&quot;query&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The search query&quot;</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">),</span>
+            <span class="n">Tool</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;summarize_text&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Summarize long text&quot;</span><span class="p">,</span>
+                <span class="n">function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">summarize_text</span><span class="p">,</span>
+                <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The text to summarize&quot;</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+        <span class="p">]</span>
+    
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">search_web</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Simulate web search.&quot;&quot;&quot;</span>
+        <span class="c1"># In a real implementation, this would connect to a search API</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;query&quot;</span><span class="p">:</span> <span class="n">query</span><span class="p">,</span>
+            <span class="s2">&quot;results&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Result for </span><span class="si">{</span><span class="n">query</span><span class="si">}</span><span class="s2"> - Example 1&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;snippet&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;This is a simulated search result for </span><span class="si">{</span><span class="n">query</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="p">},</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Result for </span><span class="si">{</span><span class="n">query</span><span class="si">}</span><span class="s2"> - Example 2&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;snippet&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Another simulated search result for </span><span class="si">{</span><span class="n">query</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="p">}</span>
+            <span class="p">]</span>
+        <span class="p">}</span>
+    
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">summarize_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Simulate text summarization.&quot;&quot;&quot;</span>
+        <span class="c1"># In a real implementation, this could use a dedicated summarization model</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;original_length&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">),</span>
+            <span class="s2">&quot;summary&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Summary of the provided text: </span><span class="si">{</span><span class="n">text</span><span class="p">[:</span><span class="mi">100</span><span class="p">]</span><span class="si">}</span><span class="s2">...&quot;</span>
+        <span class="p">}</span>
+
+<span class="c1"># Set up memory persistence</span>
+<span class="n">persistence</span> <span class="o">=</span> <span class="n">InMemoryPersistence</span><span class="p">()</span>
+<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">persistence</span><span class="o">.</span><span class="n">initialize</span><span class="p">())</span>
+
+<span class="c1"># Create shared memory</span>
+<span class="n">shared_memory</span> <span class="o">=</span> <span class="n">SemanticMemory</span><span class="p">(</span>
+    <span class="n">persistence</span><span class="p">,</span> 
+    <span class="n">namespace</span><span class="o">=</span><span class="s2">&quot;shared_knowledge&quot;</span>
+<span class="p">)</span>
+
+<span class="c1"># Create composite memory</span>
+<span class="n">memory</span> <span class="o">=</span> <span class="n">CompositeMemory</span><span class="p">({</span>
+    <span class="s2">&quot;shared&quot;</span><span class="p">:</span> <span class="n">shared_memory</span>
+<span class="p">})</span>
+
+<span class="c1"># Configure LLM settings</span>
+<span class="n">llm_configs</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;provider&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;DEFAULT_MODEL_PROVIDER&quot;</span><span class="p">,</span> <span class="s2">&quot;openai&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;DEFAULT_MODEL_NAME&quot;</span><span class="p">,</span> <span class="s2">&quot;gpt-4o&quot;</span><span class="p">)</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;planning&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;provider&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;PLANNING_MODEL_PROVIDER&quot;</span><span class="p">,</span> <span class="s2">&quot;anthropic&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;PLANNING_MODEL_NAME&quot;</span><span class="p">,</span> <span class="s2">&quot;claude-3-opus-20240229&quot;</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1"># Create the planner agent</span>
+<span class="n">planner_agent</span> <span class="o">=</span> <span class="n">PlanAndSolveAgent</span><span class="p">(</span>
+    <span class="n">llm_configs</span><span class="o">=</span><span class="n">llm_configs</span><span class="p">,</span>
+    <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
+    <span class="n">memory_config</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;shared&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+<span class="p">)</span>
+
+<span class="c1"># Create the researcher agent</span>
+<span class="n">researcher_agent</span> <span class="o">=</span> <span class="n">ReActAgent</span><span class="p">(</span>
+    <span class="n">llm_configs</span><span class="o">=</span><span class="n">llm_configs</span><span class="p">,</span>
+    <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
+    <span class="n">memory_config</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;shared&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+    <span class="n">tool_provider</span><span class="o">=</span><span class="n">ResearchToolProvider</span><span class="p">()</span>
+<span class="p">)</span>
+
+<span class="c1"># Create the writer agent</span>
+<span class="n">writer_agent</span> <span class="o">=</span> <span class="n">ReflexionAgent</span><span class="p">(</span>
+    <span class="n">llm_configs</span><span class="o">=</span><span class="n">llm_configs</span><span class="p">,</span>
+    <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
+    <span class="n">memory_config</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;shared&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+    <span class="n">reflection_config</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;reflection_threshold&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span>
+        <span class="s2">&quot;max_reflections&quot;</span><span class="p">:</span> <span class="mi">2</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">AgentCoordinator</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">planner</span> <span class="o">=</span> <span class="n">planner_agent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">researcher</span> <span class="o">=</span> <span class="n">researcher_agent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">writer</span> <span class="o">=</span> <span class="n">writer_agent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_state</span> <span class="o">=</span> <span class="p">{}</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">process_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_description</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Process a complex task using multiple agents.&quot;&quot;&quot;</span>
+        <span class="n">task_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_id</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_state</span><span class="p">[</span><span class="n">task_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">task_description</span><span class="p">,</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;planning&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;plan&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;research&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;draft&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;final_output&quot;</span><span class="p">:</span> <span class="kc">None</span>
+        <span class="p">}</span>
+        
+        <span class="c1"># Step 1: Create a plan</span>
+        <span class="n">plan</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_plan</span><span class="p">(</span><span class="n">task_id</span><span class="p">,</span> <span class="n">task_description</span><span class="p">)</span>
+        
+        <span class="c1"># Step 2: Conduct research</span>
+        <span class="n">research</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conduct_research</span><span class="p">(</span><span class="n">task_id</span><span class="p">,</span> <span class="n">task_description</span><span class="p">,</span> <span class="n">plan</span><span class="p">)</span>
+        
+        <span class="c1"># Step 3: Generate content</span>
+        <span class="n">draft</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_content</span><span class="p">(</span><span class="n">task_id</span><span class="p">,</span> <span class="n">task_description</span><span class="p">,</span> <span class="n">plan</span><span class="p">,</span> <span class="n">research</span><span class="p">)</span>
+        
+        <span class="c1"># Step 4: Refine and finalize</span>
+        <span class="n">final_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_refine_content</span><span class="p">(</span><span class="n">task_id</span><span class="p">,</span> <span class="n">draft</span><span class="p">)</span>
+        
+        <span class="c1"># Update task state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_state</span><span class="p">[</span><span class="n">task_id</span><span class="p">][</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;completed&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_state</span><span class="p">[</span><span class="n">task_id</span><span class="p">][</span><span class="s2">&quot;final_output&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">final_output</span>
+        
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;task_id&quot;</span><span class="p">:</span> <span class="n">task_id</span><span class="p">,</span>
+            <span class="s2">&quot;result&quot;</span><span class="p">:</span> <span class="n">final_output</span>
+        <span class="p">}</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">collaborative_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_description</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Process a task using a more collaborative approach.&quot;&quot;&quot;</span>
+        <span class="n">task_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_id</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_state</span><span class="p">[</span><span class="n">task_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">task_description</span><span class="p">,</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;planning&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;agent_outputs&quot;</span><span class="p">:</span> <span class="p">{},</span>
+            <span class="s2">&quot;final_output&quot;</span><span class="p">:</span> <span class="kc">None</span>
+        <span class="p">}</span>
+        
+        <span class="c1"># Step 1: Planner creates initial plan</span>
+        <span class="n">plan_prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Create a plan to address this task: </span><span class="si">{</span><span class="n">task_description</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">initial_plan</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">planner</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">plan_prompt</span><span class="p">)</span>
+        
+        <span class="c1"># Save planner output</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_state</span><span class="p">[</span><span class="n">task_id</span><span class="p">][</span><span class="s2">&quot;agent_outputs&quot;</span><span class="p">][</span><span class="s2">&quot;planner&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">initial_plan</span>
+        
+        <span class="c1"># Step 2: Researcher reviews plan and adds research</span>
+        <span class="n">research_prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        Review this plan and conduct necessary research:</span>
+<span class="s2">        </span>
+<span class="s2">        TASK: </span><span class="si">{</span><span class="n">task_description</span><span class="si">}</span>
+<span class="s2">        </span>
+<span class="s2">        PLAN: </span><span class="si">{</span><span class="n">initial_plan</span><span class="si">}</span>
+<span class="s2">        </span>
+<span class="s2">        Add any information, data, or facts needed to complete this task.</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+        <span class="n">research_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">researcher</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">research_prompt</span><span class="p">)</span>
+        
+        <span class="c1"># Save researcher output</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_state</span><span class="p">[</span><span class="n">task_id</span><span class="p">][</span><span class="s2">&quot;agent_outputs&quot;</span><span class="p">][</span><span class="s2">&quot;researcher&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">research_output</span>
+        
+        <span class="c1"># Step 3: Planner refines plan based on research</span>
+        <span class="n">refine_prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        Refine your original plan based on this research:</span>
+<span class="s2">        </span>
+<span class="s2">        ORIGINAL PLAN: </span><span class="si">{</span><span class="n">initial_plan</span><span class="si">}</span>
+<span class="s2">        </span>
+<span class="s2">        RESEARCH: </span><span class="si">{</span><span class="n">research_output</span><span class="si">}</span>
+<span class="s2">        </span>
+<span class="s2">        Provide an updated plan that incorporates the research findings.</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+        <span class="n">refined_plan</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">planner</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">refine_prompt</span><span class="p">)</span>
+        
+        <span class="c1"># Save refined plan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_state</span><span class="p">[</span><span class="n">task_id</span><span class="p">][</span><span class="s2">&quot;agent_outputs&quot;</span><span class="p">][</span><span class="s2">&quot;refined_plan&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">refined_plan</span>
+        
+        <span class="c1"># Step 4: Writer creates content based on refined plan and research</span>
+        <span class="n">write_prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        Create content to address this task:</span>
+<span class="s2">        </span>
+<span class="s2">        TASK: </span><span class="si">{</span><span class="n">task_description</span><span class="si">}</span>
+<span class="s2">        </span>
+<span class="s2">        REFINED PLAN: </span><span class="si">{</span><span class="n">refined_plan</span><span class="si">}</span>
+<span class="s2">        </span>
+<span class="s2">        RESEARCH: </span><span class="si">{</span><span class="n">research_output</span><span class="si">}</span>
+<span class="s2">        </span>
+<span class="s2">        Provide well-structured content that fulfills the requirements.</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+        <span class="n">draft</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">write_prompt</span><span class="p">)</span>
+        
+        <span class="c1"># Save draft</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_state</span><span class="p">[</span><span class="n">task_id</span><span class="p">][</span><span class="s2">&quot;agent_outputs&quot;</span><span class="p">][</span><span class="s2">&quot;draft&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">draft</span>
+        
+        <span class="c1"># Step 5: All agents review and provide feedback</span>
+        <span class="c1"># Planner review</span>
+        <span class="n">planner_review_prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        Review this draft and evaluate if it fulfills the plan:</span>
+<span class="s2">        </span>
+<span class="s2">        TASK: </span><span class="si">{</span><span class="n">task_description</span><span class="si">}</span>
+<span class="s2">        PLAN: </span><span class="si">{</span><span class="n">refined_plan</span><span class="si">}</span>
+<span class="s2">        DRAFT: </span><span class="si">{</span><span class="n">draft</span><span class="si">}</span>
+<span class="s2">        </span>
+<span class="s2">        Identify any missing elements or areas for improvement.</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+        <span class="n">planner_feedback</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">planner</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">planner_review_prompt</span><span class="p">)</span>
+        
+        <span class="c1"># Researcher review</span>
+        <span class="n">researcher_review_prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        Review this draft and evaluate if it accurately uses the research:</span>
+<span class="s2">        </span>
+<span class="s2">        TASK: </span><span class="si">{</span><span class="n">task_description</span><span class="si">}</span>
+<span class="s2">        RESEARCH: </span><span class="si">{</span><span class="n">research_output</span><span class="si">}</span>
+<span class="s2">        DRAFT: </span><span class="si">{</span><span class="n">draft</span><span class="si">}</span>
+<span class="s2">        </span>
+<span class="s2">        Identify any factual errors or missing information.</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+        <span class="n">researcher_feedback</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">researcher</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">researcher_review_prompt</span><span class="p">)</span>
+        
+        <span class="c1"># Save feedback</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_state</span><span class="p">[</span><span class="n">task_id</span><span class="p">][</span><span class="s2">&quot;agent_outputs&quot;</span><span class="p">][</span><span class="s2">&quot;planner_feedback&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">planner_feedback</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_state</span><span class="p">[</span><span class="n">task_id</span><span class="p">][</span><span class="s2">&quot;agent_outputs&quot;</span><span class="p">][</span><span class="s2">&quot;researcher_feedback&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">researcher_feedback</span>
+        
+        <span class="c1"># Step 6: Writer improves draft based on feedback</span>
+        <span class="n">improve_prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        Improve this draft based on feedback:</span>
+<span class="s2">        </span>
+<span class="s2">        DRAFT: </span><span class="si">{</span><span class="n">draft</span><span class="si">}</span>
+<span class="s2">        </span>
+<span class="s2">        PLANNER FEEDBACK: </span><span class="si">{</span><span class="n">planner_feedback</span><span class="si">}</span>
+<span class="s2">        </span>
+<span class="s2">        RESEARCHER FEEDBACK: </span><span class="si">{</span><span class="n">researcher_feedback</span><span class="si">}</span>
+<span class="s2">        </span>
+<span class="s2">        Provide an improved version that addresses all feedback.</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+        <span class="n">improved_draft</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">improve_prompt</span><span class="p">)</span>
+        
+        <span class="c1"># Save improved draft</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_state</span><span class="p">[</span><span class="n">task_id</span><span class="p">][</span><span class="s2">&quot;agent_outputs&quot;</span><span class="p">][</span><span class="s2">&quot;improved_draft&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">improved_draft</span>
+        
+        <span class="c1"># Step 7: Final review and polishing</span>
+        <span class="n">final_prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        This is the final review of the content:</span>
+<span class="s2">        </span>
+<span class="s2">        TASK: </span><span class="si">{</span><span class="n">task_description</span><span class="si">}</span>
+<span class="s2">        </span>
+<span class="s2">        CONTENT: </span><span class="si">{</span><span class="n">improved_draft</span><span class="si">}</span>
+<span class="s2">        </span>
+<span class="s2">        Perform a final polish, ensuring the content is complete, accurate,</span>
+<span class="s2">        well-organized, and fully addresses the original task.</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+        <span class="n">final_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">final_prompt</span><span class="p">)</span>
+        
+        <span class="c1"># Update task state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_state</span><span class="p">[</span><span class="n">task_id</span><span class="p">][</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;completed&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_state</span><span class="p">[</span><span class="n">task_id</span><span class="p">][</span><span class="s2">&quot;final_output&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">final_output</span>
+        
+        <span class="c1"># Save to shared memory</span>
+        <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">shared_memory</span><span class="o">.</span><span class="n">save</span><span class="p">({</span>
+            <span class="s2">&quot;entity&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;task:</span><span class="si">{</span><span class="n">task_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;attribute&quot;</span><span class="p">:</span> <span class="s2">&quot;final_output&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">final_output</span>
+        <span class="p">}))</span>
+        
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;task_id&quot;</span><span class="p">:</span> <span class="n">task_id</span><span class="p">,</span>
+            <span class="s2">&quot;result&quot;</span><span class="p">:</span> <span class="n">final_output</span>
+        <span class="p">}</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_plan</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_id</span><span class="p">,</span> <span class="n">task_description</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Use the planner agent to create a plan.&quot;&quot;&quot;</span>
+        <span class="n">prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        Create a detailed plan to complete this task:</span>
+<span class="s2">        </span>
+<span class="s2">        </span><span class="si">{</span><span class="n">task_description</span><span class="si">}</span>
+<span class="s2">        </span>
+<span class="s2">        Break it down into steps with clear objectives for each step.</span>
+<span class="s2">        Identify what research is needed and what should be included in the final output.</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+        
+        <span class="n">plan</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">planner</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+        
+        <span class="c1"># Save to task state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_state</span><span class="p">[</span><span class="n">task_id</span><span class="p">][</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;researching&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_state</span><span class="p">[</span><span class="n">task_id</span><span class="p">][</span><span class="s2">&quot;plan&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">plan</span>
+        
+        <span class="c1"># Save to shared memory</span>
+        <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">shared_memory</span><span class="o">.</span><span class="n">save</span><span class="p">({</span>
+            <span class="s2">&quot;entity&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;task:</span><span class="si">{</span><span class="n">task_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;attribute&quot;</span><span class="p">:</span> <span class="s2">&quot;plan&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">plan</span>
+        <span class="p">}))</span>
+        
+        <span class="k">return</span> <span class="n">plan</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_conduct_research</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_id</span><span class="p">,</span> <span class="n">task_description</span><span class="p">,</span> <span class="n">plan</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Use the researcher agent to gather information.&quot;&quot;&quot;</span>
+        <span class="n">prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        Conduct research for the following task:</span>
+<span class="s2">        </span>
+<span class="s2">        </span><span class="si">{</span><span class="n">task_description</span><span class="si">}</span>
+<span class="s2">        </span>
+<span class="s2">        Using this plan:</span>
+<span class="s2">        </span><span class="si">{</span><span class="n">plan</span><span class="si">}</span>
+<span class="s2">        </span>
+<span class="s2">        Gather relevant information, data, and facts needed to complete the task.</span>
+<span class="s2">        Focus on finding reliable and accurate information.</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+        
+        <span class="n">research</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">researcher</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+        
+        <span class="c1"># Save to task state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_state</span><span class="p">[</span><span class="n">task_id</span><span class="p">][</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;writing&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_state</span><span class="p">[</span><span class="n">task_id</span><span class="p">][</span><span class="s2">&quot;research&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">research</span>
+        
+        <span class="c1"># Save to shared memory</span>
+        <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">shared_memory</span><span class="o">.</span><span class="n">save</span><span class="p">({</span>
+            <span class="s2">&quot;entity&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;task:</span><span class="si">{</span><span class="n">task_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;attribute&quot;</span><span class="p">:</span> <span class="s2">&quot;research&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">research</span>
+        <span class="p">}))</span>
+        
+        <span class="k">return</span> <span class="n">research</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_generate_content</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_id</span><span class="p">,</span> <span class="n">task_description</span><span class="p">,</span> <span class="n">plan</span><span class="p">,</span> <span class="n">research</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Use the writer agent to generate content.&quot;&quot;&quot;</span>
+        <span class="n">prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        Create content for the following task:</span>
+<span class="s2">        </span>
+<span class="s2">        </span><span class="si">{</span><span class="n">task_description</span><span class="si">}</span>
+<span class="s2">        </span>
+<span class="s2">        Using this plan:</span>
+<span class="s2">        </span><span class="si">{</span><span class="n">plan</span><span class="si">}</span>
+<span class="s2">        </span>
+<span class="s2">        And this research:</span>
+<span class="s2">        </span><span class="si">{</span><span class="n">research</span><span class="si">}</span>
+<span class="s2">        </span>
+<span class="s2">        Generate well-structured, clear, and accurate content that fulfills the task requirements.</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+        
+        <span class="n">draft</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+        
+        <span class="c1"># Save to task state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_state</span><span class="p">[</span><span class="n">task_id</span><span class="p">][</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;refining&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_state</span><span class="p">[</span><span class="n">task_id</span><span class="p">][</span><span class="s2">&quot;draft&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">draft</span>
+        
+        <span class="c1"># Save to shared memory</span>
+        <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">shared_memory</span><span class="o">.</span><span class="n">save</span><span class="p">({</span>
+            <span class="s2">&quot;entity&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;task:</span><span class="si">{</span><span class="n">task_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;attribute&quot;</span><span class="p">:</span> <span class="s2">&quot;draft&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">draft</span>
+        <span class="p">}))</span>
+        
+        <span class="k">return</span> <span class="n">draft</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_refine_content</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_id</span><span class="p">,</span> <span class="n">draft</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Use the writer agent to refine the content.&quot;&quot;&quot;</span>
+        <span class="n">prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        Refine and improve the following draft:</span>
+<span class="s2">        </span>
+<span class="s2">        </span><span class="si">{</span><span class="n">draft</span><span class="si">}</span>
+<span class="s2">        </span>
+<span class="s2">        Check for:</span>
+<span class="s2">        1. Accuracy and completeness</span>
+<span class="s2">        2. Clarity and coherence</span>
+<span class="s2">        3. Grammar and style</span>
+<span class="s2">        4. Alignment with the original task requirements</span>
+<span class="s2">        </span>
+<span class="s2">        Provide the improved version.</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+        
+        <span class="n">final_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+        
+        <span class="c1"># Save to shared memory</span>
+        <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">shared_memory</span><span class="o">.</span><span class="n">save</span><span class="p">({</span>
+            <span class="s2">&quot;entity&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;task:</span><span class="si">{</span><span class="n">task_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;attribute&quot;</span><span class="p">:</span> <span class="s2">&quot;final_output&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">final_output</span>
+        <span class="p">}))</span>
+        
+        <span class="k">return</span> <span class="n">final_output</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_task_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_id</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the current status of a task.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">task_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_state</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Task not found&quot;</span><span class="p">}</span>
+        
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_state</span><span class="p">[</span><span class="n">task_id</span><span class="p">]</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_generate_id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate a unique ID for a task.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">())[:</span><span class="mi">8</span><span class="p">]</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+    <span class="c1"># Create the agent coordinator</span>
+    <span class="n">coordinator</span> <span class="o">=</span> <span class="n">AgentCoordinator</span><span class="p">()</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Multi-Agent System&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;This system uses multiple specialized agents to complete complex tasks.&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Get task from user</span>
+    <span class="n">task</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Enter your task description: &quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Ask which approach to use</span>
+    <span class="n">approach</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Choose approach (1=Sequential, 2=Collaborative): &quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Process the task</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Processing task...&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;This may take some time depending on the complexity of the task.&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Use the selected approach</span>
+    <span class="k">if</span> <span class="n">approach</span> <span class="o">==</span> <span class="s2">&quot;2&quot;</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">coordinator</span><span class="o">.</span><span class="n">collaborative_task</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">coordinator</span><span class="o">.</span><span class="n">process_task</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+    
+    <span class="c1"># Display the result</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Task Completed!&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;result&quot;</span><span class="p">])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Task ID: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;task_id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Option to save the result</span>
+    <span class="n">save_option</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Would you like to save the result to a file? (y/n): &quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">save_option</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;y&#39;</span><span class="p">:</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Enter filename (default: result.txt): &quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;result.txt&quot;</span>
+        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;result&quot;</span><span class="p">])</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Result saved to </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error saving file: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="architecture-diagram">
+<h2>Architecture Diagram<a class="headerlink" href="#architecture-diagram" title="Link to this heading"></a></h2>
+<div class="highlight-mermaid notranslate"><div class="highlight"><pre><span></span>graph TD
+    A[User Interface] --&gt; B[Agent Coordinator]
+    B --&gt; C[Planner Agent]
+    B --&gt; D[Researcher Agent]
+    B --&gt; E[Writer Agent]
+    
+    C --&gt; F[Plan &amp; Solve Pattern]
+    D --&gt; G[ReAct Pattern]
+    E --&gt; H[Reflexion Pattern]
+    
+    G --&gt; I[Research Tools]
+    
+    C --&gt; J[Shared Memory]
+    D --&gt; J
+    E --&gt; J
+    
+    B --&gt; K[Sequential Workflow]
+    B --&gt; L[Collaborative Workflow]
+</pre></div>
+</div>
+</section>
+<section id="next-steps">
+<h2>Next Steps<a class="headerlink" href="#next-steps" title="Link to this heading"></a></h2>
+<p>You can enhance this multi-agent system with:</p>
+<ol class="arabic simple">
+<li><p><strong>Agent Specialization</strong>: Create additional specialized agents (e.g., critic, fact-checker)</p></li>
+<li><p><strong>Conflict Resolution</strong>: Add mechanisms to resolve conflicting agent outputs</p></li>
+<li><p><strong>Dynamic Task Allocation</strong>: Implement dynamic allocation of tasks based on agent performance</p></li>
+<li><p><strong>Human-in-the-Loop</strong>: Add human feedback integration at critical decision points</p></li>
+<li><p><strong>Custom Agent Patterns</strong>: Create specialized agent patterns for specific roles</p></li>
+</ol>
+<p>By using different agent patterns for different roles, our multi-agent system benefits from:</p>
+<ul class="simple">
+<li><p>Specialized capabilities for different stages of the task</p></li>
+<li><p>Shared context through the memory system</p></li>
+<li><p>Collaborative improvement through feedback loops</p></li>
+<li><p>Coordinated workflow for complex tasks</p></li>
+</ul>
+<p>This approach creates a multi-agent system that can tackle more complex tasks than any single agent could handle alone.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Your Name.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,292 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Memory API Reference &mdash; agent-patterns 0.1.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a58bc63e"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            agent-patterns
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Memory API Reference</a><ul>
+<li><a class="reference internal" href="#memory-components">Memory Components</a><ul>
+<li><a class="reference internal" href="#basememory">BaseMemory</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">agent-patterns</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Memory API Reference</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/memory.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="memory-api-reference">
+<h1>Memory API Reference<a class="headerlink" href="#memory-api-reference" title="Link to this heading"></a></h1>
+<p>This document provides detailed API reference for the memory system in Agent Patterns.</p>
+<section id="memory-components">
+<h2>Memory Components<a class="headerlink" href="#memory-components" title="Link to this heading"></a></h2>
+<section id="basememory">
+<h3>BaseMemory<a class="headerlink" href="#basememory" title="Link to this heading"></a></h3>
+<div class="agent_patterns.core.memory.base.BaseMemory docutils">
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>handler: python
+selection:
+  members:
+    - __init__
+    - save
+    - retrieve
+    - update
+    - delete
+</pre></div>
+</div>
+<p class="rubric" id="semanticmemory">SemanticMemory</p>
+<div class="agent_patterns.core.memory.semantic.SemanticMemory docutils">
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>handler: python
+selection:
+  members:
+    - __init__
+    - save
+    - retrieve
+    - update
+    - delete
+    - _calculate_embedding
+    - _get_timestamp
+</pre></div>
+</div>
+<p class="rubric" id="episodicmemory">EpisodicMemory</p>
+<div class="agent_patterns.core.memory.episodic.EpisodicMemory docutils">
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>handler: python
+selection:
+  members:
+    - __init__
+    - save
+    - retrieve
+    - update
+    - delete
+    - retrieve_conversation
+    - _get_timestamp
+</pre></div>
+</div>
+<p class="rubric" id="proceduralmemory">ProceduralMemory</p>
+<div class="agent_patterns.core.memory.procedural.ProceduralMemory docutils">
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>handler: python
+selection:
+  members:
+    - __init__
+    - save
+    - retrieve
+    - update
+    - delete
+    - retrieve_procedures
+    - _get_timestamp
+</pre></div>
+</div>
+<p class="rubric" id="compositememory">CompositeMemory</p>
+<div class="agent_patterns.core.memory.composite.CompositeMemory docutils">
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>handler: python
+selection:
+  members:
+    - __init__
+    - add_memory
+    - save_to
+    - retrieve_from
+    - update_in
+    - delete_from
+    - get_component
+    - list_components
+</pre></div>
+</div>
+<p class="rubric" id="persistence">Persistence</p>
+<p class="rubric" id="basepersistence">BasePersistence</p>
+<div class="agent_patterns.core.memory.persistence.base.BasePersistence docutils">
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>handler: python
+selection:
+  members:
+    - __init__
+    - initialize
+    - save
+    - retrieve
+    - update
+    - delete
+    - close
+</pre></div>
+</div>
+<p class="rubric" id="inmemorypersistence">InMemoryPersistence</p>
+<div class="agent_patterns.core.memory.persistence.in_memory.InMemoryPersistence docutils">
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>handler: python
+selection:
+  members:
+    - __init__
+    - initialize
+    - save
+    - retrieve
+    - update
+    - delete
+    - close
+    - _filter_by_query
+</pre></div>
+</div>
+<p class="rubric" id="filepersistence">FilePersistence</p>
+<div class="agent_patterns.core.memory.persistence.file.FilePersistence docutils">
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>handler: python
+selection:
+  members:
+    - __init__
+    - initialize
+    - save
+    - retrieve
+    - update
+    - delete
+    - close
+    - _get_namespace_dir
+    - _ensure_namespace_dir
+</pre></div>
+</div>
+<p class="rubric" id="vectordbpersistence">VectorDBPersistence</p>
+<div class="agent_patterns.core.memory.persistence.vector_db.VectorDBPersistence docutils">
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>handler: python
+selection:
+  members:
+    - __init__
+    - initialize
+    - save
+    - retrieve
+    - update
+    - delete
+    - close
+    - _calculate_embedding
+</pre></div>
+</div>
+<p class="rubric" id="memory-utilities">Memory Utilities</p>
+<p class="rubric" id="memoryformatter">MemoryFormatter</p>
+<div class="agent_patterns.core.memory.utils.formatter.MemoryFormatter docutils">
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>handler: python
+selection:
+  members:
+    - format_memory
+    - format_semantic_memory
+    - format_episodic_memory
+    - format_procedural_memory
+    - format_composite_memory
+</pre></div>
+</div>
+<p class="rubric" id="memoryencoder">MemoryEncoder</p>
+<div class="agent_patterns.core.memory.utils.encoder.MemoryEncoder docutils">
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>handler: python
+selection:
+  members:
+    - encode_memory
+    - decode_memory
+    - calculate_embedding
+</pre></div>
+</div>
+<p class="rubric" id="memoryretriever">MemoryRetriever</p>
+<div class="agent_patterns.core.memory.utils.retriever.MemoryRetriever docutils">
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>handler: python
+selection:
+  members:
+    - retrieve_relevant
+    - retrieve_recent
+    - retrieve_by_tag
+    - combine_retrievals
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Your Name.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

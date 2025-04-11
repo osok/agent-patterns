@@ -1,0 +1,918 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Advanced Customization Guide &mdash; agent-patterns 0.1.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a58bc63e"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            agent-patterns
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Advanced Customization Guide</a><ul>
+<li><a class="reference internal" href="#creating-custom-agent-patterns">Creating Custom Agent Patterns</a><ul>
+<li><a class="reference internal" href="#extension-points-for-custom-patterns">Extension Points for Custom Patterns</a></li>
+<li><a class="reference internal" href="#step-by-step-implementation">Step-by-Step Implementation</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#building-custom-memory-implementations">Building Custom Memory Implementations</a><ul>
+<li><a class="reference internal" href="#creating-a-custom-memory-type">Creating a Custom Memory Type</a></li>
+<li><a class="reference internal" href="#creating-a-custom-persistence-layer">Creating a Custom Persistence Layer</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#developing-specialized-tool-providers">Developing Specialized Tool Providers</a><ul>
+<li><a class="reference internal" href="#creating-a-custom-tool-provider">Creating a Custom Tool Provider</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#extending-baseagent-class">Extending BaseAgent Class</a><ul>
+<li><a class="reference internal" href="#extension-points-in-baseagent">Extension Points in BaseAgent</a></li>
+<li><a class="reference internal" href="#example-custom-llm-integration">Example: Custom LLM Integration</a></li>
+<li><a class="reference internal" href="#example-custom-ux-integration">Example: Custom UX Integration</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">agent-patterns</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Advanced Customization Guide</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/guides/advanced_customization.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="advanced-customization-guide">
+<h1>Advanced Customization Guide<a class="headerlink" href="#advanced-customization-guide" title="Link to this heading"></a></h1>
+<p>This guide explains how to customize and extend Agent Patterns to create specialized agents, memory systems, and tool providers.</p>
+<section id="creating-custom-agent-patterns">
+<h2>Creating Custom Agent Patterns<a class="headerlink" href="#creating-custom-agent-patterns" title="Link to this heading"></a></h2>
+<p>You can create custom agent patterns by extending the <code class="docutils literal notranslate"><span class="pre">BaseAgent</span></code> class and implementing your own flow logic.</p>
+<section id="extension-points-for-custom-patterns">
+<h3>Extension Points for Custom Patterns<a class="headerlink" href="#extension-points-for-custom-patterns" title="Link to this heading"></a></h3>
+<div class="highlight-mermaid notranslate"><div class="highlight"><pre><span></span>classDiagram
+    BaseAgent &lt;|-- CustomAgent
+    BaseAgent : +build_graph()
+    BaseAgent : +run(query)
+    BaseAgent : +process_response(state)
+    BaseAgent : #_call_llm(prompt, model_name)
+    BaseAgent : #_get_prompt(prompt_name)
+    class CustomAgent {
+        +build_graph()
+        +custom_node_1(state)
+        +custom_node_2(state)
+        +custom_conditional(state)
+    }
+</pre></div>
+</div>
+</section>
+<section id="step-by-step-implementation">
+<h3>Step-by-Step Implementation<a class="headerlink" href="#step-by-step-implementation" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p>Create a new file in your project for your custom agent</p></li>
+<li><p>Import the necessary components:</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.base_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseAgent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">langchain.graphs</span><span class="w"> </span><span class="kn">import</span> <span class="n">Graph</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p>Define your custom agent class:</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">CustomAgent</span><span class="p">(</span><span class="n">BaseAgent</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Custom agent implementing a specialized workflow.&quot;&quot;&quot;</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">llm_configs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">memory_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">tool_provider</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">custom_prompts_directory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">custom_param</span><span class="o">=</span><span class="kc">None</span>  <span class="c1"># Add any custom parameters your agent needs</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the custom agent.&quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">llm_configs</span><span class="o">=</span><span class="n">llm_configs</span><span class="p">,</span>
+            <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
+            <span class="n">memory_config</span><span class="o">=</span><span class="n">memory_config</span><span class="p">,</span>
+            <span class="n">tool_provider</span><span class="o">=</span><span class="n">tool_provider</span><span class="p">,</span>
+            <span class="n">custom_prompts_directory</span><span class="o">=</span><span class="n">custom_prompts_directory</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">custom_param</span> <span class="o">=</span> <span class="n">custom_param</span>
+        
+    <span class="k">def</span><span class="w"> </span><span class="nf">build_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build the LangGraph workflow.&quot;&quot;&quot;</span>
+        <span class="c1"># Create a new graph</span>
+        <span class="n">builder</span> <span class="o">=</span> <span class="n">Graph</span><span class="p">()</span>
+        
+        <span class="c1"># Define the nodes (steps in your agent&#39;s workflow)</span>
+        <span class="n">builder</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">&quot;start&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_node</span><span class="p">)</span>
+        <span class="n">builder</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">&quot;process&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_node</span><span class="p">)</span>
+        <span class="n">builder</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">&quot;evaluate&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluate_node</span><span class="p">)</span>
+        <span class="n">builder</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">&quot;final&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_node</span><span class="p">)</span>
+        
+        <span class="c1"># Define the edges (transitions between steps)</span>
+        <span class="n">builder</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;start&quot;</span><span class="p">,</span> <span class="s2">&quot;process&quot;</span><span class="p">)</span>
+        <span class="n">builder</span><span class="o">.</span><span class="n">add_conditional_edges</span><span class="p">(</span>
+            <span class="s2">&quot;process&quot;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">should_evaluate</span><span class="p">,</span>
+            <span class="p">{</span>
+                <span class="kc">True</span><span class="p">:</span> <span class="s2">&quot;evaluate&quot;</span><span class="p">,</span>
+                <span class="kc">False</span><span class="p">:</span> <span class="s2">&quot;final&quot;</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="n">builder</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;evaluate&quot;</span><span class="p">,</span> <span class="s2">&quot;process&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Set the entry point</span>
+        <span class="n">builder</span><span class="o">.</span><span class="n">set_entry_point</span><span class="p">(</span><span class="s2">&quot;start&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Build and return the graph</span>
+        <span class="k">return</span> <span class="n">builder</span><span class="o">.</span><span class="n">compile</span><span class="p">()</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">start_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the workflow state.&quot;&quot;&quot;</span>
+        <span class="c1"># Get the user query</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;query&quot;</span><span class="p">]</span>
+        
+        <span class="c1"># Initialize response</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;thoughts&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;actions&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;final_answer&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">}</span>
+        
+        <span class="c1"># Add memory context if available</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="p">:</span>
+            <span class="n">response</span><span class="p">[</span><span class="s2">&quot;memory_context&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">retrieve_from_memory</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+        
+        <span class="c1"># Update state</span>
+        <span class="n">state</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">response</span>
+        <span class="n">state</span><span class="p">[</span><span class="s2">&quot;iterations&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="k">return</span> <span class="n">state</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">process_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Process the query and generate a response.&quot;&quot;&quot;</span>
+        <span class="c1"># Increment iterations</span>
+        <span class="n">state</span><span class="p">[</span><span class="s2">&quot;iterations&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        
+        <span class="c1"># Get the prompt for this step</span>
+        <span class="n">prompt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_prompt</span><span class="p">(</span><span class="s2">&quot;process&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Format the prompt with state information</span>
+        <span class="n">formatted_prompt</span> <span class="o">=</span> <span class="n">prompt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">query</span><span class="o">=</span><span class="n">state</span><span class="p">[</span><span class="s2">&quot;query&quot;</span><span class="p">],</span>
+            <span class="n">response</span><span class="o">=</span><span class="n">state</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">],</span>
+            <span class="n">custom_param</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">custom_param</span>
+        <span class="p">)</span>
+        
+        <span class="c1"># Call the LLM</span>
+        <span class="n">llm_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_llm</span><span class="p">(</span><span class="n">formatted_prompt</span><span class="p">,</span> <span class="s2">&quot;default&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Parse the response</span>
+        <span class="n">parsed_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_llm_response</span><span class="p">(</span><span class="n">llm_response</span><span class="p">)</span>
+        
+        <span class="c1"># Update the state</span>
+        <span class="n">state</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">][</span><span class="s2">&quot;thoughts&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">parsed_response</span><span class="p">[</span><span class="s2">&quot;thought&quot;</span><span class="p">])</span>
+        <span class="n">state</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">][</span><span class="s2">&quot;actions&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">parsed_response</span><span class="p">[</span><span class="s2">&quot;action&quot;</span><span class="p">])</span>
+        
+        <span class="k">return</span> <span class="n">state</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">evaluate_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluate the current response.&quot;&quot;&quot;</span>
+        <span class="c1"># Get the prompt for evaluation</span>
+        <span class="n">prompt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_prompt</span><span class="p">(</span><span class="s2">&quot;evaluate&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Format the prompt</span>
+        <span class="n">formatted_prompt</span> <span class="o">=</span> <span class="n">prompt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">query</span><span class="o">=</span><span class="n">state</span><span class="p">[</span><span class="s2">&quot;query&quot;</span><span class="p">],</span>
+            <span class="n">response</span><span class="o">=</span><span class="n">state</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        
+        <span class="c1"># Call the LLM</span>
+        <span class="n">llm_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_llm</span><span class="p">(</span><span class="n">formatted_prompt</span><span class="p">,</span> <span class="s2">&quot;default&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Parse the response</span>
+        <span class="n">evaluation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_evaluation</span><span class="p">(</span><span class="n">llm_response</span><span class="p">)</span>
+        
+        <span class="c1"># Update state</span>
+        <span class="n">state</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">][</span><span class="s2">&quot;evaluations&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">evaluation</span>
+        
+        <span class="k">return</span> <span class="n">state</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">final_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Finalize the response.&quot;&quot;&quot;</span>
+        <span class="c1"># Get the prompt for final answer</span>
+        <span class="n">prompt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_prompt</span><span class="p">(</span><span class="s2">&quot;final&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Format the prompt</span>
+        <span class="n">formatted_prompt</span> <span class="o">=</span> <span class="n">prompt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">query</span><span class="o">=</span><span class="n">state</span><span class="p">[</span><span class="s2">&quot;query&quot;</span><span class="p">],</span>
+            <span class="n">response</span><span class="o">=</span><span class="n">state</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        
+        <span class="c1"># Call the LLM</span>
+        <span class="n">final_answer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_llm</span><span class="p">(</span><span class="n">formatted_prompt</span><span class="p">,</span> <span class="s2">&quot;default&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Update state</span>
+        <span class="n">state</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">][</span><span class="s2">&quot;final_answer&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">final_answer</span>
+        
+        <span class="c1"># Save to memory if available</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">save_to_memory</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="s2">&quot;query&quot;</span><span class="p">],</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">])</span>
+        
+        <span class="k">return</span> <span class="n">state</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">should_evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Conditional function to determine if evaluation is needed.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;iterations&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">3</span>  <span class="c1"># Example: limit to 3 iterations</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_parse_llm_response</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">llm_response</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse the LLM response into structured format.&quot;&quot;&quot;</span>
+        <span class="c1"># Implement parsing logic for your specific prompt format</span>
+        <span class="c1"># Example:</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;thought&quot;</span><span class="p">:</span> <span class="s2">&quot;Extracted thought...&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;Extracted action...&quot;</span>
+        <span class="p">}</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_parse_evaluation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">llm_response</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse the evaluation response.&quot;&quot;&quot;</span>
+        <span class="c1"># Implement evaluation parsing logic</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="mf">0.85</span><span class="p">,</span> <span class="s2">&quot;feedback&quot;</span><span class="p">:</span> <span class="s2">&quot;Extracted feedback...&quot;</span><span class="p">}</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="4">
+<li><p>Create Custom Prompts</p></li>
+</ol>
+<p>Create a directory for your custom agent’s prompts:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>your_project/
+└── prompts/
+    └── CustomAgent/
+        ├── process.txt
+        ├── evaluate.txt
+        └── final.txt
+</pre></div>
+</div>
+<p>Example <code class="docutils literal notranslate"><span class="pre">process.txt</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">You</span> <span class="n">are</span> <span class="n">a</span> <span class="n">helpful</span> <span class="n">assistant</span><span class="o">.</span>
+
+<span class="n">User</span> <span class="n">Query</span><span class="p">:</span> <span class="p">{</span><span class="n">query</span><span class="p">}</span>
+
+<span class="n">Current</span> <span class="n">Response</span><span class="p">:</span>
+<span class="p">{</span><span class="n">response</span><span class="p">}</span>
+
+<span class="n">Additional</span> <span class="n">Context</span><span class="p">:</span>
+<span class="p">{</span><span class="n">custom_param</span><span class="p">}</span>
+
+<span class="n">Please</span> <span class="n">think</span> <span class="n">about</span> <span class="n">how</span> <span class="n">to</span> <span class="n">respond</span> <span class="n">to</span> <span class="n">the</span> <span class="n">user</span><span class="s1">&#39;s query.</span>
+<span class="n">First</span><span class="p">,</span> <span class="n">provide</span> <span class="n">your</span> <span class="n">thought</span> <span class="n">process</span><span class="o">.</span>
+<span class="n">Then</span><span class="p">,</span> <span class="n">decide</span> <span class="n">on</span> <span class="n">an</span> <span class="n">action</span> <span class="n">to</span> <span class="n">take</span><span class="o">.</span>
+
+<span class="n">Format</span> <span class="n">your</span> <span class="n">response</span> <span class="k">as</span> <span class="n">follows</span><span class="p">:</span>
+<span class="n">Thought</span><span class="p">:</span> <span class="p">[</span><span class="n">Your</span> <span class="n">reasoning</span> <span class="n">process</span><span class="p">]</span>
+<span class="n">Action</span><span class="p">:</span> <span class="p">[</span><span class="n">The</span> <span class="n">action</span> <span class="n">you</span> <span class="n">will</span> <span class="n">take</span><span class="p">]</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="5">
+<li><p>Using Your Custom Agent</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">your_agent_file</span><span class="w"> </span><span class="kn">import</span> <span class="n">CustomAgent</span>
+
+<span class="c1"># Create your custom agent</span>
+<span class="n">agent</span> <span class="o">=</span> <span class="n">CustomAgent</span><span class="p">(</span>
+    <span class="n">llm_configs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;provider&quot;</span><span class="p">:</span> <span class="s2">&quot;openai&quot;</span><span class="p">,</span> <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="s2">&quot;gpt-4o&quot;</span><span class="p">}},</span>
+    <span class="n">custom_prompts_directory</span><span class="o">=</span><span class="s2">&quot;./prompts&quot;</span><span class="p">,</span>
+    <span class="n">custom_param</span><span class="o">=</span><span class="s2">&quot;Additional configuration information&quot;</span>
+<span class="p">)</span>
+
+<span class="c1"># Run the agent</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">&quot;What can you help me with?&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="building-custom-memory-implementations">
+<h2>Building Custom Memory Implementations<a class="headerlink" href="#building-custom-memory-implementations" title="Link to this heading"></a></h2>
+<p>You can extend the memory system by implementing custom memory types or persistence layers.</p>
+<section id="creating-a-custom-memory-type">
+<h3>Creating a Custom Memory Type<a class="headerlink" href="#creating-a-custom-memory-type" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p>Import the base classes:</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseMemory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory.persistence</span><span class="w"> </span><span class="kn">import</span> <span class="n">BasePersistence</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>Implement your custom memory class:</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">PrioritizedMemory</span><span class="p">(</span><span class="n">BaseMemory</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A memory implementation that prioritizes memories by importance.&quot;&quot;&quot;</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">persistence</span><span class="p">,</span> <span class="n">namespace</span><span class="o">=</span><span class="s2">&quot;prioritized&quot;</span><span class="p">,</span> <span class="n">priority_threshold</span><span class="o">=</span><span class="mf">0.7</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize prioritized memory.&quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">persistence</span><span class="p">,</span> <span class="n">namespace</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">priority_threshold</span> <span class="o">=</span> <span class="n">priority_threshold</span>
+    
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Save memory with priority information.&quot;&quot;&quot;</span>
+        <span class="c1"># Add priority field if not present</span>
+        <span class="k">if</span> <span class="s2">&quot;priority&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;priority&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span>  <span class="c1"># Default priority</span>
+        
+        <span class="c1"># Add timestamp if not present</span>
+        <span class="k">if</span> <span class="s2">&quot;timestamp&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;timestamp&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_timestamp</span><span class="p">()</span>
+        
+        <span class="c1"># Save to persistence layer</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">persistence</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">namespace</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+    
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">retrieve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve memories based on relevance and priority.&quot;&quot;&quot;</span>
+        <span class="c1"># Get all memories from persistence</span>
+        <span class="n">all_memories</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">persistence</span><span class="o">.</span><span class="n">retrieve</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">namespace</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+        
+        <span class="c1"># Filter by priority threshold</span>
+        <span class="n">priority_memories</span> <span class="o">=</span> <span class="p">[</span><span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">all_memories</span> <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;priority&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">priority_threshold</span><span class="p">]</span>
+        
+        <span class="c1"># Sort by relevance and priority</span>
+        <span class="n">sorted_memories</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="n">priority_memories</span><span class="p">,</span>
+            <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;relevance&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;priority&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span>
+            <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+        
+        <span class="c1"># Return top results</span>
+        <span class="k">return</span> <span class="n">sorted_memories</span><span class="p">[:</span><span class="n">limit</span><span class="p">]</span>
+    
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">memory_id</span><span class="p">,</span> <span class="n">updates</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update a memory including its priority.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">persistence</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">namespace</span><span class="p">,</span> <span class="n">memory_id</span><span class="p">,</span> <span class="n">updates</span><span class="p">)</span>
+    
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">memory_id</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Delete a memory.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">persistence</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">namespace</span><span class="p">,</span> <span class="n">memory_id</span><span class="p">)</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_timestamp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get current timestamp.&quot;&quot;&quot;</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+        <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p>Using Your Custom Memory:</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.patterns.re_act_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReActAgent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory.persistence</span><span class="w"> </span><span class="kn">import</span> <span class="n">InMemoryPersistence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">your_memory_file</span><span class="w"> </span><span class="kn">import</span> <span class="n">PrioritizedMemory</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+
+<span class="c1"># Set up persistence and memory</span>
+<span class="n">persistence</span> <span class="o">=</span> <span class="n">InMemoryPersistence</span><span class="p">()</span>
+<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">persistence</span><span class="o">.</span><span class="n">initialize</span><span class="p">())</span>
+<span class="n">prioritized_memory</span> <span class="o">=</span> <span class="n">PrioritizedMemory</span><span class="p">(</span><span class="n">persistence</span><span class="p">,</span> <span class="n">priority_threshold</span><span class="o">=</span><span class="mf">0.6</span><span class="p">)</span>
+
+<span class="c1"># Use in CompositeMemory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompositeMemory</span>
+<span class="n">memory</span> <span class="o">=</span> <span class="n">CompositeMemory</span><span class="p">({</span><span class="s2">&quot;prioritized&quot;</span><span class="p">:</span> <span class="n">prioritized_memory</span><span class="p">})</span>
+
+<span class="c1"># Create agent with custom memory</span>
+<span class="n">agent</span> <span class="o">=</span> <span class="n">ReActAgent</span><span class="p">(</span>
+    <span class="n">llm_configs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;provider&quot;</span><span class="p">:</span> <span class="s2">&quot;openai&quot;</span><span class="p">,</span> <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="s2">&quot;gpt-4o&quot;</span><span class="p">}},</span>
+    <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
+    <span class="n">memory_config</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;prioritized&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="creating-a-custom-persistence-layer">
+<h3>Creating a Custom Persistence Layer<a class="headerlink" href="#creating-a-custom-persistence-layer" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p>Import the base class:</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory.persistence</span><span class="w"> </span><span class="kn">import</span> <span class="n">BasePersistence</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>Implement your custom persistence class:</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">SQLitePersistence</span><span class="p">(</span><span class="n">BasePersistence</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Persistence layer using SQLite database.&quot;&quot;&quot;</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_path</span><span class="o">=</span><span class="s2">&quot;memory.db&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize SQLite persistence.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db_path</span> <span class="o">=</span> <span class="n">db_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connection</span> <span class="o">=</span> <span class="kc">None</span>
+        
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set up the database connection and tables.&quot;&quot;&quot;</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">sqlite3</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">aiosqlite</span>
+        
+        <span class="c1"># Create connection</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connection</span> <span class="o">=</span> <span class="k">await</span> <span class="n">aiosqlite</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">db_path</span><span class="p">)</span>
+        
+        <span class="c1"># Create tables if they don&#39;t exist</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            CREATE TABLE IF NOT EXISTS memories (</span>
+<span class="s2">                id TEXT PRIMARY KEY,</span>
+<span class="s2">                namespace TEXT,</span>
+<span class="s2">                data TEXT,</span>
+<span class="s2">                embedding TEXT,</span>
+<span class="s2">                created_at TEXT</span>
+<span class="s2">            )</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+    
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">namespace</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Save data to SQLite.&quot;&quot;&quot;</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">uuid</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+        
+        <span class="c1"># Generate ID</span>
+        <span class="n">memory_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">())</span>
+        
+        <span class="c1"># Prepare data</span>
+        <span class="n">serialized_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">created_at</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+        
+        <span class="c1"># Insert into database</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="s2">&quot;INSERT INTO memories (id, namespace, data, created_at) VALUES (?, ?, ?, ?)&quot;</span><span class="p">,</span>
+            <span class="p">(</span><span class="n">memory_id</span><span class="p">,</span> <span class="n">namespace</span><span class="p">,</span> <span class="n">serialized_data</span><span class="p">,</span> <span class="n">created_at</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">memory_id</span><span class="p">,</span> <span class="s2">&quot;namespace&quot;</span><span class="p">:</span> <span class="n">namespace</span><span class="p">}</span>
+    
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">retrieve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">namespace</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve data from SQLite.&quot;&quot;&quot;</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+        
+        <span class="c1"># Query database</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="s2">&quot;SELECT id, data FROM memories WHERE namespace = ? ORDER BY created_at DESC LIMIT ?&quot;</span><span class="p">,</span>
+            <span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="n">limit</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="k">await</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+        
+        <span class="c1"># Parse results</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">:</span>
+            <span class="n">memory_id</span><span class="p">,</span> <span class="n">serialized_data</span> <span class="o">=</span> <span class="n">row</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">serialized_data</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">memory_id</span>
+            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">results</span>
+    
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">namespace</span><span class="p">,</span> <span class="n">memory_id</span><span class="p">,</span> <span class="n">updates</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update a memory in SQLite.&quot;&quot;&quot;</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+        
+        <span class="c1"># Get current data</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="s2">&quot;SELECT data FROM memories WHERE id = ? AND namespace = ?&quot;</span><span class="p">,</span>
+            <span class="p">(</span><span class="n">memory_id</span><span class="p">,</span> <span class="n">namespace</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="k">await</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">row</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        
+        <span class="c1"># Update data</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">updates</span><span class="p">)</span>
+        <span class="n">serialized_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        
+        <span class="c1"># Save back to database</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="s2">&quot;UPDATE memories SET data = ? WHERE id = ? AND namespace = ?&quot;</span><span class="p">,</span>
+            <span class="p">(</span><span class="n">serialized_data</span><span class="p">,</span> <span class="n">memory_id</span><span class="p">,</span> <span class="n">namespace</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        
+        <span class="c1"># Return updated data</span>
+        <span class="n">data</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">memory_id</span>
+        <span class="k">return</span> <span class="n">data</span>
+    
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">namespace</span><span class="p">,</span> <span class="n">memory_id</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Delete a memory from SQLite.&quot;&quot;&quot;</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="s2">&quot;DELETE FROM memories WHERE id = ? AND namespace = ?&quot;</span><span class="p">,</span>
+            <span class="p">(</span><span class="n">memory_id</span><span class="p">,</span> <span class="n">namespace</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">memory_id</span><span class="p">,</span> <span class="s2">&quot;deleted&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+    
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Close the database connection.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="p">:</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p>Using Your Custom Persistence:</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.patterns.re_act_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReActAgent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompositeMemory</span><span class="p">,</span> <span class="n">SemanticMemory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">your_persistence_file</span><span class="w"> </span><span class="kn">import</span> <span class="n">SQLitePersistence</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+
+<span class="c1"># Set up persistence</span>
+<span class="n">sqlite_persistence</span> <span class="o">=</span> <span class="n">SQLitePersistence</span><span class="p">(</span><span class="n">db_path</span><span class="o">=</span><span class="s2">&quot;./agent_memory.db&quot;</span><span class="p">)</span>
+<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">sqlite_persistence</span><span class="o">.</span><span class="n">initialize</span><span class="p">())</span>
+
+<span class="c1"># Create memory with custom persistence</span>
+<span class="n">semantic_memory</span> <span class="o">=</span> <span class="n">SemanticMemory</span><span class="p">(</span><span class="n">sqlite_persistence</span><span class="p">,</span> <span class="n">namespace</span><span class="o">=</span><span class="s2">&quot;agent_knowledge&quot;</span><span class="p">)</span>
+<span class="n">memory</span> <span class="o">=</span> <span class="n">CompositeMemory</span><span class="p">({</span><span class="s2">&quot;semantic&quot;</span><span class="p">:</span> <span class="n">semantic_memory</span><span class="p">})</span>
+
+<span class="c1"># Create agent with custom persistence</span>
+<span class="n">agent</span> <span class="o">=</span> <span class="n">ReActAgent</span><span class="p">(</span>
+    <span class="n">llm_configs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;provider&quot;</span><span class="p">:</span> <span class="s2">&quot;openai&quot;</span><span class="p">,</span> <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="s2">&quot;gpt-4o&quot;</span><span class="p">}},</span>
+    <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
+    <span class="n">memory_config</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;semantic&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="developing-specialized-tool-providers">
+<h2>Developing Specialized Tool Providers<a class="headerlink" href="#developing-specialized-tool-providers" title="Link to this heading"></a></h2>
+<p>You can create custom tool providers to extend the agent’s capabilities.</p>
+<section id="creating-a-custom-tool-provider">
+<h3>Creating a Custom Tool Provider<a class="headerlink" href="#creating-a-custom-tool-provider" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p>Import the base class:</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseToolProvider</span><span class="p">,</span> <span class="n">Tool</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>Implement your custom tool provider:</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">CustomAPIToolProvider</span><span class="p">(</span><span class="n">BaseToolProvider</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Tool provider for accessing custom API endpoints.&quot;&quot;&quot;</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api_base_url</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the custom API tool provider.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">api_base_url</span> <span class="o">=</span> <span class="n">api_base_url</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="o">=</span> <span class="n">api_key</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_tools</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a list of available tools.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="n">Tool</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;search_knowledge_base&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Search the knowledge base for information&quot;</span><span class="p">,</span>
+                <span class="n">function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">search_knowledge_base</span><span class="p">,</span>
+                <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">&quot;query&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The search query&quot;</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">),</span>
+            <span class="n">Tool</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;create_ticket&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Create a support ticket&quot;</span><span class="p">,</span>
+                <span class="n">function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">create_ticket</span><span class="p">,</span>
+                <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Ticket title&quot;</span>
+                    <span class="p">},</span>
+                    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Ticket description&quot;</span>
+                    <span class="p">},</span>
+                    <span class="s2">&quot;priority&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;low&quot;</span><span class="p">,</span> <span class="s2">&quot;medium&quot;</span><span class="p">,</span> <span class="s2">&quot;high&quot;</span><span class="p">],</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Ticket priority&quot;</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+        <span class="p">]</span>
+    
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">search_knowledge_base</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Search the knowledge base API.&quot;&quot;&quot;</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">aiohttp</span>
+        
+        <span class="k">async</span> <span class="k">with</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">ClientSession</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+            <span class="n">headers</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span><span class="p">:</span>
+                <span class="n">headers</span><span class="p">[</span><span class="s2">&quot;Authorization&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Bearer </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">api_key</span><span class="si">}</span><span class="s2">&quot;</span>
+            
+            <span class="k">async</span> <span class="k">with</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">api_base_url</span><span class="si">}</span><span class="s2">/search&quot;</span><span class="p">,</span>
+                <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;q&quot;</span><span class="p">:</span> <span class="n">query</span><span class="p">},</span>
+                <span class="n">headers</span><span class="o">=</span><span class="n">headers</span>
+            <span class="p">)</span> <span class="k">as</span> <span class="n">response</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="mi">200</span><span class="p">:</span>
+                    <span class="n">data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+                    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;results&quot;</span><span class="p">:</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;results&quot;</span><span class="p">,</span> <span class="p">[])}</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="p">{</span>
+                        <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;API Error: </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">status</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="k">await</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+                    <span class="p">}</span>
+    
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">create_ticket</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="s2">&quot;medium&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a support ticket through the API.&quot;&quot;&quot;</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">aiohttp</span>
+        
+        <span class="k">async</span> <span class="k">with</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">ClientSession</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+            <span class="n">headers</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span><span class="p">:</span>
+                <span class="n">headers</span><span class="p">[</span><span class="s2">&quot;Authorization&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Bearer </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">api_key</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="n">headers</span><span class="p">[</span><span class="s2">&quot;Content-Type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;application/json&quot;</span>
+            
+            <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="n">title</span><span class="p">,</span>
+                <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">description</span><span class="p">,</span>
+                <span class="s2">&quot;priority&quot;</span><span class="p">:</span> <span class="n">priority</span>
+            <span class="p">}</span>
+            
+            <span class="k">async</span> <span class="k">with</span> <span class="n">session</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">api_base_url</span><span class="si">}</span><span class="s2">/tickets&quot;</span><span class="p">,</span>
+                <span class="n">json</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span>
+                <span class="n">headers</span><span class="o">=</span><span class="n">headers</span>
+            <span class="p">)</span> <span class="k">as</span> <span class="n">response</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">201</span><span class="p">):</span>
+                    <span class="n">data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+                    <span class="k">return</span> <span class="p">{</span>
+                        <span class="s2">&quot;ticket_id&quot;</span><span class="p">:</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">),</span>
+                        <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">),</span>
+                        <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Ticket created successfully&quot;</span>
+                    <span class="p">}</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="p">{</span>
+                        <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;API Error: </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">status</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="k">await</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+                    <span class="p">}</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p>Using Your Custom Tool Provider:</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.patterns.re_act_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReActAgent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">your_tool_provider_file</span><span class="w"> </span><span class="kn">import</span> <span class="n">CustomAPIToolProvider</span>
+
+<span class="c1"># Create your custom tool provider</span>
+<span class="n">tool_provider</span> <span class="o">=</span> <span class="n">CustomAPIToolProvider</span><span class="p">(</span>
+    <span class="n">api_base_url</span><span class="o">=</span><span class="s2">&quot;https://your-api.example.com/v1&quot;</span><span class="p">,</span>
+    <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span>
+<span class="p">)</span>
+
+<span class="c1"># Create agent with custom tools</span>
+<span class="n">agent</span> <span class="o">=</span> <span class="n">ReActAgent</span><span class="p">(</span>
+    <span class="n">llm_configs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;provider&quot;</span><span class="p">:</span> <span class="s2">&quot;openai&quot;</span><span class="p">,</span> <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="s2">&quot;gpt-4o&quot;</span><span class="p">}},</span>
+    <span class="n">tool_provider</span><span class="o">=</span><span class="n">tool_provider</span>
+<span class="p">)</span>
+
+<span class="c1"># Run the agent with a query that might use the tools</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">&quot;I need to find information about our product pricing, and then create a ticket for the sales team.&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="extending-baseagent-class">
+<h2>Extending BaseAgent Class<a class="headerlink" href="#extending-baseagent-class" title="Link to this heading"></a></h2>
+<p>For more advanced customization, you can extend the <code class="docutils literal notranslate"><span class="pre">BaseAgent</span></code> class and override its core methods.</p>
+<section id="extension-points-in-baseagent">
+<h3>Extension Points in BaseAgent<a class="headerlink" href="#extension-points-in-baseagent" title="Link to this heading"></a></h3>
+<p>The key methods you can override:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">build_graph()</span></code>: Define the LangGraph workflow structure</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">run(query)</span></code>: Customize the entry point for agent execution</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">_call_llm(prompt,</span> <span class="pre">model_name)</span></code>: Modify how LLMs are called</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">_get_prompt(prompt_name)</span></code>: Change prompt loading and processing</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">process_response(state)</span></code>: Customize final response processing</p></li>
+</ol>
+</section>
+<section id="example-custom-llm-integration">
+<h3>Example: Custom LLM Integration<a class="headerlink" href="#example-custom-llm-integration" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.base_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseAgent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.patterns.re_act_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReActAgent</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">aiohttp</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">CustomLLMAgent</span><span class="p">(</span><span class="n">ReActAgent</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;ReAct agent with custom LLM integration.&quot;&quot;&quot;</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">custom_llm_endpoint</span><span class="p">,</span>
+        <span class="n">custom_llm_auth_key</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize with custom LLM details.&quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">custom_llm_endpoint</span> <span class="o">=</span> <span class="n">custom_llm_endpoint</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">custom_llm_auth_key</span> <span class="o">=</span> <span class="n">custom_llm_auth_key</span>
+    
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_call_llm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prompt</span><span class="p">,</span> <span class="n">model_config_key</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Override to use custom LLM API.&quot;&quot;&quot;</span>
+        <span class="c1"># If using the default model config, use custom LLM</span>
+        <span class="k">if</span> <span class="n">model_config_key</span> <span class="o">==</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span>
+            <span class="k">async</span> <span class="k">with</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">ClientSession</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+                <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Authorization&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Bearer </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">custom_llm_auth_key</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">}</span>
+                
+                <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;prompt&quot;</span><span class="p">:</span> <span class="n">prompt</span><span class="p">,</span>
+                    <span class="s2">&quot;max_tokens&quot;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
+                    <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mf">0.7</span>
+                <span class="p">}</span>
+                
+                <span class="k">async</span> <span class="k">with</span> <span class="n">session</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">custom_llm_endpoint</span><span class="p">,</span>
+                    <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span>
+                    <span class="n">json</span><span class="o">=</span><span class="n">payload</span>
+                <span class="p">)</span> <span class="k">as</span> <span class="n">response</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="mi">200</span><span class="p">:</span>
+                        <span class="n">data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+                        <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;completion&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">error_text</span> <span class="o">=</span> <span class="k">await</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+                        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;LLM API Error: </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">status</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">error_text</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># For other model configs, use the parent implementation</span>
+            <span class="k">return</span> <span class="k">await</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_call_llm</span><span class="p">(</span><span class="n">prompt</span><span class="p">,</span> <span class="n">model_config_key</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="example-custom-ux-integration">
+<h3>Example: Custom UX Integration<a class="headerlink" href="#example-custom-ux-integration" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.patterns.plan_and_solve_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">PlanAndSolveAgent</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">StreamingAgent</span><span class="p">(</span><span class="n">PlanAndSolveAgent</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Plan and Solve agent with streaming response capabilities.&quot;&quot;&quot;</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize with streaming callback.&quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">callback_fn</span> <span class="o">=</span> <span class="n">callback_fn</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Override to provide streaming capability.&quot;&quot;&quot;</span>
+        <span class="c1"># Create an event loop if one doesn&#39;t exist</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">loop</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_event_loop</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">RuntimeError</span><span class="p">:</span>
+            <span class="n">loop</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">new_event_loop</span><span class="p">()</span>
+            <span class="n">asyncio</span><span class="o">.</span><span class="n">set_event_loop</span><span class="p">(</span><span class="n">loop</span><span class="p">)</span>
+        
+        <span class="c1"># Run the async streaming method</span>
+        <span class="k">return</span> <span class="n">loop</span><span class="o">.</span><span class="n">run_until_complete</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stream_run</span><span class="p">(</span><span class="n">query</span><span class="p">))</span>
+    
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">stream_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run the agent with streaming updates.&quot;&quot;&quot;</span>
+        <span class="c1"># Initialize state</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;query&quot;</span><span class="p">:</span> <span class="n">query</span><span class="p">}</span>
+        
+        <span class="c1"># Stream planning step</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stream_step</span><span class="p">(</span>
+            <span class="n">state</span><span class="p">,</span> 
+            <span class="s2">&quot;Developing plan...&quot;</span><span class="p">,</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_plan_node</span>
+        <span class="p">)</span>
+        
+        <span class="c1"># Stream execution step</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stream_step</span><span class="p">(</span>
+            <span class="n">state</span><span class="p">,</span>
+            <span class="s2">&quot;Executing plan...&quot;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">execute_plan_node</span>
+        <span class="p">)</span>
+        
+        <span class="c1"># Stream final response</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stream_step</span><span class="p">(</span>
+            <span class="n">state</span><span class="p">,</span>
+            <span class="s2">&quot;Finalizing response...&quot;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">finalize_response_node</span>
+        <span class="p">)</span>
+        
+        <span class="c1"># Return final response</span>
+        <span class="k">return</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">][</span><span class="s2">&quot;final_answer&quot;</span><span class="p">]</span>
+    
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_stream_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">node_function</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Execute a step with streaming updates.&quot;&quot;&quot;</span>
+        <span class="c1"># Send initial message</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">callback_fn</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">callback_fn</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+        
+        <span class="c1"># Execute node function</span>
+        <span class="n">updated_state</span> <span class="o">=</span> <span class="n">node_function</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+        
+        <span class="c1"># Send update if response changed</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">callback_fn</span> <span class="ow">and</span> <span class="s2">&quot;response&quot;</span> <span class="ow">in</span> <span class="n">updated_state</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;final_answer&quot;</span> <span class="ow">in</span> <span class="n">updated_state</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">callback_fn</span><span class="p">(</span><span class="n">updated_state</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">][</span><span class="s2">&quot;final_answer&quot;</span><span class="p">])</span>
+        
+        <span class="k">return</span> <span class="n">updated_state</span>
+</pre></div>
+</div>
+<p>Usage:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">stream_callback</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Process streaming updates.&quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Update: </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Create streaming agent</span>
+<span class="n">agent</span> <span class="o">=</span> <span class="n">StreamingAgent</span><span class="p">(</span>
+    <span class="n">llm_configs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;provider&quot;</span><span class="p">:</span> <span class="s2">&quot;openai&quot;</span><span class="p">,</span> <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="s2">&quot;gpt-4o&quot;</span><span class="p">}},</span>
+    <span class="n">callback_fn</span><span class="o">=</span><span class="n">stream_callback</span>
+<span class="p">)</span>
+
+<span class="c1"># Run the agent</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">&quot;Explain quantum computing in simple terms.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Your Name.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
