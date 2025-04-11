@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "agent-patterns"
-version = "0.1.4"
+version = "0.1.5-beta"
 description = "A library of reusable, extensible AI agent patterns using LangGraph"
 readme = "README.md"
 requires-python = ">=3.8"
