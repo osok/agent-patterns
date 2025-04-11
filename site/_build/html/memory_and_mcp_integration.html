@@ -1,0 +1,221 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Memory and MCP Tool Integration &mdash; agent-patterns 0.1.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=a58bc63e"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Next Steps" href="Next%20Steps.html" />
+    <link rel="prev" title="MCP Tool Integration Tutorial" href="MCP%20Tool%20Integration%20Tutorial.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            agent-patterns
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Documentation:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="guides/index.html">Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="patterns/index.html">Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Design.html"><strong>Agent-Patterns Project: Design Document</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="Agent%20Memory%20Design.html"><strong>Agent Memory Systems Integration Design for Agent-Patterns</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="Agent_Tools_Design.html"><strong>Model Context Protocol (MCP) Integration Design for Agent-Patterns</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="Memory%20API%20Documentation.html">Memory System API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Memory%20Integration%20Tutorial.html">Memory Integration Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Tool%20Provider%20API%20Documentation.html">Tool Provider API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="MCP%20Tool%20Integration%20Tutorial.html">MCP Tool Integration Tutorial</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Memory and MCP Tool Integration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#implementation-overview">Implementation Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#memory-integration-details">Memory Integration Details</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#memory-retrieval">Memory Retrieval</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#memory-saving">Memory Saving</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#tool-provider-integration-details">Tool Provider Integration Details</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tool-discovery">Tool Discovery</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tool-execution">Tool Execution</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#next-steps">Next Steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#conclusion">Conclusion</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Next%20Steps.html">Next Steps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">agent-patterns</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Memory and MCP Tool Integration</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/memory_and_mcp_integration.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="memory-and-mcp-tool-integration">
+<h1>Memory and MCP Tool Integration<a class="headerlink" href="#memory-and-mcp-tool-integration" title="Link to this heading"></a></h1>
+<p>This document summarizes the implementation of memory systems and MCP (Multi-Cloud Platform) tool integration across all agent patterns in the agent-patterns codebase.</p>
+<section id="implementation-overview">
+<h2>Implementation Overview<a class="headerlink" href="#implementation-overview" title="Link to this heading"></a></h2>
+<p>We have successfully integrated memory and tool provider capabilities into all eight agent patterns:</p>
+<ol class="arabic simple">
+<li><p><strong>Plan and Solve Agent</strong></p></li>
+<li><p><strong>Reflection Agent</strong></p></li>
+<li><p><strong>Reflexion Agent</strong></p></li>
+<li><p><strong>LLM Compiler Agent</strong></p></li>
+<li><p><strong>REWOO Agent</strong></p></li>
+<li><p><strong>LATS Agent</strong></p></li>
+<li><p><strong>Self-Discovery Agent</strong></p></li>
+<li><p><strong>STORM Agent</strong></p></li>
+</ol>
+<p>For each agent, we:</p>
+<ol class="arabic simple">
+<li><p>Updated the constructor to accept <code class="docutils literal notranslate"><span class="pre">memory</span></code>, <code class="docutils literal notranslate"><span class="pre">memory_config</span></code>, and <code class="docutils literal notranslate"><span class="pre">tool_provider</span></code> parameters</p></li>
+<li><p>Added memory retrieval at appropriate points in the execution flow</p></li>
+<li><p>Added memory saving after key operations</p></li>
+<li><p>Updated the execution flow to support tool usage via the tool provider</p></li>
+<li><p>Updated prompt templates to include memory context and tool information</p></li>
+<li><p>Added comprehensive unit tests for both memory and tool provider integration</p></li>
+</ol>
+</section>
+<section id="memory-integration-details">
+<h2>Memory Integration Details<a class="headerlink" href="#memory-integration-details" title="Link to this heading"></a></h2>
+<p>Each agent pattern now supports:</p>
+<section id="memory-retrieval">
+<h3>Memory Retrieval<a class="headerlink" href="#memory-retrieval" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Retrieving relevant memories before making decisions</p></li>
+<li><p>Formatting memory context for inclusion in prompts</p></li>
+<li><p>Enhancing the agent’s knowledge with past experiences and facts</p></li>
+</ul>
+</section>
+<section id="memory-saving">
+<h3>Memory Saving<a class="headerlink" href="#memory-saving" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Saving important outcomes and decisions to episodic memory</p></li>
+<li><p>Saving reusable knowledge to semantic memory</p></li>
+<li><p>Storing information with appropriate query terms for future retrieval</p></li>
+</ul>
+</section>
+</section>
+<section id="tool-provider-integration-details">
+<h2>Tool Provider Integration Details<a class="headerlink" href="#tool-provider-integration-details" title="Link to this heading"></a></h2>
+<p>Each agent pattern now supports:</p>
+<section id="tool-discovery">
+<h3>Tool Discovery<a class="headerlink" href="#tool-discovery" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Listing available tools from the tool provider</p></li>
+<li><p>Including tool descriptions in prompts</p></li>
+<li><p>Providing usage instructions to the LLM</p></li>
+</ul>
+</section>
+<section id="tool-execution">
+<h3>Tool Execution<a class="headerlink" href="#tool-execution" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Parsing tool usage requests from LLM outputs</p></li>
+<li><p>Executing tools with appropriate parameters</p></li>
+<li><p>Integrating tool results back into the conversation flow</p></li>
+</ul>
+</section>
+</section>
+<section id="next-steps">
+<h2>Next Steps<a class="headerlink" href="#next-steps" title="Link to this heading"></a></h2>
+<p>While all individual agent patterns now support memory and tool provider integration, the following work remains:</p>
+<ol class="arabic simple">
+<li><p><strong>Integration Testing</strong>: Create tests that verify integration of multiple agent patterns</p></li>
+<li><p><strong>Examples and Documentation</strong>: Create comprehensive examples and documentation</p></li>
+<li><p><strong>API Refinements</strong>: Refine the API based on real-world usage</p></li>
+<li><p><strong>Performance Optimization</strong>: Optimize memory retrieval and tool execution for production use</p></li>
+</ol>
+</section>
+<section id="conclusion">
+<h2>Conclusion<a class="headerlink" href="#conclusion" title="Link to this heading"></a></h2>
+<p>The memory and MCP tool integration enhances all agent patterns with:</p>
+<ul class="simple">
+<li><p><strong>Persistent memory</strong> across agent runs</p></li>
+<li><p><strong>Contextual awareness</strong> from past experiences</p></li>
+<li><p><strong>External tool access</strong> for information retrieval and actions</p></li>
+<li><p><strong>Flexible configurations</strong> to enable/disable features as needed</p></li>
+</ul>
+<p>These capabilities make the agents more powerful, flexible, and useful for real-world applications.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="MCP%20Tool%20Integration%20Tutorial.html" class="btn btn-neutral float-left" title="MCP Tool Integration Tutorial" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Next%20Steps.html" class="btn btn-neutral float-right" title="Next Steps" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Your Name.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

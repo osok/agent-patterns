@@ -1,0 +1,518 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Model Context Protocol (MCP) Integration Design for Agent-Patterns &mdash; agent-patterns 0.1.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=a58bc63e"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Memory System API Documentation" href="Memory%20API%20Documentation.html" />
+    <link rel="prev" title="Agent Memory Systems Integration Design for Agent-Patterns" href="Agent%20Memory%20Design.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            agent-patterns
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Documentation:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="guides/index.html">Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="patterns/index.html">Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Design.html"><strong>Agent-Patterns Project: Design Document</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="Agent%20Memory%20Design.html"><strong>Agent Memory Systems Integration Design for Agent-Patterns</strong></a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#"><strong>Model Context Protocol (MCP) Integration Design for Agent-Patterns</strong></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview"><strong>1. Overview</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#design-goals"><strong>2. Design Goals</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#architecture"><strong>3. Architecture</strong></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#core-components"><strong>3.1 Core Components</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#class-hierarchy"><strong>3.2 Class Hierarchy</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#key-interfaces"><strong>3.3 Key Interfaces</strong></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#toolprovider-abstract-base-class"><strong>ToolProvider (Abstract Base Class)</strong></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mcptoolprovider-implementation"><strong>MCPToolProvider (Implementation)</strong></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#integration-with-agent-patterns"><strong>4. Integration with Agent Patterns</strong></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#baseagent-enhancement"><strong>4.1 BaseAgent Enhancement</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#react-pattern-update"><strong>4.2 ReAct Pattern Update</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#other-pattern-updates"><strong>4.3 Other Pattern Updates</strong></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#mcp-server-connection-management"><strong>5. MCP Server Connection Management</strong></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#helper-functions"><strong>5.1 Helper Functions</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#configuration"><strong>5.2 Configuration</strong></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#usage-examples"><strong>6. Usage Examples</strong></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#basic-usage"><strong>6.1 Basic Usage</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#environment-variables"><strong>6.2 Environment Variables</strong></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#testing"><strong>7. Testing</strong></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#mock-mcp-servers"><strong>7.1 Mock MCP Servers</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#unit-tests"><strong>7.2 Unit Tests</strong></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#future-enhancements"><strong>8. Future Enhancements</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#conclusion"><strong>9. Conclusion</strong></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Memory%20API%20Documentation.html">Memory System API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Memory%20Integration%20Tutorial.html">Memory Integration Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Tool%20Provider%20API%20Documentation.html">Tool Provider API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="MCP%20Tool%20Integration%20Tutorial.html">MCP Tool Integration Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="memory_and_mcp_integration.html">Memory and MCP Tool Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Next%20Steps.html">Next Steps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">agent-patterns</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active"><strong>Model Context Protocol (MCP) Integration Design for Agent-Patterns</strong></li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/Agent_Tools_Design.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="model-context-protocol-mcp-integration-design-for-agent-patterns">
+<h1><strong>Model Context Protocol (MCP) Integration Design for Agent-Patterns</strong><a class="headerlink" href="#model-context-protocol-mcp-integration-design-for-agent-patterns" title="Link to this heading"></a></h1>
+<p><strong>Version:</strong> 1.0<br />
+<strong>Date:</strong> April 10, 2025<br />
+<strong>Author:</strong> Agent-Patterns Team</p>
+<hr class="docutils" />
+<section id="overview">
+<h2><strong>1. Overview</strong><a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>This design document outlines the integration of Model Context Protocol (MCP) into the agent-patterns library. MCP is an open standard developed by Anthropic that standardizes how AI models connect with external tools and data sources. This integration will enable agents built with our library to leverage any MCP-compatible server, providing access to a wide ecosystem of tools without having to implement custom integrations for each one.</p>
+</section>
+<section id="design-goals">
+<h2><strong>2. Design Goals</strong><a class="headerlink" href="#design-goals" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>Extensibility</strong>: Support MCP-based tools while maintaining the ability to use other tool integration approaches</p></li>
+<li><p><strong>Separation of Concerns</strong>: Keep agent logic separate from tool implementation details</p></li>
+<li><p><strong>Ease of Use</strong>: Provide a simple, intuitive interface for connecting MCP servers to agents</p></li>
+<li><p><strong>Performance</strong>: Minimize overhead when making tool calls</p></li>
+<li><p><strong>Flexibility</strong>: Allow for different MCP server implementations (local, remote, etc.)</p></li>
+</ol>
+</section>
+<section id="architecture">
+<h2><strong>3. Architecture</strong><a class="headerlink" href="#architecture" title="Link to this heading"></a></h2>
+<section id="core-components">
+<h3><strong>3.1 Core Components</strong><a class="headerlink" href="#core-components" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><strong>ToolProvider Interface</strong>: An abstract interface that defines how agents interact with tools</p></li>
+<li><p><strong>MCPToolProvider</strong>: An implementation of the ToolProvider interface that connects to MCP servers</p></li>
+<li><p><strong>MCPTool</strong>: A representation of an individual tool from an MCP server</p></li>
+<li><p><strong>MCPServer Connection Manager</strong>: Handles connections to MCP servers and caches tool definitions</p></li>
+</ol>
+</section>
+<section id="class-hierarchy">
+<h3><strong>3.2 Class Hierarchy</strong><a class="headerlink" href="#class-hierarchy" title="Link to this heading"></a></h3>
+<p>core/<br />
+├── tools/<br />
+│   ├── base.py                  # Contains the ToolProvider ABC<br />
+│   ├── providers/<br />
+│   │   ├── __init__.py<br />
+│   │   ├── mcp_provider.py      # MCP-specific implementation<br />
+│   │   └── … (other providers)<br />
+│   └── registry.py              # Optional global tool registry<br />
+└── …</p>
+</section>
+<section id="key-interfaces">
+<h3><strong>3.3 Key Interfaces</strong><a class="headerlink" href="#key-interfaces" title="Link to this heading"></a></h3>
+<section id="toolprovider-abstract-base-class">
+<h4><strong>ToolProvider (Abstract Base Class)</strong><a class="headerlink" href="#toolprovider-abstract-base-class" title="Link to this heading"></a></h4>
+<p>from abc import ABC, abstractmethod<br />
+from typing import Dict, List, Any</p>
+<p>class ToolProvider(ABC):<br />
+“””Abstract interface for tool providers.”””</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@abstractmethod  
+def list\_tools(self) \-\&gt; List\[Dict\]:  
+    &quot;&quot;&quot;  
+    List available tools with their metadata.  
+      
+    Returns:  
+        A list of tool specifications, each containing at minimum:  
+        \- name: The tool&#39;s name  
+        \- description: What the tool does  
+        \- parameters: The expected input parameters  
+    &quot;&quot;&quot;  
+    pass  
+  
+@abstractmethod  
+def execute\_tool(self, tool\_name: str, params: Dict\[str, Any\]) \-\&gt; Any:  
+    &quot;&quot;&quot;  
+    Execute a tool with the given parameters.  
+      
+    Args:  
+        tool\_name: The name of the tool to execute  
+        params: The parameters to pass to the tool  
+          
+    Returns:  
+        The result of the tool execution  
+          
+    Raises:  
+        ToolNotFoundError: If the tool doesn&#39;t exist  
+        ToolExecutionError: If the tool execution fails  
+    &quot;&quot;&quot;  
+    pass
+</pre></div>
+</div>
+</section>
+<section id="mcptoolprovider-implementation">
+<h4><strong>MCPToolProvider (Implementation)</strong><a class="headerlink" href="#mcptoolprovider-implementation" title="Link to this heading"></a></h4>
+<p>from typing import Dict, List, Any, Optional<br />
+from .base import ToolProvider</p>
+<p>class MCPToolProvider(ToolProvider):<br />
+“””MCP-based implementation of the ToolProvider interface.”””</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>def \_\_init\_\_(self, mcp\_servers: List\[Any\], cache\_tools: bool \= True):  
+    &quot;&quot;&quot;  
+    Initialize with a list of MCP server connections.  
+      
+    Args:  
+        mcp\_servers: List of MCP server connections  
+        cache\_tools: Whether to cache tool definitions (recommended for performance)  
+    &quot;&quot;&quot;  
+    self.mcp\_servers \= mcp\_servers  
+    self.cache\_tools \= cache\_tools  
+    self.\_tools\_cache \= None if not cache\_tools else {}  
+      
+def list\_tools(self) \-\&gt; List\[Dict\]:  
+    &quot;&quot;&quot;Get tools from all connected MCP servers.&quot;&quot;&quot;  
+    if self.cache\_tools and self.\_tools\_cache is not None:  
+        return self.\_tools\_cache  
+          
+    tools \= \[\]  
+    for server in self.mcp\_servers:  
+        tools.extend(server.list\_tools())  
+          
+    if self.cache\_tools:  
+        self.\_tools\_cache \= tools  
+          
+    return tools  
+  
+def execute\_tool(self, tool\_name: str, params: Dict\[str, Any\]) \-\&gt; Any:  
+    &quot;&quot;&quot;Find the right MCP server and execute the tool.&quot;&quot;&quot;  
+    for server in self.mcp\_servers:  
+        \# Check if this server has the requested tool  
+        tools \= server.list\_tools()  
+        if any(tool\[&quot;name&quot;\] \== tool\_name for tool in tools):  
+            return server.call\_tool(tool\_name, params)  
+              
+    raise ToolNotFoundError(f&quot;Tool &#39;{tool\_name}&#39; not found in any MCP server&quot;)  
+      
+def invalidate\_cache(self):  
+    &quot;&quot;&quot;Invalidate the tools cache to force a refresh on next list\_tools call.&quot;&quot;&quot;  
+    self.\_tools\_cache \= None
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="integration-with-agent-patterns">
+<h2><strong>4. Integration with Agent Patterns</strong><a class="headerlink" href="#integration-with-agent-patterns" title="Link to this heading"></a></h2>
+<section id="baseagent-enhancement">
+<h3><strong>4.1 BaseAgent Enhancement</strong><a class="headerlink" href="#baseagent-enhancement" title="Link to this heading"></a></h3>
+<p>Modify the BaseAgent class to support tool providers:</p>
+<p>class BaseAgent(abc.ABC):<br />
+def __init__(self,<br />
+llm_configs: dict,<br />
+prompt_dir: str = “prompts”,<br />
+tool_provider: Optional[ToolProvider] = None):<br />
+“””<br />
+Initialize the agent.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>    Args:  
+        llm\_configs: Dictionary specifying provider, model, and roles  
+        prompt\_dir: Directory for prompt templates  
+        tool\_provider: Optional provider for tools the agent can use  
+    &quot;&quot;&quot;  
+    self.llm\_configs \= llm\_configs  
+    self.prompt\_dir \= prompt\_dir  
+    self.tool\_provider \= tool\_provider  
+    self.graph \= None  \# set by self.build\_graph()  
+      
+    \# Subclass is expected to build/compile its graph  
+    self.build\_graph()
+</pre></div>
+</div>
+</section>
+<section id="react-pattern-update">
+<h3><strong>4.2 ReAct Pattern Update</strong><a class="headerlink" href="#react-pattern-update" title="Link to this heading"></a></h3>
+<p>Modify the ReActAgent to leverage the tool provider:</p>
+<p>def _execute_action(self, state: Dict) -&gt; Dict:<br />
+“””Call the actual tool with the specified input.”””<br />
+action = state[“action”]<br />
+tool_name = action[“tool_name”]<br />
+tool_input = action[“tool_input”]</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>if self.tool\_provider:  
+    \# Use the tool provider if available  
+    try:  
+        observation \= self.tool\_provider.execute\_tool(tool\_name, tool\_input)  
+    except Exception as e:  
+        observation \= f&quot;Error executing tool: {str(e)}&quot;  
+else:  
+    \# Fall back to the legacy \_call\_tool method  
+    observation \= self.\_call\_tool(tool\_name, tool\_input)  
+      
+state\[&quot;observation&quot;\] \= observation  
+\# Update the last step in intermediate\_steps with the observation  
+if state\[&quot;intermediate\_steps&quot;\]:  
+    last\_thought, last\_action, \_ \= state\[&quot;intermediate\_steps&quot;\]\[-1\]  
+    state\[&quot;intermediate\_steps&quot;\]\[-1\] \= (last\_thought, last\_action, observation)  
+return state
+</pre></div>
+</div>
+</section>
+<section id="other-pattern-updates">
+<h3><strong>4.3 Other Pattern Updates</strong><a class="headerlink" href="#other-pattern-updates" title="Link to this heading"></a></h3>
+<p>Apply similar updates to other patterns that use tools:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">PlanAndSolveAgent</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">LLMCompilerAgent</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">REWOOAgent</span></code></p></li>
+<li><p>etc.</p></li>
+</ul>
+</section>
+</section>
+<section id="mcp-server-connection-management">
+<h2><strong>5. MCP Server Connection Management</strong><a class="headerlink" href="#mcp-server-connection-management" title="Link to this heading"></a></h2>
+<section id="helper-functions">
+<h3><strong>5.1 Helper Functions</strong><a class="headerlink" href="#helper-functions" title="Link to this heading"></a></h3>
+<p>def create_mcp_server_connection(server_type: str, config: Dict[str, Any]) -&gt; Any:<br />
+“””<br />
+Create a connection to an MCP server.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Args:  
+    server\_type: The type of connection (stdio, sse, socket, etc.)  
+    config: Configuration for the connection  
+      
+Returns:  
+    An MCP server connection object  
+&quot;&quot;&quot;  
+if server\_type \== &quot;stdio&quot;:  
+    return create\_stdio\_connection(config)  
+elif server\_type \== &quot;sse&quot;:  
+    return create\_sse\_connection(config)  
+\# ... other connection types  
+else:  
+    raise ValueError(f&quot;Unknown MCP server type: {server\_type}&quot;)
+</pre></div>
+</div>
+</section>
+<section id="configuration">
+<h3><strong>5.2 Configuration</strong><a class="headerlink" href="#configuration" title="Link to this heading"></a></h3>
+<p>Sample configuration for MCP servers:</p>
+<p>mcp_config = {<br />
+“servers”: [<br />
+{<br />
+“type”: “stdio”,<br />
+“command”: [“python”, “mcp_server.py”],<br />
+“working_dir”: “/path/to/server”,<br />
+“cache_tools”: True<br />
+},<br />
+{<br />
+“type”: “sse”,<br />
+“url”: “http://localhost:3000/events”,<br />
+“headers”: {“Authorization”: “Bearer token”}<br />
+}<br />
+]<br />
+}</p>
+</section>
+</section>
+<section id="usage-examples">
+<h2><strong>6. Usage Examples</strong><a class="headerlink" href="#usage-examples" title="Link to this heading"></a></h2>
+<section id="basic-usage">
+<h3><strong>6.1 Basic Usage</strong><a class="headerlink" href="#basic-usage" title="Link to this heading"></a></h3>
+<p>from agent_patterns.patterns.re_act_agent import ReActAgent<br />
+from agent_patterns.core.tools.providers.mcp_provider import MCPToolProvider, create_mcp_server_connection</p>
+<p># Create MCP server connections<br />
+mcp_servers = [<br />
+create_mcp_server_connection(“stdio”, {<br />
+“command”: [“python”, “search_server.py”],<br />
+“working_dir”: “./mcp_servers”<br />
+}),<br />
+create_mcp_server_connection(“stdio”, {<br />
+“command”: [“python”, “weather_server.py”],<br />
+“working_dir”: “./mcp_servers”<br />
+})<br />
+]</p>
+<p># Create the tool provider<br />
+tool_provider = MCPToolProvider(mcp_servers)</p>
+<p># Create the agent with the tool provider<br />
+agent = ReActAgent(<br />
+llm_configs={<br />
+“thinking”: {<br />
+“provider”: “anthropic”,<br />
+“model_name”: “claude-3-opus-20240229”<br />
+}<br />
+},<br />
+tool_provider=tool_provider<br />
+)</p>
+<p># Run the agent<br />
+result = agent.run(“What’s the weather like in New York?”)<br />
+print(result)</p>
+</section>
+<section id="environment-variables">
+<h3><strong>6.2 Environment Variables</strong><a class="headerlink" href="#environment-variables" title="Link to this heading"></a></h3>
+<p>import os<br />
+from dotenv import load_dotenv</p>
+<p>load_dotenv()</p>
+<p># Load MCP server configs from environment<br />
+mcp_servers = []<br />
+for i in range(int(os.getenv(“MCP_SERVER_COUNT”, “0”))):<br />
+prefix = f”MCP_SERVER_{i+1}_”<br />
+server_type = os.getenv(f”{prefix}TYPE”)<br />
+if server_type == “stdio”:<br />
+mcp_servers.append(create_mcp_server_connection(“stdio”, {<br />
+“command”: os.getenv(f”{prefix}COMMAND”).split(),<br />
+“working_dir”: os.getenv(f”{prefix}WORKING_DIR”)<br />
+}))<br />
+# … other server types</p>
+</section>
+</section>
+<section id="testing">
+<h2><strong>7. Testing</strong><a class="headerlink" href="#testing" title="Link to this heading"></a></h2>
+<section id="mock-mcp-servers">
+<h3><strong>7.1 Mock MCP Servers</strong><a class="headerlink" href="#mock-mcp-servers" title="Link to this heading"></a></h3>
+<p>For testing, we’ll provide mock MCP servers that implement the protocol but return predictable results:</p>
+<p>class MockMCPServer:<br />
+def __init__(self, tools: List[Dict]):<br />
+self.tools = tools</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>def list\_tools(self) \-\&gt; List\[Dict\]:  
+    return self.tools  
+      
+def call\_tool(self, tool\_name: str, params: Dict\[str, Any\]) \-\&gt; Any:  
+    for tool in self.tools:  
+        if tool\[&quot;name&quot;\] \== tool\_name:  
+            \# Return a mock response  
+            return f&quot;Mock response for {tool\_name} with params {params}&quot;  
+              
+    raise Exception(f&quot;Tool {tool\_name} not found&quot;)
+</pre></div>
+</div>
+</section>
+<section id="unit-tests">
+<h3><strong>7.2 Unit Tests</strong><a class="headerlink" href="#unit-tests" title="Link to this heading"></a></h3>
+<p>def test_mcp_tool_provider():<br />
+# Create mock MCP servers<br />
+mock_servers = [<br />
+MockMCPServer([<br />
+{“name”: “search”, “description”: “Search the web”, “parameters”: {“query”: “string”}}<br />
+]),<br />
+MockMCPServer([<br />
+{“name”: “weather”, “description”: “Get weather”, “parameters”: {“location”: “string”}}<br />
+])<br />
+]</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>\# Create the tool provider  
+provider \= MCPToolProvider(mock\_servers)  
+  
+\# Test list\_tools  
+tools \= provider.list\_tools()  
+assert len(tools) \== 2  
+assert tools\[0\]\[&quot;name&quot;\] \== &quot;search&quot;  
+assert tools\[1\]\[&quot;name&quot;\] \== &quot;weather&quot;  
+  
+\# Test execute\_tool  
+result \= provider.execute\_tool(&quot;search&quot;, {&quot;query&quot;: &quot;test&quot;})  
+assert &quot;Mock response for search&quot; in result  
+  
+\# Test tool not found  
+with pytest.raises(ToolNotFoundError):  
+    provider.execute\_tool(&quot;nonexistent&quot;, {})
+</pre></div>
+</div>
+</section>
+</section>
+<section id="future-enhancements">
+<h2><strong>8. Future Enhancements</strong><a class="headerlink" href="#future-enhancements" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>Auto-Discovery</strong>: Add support for auto-discovering MCP servers on the local network</p></li>
+<li><p><strong>Authentication</strong>: Enhance security with robust authentication mechanisms</p></li>
+<li><p><strong>Tool Filtering</strong>: Allow agents to filter available tools based on capabilities or permissions</p></li>
+<li><p><strong>Parallel Execution</strong>: Support executing tools from multiple MCP servers in parallel</p></li>
+<li><p><strong>Observability</strong>: Add metrics and tracing for tool executions</p></li>
+</ol>
+</section>
+<section id="conclusion">
+<h2><strong>9. Conclusion</strong><a class="headerlink" href="#conclusion" title="Link to this heading"></a></h2>
+<p>This design provides a flexible, modular approach to integrating MCP servers with the agent-patterns library. By leveraging the ToolProvider abstraction, we maintain separation between agent logic and tool implementation details, allowing for easy integration of MCP while still supporting other tool integration approaches.</p>
+<p>The proposed architecture ensures that agents can leverage the growing ecosystem of MCP-compatible tools without tight coupling to specific implementations. This design aligns with the overall philosophy of agent-patterns, providing reusable, extensible patterns for AI agent workflows.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="Agent%20Memory%20Design.html" class="btn btn-neutral float-left" title="Agent Memory Systems Integration Design for Agent-Patterns" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Memory%20API%20Documentation.html" class="btn btn-neutral float-right" title="Memory System API Documentation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Your Name.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

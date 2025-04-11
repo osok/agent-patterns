@@ -1,0 +1,2061 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://agent-patterns.readthedocs.io/Agent_Tools_Design/">
+      
+      
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.11">
+    
+    
+      
+        <title>Model Context Protocol (MCP) Integration Design for Agent-Patterns - Agent Patterns</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.4af4bdda.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#model-context-protocol-mcp-integration-design-for-agent-patterns" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Agent Patterns" class="md-header__button md-logo" aria-label="Agent Patterns" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Agent Patterns
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Model Context Protocol (MCP) Integration Design for Agent-Patterns
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/osok/agent-patterns/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Agent Patterns
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../core/base_agent/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Core Components
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../patterns/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Agent Patterns
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../guides/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Guides
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../tutorials/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Tutorials
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../contributing/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Contributing
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Agent Patterns" class="md-nav__button md-logo" aria-label="Agent Patterns" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Agent Patterns
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/osok/agent-patterns/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Agent Patterns
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Core Components
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Core Components
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../core/base_agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Base Agent
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../core/memory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Memory System
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../core/tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Tool System
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../patterns/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    Agent Patterns
+    
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Agent Patterns
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../patterns/re_act/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    ReAct
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../patterns/reflexion/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Reflexion
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../patterns/llm_compiler/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    LLM Compiler
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../patterns/self_discovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Self-Discovery
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../patterns/lats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    LATS
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../patterns/reflection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Reflection
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../patterns/rewoo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    ReWOO
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../patterns/reflection_and_refinement/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Reflection and Refinement
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../patterns/plan_and_solve/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Plan and Solve
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../patterns/storm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    STORM
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../guides/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    Guides
+    
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Guides
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/getting_started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Getting Started
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/pattern_selection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Pattern Selection
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/advanced_customization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Advanced Customization
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Troubleshooting
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Deployment
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/migration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Migration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../tutorials/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    Tutorials
+    
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Tutorials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/research_assistant/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Research Assistant
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/customer_support_bot/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Customer Support Bot
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/code_generation_agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Code Generation Agent
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/multi_agent_system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Multi-Agent System
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../api/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    API Reference
+    
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Core
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/patterns/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Patterns
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/memory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Memory
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Tools
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Contributing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-design-goals" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Design Goals
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Architecture
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-core-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.1 Core Components
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-class-hierarchy" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.2 Class Hierarchy
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-key-interfaces" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.3 Key Interfaces
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.3 Key Interfaces">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#toolprovider-abstract-base-class" class="md-nav__link">
+    <span class="md-ellipsis">
+      ToolProvider (Abstract Base Class)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mcptoolprovider-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      MCPToolProvider (Implementation)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-integration-with-agent-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Integration with Agent Patterns
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Integration with Agent Patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-baseagent-enhancement" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.1 BaseAgent Enhancement
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-react-pattern-update" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.2 ReAct Pattern Update
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-other-pattern-updates" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.3 Other Pattern Updates
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-mcp-server-connection-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. MCP Server Connection Management
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. MCP Server Connection Management">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-helper-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.1 Helper Functions
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.2 Configuration
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-usage-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. Usage Examples
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Usage Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-basic-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.1 Basic Usage
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-environment-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.2 Environment Variables
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. Testing
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Testing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-mock-mcp-servers" class="md-nav__link">
+    <span class="md-ellipsis">
+      7.1 Mock MCP Servers
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-unit-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      7.2 Unit Tests
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-future-enhancements" class="md-nav__link">
+    <span class="md-ellipsis">
+      8. Future Enhancements
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-conclusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      9. Conclusion
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="model-context-protocol-mcp-integration-design-for-agent-patterns"><strong>Model Context Protocol (MCP) Integration Design for Agent-Patterns</strong></h1>
+<p><strong>Version:</strong> 1.0<br />
+<strong>Date:</strong> April 10, 2025<br />
+<strong>Author:</strong> Agent-Patterns Team</p>
+<hr />
+<h2 id="1-overview"><strong>1. Overview</strong></h2>
+<p>This design document outlines the integration of Model Context Protocol (MCP) into the agent-patterns library. MCP is an open standard developed by Anthropic that standardizes how AI models connect with external tools and data sources. This integration will enable agents built with our library to leverage any MCP-compatible server, providing access to a wide ecosystem of tools without having to implement custom integrations for each one.</p>
+<h2 id="2-design-goals"><strong>2. Design Goals</strong></h2>
+<ol>
+<li><strong>Extensibility</strong>: Support MCP-based tools while maintaining the ability to use other tool integration approaches  </li>
+<li><strong>Separation of Concerns</strong>: Keep agent logic separate from tool implementation details  </li>
+<li><strong>Ease of Use</strong>: Provide a simple, intuitive interface for connecting MCP servers to agents  </li>
+<li><strong>Performance</strong>: Minimize overhead when making tool calls  </li>
+<li><strong>Flexibility</strong>: Allow for different MCP server implementations (local, remote, etc.)</li>
+</ol>
+<h2 id="3-architecture"><strong>3. Architecture</strong></h2>
+<h3 id="31-core-components"><strong>3.1 Core Components</strong></h3>
+<ol>
+<li><strong>ToolProvider Interface</strong>: An abstract interface that defines how agents interact with tools  </li>
+<li><strong>MCPToolProvider</strong>: An implementation of the ToolProvider interface that connects to MCP servers  </li>
+<li><strong>MCPTool</strong>: A representation of an individual tool from an MCP server  </li>
+<li><strong>MCPServer Connection Manager</strong>: Handles connections to MCP servers and caches tool definitions</li>
+</ol>
+<h3 id="32-class-hierarchy"><strong>3.2 Class Hierarchy</strong></h3>
+<p>core/<br />
+  ├── tools/<br />
+  │   ├── base.py                  # Contains the ToolProvider ABC<br />
+  │   ├── providers/<br />
+  │   │   ├── __init__.py<br />
+  │   │   ├── mcp_provider.py      # MCP-specific implementation<br />
+  │   │   └── ... (other providers)<br />
+  │   └── registry.py              # Optional global tool registry<br />
+  └── ...</p>
+<h3 id="33-key-interfaces"><strong>3.3 Key Interfaces</strong></h3>
+<h4 id="toolprovider-abstract-base-class"><strong>ToolProvider (Abstract Base Class)</strong></h4>
+<p>from abc import ABC, abstractmethod<br />
+from typing import Dict, List, Any</p>
+<p>class ToolProvider(ABC):<br />
+    """Abstract interface for tool providers."""  </p>
+<div class="highlight"><pre><span></span><code>@abstractmethod  
+def list\_tools(self) \-\&gt; List\[Dict\]:  
+    &quot;&quot;&quot;  
+    List available tools with their metadata.
+
+    Returns:  
+        A list of tool specifications, each containing at minimum:  
+        \- name: The tool&#39;s name  
+        \- description: What the tool does  
+        \- parameters: The expected input parameters  
+    &quot;&quot;&quot;  
+    pass
+
+@abstractmethod  
+def execute\_tool(self, tool\_name: str, params: Dict\[str, Any\]) \-\&gt; Any:  
+    &quot;&quot;&quot;  
+    Execute a tool with the given parameters.
+
+    Args:  
+        tool\_name: The name of the tool to execute  
+        params: The parameters to pass to the tool
+
+    Returns:  
+        The result of the tool execution
+
+    Raises:  
+        ToolNotFoundError: If the tool doesn&#39;t exist  
+        ToolExecutionError: If the tool execution fails  
+    &quot;&quot;&quot;  
+    pass
+</code></pre></div>
+<h4 id="mcptoolprovider-implementation"><strong>MCPToolProvider (Implementation)</strong></h4>
+<p>from typing import Dict, List, Any, Optional<br />
+from .base import ToolProvider</p>
+<p>class MCPToolProvider(ToolProvider):<br />
+    """MCP-based implementation of the ToolProvider interface."""  </p>
+<div class="highlight"><pre><span></span><code>def \_\_init\_\_(self, mcp\_servers: List\[Any\], cache\_tools: bool \= True):  
+    &quot;&quot;&quot;  
+    Initialize with a list of MCP server connections.
+
+    Args:  
+        mcp\_servers: List of MCP server connections  
+        cache\_tools: Whether to cache tool definitions (recommended for performance)  
+    &quot;&quot;&quot;  
+    self.mcp\_servers \= mcp\_servers  
+    self.cache\_tools \= cache\_tools  
+    self.\_tools\_cache \= None if not cache\_tools else {}
+
+def list\_tools(self) \-\&gt; List\[Dict\]:  
+    &quot;&quot;&quot;Get tools from all connected MCP servers.&quot;&quot;&quot;  
+    if self.cache\_tools and self.\_tools\_cache is not None:  
+        return self.\_tools\_cache
+
+    tools \= \[\]  
+    for server in self.mcp\_servers:  
+        tools.extend(server.list\_tools())
+
+    if self.cache\_tools:  
+        self.\_tools\_cache \= tools
+
+    return tools
+
+def execute\_tool(self, tool\_name: str, params: Dict\[str, Any\]) \-\&gt; Any:  
+    &quot;&quot;&quot;Find the right MCP server and execute the tool.&quot;&quot;&quot;  
+    for server in self.mcp\_servers:  
+        \# Check if this server has the requested tool  
+        tools \= server.list\_tools()  
+        if any(tool\[&quot;name&quot;\] \== tool\_name for tool in tools):  
+            return server.call\_tool(tool\_name, params)
+
+    raise ToolNotFoundError(f&quot;Tool &#39;{tool\_name}&#39; not found in any MCP server&quot;)
+
+def invalidate\_cache(self):  
+    &quot;&quot;&quot;Invalidate the tools cache to force a refresh on next list\_tools call.&quot;&quot;&quot;  
+    self.\_tools\_cache \= None
+</code></pre></div>
+<h2 id="4-integration-with-agent-patterns"><strong>4. Integration with Agent Patterns</strong></h2>
+<h3 id="41-baseagent-enhancement"><strong>4.1 BaseAgent Enhancement</strong></h3>
+<p>Modify the BaseAgent class to support tool providers:</p>
+<p>class BaseAgent(abc.ABC):<br />
+    def __init__(self, <br />
+                 llm_configs: dict, <br />
+                 prompt_dir: str \= "prompts",<br />
+                 tool_provider: Optional[ToolProvider] \= None):<br />
+        """<br />
+        Initialize the agent.  </p>
+<div class="highlight"><pre><span></span><code>    Args:  
+        llm\_configs: Dictionary specifying provider, model, and roles  
+        prompt\_dir: Directory for prompt templates  
+        tool\_provider: Optional provider for tools the agent can use  
+    &quot;&quot;&quot;  
+    self.llm\_configs \= llm\_configs  
+    self.prompt\_dir \= prompt\_dir  
+    self.tool\_provider \= tool\_provider  
+    self.graph \= None  \# set by self.build\_graph()
+
+    \# Subclass is expected to build/compile its graph  
+    self.build\_graph()
+</code></pre></div>
+<h3 id="42-react-pattern-update"><strong>4.2 ReAct Pattern Update</strong></h3>
+<p>Modify the ReActAgent to leverage the tool provider:</p>
+<p>def _execute_action(self, state: Dict) -&gt; Dict:<br />
+    """Call the actual tool with the specified input."""<br />
+    action \= state["action"]<br />
+    tool_name \= action["tool_name"]<br />
+    tool_input \= action["tool_input"]  </p>
+<div class="highlight"><pre><span></span><code>if self.tool\_provider:  
+    \# Use the tool provider if available  
+    try:  
+        observation \= self.tool\_provider.execute\_tool(tool\_name, tool\_input)  
+    except Exception as e:  
+        observation \= f&quot;Error executing tool: {str(e)}&quot;  
+else:  
+    \# Fall back to the legacy \_call\_tool method  
+    observation \= self.\_call\_tool(tool\_name, tool\_input)
+
+state\[&quot;observation&quot;\] \= observation  
+\# Update the last step in intermediate\_steps with the observation  
+if state\[&quot;intermediate\_steps&quot;\]:  
+    last\_thought, last\_action, \_ \= state\[&quot;intermediate\_steps&quot;\]\[-1\]  
+    state\[&quot;intermediate\_steps&quot;\]\[-1\] \= (last\_thought, last\_action, observation)  
+return state
+</code></pre></div>
+<h3 id="43-other-pattern-updates"><strong>4.3 Other Pattern Updates</strong></h3>
+<p>Apply similar updates to other patterns that use tools:</p>
+<ul>
+<li><code>PlanAndSolveAgent</code>  </li>
+<li><code>LLMCompilerAgent</code>  </li>
+<li><code>REWOOAgent</code>  </li>
+<li>etc.</li>
+</ul>
+<h2 id="5-mcp-server-connection-management"><strong>5. MCP Server Connection Management</strong></h2>
+<h3 id="51-helper-functions"><strong>5.1 Helper Functions</strong></h3>
+<p>def create_mcp_server_connection(server_type: str, config: Dict[str, Any]) -&gt; Any:<br />
+    """<br />
+    Create a connection to an MCP server.  </p>
+<div class="highlight"><pre><span></span><code>Args:  
+    server\_type: The type of connection (stdio, sse, socket, etc.)  
+    config: Configuration for the connection
+
+Returns:  
+    An MCP server connection object  
+&quot;&quot;&quot;  
+if server\_type \== &quot;stdio&quot;:  
+    return create\_stdio\_connection(config)  
+elif server\_type \== &quot;sse&quot;:  
+    return create\_sse\_connection(config)  
+\# ... other connection types  
+else:  
+    raise ValueError(f&quot;Unknown MCP server type: {server\_type}&quot;)
+</code></pre></div>
+<h3 id="52-configuration"><strong>5.2 Configuration</strong></h3>
+<p>Sample configuration for MCP servers:</p>
+<p>mcp_config \= {<br />
+    "servers": [<br />
+        {<br />
+            "type": "stdio",<br />
+            "command": ["python", "mcp_server.py"],<br />
+            "working_dir": "/path/to/server",<br />
+            "cache_tools": True<br />
+        },<br />
+        {<br />
+            "type": "sse",<br />
+            "url": "http://localhost:3000/events",<br />
+            "headers": {"Authorization": "Bearer token"}<br />
+        }<br />
+    ]<br />
+}</p>
+<h2 id="6-usage-examples"><strong>6. Usage Examples</strong></h2>
+<h3 id="61-basic-usage"><strong>6.1 Basic Usage</strong></h3>
+<p>from agent_patterns.patterns.re_act_agent import ReActAgent<br />
+from agent_patterns.core.tools.providers.mcp_provider import MCPToolProvider, create_mcp_server_connection</p>
+<p># Create MCP server connections<br />
+mcp_servers \= [<br />
+    create_mcp_server_connection("stdio", {<br />
+        "command": ["python", "search_server.py"],<br />
+        "working_dir": "./mcp_servers"<br />
+    }),<br />
+    create_mcp_server_connection("stdio", {<br />
+        "command": ["python", "weather_server.py"],<br />
+        "working_dir": "./mcp_servers"<br />
+    })<br />
+]</p>
+<p># Create the tool provider<br />
+tool_provider \= MCPToolProvider(mcp_servers)</p>
+<p># Create the agent with the tool provider<br />
+agent \= ReActAgent(<br />
+    llm_configs={<br />
+        "thinking": {<br />
+            "provider": "anthropic",<br />
+            "model_name": "claude-3-opus-20240229"<br />
+        }<br />
+    },<br />
+    tool_provider=tool_provider<br />
+)</p>
+<p># Run the agent<br />
+result \= agent.run("What's the weather like in New York?")<br />
+print(result)</p>
+<h3 id="62-environment-variables"><strong>6.2 Environment Variables</strong></h3>
+<p>import os<br />
+from dotenv import load_dotenv</p>
+<p>load_dotenv()</p>
+<p># Load MCP server configs from environment<br />
+mcp_servers \= []<br />
+for i in range(int(os.getenv("MCP_SERVER_COUNT", "0"))):<br />
+    prefix \= f"MCP_SERVER_{i+1}_"<br />
+    server_type \= os.getenv(f"{prefix}TYPE")<br />
+    if server_type \== "stdio":<br />
+        mcp_servers.append(create_mcp_server_connection("stdio", {<br />
+            "command": os.getenv(f"{prefix}COMMAND").split(),<br />
+            "working_dir": os.getenv(f"{prefix}WORKING_DIR")<br />
+        }))<br />
+    # ... other server types</p>
+<h2 id="7-testing"><strong>7. Testing</strong></h2>
+<h3 id="71-mock-mcp-servers"><strong>7.1 Mock MCP Servers</strong></h3>
+<p>For testing, we'll provide mock MCP servers that implement the protocol but return predictable results:</p>
+<p>class MockMCPServer:<br />
+    def __init__(self, tools: List[Dict]):<br />
+        self.tools \= tools  </p>
+<div class="highlight"><pre><span></span><code>def list\_tools(self) \-\&gt; List\[Dict\]:  
+    return self.tools
+
+def call\_tool(self, tool\_name: str, params: Dict\[str, Any\]) \-\&gt; Any:  
+    for tool in self.tools:  
+        if tool\[&quot;name&quot;\] \== tool\_name:  
+            \# Return a mock response  
+            return f&quot;Mock response for {tool\_name} with params {params}&quot;
+
+    raise Exception(f&quot;Tool {tool\_name} not found&quot;)
+</code></pre></div>
+<h3 id="72-unit-tests"><strong>7.2 Unit Tests</strong></h3>
+<p>def test_mcp_tool_provider():<br />
+    # Create mock MCP servers<br />
+    mock_servers \= [<br />
+        MockMCPServer([<br />
+            {"name": "search", "description": "Search the web", "parameters": {"query": "string"}}<br />
+        ]),<br />
+        MockMCPServer([<br />
+            {"name": "weather", "description": "Get weather", "parameters": {"location": "string"}}<br />
+        ])<br />
+    ]  </p>
+<div class="highlight"><pre><span></span><code>\# Create the tool provider  
+provider \= MCPToolProvider(mock\_servers)
+
+\# Test list\_tools  
+tools \= provider.list\_tools()  
+assert len(tools) \== 2  
+assert tools\[0\]\[&quot;name&quot;\] \== &quot;search&quot;  
+assert tools\[1\]\[&quot;name&quot;\] \== &quot;weather&quot;
+
+\# Test execute\_tool  
+result \= provider.execute\_tool(&quot;search&quot;, {&quot;query&quot;: &quot;test&quot;})  
+assert &quot;Mock response for search&quot; in result
+
+\# Test tool not found  
+with pytest.raises(ToolNotFoundError):  
+    provider.execute\_tool(&quot;nonexistent&quot;, {})
+</code></pre></div>
+<h2 id="8-future-enhancements"><strong>8. Future Enhancements</strong></h2>
+<ol>
+<li><strong>Auto-Discovery</strong>: Add support for auto-discovering MCP servers on the local network  </li>
+<li><strong>Authentication</strong>: Enhance security with robust authentication mechanisms  </li>
+<li><strong>Tool Filtering</strong>: Allow agents to filter available tools based on capabilities or permissions  </li>
+<li><strong>Parallel Execution</strong>: Support executing tools from multiple MCP servers in parallel  </li>
+<li><strong>Observability</strong>: Add metrics and tracing for tool executions</li>
+</ol>
+<h2 id="9-conclusion"><strong>9. Conclusion</strong></h2>
+<p>This design provides a flexible, modular approach to integrating MCP servers with the agent-patterns library. By leveraging the ToolProvider abstraction, we maintain separation between agent logic and tool implementation details, allowing for easy integration of MCP while still supporting other tool integration approaches.</p>
+<p>The proposed architecture ensures that agents can leverage the growing ecosystem of MCP-compatible tools without tight coupling to specific implementations. This design aligns with the overall philosophy of agent-patterns, providing reusable, extensible patterns for AI agent workflows.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.indexes", "content.code.copy", "content.code.annotate"], "search": "../assets/javascripts/workers/search.f8cc74c7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.c8b220af.min.js"></script>
+      
+    
+  </body>
+</html>

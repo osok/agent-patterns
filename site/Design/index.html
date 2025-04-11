@@ -1,0 +1,3947 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://agent-patterns.readthedocs.io/Design/">
+      
+      
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.11">
+    
+    
+      
+        <title>Agent-Patterns Project: Design Document - Agent Patterns</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.4af4bdda.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#agent-patterns-project-design-document" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Agent Patterns" class="md-header__button md-logo" aria-label="Agent Patterns" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Agent Patterns
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Agent-Patterns Project: Design Document
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/osok/agent-patterns/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Agent Patterns
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../core/base_agent/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Core Components
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../patterns/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Agent Patterns
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../guides/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Guides
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../tutorials/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Tutorials
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../contributing/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Contributing
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Agent Patterns" class="md-nav__button md-logo" aria-label="Agent Patterns" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Agent Patterns
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/osok/agent-patterns/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Agent Patterns
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Core Components
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Core Components
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../core/base_agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Base Agent
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../core/memory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Memory System
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../core/tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Tool System
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../patterns/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    Agent Patterns
+    
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Agent Patterns
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../patterns/re_act/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    ReAct
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../patterns/reflexion/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Reflexion
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../patterns/llm_compiler/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    LLM Compiler
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../patterns/self_discovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Self-Discovery
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../patterns/lats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    LATS
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../patterns/reflection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Reflection
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../patterns/rewoo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    ReWOO
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../patterns/reflection_and_refinement/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Reflection and Refinement
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../patterns/plan_and_solve/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Plan and Solve
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../patterns/storm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    STORM
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../guides/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    Guides
+    
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Guides
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/getting_started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Getting Started
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/pattern_selection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Pattern Selection
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/advanced_customization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Advanced Customization
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Troubleshooting
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Deployment
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/migration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Migration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../tutorials/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    Tutorials
+    
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Tutorials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/research_assistant/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Research Assistant
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/customer_support_bot/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Customer Support Bot
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/code_generation_agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Code Generation Agent
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/multi_agent_system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Multi-Agent System
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../api/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    API Reference
+    
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Core
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/patterns/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Patterns
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/memory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Memory
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Tools
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Contributing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-overview-and-goals" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Overview and Goals
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Overview and Goals">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-project-purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.1. Project Purpose
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.2. Scope
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13-architectural-philosophy" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.3. Architectural Philosophy
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-repository-file-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Repository &amp; File Structure
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-base-classes" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Base Classes
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Base Classes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-baseagent-abstract" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.1. BaseAgent (Abstract)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-multiagentbase-abstract" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.2. MultiAgentBase (Abstract)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-pattern-implementations" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Pattern Implementations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Pattern Implementations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-react-reason-act-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.1. ReAct (Reason + Act) Pattern
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.1. ReAct (Reason + Act) Pattern">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#411-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.1.1. Overview
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#412-class-reactagent" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.1.2. Class: ReActAgent
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#413-implementation-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.1.3. Implementation Notes:
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-plan-solve-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.2. Plan &amp; Solve Pattern
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.2. Plan &amp; Solve Pattern">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#421-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.2.1. Overview
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#422-class-planandsolveagent" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.2.2. Class: PlanAndSolveAgent
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#423-implementation-details" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.2.3. Implementation Details
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-reflection-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.3. Reflection Pattern
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.3. Reflection Pattern">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#431-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.3.1. Overview
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#432-class-reflectionagent" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.3.2. Class: ReflectionAgent
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#433-implementation-guidelines" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.3.3. Implementation Guidelines
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#44-reflexion-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.4. Reflexion Pattern
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.4. Reflexion Pattern">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#441-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.4.1. Overview
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#452-key-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.5.2. Key Components
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#462-class-rewooagent" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.6.2. Class: REWOOAgent
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#472-class-latsagent" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.7.2. Class: LATSAgent
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#482-class-selfdiscoveryagent" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.8.2. Class: SelfDiscoveryAgent
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-prompt-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Prompt Management
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-environment-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. Environment Configuration
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-testing-example-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. Testing &amp; Example Usage
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Testing &amp; Example Usage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-example-scripts" class="md-nav__link">
+    <span class="md-ellipsis">
+      7.1. Example Scripts
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      7.2. Tests
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-notes-on-extensibility-best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      8. Notes on Extensibility &amp; Best Practices
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-how-to-create-a-new-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      9. How to Create a New Pattern
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Conclusion
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="agent-patterns-project-design-document"><strong>Agent-Patterns Project: Design Document</strong></h1>
+<p><strong>Version:</strong> 2.1<br />
+<strong>Date:</strong> April 7, 2025<br />
+<strong>Author:</strong> <em>Michael Caughey</em></p>
+<p><strong>Status:</strong> Draft</p>
+<hr />
+<h2 id="1-overview-and-goals"><strong>1. Overview and Goals</strong></h2>
+<h3 id="11-project-purpose"><strong>1.1. Project Purpose</strong></h3>
+<p>The <em>agent-patterns</em> project provides a Python library of <strong>reusable, extensible, and well-documented base classes</strong> that encapsulate common AI agent workflows (or "patterns"). These patterns are implemented using <a href="https://langchain.com/docs/langgraph"><strong>LangGraph</strong></a> and rely on <a href="https://python.langchain.com/en/latest/"><strong>LangChain</strong></a> for Large Language Model (LLM) integrations, prompt management, and tool usage.</p>
+<h3 id="12-scope"><strong>1.2. Scope</strong></h3>
+<p>We focus on <strong>single-agent</strong> and <strong>multi-agent</strong> design patterns that have proven useful across AI tasks, including:</p>
+<ul>
+<li>
+<p><strong>ReAct (Tool Use)</strong></p>
+</li>
+<li>
+<p><strong>Plan &amp; Solve</strong></p>
+</li>
+<li>
+<p><strong>Reflection</strong></p>
+</li>
+<li>
+<p><strong>Reflexion</strong></p>
+</li>
+<li>
+<p><strong>LLM Compiler</strong></p>
+</li>
+<li>
+<p><strong>REWOO (Worker-Solver)</strong></p>
+</li>
+<li>
+<p><strong>LATS (Language Agent Tree Search)</strong></p>
+</li>
+<li>
+<p><strong>Self-Discovery</strong></p>
+</li>
+<li>
+<p><strong>STORM (Topic Outlines + Multi-perspective Retrieval)</strong></p>
+</li>
+</ul>
+<p>Each pattern's goal is to reduce boilerplate and encourage consistent best practices. The library is especially useful for developers needing to quickly build or customize advanced AI workflows without reinventing the wheel.</p>
+<h3 id="13-architectural-philosophy"><strong>1.3. Architectural Philosophy</strong></h3>
+<ol>
+<li>
+<p><strong>Modular Base Classes:</strong> One or more abstract base classes define common agent operations and Graph structures. Each pattern extends these bases to add specialized logic (e.g., planning steps, reflection loops).</p>
+</li>
+<li>
+<p><strong>Externalized Configuration &amp; Prompts:</strong> Prompt templates, environment variables (e.g., model keys), and certain runtime parameters (e.g., max steps) are stored outside core code for easier customization.</p>
+</li>
+<li>
+<p><strong>Developer Clarity:</strong> Each pattern's responsibilities, methods, and usage are clearly documented so users know exactly which methods to override, how to pass custom prompts, and how to plug in specialized logic.</p>
+</li>
+<li>
+<p><strong>Testability &amp; Extensibility:</strong> By separating pattern logic, tool definitions, and LLM configurations, the library is designed to be straightforward to test, maintain, and extend with new patterns.</p>
+</li>
+</ol>
+<hr />
+<h2 id="2-repository-file-structure"><strong>2. Repository &amp; File Structure</strong></h2>
+<p>Here's a recommended layout for the <em>agent-patterns</em> repository. You can customize as needed, but we strongly recommend separating core abstractions, pattern implementations, prompts, and examples:</p>
+<p>agent_patterns/<br />
+├── core/<br />
+│   ├── base_agent.py<br />
+│   └── multi_agent_base.py<br />
+├── patterns/<br />
+│   ├── re_act_agent.py<br />
+│   ├── plan_and_solve_agent.py<br />
+│   ├── reflection_agent.py<br />
+│   ├── reflexion_agent.py<br />
+│   ├── llm_compiler_agent.py<br />
+│   ├── rewoo_agent.py<br />
+│   ├── lats_agent.py<br />
+│   ├── self_discovery_agent.py<br />
+│   └── storm_agent.py<br />
+├── prompts/<br />
+│   ├── reflection/<br />
+│   │   ├── critic_prompt.md<br />
+│   │   └── revision_prompt.md<br />
+│   └── ...<br />
+├── examples/<br />
+│   ├── reflection_example.py<br />
+│   └── plan_example.py<br />
+├── tests/<br />
+│   ├── test_reflection.py<br />
+│   └── ...<br />
+├── .env<br />
+├── pyproject.toml<br />
+└── README.md</p>
+<p><strong>Key Directories</strong>:</p>
+<ul>
+<li>
+<p><code>core/</code>: Abstract base classes and shared utilities (like prompt loading or logging).</p>
+</li>
+<li>
+<p><code>patterns/</code>: Concrete agent patterns, each defined in its own file or sub-package.</p>
+</li>
+<li>
+<p><code>prompts/</code>: Externalized prompt templates. Organized by pattern and step name.</p>
+</li>
+<li>
+<p><code>examples/</code>: Minimal working examples of each pattern with usage instructions.</p>
+</li>
+<li>
+<p><code>tests/</code>: Unit tests and integration tests for each pattern.</p>
+</li>
+</ul>
+<hr />
+<h2 id="3-base-classes"><strong>3. Base Classes</strong></h2>
+<h3 id="31-baseagent-abstract"><strong>3.1. <code>BaseAgent</code> (Abstract)</strong></h3>
+<p><strong>Responsibility</strong>: Provide core logic for orchestrating a single agent's workflow, including:</p>
+<ul>
+<li>
+<p>Initializing an LLM or set of LLM roles (thinking, critic, etc.).</p>
+</li>
+<li>
+<p>Loading external prompt templates.</p>
+</li>
+<li>
+<p>Defining or compiling a <a href="https://langchain.com/docs/langgraph">LangGraph</a> graph.</p>
+</li>
+<li>
+<p>Running or streaming the agent's process from input to output.</p>
+</li>
+</ul>
+<p><strong>Typical Usage</strong>:</p>
+<ol>
+<li>
+<p>Subclass <code>BaseAgent</code> to create a new pattern.</p>
+</li>
+<li>
+<p>Override required abstract methods (e.g., <code>build_graph()</code>, <code>run()</code>).</p>
+</li>
+<li>
+<p>Use <code>self._get_llm(role)</code> to fetch the correct LLM for a particular role.</p>
+</li>
+<li>
+<p>Use <code>self._load_prompt(step_name)</code> to retrieve external prompt templates.</p>
+</li>
+<li>
+<p>Optionally override lifecycle hooks (<code>on_start()</code>, <code>on_finish()</code>) for logging.</p>
+</li>
+</ol>
+<p># core/base_agent.py<br />
+import abc<br />
+from typing import Any, Iterator<br />
+from langgraph import CompiledGraph</p>
+<p>class BaseAgent(abc.ABC):<br />
+    def __init__(self, llm_configs: dict, prompt_dir: str = "prompts"):<br />
+        """<br />
+        :param llm_configs: Dictionary specifying provider, model, and roles.<br />
+        :param prompt_dir: Directory for prompt templates.<br />
+        """<br />
+        self.llm_configs \= llm_configs<br />
+        self.prompt_dir \= prompt_dir<br />
+        self.graph: CompiledGraph \= None  # set by self.build_graph()</p>
+<div class="highlight"><pre><span></span><code>    \# Subclass is expected to build/compile its graph  
+    self.build_graph()
+
+@abc.abstractmethod  
+def build_graph(self) \-\&gt; None:  
+    &quot;&quot;&quot;Construct or compile the LangGraph used by this agent pattern.&quot;&quot;&quot;  
+    pass
+
+@abc.abstractmethod  
+def run(self, input_data: Any) \-\&gt; Any:  
+    &quot;&quot;&quot;  
+    Run the agent to completion with the given input.  
+    :param input_data: The user query or initial state.  
+    :return: The final output or answer.  
+    &quot;&quot;&quot;  
+    pass
+
+def stream(self, input_data: Any) \-\&gt; Iterator\[Any\]:  
+    &quot;&quot;&quot;Optional streaming interface. Subclasses can override.&quot;&quot;&quot;  
+    yield self.run(input_data)
+
+def \_get_llm(self, role: str):  
+    &quot;&quot;&quot;Returns an LLM object for a given role based on llm_configs.&quot;&quot;&quot;  
+    \# Implementation detail: parse self.llm_configs to create the LLM.  
+    \# E.g., llm_configs might have THINKING_MODEL_NAME, CRITIC_MODEL_NAME, etc.  
+    pass
+
+def \_load_prompt(self, step_name: str) \-\&gt; dict:  
+    &quot;&quot;&quot;  
+    Loads a prompt template (system/user) from the prompts/ directory.  
+    Subclasses can override to implement custom logic or fallback.  
+    &quot;&quot;&quot;  
+    \# E.g. read from f&quot;{self.prompt_dir}/{self.\_\_class\_\_.\_\_name\_\_}/{step_name}/\*.md&quot;  
+    \# Return a dict with {&quot;system_prompt&quot;: &quot;...&quot;, &quot;user_prompt&quot;: &quot;...&quot;} or similar  
+    return {}
+</code></pre></div>
+<p><strong>Design Notes</strong>:</p>
+<ul>
+<li>
+<p><code>_get_llm(role)</code> and <code>_load_prompt(step_name)</code> are placeholders for actual prompt and LLM loading. This keeps the base class generic.</p>
+</li>
+<li>
+<p><code>build_graph()</code> is where the pattern sets up its LangGraph nodes and transitions. The base class doesn't know the pattern's structure; that's left to subclasses.</p>
+</li>
+<li>
+<p><code>run(input_data)</code> is the main method. Many patterns also define specialized sub-steps, but <code>run()</code> is the entry point from a developer's perspective.</p>
+</li>
+</ul>
+<h3 id="32-multiagentbase-abstract"><strong>3.2. <code>MultiAgentBase</code> (Abstract)</strong></h3>
+<p><strong>Responsibility</strong>: Coordinates multiple sub-agents or roles. Provides:</p>
+<ul>
+<li>
+<p>A container or registry for sub-agents.</p>
+</li>
+<li>
+<p>Methods for distributing tasks among them.</p>
+</li>
+<li>
+<p>Common logic for collating results.</p>
+</li>
+</ul>
+<p># core/multi_agent_base.py<br />
+import abc<br />
+from typing import List, Dict<br />
+from .base_agent import BaseAgent</p>
+<p>class MultiAgentBase(BaseAgent, abc.ABC):<br />
+    def __init__(self, sub_agents: Dict[str, BaseAgent], **kwargs):<br />
+        """<br />
+        :param sub_agents: Mapping of role -&gt; agent instance (or agent class).<br />
+        :param kwargs: Additional arguments passed to BaseAgent.<br />
+        """<br />
+        super().__init__(**kwargs)<br />
+        self.sub_agents \= sub_agents</p>
+<div class="highlight"><pre><span></span><code>@abc.abstractmethod  
+def coordinate(self, task: str) \-\&gt; str:  
+    &quot;&quot;&quot;  
+    High-level method for distributing a task among sub-agents  
+    and returning a unified final result.  
+    &quot;&quot;&quot;  
+    pass
+</code></pre></div>
+<p><strong>Design Notes</strong>:</p>
+<ul>
+<li>
+<p>Like <code>BaseAgent</code>, but specialized for multi-agent workflows.</p>
+</li>
+<li>
+<p>Subclasses might override <code>run()</code> to call <code>coordinate()</code> under the hood.</p>
+</li>
+<li>
+<p>The <code>sub_agents</code> could be distinct specialized patterns (e.g., a coder agent, a researcher agent).</p>
+</li>
+</ul>
+<hr />
+<h2 id="4-pattern-implementations"><strong>4. Pattern Implementations</strong></h2>
+<p>Below are the core patterns. Each pattern extends <code>BaseAgent</code> (or <code>MultiAgentBase</code> if it needs multi-agent capabilities). We focus on prescriptive instructions so a developer knows exactly which methods to implement, how to handle prompts, etc.</p>
+<h3 id="41-react-reason-act-pattern"><strong>4.1. ReAct (Reason + Act) Pattern</strong></h3>
+<h4 id="411-overview"><strong>4.1.1. Overview</strong></h4>
+<p><strong>Goal</strong>: Enable an agent to iteratively reason (produce a thought) and act (call a tool) until it arrives at a final answer. Particularly good for question-answering that requires external information or tools.</p>
+<h4 id="412-class-reactagent"><strong>4.1.2. Class: <code>ReActAgent</code></strong></h4>
+<p># patterns/re_act_agent.py<br />
+from typing import Any, Dict<br />
+from agent_patterns.core.base_agent import BaseAgent<br />
+from langgraph import StateGraph, CompiledGraph</p>
+<p>class ReActAgent(BaseAgent):<br />
+    def build_graph(self) -&gt; None:<br />
+        """<br />
+        Construct a StateGraph for the ReAct cycle:<br />
+          (thought) -&gt; (action) -&gt; (observation) -&gt; check if done -&gt; (thought) ...<br />
+        """<br />
+        sg \= StateGraph()</p>
+<div class="highlight"><pre><span></span><code>    \# Node definitions (Pseudo-code)  
+    sg.add_node(&quot;thought_step&quot;, func=self.\_generate_thought_and_action)  
+    sg.add_node(&quot;action_step&quot;, func=self.\_execute_action)  
+    sg.add_node(&quot;observation_step&quot;, func=self.\_observation_handler)  
+    sg.add_node(&quot;final_answer&quot;, func=self.\_format_final_answer)
+
+    \# Edges &amp; transitions  
+    sg.add_edge(&quot;thought_step&quot;, &quot;action_step&quot;)  
+    sg.add_edge(&quot;action_step&quot;, &quot;observation_step&quot;)  
+    sg.add_edge(&quot;observation_step&quot;, &quot;thought_step&quot;, condition=self.\_check_continue)  
+    sg.add_edge(&quot;observation_step&quot;, &quot;final_answer&quot;, condition=self.\_check_if_done)
+
+    self.graph \= sg.compile()
+
+def run(self, input_data: Any) \-\&gt; Any:  
+    &quot;&quot;&quot;  
+    Entry point for the ReAct pattern.  
+    Input: user query or problem statement.  
+    Output: final answer after possibly multiple cycles.  
+    &quot;&quot;&quot;  
+    initial_state \= {  
+        &quot;input&quot;: input_data,  
+        &quot;thought&quot;: &quot;&quot;,  
+        &quot;action&quot;: {},  
+        &quot;observation&quot;: None,  
+        &quot;intermediate_steps&quot;: \[\],  
+        &quot;final_answer&quot;: None  
+    }  
+    result_state \= self.graph.run(initial_state)  
+    return result_state\[&quot;final_answer&quot;\]
+
+def \_generate_thought_and_action(self, state: Dict) \-\&gt; Dict:  
+    &quot;&quot;&quot;  
+    1\. Summarize current state &amp; query LLM for next thought &amp; action.  
+    2\. Action is typically {tool_name: str, tool_input: str}.  
+    &quot;&quot;&quot;  
+    prompt_data \= self.\_load_prompt(&quot;ThoughtStep&quot;)  \# system, user prompts  
+    llm \= self.\_get_llm(&quot;thinking&quot;)  
+    \# Compose a prompt, e.g. prompt_data\[&quot;system&quot;\] + user info + state  
+    \# LLM returns something like &quot;Thought: I need to look up weather \-\&gt; Action: search_tool(&#39;weather in Paris&#39;)&quot;  
+    \# Parse it into \`thought\` and \`action\` dict  
+    \# ...  
+    \# For illustration, assume we parse it:  
+    thought_str \= &quot;I need to check the weather&quot;  
+    action_dict \= {&quot;tool_name&quot;: &quot;search_tool&quot;, &quot;tool_input&quot;: &quot;weather in Paris&quot;}  
+    state\[&quot;thought&quot;\] \= thought_str  
+    state\[&quot;action&quot;\] \= action_dict  
+    state\[&quot;intermediate_steps&quot;\].append((thought_str, action_dict, None))  
+    return state
+
+def \_execute_action(self, state: Dict) \-\&gt; Dict:  
+    &quot;&quot;&quot;Call the actual tool with the specified input.&quot;&quot;&quot;  
+    action \= state\[&quot;action&quot;\]  
+    tool_name \= action\[&quot;tool_name&quot;\]  
+    tool_input \= action\[&quot;tool_input&quot;\]  
+    \# Assume we have a tool registry or something similar  
+    observation \= self.\_call_tool(tool_name, tool_input)  
+    state\[&quot;observation&quot;\] \= observation  
+    \# Update the last step in intermediate_steps with the observation  
+    if state\[&quot;intermediate_steps&quot;\]:  
+        last_thought, last_action, \_ \= state\[&quot;intermediate_steps&quot;\]\[-1\]  
+        state\[&quot;intermediate_steps&quot;\]\[-1\] \= (last_thought, last_action, observation)  
+    return state
+
+def \_observation_handler(self, state: Dict) \-\&gt; Dict:  
+    &quot;&quot;&quot;We could do additional processing of the observation if needed.&quot;&quot;&quot;  
+    return state
+
+def \_check_continue(self, state: Dict) \-\&gt; bool:  
+    &quot;&quot;&quot;Check if we should keep going. For now, always True unless found a final answer marker.&quot;&quot;&quot;  
+    \# Could parse state\[&quot;thought&quot;\] for a &#39;FINAL ANSWER&#39; marker, etc.  
+    return not self.\_is_done(state)
+
+def \_check_if_done(self, state: Dict) \-\&gt; bool:  
+    return self.\_is_done(state)
+
+def \_is_done(self, state: Dict) \-\&gt; bool:  
+    &quot;&quot;&quot;  
+    Condition to exit the cycle: e.g. thought or observation indicates completion,  
+    or a maximum step limit reached.  
+    &quot;&quot;&quot;  
+    \# Implement custom logic, e.g., if &quot;FINAL ANSWER:&quot; in state\[&quot;thought&quot;\] or step_count \&gt; ...  
+    return False
+
+def \_format_final_answer(self, state: Dict) \-\&gt; Dict:  
+    &quot;&quot;&quot;  
+    Optionally reformat or finalize the answer for the user.  
+    &quot;&quot;&quot;  
+    \# E.g., parse the last thought for final answer  
+    final \= &quot;Here&#39;s the final answer from the chain of thought...&quot;  
+    state\[&quot;final_answer&quot;\] \= final  
+    return state
+
+def \_call_tool(self, tool_name: str, tool_input: Any) \-\&gt; Any:  
+    &quot;&quot;&quot;Implement or delegate to a registry for tool calls.&quot;&quot;&quot;  
+    \# ...  
+    return f&quot;Mock result for {tool_input}&quot;
+</code></pre></div>
+<h4 id="413-implementation-notes"><strong>4.1.3. Implementation Notes:</strong></h4>
+<ul>
+<li>
+<p><strong>Prompts</strong>: Stored in <code>prompts/ReActAgent/ThoughtStep/system.md</code> and <code>prompts/ReActAgent/ThoughtStep/user.md</code>.</p>
+</li>
+<li>
+<p><strong>Tool Integration</strong>: <code>_call_tool()</code> is a stub that calls a registry. Implementation details can be externalized to a <code>ToolRegistry</code> utility.</p>
+</li>
+<li>
+<p><strong>Stop Condition</strong>: <code>_check_continue()</code> vs. <code>_check_if_done()</code> demonstrate how to branch in LangGraph.</p>
+</li>
+</ul>
+<hr />
+<h3 id="42-plan-solve-pattern"><strong>4.2. Plan &amp; Solve Pattern</strong></h3>
+<h4 id="421-overview"><strong>4.2.1. Overview</strong></h4>
+<p><strong>Goal</strong>: Decouple planning from execution. Generate a multi-step plan, then sequentially (or in parallel) execute each step. Great for tasks that can be broken down predictably.</p>
+<h4 id="422-class-planandsolveagent"><strong>4.2.2. Class: <code>PlanAndSolveAgent</code></strong></h4>
+<p># patterns/plan_and_solve_agent.py<br />
+from typing import Any, Dict, List<br />
+from agent_patterns.core.base_agent import BaseAgent<br />
+from langgraph import StateGraph</p>
+<p>class PlanAndSolveAgent(BaseAgent):</p>
+<div class="highlight"><pre><span></span><code>def build_graph(self) \-\&gt; None:  
+    sg \= StateGraph()  
+    sg.add_node(&quot;plan_step&quot;, func=self.\_generate_plan)  
+    sg.add_node(&quot;execute_step&quot;, func=self.\_execute_plan_step)  
+    sg.add_node(&quot;check_completion&quot;, func=self.\_check_plan_completion)  
+    sg.add_node(&quot;aggregate_results&quot;, func=self.\_aggregate_results)
+
+    sg.add_edge(&quot;plan_step&quot;, &quot;execute_step&quot;)  
+    sg.add_edge(&quot;execute_step&quot;, &quot;check_completion&quot;)  
+    sg.add_edge(&quot;check_completion&quot;, &quot;execute_step&quot;, condition=lambda s: not s\[&quot;plan_done&quot;\])  
+    sg.add_edge(&quot;check_completion&quot;, &quot;aggregate_results&quot;, condition=lambda s: s\[&quot;plan_done&quot;\])
+
+    self.graph \= sg.compile()
+
+def run(self, input_data: Any) \-\&gt; Any:  
+    state \= {  
+        &quot;input_task&quot;: input_data,  
+        &quot;plan&quot;: \[\],  
+        &quot;current_step_index&quot;: 0,  
+        &quot;step_results&quot;: \[\],  
+        &quot;plan_done&quot;: False,  
+        &quot;final_result&quot;: None  
+    }  
+    final_state \= self.graph.run(state)  
+    return final_state\[&quot;final_result&quot;\]
+
+def \_generate_plan(self, state: Dict) \-\&gt; Dict:  
+    &quot;&quot;&quot;  
+    Use an LLM to create a structured plan (list of steps).  
+    &quot;&quot;&quot;  
+    prompt_data \= self.\_load_prompt(&quot;PlanStep&quot;)  
+    llm \= self.\_get_llm(&quot;planning&quot;)  
+    \# e.g., plan_text \= llm.generate(...)  
+    \# parse plan_text into a list of step dicts  
+    plan \= \[{&quot;step_description&quot;: &quot;Step 1: Do X&quot;}, {&quot;step_description&quot;: &quot;Step 2: Do Y&quot;}\]  
+    state\[&quot;plan&quot;\] \= plan  
+    return state
+
+def \_execute_plan_step(self, state: Dict) \-\&gt; Dict:  
+    idx \= state\[&quot;current_step_index&quot;\]  
+    plan \= state\[&quot;plan&quot;\]  
+    if idx \&lt; len(plan):  
+        step \= plan\[idx\]  
+        result \= self.\_run_single_step(step, state)  
+        state\[&quot;step_results&quot;\].append(result)  
+        state\[&quot;current_step_index&quot;\] \+= 1  
+    return state
+
+def \_check_plan_completion(self, state: Dict) \-\&gt; Dict:  
+    if state\[&quot;current_step_index&quot;\] \&gt;= len(state\[&quot;plan&quot;\]):  
+        state\[&quot;plan_done&quot;\] \= True  
+    return state
+
+def \_aggregate_results(self, state: Dict) \-\&gt; Dict:  
+    &quot;&quot;&quot;  
+    Combine step results into a final answer, possibly using another LLM or direct logic.  
+    &quot;&quot;&quot;  
+    final \= &quot; &quot;.join(state\[&quot;step_results&quot;\])  
+    state\[&quot;final_result&quot;\] \= f&quot;Plan &amp; Solve final answer:\\n{final}&quot;  
+    return state
+
+def \_run_single_step(self, step: Dict, state: Dict) \-\&gt; Any:  
+    &quot;&quot;&quot;  
+    Could call an LLM or a tool depending on step content.  
+    &quot;&quot;&quot;  
+    \# e.g., parse step\[&quot;step_description&quot;\], do the action  
+    return f&quot;Executed: {step\[&#39;step_description&#39;\]}&quot;
+</code></pre></div>
+<h4 id="423-implementation-details"><strong>4.2.3. Implementation Details</strong></h4>
+<ul>
+<li>
+<p><strong>Plan Representation</strong>: A list of dictionaries in <code>state["plan"]</code>. Each item is one sub-task. Could contain tool calls, LLM prompts, etc.</p>
+</li>
+<li>
+<p><strong>Prompt Step</strong>: <code>_load_prompt("PlanStep")</code> retrieves the planning instructions (system and user prompts).</p>
+</li>
+<li>
+<p><strong>Execution Logic</strong>: <code>_run_single_step</code> can handle a wide variety of actions. This is a key customization point.</p>
+</li>
+<li>
+<p><strong>Parallel Execution</strong>: For advanced usage, you can extend <code>_execute_plan_step</code> to dispatch multiple steps in parallel if they have no dependencies. That is an optional future enhancement.</p>
+</li>
+</ul>
+<hr />
+<h3 id="43-reflection-pattern"><strong>4.3. Reflection Pattern</strong></h3>
+<h4 id="431-overview"><strong>4.3.1. Overview</strong></h4>
+<p><strong>Goal</strong>: After generating an initial answer, the agent critiques it and refines if necessary. Typically uses a separate LLM or prompt for critique.</p>
+<h4 id="432-class-reflectionagent"><strong>4.3.2. Class: <code>ReflectionAgent</code></strong></h4>
+<p># patterns/reflection_agent.py<br />
+from agent_patterns.core.base_agent import BaseAgent<br />
+from langgraph import StateGraph</p>
+<p>class ReflectionAgent(BaseAgent):</p>
+<div class="highlight"><pre><span></span><code>def build_graph(self) \-\&gt; None:  
+    sg \= StateGraph()  
+    sg.add_node(&quot;generate_initial&quot;, func=self.\_generate_initial_output)  
+    sg.add_node(&quot;reflect&quot;, func=self.\_reflect_on_output)  
+    sg.add_node(&quot;check_refine&quot;, func=self.\_check_refinement_needed)  
+    sg.add_node(&quot;refine&quot;, func=self.\_refine_output)  
+    sg.add_node(&quot;final_output&quot;, func=lambda s: s)
+
+    \# Edges  
+    sg.add_edge(&quot;generate_initial&quot;, &quot;reflect&quot;)  
+    sg.add_edge(&quot;reflect&quot;, &quot;check_refine&quot;)  
+    sg.add_edge(&quot;check_refine&quot;, &quot;refine&quot;, condition=lambda s: s\[&quot;needs_refinement&quot;\])  
+    sg.add_edge(&quot;check_refine&quot;, &quot;final_output&quot;, condition=lambda s: not s\[&quot;needs_refinement&quot;\])  
+    sg.add_edge(&quot;refine&quot;, &quot;final_output&quot;)
+
+    self.graph \= sg.compile()
+
+def run(self, input_data: str):  
+    state \= {  
+        &quot;input_task&quot;: input_data,  
+        &quot;initial_output&quot;: None,  
+        &quot;reflection&quot;: None,  
+        &quot;refined_output&quot;: None,  
+        &quot;needs_refinement&quot;: False,  
+        &quot;final_answer&quot;: None  
+    }  
+    final_state \= self.graph.run(state)  
+    return final_state.get(&quot;final_answer&quot;)
+
+def \_generate_initial_output(self, state):  
+    &quot;&quot;&quot;Generate a first attempt using the main LLM.&quot;&quot;&quot;  
+    prompt_data \= self.\_load_prompt(&quot;Generate&quot;)  
+    llm \= self.\_get_llm(&quot;documentation&quot;)  \# or &quot;thinking&quot;, depending  
+    \# result \= llm.predict(...)  
+    result \= f&quot;Initial answer to {state\[&#39;input_task&#39;\]}&quot;  
+    state\[&quot;initial_output&quot;\] \= result  
+    return state
+
+def \_reflect_on_output(self, state):  
+    &quot;&quot;&quot;Use a separate reflection model to critique the initial output.&quot;&quot;&quot;  
+    critic_prompt \= self.\_load_prompt(&quot;Reflect&quot;)  
+    critic_llm \= self.\_get_llm(&quot;reflection&quot;)  
+    \# reflection_text \= critic_llm.predict(state\[&quot;initial_output&quot;\])  
+    reflection_text \= &quot;Critique: The answer is incomplete; mention more details.&quot;  
+    state\[&quot;reflection&quot;\] \= reflection_text  
+    return state
+
+def \_check_refinement_needed(self, state):  
+    &quot;&quot;&quot;Decide if refinement is necessary.&quot;&quot;&quot;  
+    \# simple heuristic: if &#39;incomplete&#39; in reflection \-\&gt; refine  
+    state\[&quot;needs_refinement&quot;\] \= &quot;incomplete&quot; in state\[&quot;reflection&quot;\].lower()  
+    return state
+
+def \_refine_output(self, state):  
+    &quot;&quot;&quot;Generate a refined output using the reflection text.&quot;&quot;&quot;  
+    refine_prompt \= self.\_load_prompt(&quot;Refine&quot;)  
+    llm \= self.\_get_llm(&quot;documentation&quot;)  
+    \# refined \= llm.predict(f&quot;{state\[&#39;initial_output&#39;\]}\\nCritique: {state\[&#39;reflection&#39;\]}&quot;)  
+    refined \= f&quot;Refined answer (added details) for {state\[&#39;input_task&#39;\]}&quot;  
+    state\[&quot;refined_output&quot;\] \= refined  
+    state\[&quot;final_answer&quot;\] \= refined  
+    return state
+</code></pre></div>
+<h4 id="433-implementation-guidelines"><strong>4.3.3. Implementation Guidelines</strong></h4>
+<ul>
+<li>
+<p><strong>Prompts</strong>:</p>
+</li>
+<li>
+<p><code>Generate</code>: The system and user prompts for initial answer generation.</p>
+</li>
+<li>
+<p><code>Reflect</code>: The system/user prompts for the critic LLM to generate self-critique.</p>
+</li>
+<li>
+<p><code>Refine</code>: The system/user prompts for how to incorporate the critique into a new answer.</p>
+</li>
+<li>
+<p><strong>Refinement Iterations</strong>: For now, only one cycle is shown. You can add loopback edges to allow multiple iterations up to a max count.</p>
+</li>
+<li>
+<p><strong>Logic Externalization</strong>: <code>_check_refinement_needed</code> can be external or read from a config if the logic is more complex.</p>
+</li>
+</ul>
+<hr />
+<h2 id="44-reflexion-pattern"><strong>4.4. Reflexion Pattern</strong></h2>
+<h3 id="441-overview"><strong>4.4.1. Overview</strong></h3>
+<p><strong>Goal:</strong> Enable iterative problem-solving where the agent revisits past mistakes and successes across <em>multiple trials</em>, storing "lessons" in a persistent "reflection memory." After each trial (or "episode"), the agent logs insights—why something worked or failed—so that next time it encounters a similar situation, it can consult those insights to improve performance.</p>
+<p>This differs from a simple one-pass "Reflection" pattern by introducing:</p>
+<ul>
+<li>
+<p><strong>Reflection Memory</strong>: A structured store of lessons or heuristics the agent can read before generating the next attempt.</p>
+</li>
+<li>
+<p><strong>Multi-Trial Loop</strong>: The agent repeatedly attempts a task (or sub-task), reflecting after each attempt and incorporating those reflections into a persistent memory.</p>
+</li>
+</ul>
+<p>It's most useful when:</p>
+<ul>
+<li>
+<p>The agent must refine a partial solution over many tries.</p>
+</li>
+<li>
+<p>We want a "learning effect" across attempts (although it's local to the session, not a global learned model).</p>
+</li>
+</ul>
+<p>### <strong>4.4.2. Class: <code>ReflexionAgent</code></strong></p>
+<p>Below is a sketch for a builder's guide, showing how to build the LangGraph for multiple attempts:</p>
+<p># patterns/reflexion_agent.py</p>
+<p>from typing import Any, Dict</p>
+<p>from agent_patterns.core.base_agent import BaseAgent</p>
+<p>from langgraph import StateGraph, CompiledGraph</p>
+<p>class ReflexionAgent(BaseAgent):</p>
+<div class="highlight"><pre><span></span><code>def build_graph(self) \-\&gt; None:
+
+    sg \= StateGraph()
+
+
+
+    \# 1\) plan_action_with_memory \-\&gt; 2\) execute_action \-\&gt; 3\) evaluate_outcome
+
+    \#    \-\&gt; 4\) reflect_on_trial \-\&gt; 5\) update_reflection_memory
+
+    \#    \-\&gt; check if done or not \-\&gt; loop or final
+
+    \#
+
+    \# We illustrate a loop from a &#39;trial&#39; node back to the top, up to a max trial count
+
+    \# or until the agent decides it&#39;s done.
+
+
+
+    sg.add_node(&quot;plan_action_with_memory&quot;, func=self.\_plan_action_with_memory)
+
+    sg.add_node(&quot;execute_action&quot;, func=self.\_execute_action)
+
+    sg.add_node(&quot;evaluate_outcome&quot;, func=self.\_evaluate_outcome)
+
+    sg.add_node(&quot;reflect_on_trial&quot;, func=self.\_reflect_on_trial)
+
+    sg.add_node(&quot;update_reflection_memory&quot;, func=self.\_update_reflection_memory)
+
+    sg.add_node(&quot;final_output&quot;, func=lambda s: s)
+
+    \# Edges for the trial loop:
+
+    sg.add_edge(&quot;plan_action_with_memory&quot;, &quot;execute_action&quot;)
+
+    sg.add_edge(&quot;execute_action&quot;, &quot;evaluate_outcome&quot;)
+
+    sg.add_edge(&quot;evaluate_outcome&quot;, &quot;reflect_on_trial&quot;)
+
+    sg.add_edge(&quot;reflect_on_trial&quot;, &quot;update_reflection_memory&quot;)
+
+    \# Condition: either loop to &quot;plan_action_with_memory&quot; (new trial) or exit
+
+    sg.add_edge(&quot;update_reflection_memory&quot;, &quot;plan_action_with_memory&quot;,
+
+                condition=self.\_continue_trials)
+
+    sg.add_edge(&quot;update_reflection_memory&quot;, &quot;final_output&quot;,
+
+                condition=lambda s: not self.\_continue_trials(s))
+
+    self.graph \= sg.compile()
+
+def run(self, input_data: Any) \-\&gt; Any:
+
+    \# The agent will attempt multiple trials, storing reflection each time
+
+    initial_state \= {
+
+        &quot;input_task&quot;: input_data,
+
+        &quot;reflection_memory&quot;: \[\],     \# list of string insights or structured data
+
+        &quot;trial_count&quot;: 0,
+
+        &quot;max_trials&quot;: 3,            \# or read from config
+
+        &quot;outcome&quot;: None,
+
+        &quot;final_answer&quot;: None
+
+    }
+
+    final_state \= self.graph.run(initial_state)
+
+    return final_state\[&quot;final_answer&quot;\]
+
+def \_plan_action_with_memory(self, state: Dict) \-\&gt; Dict:
+
+    &quot;&quot;&quot;
+
+    Reads reflection_memory to inform the next planned action or approach.
+
+    Typically uses a &#39;thinking&#39; LLM or specialized role.
+
+    &quot;&quot;&quot;
+
+    \# Combine the user input \+ reflection memory in a prompt
+
+    \# e.g., &quot;Here are your previous lessons: \[...\]. Now plan your next step for the task.&quot;
+
+    \# ...
+
+    state\[&quot;trial_count&quot;\] \+= 1
+
+    return state
+
+def \_execute_action(self, state: Dict) \-\&gt; Dict:
+
+    &quot;&quot;&quot;
+
+    Actually try to solve the task, possibly by calling a tool or generating text.
+
+    &quot;&quot;&quot;
+
+    \# ...
+
+    \# store a raw result in state\[&quot;outcome&quot;\]
+
+    state\[&quot;outcome&quot;\] \= &quot;Attempt result or partial solution&quot;
+
+    return state
+
+def \_evaluate_outcome(self, state: Dict) \-\&gt; Dict:
+
+    &quot;&quot;&quot;
+
+    Critically evaluate how the attempt went.
+
+    Could be LLM-based or an environment check if we have a known correct result.
+
+    &quot;&quot;&quot;
+
+    \# ...
+
+    \# e.g. store &#39;success&#39;, &#39;failure&#39;, or details in state
+
+    state\[&quot;evaluation&quot;\] \= &quot;failure&quot;  \# or success
+
+    return state
+
+def \_reflect_on_trial(self, state: Dict) \-\&gt; Dict:
+
+    &quot;&quot;&quot;
+
+    Summarize what was learned from the outcome to be stored in reflection memory.
+
+    Typically a reflection LLM is used here.
+
+    &quot;&quot;&quot;
+
+    reflection_llm \= self.\_get_llm(&quot;reflection&quot;)
+
+    \# reflection_text \= reflection_llm.predict( ... )
+
+    reflection_text \= &quot;If outcome is X, we should do Y next time.&quot;
+
+    state\[&quot;trial_reflection&quot;\] \= reflection_text
+
+    return state
+
+def \_update_reflection_memory(self, state: Dict) \-\&gt; Dict:
+
+    &quot;&quot;&quot;
+
+    Append newly generated reflection to reflection_memory.
+
+    &quot;&quot;&quot;
+
+    state\[&quot;reflection_memory&quot;\].append(state\[&quot;trial_reflection&quot;\])
+
+    return state
+
+def \_continue_trials(self, state: Dict\]) \-\&gt; bool:
+
+    &quot;&quot;&quot;
+
+    Decide if we need another trial: e.g. not done or trial_count \&lt; max_trials
+
+    or outcome wasn&#39;t successful.
+
+    &quot;&quot;&quot;
+
+    if state\[&quot;trial_count&quot;\] \&gt;= state\[&quot;max_trials&quot;\]:
+
+        \# finalize or forcibly stop
+
+        state\[&quot;final_answer&quot;\] \= f&quot;Best attempt result: {state\[&#39;outcome&#39;\]}&quot;
+
+        return False
+
+    \# If outcome was &#39;success&#39;, we can stop early:
+
+    if state.get(&quot;evaluation&quot;) \== &quot;success&quot;:
+
+        state\[&quot;final_answer&quot;\] \= f&quot;Successful result: {state\[&#39;outcome&#39;\]}&quot;
+
+        return False
+
+    \# Otherwise, do another trial
+
+    return True
+</code></pre></div>
+<p><strong>Builder Tips:</strong></p>
+<ol>
+<li>
+<p><strong>Memory Format</strong>: Store reflections as a list of strings or structured JSON, so future prompts can incorporate them easily.</p>
+</li>
+<li>
+<p><strong>Trial Loop</strong>: Provide a <code>max_trials</code> guard. Another approach is to let an LLM decide to continue or not by analyzing the outcome.</p>
+</li>
+<li>
+<p><strong>Prompts</strong>:</p>
+</li>
+<li>
+<p><em>PlanActionWithMemory</em> step: merges <code>reflection_memory</code> with the current task to plan the next move.</p>
+</li>
+<li>
+<p><em>ReflectOnTrial</em> step: a specialized prompt for self-critique.</p>
+</li>
+</ol>
+<hr />
+<p>## <strong>4.5. LLMCompiler Pattern</strong></p>
+<p>### <strong>4.5.1. Overview</strong></p>
+<p><strong>Goal:</strong> Treat your entire multi-tool workflow like a "compiler." The agent constructs an <strong>execution graph</strong> from the user task and the available tools, then <strong>executes</strong> the graph in an optimized order—possibly in parallel. This can speed up tasks requiring multiple independent tool calls or sub-queries.</p>
+<h3 id="452-key-components"><strong>4.5.2. Key Components</strong></h3>
+<ol>
+<li>
+<p><strong>Planner</strong>: An LLM that inspects the user's request plus the "tool signatures" to generate a DAG (Directed Acyclic Graph) describing the execution sequence.</p>
+</li>
+<li>
+<p><strong>Executor</strong>: Runs each node in topological order (or parallel if no dependencies).</p>
+</li>
+<li>
+<p><strong>Synthesis</strong>: After all nodes are complete, merges the intermediate results into a final answer.</p>
+</li>
+</ol>
+<p>### <strong>4.5.3. Class: <code>LLMCompilerAgent</code></strong></p>
+<p># patterns/llm_compiler_agent.py</p>
+<p>from typing import Any, Dict</p>
+<p>from agent_patterns.core.base_agent import BaseAgent</p>
+<p>from langgraph import StateGraph</p>
+<p>class LLMCompilerAgent(BaseAgent):</p>
+<div class="highlight"><pre><span></span><code>def build_graph(self) \-\&gt; None:
+
+    sg \= StateGraph()
+
+    \# We&#39;ll define a simplified approach:
+
+    \# 1\) planner_generate_graph \-\&gt; 2\) executor_dispatch
+
+    \# \-\&gt; 3\) check_if_done \-\&gt; 4\) synthesize_result
+
+    \# \-\&gt; loop back to executor_dispatch if not done.
+
+    sg.add_node(&quot;planner_generate_graph&quot;, func=self.\_planner_generate_graph)
+
+    sg.add_node(&quot;executor_dispatch&quot;, func=self.\_executor_dispatch)
+
+    sg.add_node(&quot;check_completion&quot;, func=self.\_check_completion)
+
+    sg.add_node(&quot;synthesize_result&quot;, func=self.\_synthesize_result)
+
+    sg.add_edge(&quot;planner_generate_graph&quot;, &quot;executor_dispatch&quot;)
+
+    sg.add_edge(&quot;executor_dispatch&quot;, &quot;check_completion&quot;)
+
+    sg.add_edge(&quot;check_completion&quot;, &quot;executor_dispatch&quot;, condition=lambda s: not s\[&quot;graph_done&quot;\])
+
+    sg.add_edge(&quot;check_completion&quot;, &quot;synthesize_result&quot;, condition=lambda s: s\[&quot;graph_done&quot;\])
+
+    self.graph \= sg.compile()
+
+def run(self, input_data: Any) \-\&gt; Any:
+
+    state \= {
+
+        &quot;input_task&quot;: input_data,
+
+        &quot;tool_schemas&quot;: self.\_define_tool_schemas(),
+
+        &quot;execution_graph&quot;: None,       \# The DAG structure
+
+        &quot;node_results&quot;: {},
+
+        &quot;graph_done&quot;: False,
+
+        &quot;final_answer&quot;: None
+
+    }
+
+    final_state \= self.graph.run(state)
+
+    return final_state\[&quot;final_answer&quot;\]
+
+def \_define_tool_schemas(self) \-\&gt; Dict:
+
+    &quot;&quot;&quot;
+
+    Provide formal definitions (JSON schemas, parameter types, etc.) for each tool.
+
+    The planner LLM can see these definitions to figure out node dependencies.
+
+    &quot;&quot;&quot;
+
+    \# Example: a search tool \+ calculator, each with some required inputs
+
+    return {
+
+        &quot;search_tool&quot;: {
+
+            &quot;input_params&quot;: \[&quot;query&quot;\],
+
+            &quot;output&quot;: &quot;search_results&quot;
+
+        },
+
+        &quot;calculator_tool&quot;: {
+
+            &quot;input_params&quot;: \[&quot;expression&quot;\],
+
+            &quot;output&quot;: &quot;numeric_result&quot;
+
+        }
+
+    }
+
+def \_planner_generate_graph(self, state: Dict) \-\&gt; Dict:
+
+    &quot;&quot;&quot;
+
+    Calls an LLM to produce a plan or DAG (like a JSON specifying the needed tools,
+
+    the order, and any dependencies).
+
+    &quot;&quot;&quot;
+
+    planner_llm \= self.\_get_llm(&quot;thinking&quot;)
+
+    \# plan_json \= planner_llm.predict( ... )
+
+    \# parse as Python structure
+
+    \# For demonstration:
+
+    example_graph \= {
+
+        &quot;nodes&quot;: \[
+
+            {&quot;id&quot;: &quot;node1&quot;, &quot;tool&quot;: &quot;search_tool&quot;, &quot;depends_on&quot;: \[\], &quot;args&quot;: {&quot;query&quot;: &quot;some query&quot;}},
+
+            {&quot;id&quot;: &quot;node2&quot;, &quot;tool&quot;: &quot;calculator_tool&quot;, &quot;depends_on&quot;: \[&quot;node1&quot;\], &quot;args&quot;: {&quot;expression&quot;: &quot;2+2&quot;}}
+
+        \]
+
+    }
+
+    state\[&quot;execution_graph&quot;\] \= example_graph
+
+    return state
+
+def \_executor_dispatch(self, state: Dict) \-\&gt; Dict:
+
+    &quot;&quot;&quot;
+
+    Look for any nodes whose dependencies are satisfied and haven&#39;t been run yet.
+
+    Execute them in parallel or one by one, storing results in node_results.
+
+    &quot;&quot;&quot;
+
+    graph \= state\[&quot;execution_graph&quot;\]
+
+    node_results \= state\[&quot;node_results&quot;\]
+
+    for node in graph\[&quot;nodes&quot;\]:
+
+        node_id \= node\[&quot;id&quot;\]
+
+        if node_id in node_results:
+
+            continue  \# already executed
+
+        \# check dependencies
+
+        if all(dep in node_results for dep in node\[&quot;depends_on&quot;\]):
+
+            \# we can execute this node
+
+            res \= self.\_execute_tool(node\[&quot;tool&quot;\], node\[&quot;args&quot;\])
+
+            node_results\[node_id\] \= res
+
+    return state
+
+def \_check_completion(self, state: Dict) \-\&gt; Dict:
+
+    graph \= state\[&quot;execution_graph&quot;\]
+
+    node_results \= state\[&quot;node_results&quot;\]
+
+    all_ids \= \[n\[&quot;id&quot;\] for n in graph\[&quot;nodes&quot;\]\]
+
+    \# If we&#39;ve computed results for all nodes, we are done
+
+    state\[&quot;graph_done&quot;\] \= all(id_ in node_results for id_ in all_ids)
+
+    return state
+
+def \_synthesize_result(self, state: Dict) \-\&gt; Dict:
+
+    &quot;&quot;&quot;
+
+    Combine the final node outputs into a human-readable or LLM-based answer.
+
+    &quot;&quot;&quot;
+
+    \# E.g., we can ask an LLM to produce a final summary:
+
+    summary_llm \= self.\_get_llm(&quot;documentation&quot;)
+
+    \# final_answer \= summary_llm.predict(...)
+
+    final_answer \= &quot;Final result compiled from node outputs.&quot;
+
+    state\[&quot;final_answer&quot;\] \= final_answer
+
+    return state
+
+def \_execute_tool(self, tool_name: str, args: Dict) \-\&gt; Any:
+
+    &quot;&quot;&quot;
+
+    Actually run the named tool. Could be direct Python or an API call.
+
+    &quot;&quot;&quot;
+
+    \# ...
+
+    return f&quot;Mock result of {tool_name} with {args}&quot;
+</code></pre></div>
+<p><strong>Builder Tips:</strong></p>
+<ul>
+<li>
+<p><strong>Tool Schemas</strong>: Provide enough detail so the planner LLM can figure out the dependency graph.</p>
+</li>
+<li>
+<p><strong>Parallelization</strong>: For real concurrency, consider LangGraph's parallel node support or an async approach.</p>
+</li>
+<li>
+<p><strong>Graph Representation</strong>: A typical structure is <code>{"nodes": [ {id, tool, depends_on, args}, ... ]}</code>.</p>
+</li>
+</ul>
+<hr />
+<p>## <strong>4.6. REWOO (Reason Without Observation / Worker-Solver) Pattern</strong></p>
+<p>### <strong>4.6.1. Overview</strong></p>
+<p><strong>Goal:</strong> Separate the "thinking" LLM (the Worker) from the actual tool-execution step (the Solver). The Worker plans out calls and placeholders for results <em>without</em> seeing their real outputs initially; then the Solver (often a cheaper or specialized model, or direct code) executes them. Finally, the Worker integrates the actual results back in a final pass.</p>
+<p>This can reduce cost or latency if the main LLM is expensive—because you can run multiple Solver calls in parallel, only calling the expensive Worker again once all results are ready.</p>
+<h3 id="462-class-rewooagent"><strong>4.6.2. Class: <code>REWOOAgent</code></strong></h3>
+<p># patterns/rewoo_agent.py</p>
+<p>from typing import Any, Dict, List</p>
+<p>from agent_patterns.core.base_agent import BaseAgent</p>
+<p>from langgraph import StateGraph</p>
+<p>class REWOOAgent(BaseAgent):</p>
+<div class="highlight"><pre><span></span><code>def build_graph(self) \-\&gt; None:
+
+    sg \= StateGraph()
+
+
+
+    \# 1\) worker_plan \-\&gt; 2\) dispatch_to_solvers \-\&gt; 3\) solver_execute (parallel or batch)
+
+    \# 4\) collect_solver_results \-\&gt; 5\) worker_integrate \-\&gt; final
+
+    sg.add_node(&quot;worker_plan&quot;, func=self.\_worker_plan)
+
+    sg.add_node(&quot;dispatch_to_solvers&quot;, func=self.\_dispatch_to_solvers)
+
+    sg.add_node(&quot;solver_execute&quot;, func=self.\_solver_execute)    \# could also be multiple parallel nodes
+
+    sg.add_node(&quot;collect_solver_results&quot;, func=self.\_collect_solver_results)
+
+    sg.add_node(&quot;worker_integrate&quot;, func=self.\_worker_integrate)
+
+    sg.add_node(&quot;final_output&quot;, func=lambda s: s)
+
+    sg.add_edge(&quot;worker_plan&quot;, &quot;dispatch_to_solvers&quot;)
+
+    sg.add_edge(&quot;dispatch_to_solvers&quot;, &quot;solver_execute&quot;)
+
+    sg.add_edge(&quot;solver_execute&quot;, &quot;collect_solver_results&quot;)
+
+    sg.add_edge(&quot;collect_solver_results&quot;, &quot;worker_integrate&quot;)
+
+    sg.add_edge(&quot;worker_integrate&quot;, &quot;final_output&quot;)
+
+    self.graph \= sg.compile()
+
+def run(self, input_data: Any) \-\&gt; Any:
+
+    state \= {
+
+        &quot;input_task&quot;: input_data,
+
+        &quot;worker_plan_template&quot;: &quot;&quot;,    \# e.g. &quot;Find CEO \-\&gt; {ceo}, also get Stock \-\&gt; {price}&quot;
+
+        &quot;solver_requests&quot;: \[\],         \# list of tool calls
+
+        &quot;solver_results&quot;: {},          \# mapping placeholders \-\&gt; real data
+
+        &quot;final_answer&quot;: None
+
+    }
+
+    final_state \= self.graph.run(state)
+
+    return final_state\[&quot;final_answer&quot;\]
+
+def \_worker_plan(self, state: Dict) \-\&gt; Dict:
+
+    &quot;&quot;&quot;
+
+    The &#39;thinking&#39; LLM: produce a plan with placeholders for solver outputs.
+
+    &quot;&quot;&quot;
+
+    thinking_llm \= self.\_get_llm(&quot;thinking&quot;)
+
+    \# Example:
+
+    \# plan_template \= thinking_llm.predict(&quot;Given the user request, lay out the steps
+
+    \#   with placeholders for each solver call result...&quot;)
+
+    plan_template \= &quot;Find CEO \-\&gt; {ceo_name}; Check stock \-\&gt; {stock_price}&quot;
+
+    solver_requests \= \[
+
+        {&quot;placeholder&quot;: &quot;ceo_name&quot;, &quot;tool&quot;: &quot;search_tool&quot;, &quot;params&quot;: {&quot;query&quot;: &quot;CEO of Company X&quot;}},
+
+        {&quot;placeholder&quot;: &quot;stock_price&quot;, &quot;tool&quot;: &quot;stock_api_tool&quot;, &quot;params&quot;: {&quot;symbol&quot;: &quot;COMPX&quot;}}
+
+    \]
+
+    state\[&quot;worker_plan_template&quot;\] \= plan_template
+
+    state\[&quot;solver_requests&quot;\] \= solver_requests
+
+    return state
+
+def \_dispatch_to_solvers(self, state: Dict) \-\&gt; Dict:
+
+    &quot;&quot;&quot;
+
+    Possibly break solver_requests into parallel tasks. We&#39;ll keep it simple.
+
+    &quot;&quot;&quot;
+
+    return state
+
+def \_solver_execute(self, state: Dict) \-\&gt; Dict:
+
+    &quot;&quot;&quot;
+
+    Let each solver_request be executed, presumably by a cheaper model or direct code.
+
+    &quot;&quot;&quot;
+
+    for req in state\[&quot;solver_requests&quot;\]:
+
+        placeholder \= req\[&quot;placeholder&quot;\]
+
+        tool_name \= req\[&quot;tool&quot;\]
+
+        params \= req\[&quot;params&quot;\]
+
+        \# call the solver
+
+        result \= self.\_call_solver(tool_name, params)
+
+        state\[&quot;solver_results&quot;\]\[placeholder\] \= result
+
+    return state
+
+def \_collect_solver_results(self, state: Dict) \-\&gt; Dict:
+
+    &quot;&quot;&quot;
+
+    If parallel tasks were used, gather them here. We&#39;re just storing them in solver_results.
+
+    &quot;&quot;&quot;
+
+    return state
+
+def \_worker_integrate(self, state: Dict) \-\&gt; Dict:
+
+    &quot;&quot;&quot;
+
+    The Worker LLM now sees the actual solver results inserted into the original plan template.
+
+    &quot;&quot;&quot;
+
+    integration_llm \= self.\_get_llm(&quot;thinking&quot;)
+
+    plan_template \= state\[&quot;worker_plan_template&quot;\]
+
+    solver_data \= state\[&quot;solver_results&quot;\]
+
+    \# e.g. &quot;Find CEO \-\&gt; {ceo_name}; ...&quot; \-\&gt; &quot;Find CEO \-\&gt; Jane Doe; ...&quot;
+
+    \# Then feed that to the LLM for final phrasing or formatting
+
+    filled_in_text \= plan_template
+
+    for placeholder, val in solver_data.items():
+
+        filled_in_text \= filled_in_text.replace(f&quot;{{{placeholder}}}&quot;, str(val))
+
+    \# final_answer \= integration_llm.predict(f&quot;Integrate the following filled plan:\\n {filled_in_text}&quot;)
+
+    final_answer \= f&quot;Final integrated result:\\n{filled_in_text}&quot;
+
+    state\[&quot;final_answer&quot;\] \= final_answer
+
+    return state
+
+def \_call_solver(self, tool_name: str, params: Dict):
+
+    &quot;&quot;&quot;
+
+    Actually run the solver step. For example, direct Python calls or a smaller LLM.
+
+    &quot;&quot;&quot;
+
+    return f&quot;Mock result for {tool_name} with {params}&quot;
+</code></pre></div>
+<p><strong>Builder Tips:</strong></p>
+<ol>
+<li>
+<p><strong>Worker vs. Solver</strong>:</p>
+</li>
+<li>
+<p>The Worker uses a more capable (and expensive) LLM to <em>plan</em> and <em>integrate</em>.</p>
+</li>
+<li>
+<p>The Solver might be a cheaper model or direct code.</p>
+</li>
+<li>
+<p><strong>Placeholders</strong>: Represent them as <code>{ceo_name}</code>, etc. The Worker never sees real data until the final integration step.</p>
+</li>
+<li>
+<p><strong>Parallel Execution</strong>: You can spin off a parallel sub-graph for each solver request if desired.</p>
+</li>
+</ol>
+<hr />
+<p>## <strong>4.7. LATS (Language Agent Tree Search) Pattern</strong></p>
+<p>### <strong>4.7.1. Overview</strong></p>
+<p><strong>Goal:</strong> Perform a <strong>tree search</strong> over possible reasoning paths. This is inspired by techniques like Monte Carlo Tree Search (MCTS). Instead of following a single ReAct chain, the agent can <strong>expand</strong> multiple possible next steps, <strong>evaluate</strong> them, and use <strong>backpropagation</strong> of scores to select the best path.</p>
+<h3 id="472-class-latsagent"><strong>4.7.2. Class: <code>LATSAgent</code></strong></h3>
+<p># patterns/lats_agent.py</p>
+<p>from typing import Any, Dict</p>
+<p>from agent_patterns.core.base_agent import BaseAgent</p>
+<p>from langgraph import StateGraph</p>
+<p>class LATSAgent(BaseAgent):</p>
+<div class="highlight"><pre><span></span><code>def build_graph(self) \-\&gt; None:
+
+    sg \= StateGraph()
+
+
+
+    \# Minimal skeleton:
+
+    \# 1\) select_node \-\&gt; 2\) expand_node \-\&gt; 3\) evaluate_node \-\&gt; 4\) backpropagate
+
+    \#    \-\&gt; check_search_budget \-\&gt; loop or choose_best_path \-\&gt; generate_final_output
+
+    sg.add_node(&quot;select_node&quot;, func=self.\_select_node)
+
+    sg.add_node(&quot;expand_node&quot;, func=self.\_expand_node)
+
+    sg.add_node(&quot;evaluate_node&quot;, func=self.\_evaluate_node)
+
+    sg.add_node(&quot;backpropagate&quot;, func=self.\_backpropagate)
+
+    sg.add_node(&quot;check_budget&quot;, func=self.\_check_budget)
+
+    sg.add_node(&quot;choose_best_path&quot;, func=self.\_choose_best_path)
+
+    sg.add_node(&quot;generate_final_output&quot;, func=self.\_generate_final_output)
+
+    sg.add_edge(&quot;select_node&quot;, &quot;expand_node&quot;)
+
+    sg.add_edge(&quot;expand_node&quot;, &quot;evaluate_node&quot;)
+
+    sg.add_edge(&quot;evaluate_node&quot;, &quot;backpropagate&quot;)
+
+    sg.add_edge(&quot;backpropagate&quot;, &quot;check_budget&quot;)
+
+    sg.add_edge(&quot;check_budget&quot;, &quot;select_node&quot;, condition=lambda s: not s\[&quot;budget_exhausted&quot;\])
+
+    sg.add_edge(&quot;check_budget&quot;, &quot;choose_best_path&quot;, condition=lambda s: s\[&quot;budget_exhausted&quot;\])
+
+    sg.add_edge(&quot;choose_best_path&quot;, &quot;generate_final_output&quot;)
+
+    self.graph \= sg.compile()
+
+def run(self, input_data: Any) \-\&gt; Any:
+
+    state \= {
+
+        &quot;input_task&quot;: input_data,
+
+        &quot;search_tree&quot;: self.\_init_tree(input_data),
+
+        &quot;budget_exhausted&quot;: False,
+
+        &quot;iterations&quot;: 0,
+
+        &quot;max_iterations&quot;: 10,
+
+        &quot;best_path&quot;: None,
+
+        &quot;final_answer&quot;: None
+
+    }
+
+    final_state \= self.graph.run(state)
+
+    return final_state\[&quot;final_answer&quot;\]
+
+def \_init_tree(self, input_data):
+
+    &quot;&quot;&quot;Create the root of the search tree with the initial problem state.&quot;&quot;&quot;
+
+    return {
+
+        &quot;root&quot;: {
+
+            &quot;state_description&quot;: f&quot;Start for {input_data}&quot;,
+
+            &quot;children&quot;: \[\],
+
+            &quot;visits&quot;: 0,
+
+            &quot;value&quot;: 0.0
+
+        }
+
+    }
+
+def \_select_node(self, state: Dict) \-\&gt; Dict:
+
+    &quot;&quot;&quot;
+
+    Picks a promising node to expand based on a policy (e.g., UCB).
+
+    &quot;&quot;&quot;
+
+    \# ...
+
+    state\[&quot;current_node&quot;\] \= &quot;root&quot;  \# or some selection logic
+
+    return state
+
+def \_expand_node(self, state: Dict) \-\&gt; Dict:
+
+    &quot;&quot;&quot;
+
+    Use an LLM to propose next steps (child nodes).
+
+    &quot;&quot;&quot;
+
+    \# ...
+
+    \# children \= LLM call to generate possible next actions
+
+    \# attach them to the selected node
+
+    return state
+
+def \_evaluate_node(self, state: Dict) \-\&gt; Dict:
+
+    &quot;&quot;&quot;
+
+    For each newly expanded node, run an LLM or heuristic to estimate a &#39;value&#39;
+
+    indicating how promising that path is.
+
+    &quot;&quot;&quot;
+
+    \# ...
+
+    return state
+
+def \_backpropagate(self, state: Dict) \-\&gt; Dict:
+
+    &quot;&quot;&quot;
+
+    Update ancestors&#39; values and visits.
+
+    &quot;&quot;&quot;
+
+    \# ...
+
+    return state
+
+def \_check_budget(self, state: Dict) \-\&gt; Dict:
+
+    &quot;&quot;&quot;
+
+    If we&#39;ve done enough iterations, mark budget_exhausted.
+
+    &quot;&quot;&quot;
+
+    state\[&quot;iterations&quot;\] \+= 1
+
+    if state\[&quot;iterations&quot;\] \&gt;= state\[&quot;max_iterations&quot;\]:
+
+        state\[&quot;budget_exhausted&quot;\] \= True
+
+    return state
+
+def \_choose_best_path(self, state: Dict) \-\&gt; Dict:
+
+    &quot;&quot;&quot;
+
+    From the root, pick the child with the highest average value or visits, etc.
+
+    &quot;&quot;&quot;
+
+    state\[&quot;best_path&quot;\] \= &quot;some best path&quot;
+
+    return state
+
+def \_generate_final_output(self, state: Dict) \-\&gt; Dict:
+
+    &quot;&quot;&quot;
+
+    Possibly run a final LLM to write up the chosen path or final solution.
+
+    &quot;&quot;&quot;
+
+    final_llm \= self.\_get_llm(&quot;thinking&quot;)
+
+    \# final_text \= final_llm.predict(...)
+
+    final_text \= f&quot;Final answer based on best path: {state\[&#39;best_path&#39;\]}&quot;
+
+    state\[&quot;final_answer&quot;\] \= final_text
+
+    return state
+</code></pre></div>
+<p><strong>Builder Tips:</strong></p>
+<ul>
+<li>
+<p><strong>Search Tree Representation</strong>: Usually a nested dict or custom Node class with fields like <code>children</code>, <code>value</code>, <code>visits</code>, etc.</p>
+</li>
+<li>
+<p><strong>LLM Usage</strong>:</p>
+</li>
+<li>
+<p><code>_expand_node</code> might call an LLM to propose 2–5 possible next steps (like partial solutions).</p>
+</li>
+<li>
+<p><code>_evaluate_node</code> might call a different "evaluation" or "reflection" LLM to score each child's outcome.</p>
+</li>
+<li>
+<p><strong>Iteration Limit</strong>: <code>max_iterations</code> or a time budget.</p>
+</li>
+<li>
+<p><strong>Backpropagation</strong>: Summarize child values up to the parent.</p>
+</li>
+</ul>
+<hr />
+<p>## <strong>4.8. Self-Discovery Pattern</strong></p>
+<p>### <strong>4.8.1. Overview</strong></p>
+<p><strong>Goal:</strong> Let the agent <em>dynamically create or select "reasoning modules"</em> for the current task. It first identifies which known problem-solving heuristics or "modules" apply, then <strong>adapts</strong> them to the specifics of the query, and <strong>executes</strong> them in a structured manner. Think of it as an agent that "pulls in relevant internal methods" (some big library of ways it's learned to reason) before diving in.</p>
+<h3 id="482-class-selfdiscoveryagent"><strong>4.8.2. Class: <code>SelfDiscoveryAgent</code></strong></h3>
+<p># patterns/self_discovery_agent.py</p>
+<p>from typing import Any, Dict, List</p>
+<p>from agent_patterns.core.base_agent import BaseAgent</p>
+<p>from langgraph import StateGraph</p>
+<p>class SelfDiscoveryAgent(BaseAgent):</p>
+<div class="highlight"><pre><span></span><code>def build_graph(self) \-\&gt; None:
+
+    sg \= StateGraph()
+
+    \# 1\) discover_or_select_modules \-\&gt; 2\) adapt_modules \-\&gt; 3\) plan_reasoning_steps
+
+    \# \-\&gt; 4\) execute_reasoning_step (loop for each step) \-\&gt; final
+
+    sg.add_node(&quot;discover_or_select_modules&quot;, func=self.\_discover_or_select_modules)
+
+    sg.add_node(&quot;adapt_modules&quot;, func=self.\_adapt_modules)
+
+    sg.add_node(&quot;plan_reasoning_steps&quot;, func=self.\_plan_reasoning_steps)
+
+    sg.add_node(&quot;execute_reasoning_step&quot;, func=self.\_execute_reasoning_step)
+
+    sg.add_node(&quot;check_completion&quot;, func=self.\_check_completion)
+
+    sg.add_node(&quot;final_output&quot;, func=lambda s: s)
+
+    \# Linear up to planning
+
+    sg.add_edge(&quot;discover_or_select_modules&quot;, &quot;adapt_modules&quot;)
+
+    sg.add_edge(&quot;adapt_modules&quot;, &quot;plan_reasoning_steps&quot;)
+
+
+
+    \# Now, for each step in the plan, call execute_reasoning_step \-\&gt; check_completion
+
+    sg.add_edge(&quot;plan_reasoning_steps&quot;, &quot;execute_reasoning_step&quot;)
+
+    sg.add_edge(&quot;execute_reasoning_step&quot;, &quot;check_completion&quot;)
+
+    \# If not done, loop back
+
+    sg.add_edge(&quot;check_completion&quot;, &quot;execute_reasoning_step&quot;, condition=lambda s: not s\[&quot;done_with_plan&quot;\])
+
+    sg.add_edge(&quot;check_completion&quot;, &quot;final_output&quot;, condition=lambda s: s\[&quot;done_with_plan&quot;\])
+
+    self.graph \= sg.compile()
+
+def run(self, input_data: Any) \-\&gt; Any:
+
+    state \= {
+
+        &quot;input_task&quot;: input_data,
+
+        &quot;available_modules&quot;: self.\_load_module_library(),
+
+        &quot;selected_modules&quot;: \[\],
+
+        &quot;adapted_modules&quot;: \[\],
+
+        &quot;reasoning_plan&quot;: \[\],
+
+        &quot;plan_index&quot;: 0,
+
+        &quot;done_with_plan&quot;: False,
+
+        &quot;final_answer&quot;: None
+
+    }
+
+    final_state \= self.graph.run(state)
+
+    return final_state\[&quot;final_answer&quot;\]
+
+def \_load_module_library(self) \-\&gt; List\[str\]:
+
+    &quot;&quot;&quot;
+
+    Potentially a big library of reasoning heuristics or re-usable code fragments.
+
+    In a real system, these might be external knowledge or local &#39;playbooks.&#39;
+
+    &quot;&quot;&quot;
+
+    return \[&quot;moduleA&quot;, &quot;moduleB&quot;, &quot;moduleC&quot;\]
+
+def \_discover_or_select_modules(self, state: Dict) \-\&gt; Dict:
+
+    &quot;&quot;&quot;
+
+    The agent picks relevant modules from the library for this task, possibly via an LLM.
+
+    &quot;&quot;&quot;
+
+    \# ...
+
+    state\[&quot;selected_modules&quot;\] \= \[&quot;moduleA&quot;\]
+
+    return state
+
+def \_adapt_modules(self, state: Dict) \-\&gt; Dict:
+
+    &quot;&quot;&quot;
+
+    Tailor the selected modules to the specifics of the input task, e.g. rewriting them
+
+    or customizing them with domain knowledge.
+
+    &quot;&quot;&quot;
+
+    \# ...
+
+    state\[&quot;adapted_modules&quot;\] \= \[&quot;moduleA_for_this_task&quot;\]
+
+    return state
+
+def \_plan_reasoning_steps(self, state: Dict) \-\&gt; Dict:
+
+    &quot;&quot;&quot;
+
+    Create a step-by-step plan applying the adapted modules in a certain order.
+
+    &quot;&quot;&quot;
+
+    \# ...
+
+    state\[&quot;reasoning_plan&quot;\] \= \[
+
+        {&quot;description&quot;: &quot;Apply moduleA_for_this_task to parse the input&quot;},
+
+        {&quot;description&quot;: &quot;Analyze the partial result for solution&quot;}
+
+    \]
+
+    state\[&quot;plan_index&quot;\] \= 0
+
+    return state
+
+def \_execute_reasoning_step(self, state: Dict) \-\&gt; Dict:
+
+    plan \= state\[&quot;reasoning_plan&quot;\]
+
+    i \= state\[&quot;plan_index&quot;\]
+
+    if i \&lt; len(plan):
+
+        step_desc \= plan\[i\]\[&quot;description&quot;\]
+
+        \# Possibly call an LLM or function representing the adapted module
+
+        \# e.g.: step_output \= self.\_call_module(step_desc)
+
+        step_output \= f&quot;Executed step: {step_desc}&quot;
+
+        state\[&quot;plan_index&quot;\] \+= 1
+
+        \# optional: store partial results
+
+    return state
+
+def \_check_completion(self, state: Dict) \-\&gt; Dict:
+
+    if state\[&quot;plan_index&quot;\] \&gt;= len(state\[&quot;reasoning_plan&quot;\]):
+
+        state\[&quot;done_with_plan&quot;\] \= True
+
+        state\[&quot;final_answer&quot;\] \= &quot;All modules applied, final result here\!&quot;
+
+    else:
+
+        state\[&quot;done_with_plan&quot;\] \= False
+
+    return state
+</code></pre></div>
+<p><strong>Builder Tips:</strong></p>
+<ul>
+<li>
+<p><strong>Module Library</strong>: Could be a real database or a file with multiple "functions" or heuristics.</p>
+</li>
+<li>
+<p><strong>Selection</strong>: Use a specialized LLM prompt: "Given the user's goal, pick the best modules from this list."</p>
+</li>
+<li>
+<p><strong>Adaptation</strong>: Another LLM prompt that modifies or extends the selected module for the user's domain.</p>
+</li>
+<li>
+<p><strong>Plan</strong>: Then proceed like a "Plan &amp; Solve," but specifically using your newly discovered/adapted modules.</p>
+</li>
+</ul>
+<hr />
+<p>## <strong>4.9. STORM (Synthesis of Topic Outlines Through Retrieval and Multi-perspective Questioning)</strong></p>
+<p>### <strong>4.9.1. Overview</strong></p>
+<p><strong>Goal:</strong> Produce long-form, multi-perspective articles or reports on a topic by systematically:</p>
+<ol>
+<li>
+<p>Generating a <strong>topic outline</strong>.</p>
+</li>
+<li>
+<p>Creating <strong>questions</strong> from multiple viewpoints or "personas" (scientist, policymaker, etc.).</p>
+</li>
+<li>
+<p><strong>Retrieving</strong> relevant info for each question (via tools or a knowledge base).</p>
+</li>
+<li>
+<p><strong>Synthesizing</strong> all retrieved data into a structured output.</p>
+</li>
+</ol>
+<p>### <strong>4.9.2. Class: <code>STORMAgent</code></strong></p>
+<p># patterns/storm_agent.py</p>
+<p>from typing import Any, Dict, List</p>
+<p>from agent_patterns.core.base_agent import BaseAgent</p>
+<p>from langgraph import StateGraph</p>
+<p>class STORMAgent(BaseAgent):</p>
+<div class="highlight"><pre><span></span><code>def build_graph(self) \-\&gt; None:
+
+    sg \= StateGraph()
+
+
+
+    \# Stage 1: (outline) \-\&gt; (generate_perspectives) \-\&gt; (generate_questions)
+
+    sg.add_node(&quot;generate_outline&quot;, func=self.\_generate_outline)
+
+    sg.add_node(&quot;generate_perspectives&quot;, func=self.\_generate_perspectives)
+
+    sg.add_node(&quot;generate_questions&quot;, func=self.\_generate_questions)
+
+    \# Stage 2: (dispatch_queries) \-\&gt; (execute_search) \-\&gt; (collect_search_results)
+
+    sg.add_node(&quot;dispatch_queries&quot;, func=self.\_dispatch_queries)
+
+    sg.add_node(&quot;execute_search&quot;, func=self.\_execute_search)
+
+    sg.add_node(&quot;collect_search_results&quot;, func=self.\_collect_search_results)
+
+    \# Stage 3: (synthesize_section) \-\&gt; possibly loop over sections \-\&gt; (compile_report)
+
+    sg.add_node(&quot;synthesize_sections&quot;, func=self.\_synthesize_sections)
+
+    sg.add_node(&quot;compile_report&quot;, func=self.\_compile_report)
+
+    sg.add_node(&quot;final_output&quot;, func=lambda s: s)
+
+    \# Edges for stage 1
+
+    sg.add_edge(&quot;generate_outline&quot;, &quot;generate_perspectives&quot;)
+
+    sg.add_edge(&quot;generate_perspectives&quot;, &quot;generate_questions&quot;)
+
+    \# Edges for stage 2
+
+    sg.add_edge(&quot;generate_questions&quot;, &quot;dispatch_queries&quot;)
+
+    sg.add_edge(&quot;dispatch_queries&quot;, &quot;execute_search&quot;)
+
+    sg.add_edge(&quot;execute_search&quot;, &quot;collect_search_results&quot;)
+
+    \# Edges for stage 3
+
+    sg.add_edge(&quot;collect_search_results&quot;, &quot;synthesize_sections&quot;)
+
+    sg.add_edge(&quot;synthesize_sections&quot;, &quot;compile_report&quot;)
+
+    sg.add_edge(&quot;compile_report&quot;, &quot;final_output&quot;)
+
+    self.graph \= sg.compile()
+
+def run(self, input_data: Any) \-\&gt; Any:
+
+    state \= {
+
+        &quot;topic&quot;: input_data,
+
+        &quot;outline&quot;: {},
+
+        &quot;perspectives&quot;: \[\],
+
+        &quot;questions&quot;: {},
+
+        &quot;search_results&quot;: {},
+
+        &quot;synthesized_sections&quot;: {},
+
+        &quot;final_report&quot;: None
+
+    }
+
+    final_state \= self.graph.run(state)
+
+    return final_state\[&quot;final_report&quot;\]
+
+def \_generate_outline(self, state: Dict) \-\&gt; Dict:
+
+    &quot;&quot;&quot;
+
+    Create a hierarchical outline (sections/sub-sections) for the topic.
+
+    Typically uses a planning or documentation LLM.
+
+    &quot;&quot;&quot;
+
+    \# ...
+
+    state\[&quot;outline&quot;\] \= {
+
+        &quot;Introduction&quot;: \[\],
+
+        &quot;MainBody&quot;: \[&quot;Subtopic1&quot;, &quot;Subtopic2&quot;\],
+
+        &quot;Conclusion&quot;: \[\]
+
+    }
+
+    return state
+
+def \_generate_perspectives(self, state: Dict) \-\&gt; Dict:
+
+    &quot;&quot;&quot;
+
+    Identify relevant viewpoints/personas from which to question the topic (e.g.
+
+    &#39;scientist&#39;, &#39;economist&#39;, &#39;policymaker&#39;).
+
+    &quot;&quot;&quot;
+
+    \# ...
+
+    state\[&quot;perspectives&quot;\] \= \[&quot;scientist&quot;, &quot;policymaker&quot;\]
+
+    return state
+
+def \_generate_questions(self, state: Dict) \-\&gt; Dict:
+
+    &quot;&quot;&quot;
+
+    For each outline section and perspective, produce a list of questions to research.
+
+    &quot;&quot;&quot;
+
+    questions_dict \= {}
+
+    for section in state\[&quot;outline&quot;\]:
+
+        questions_dict\[section\] \= {}
+
+        for p in state\[&quot;perspectives&quot;\]:
+
+            \# e.g. LLM call to generate relevant Qs
+
+            questions_dict\[section\]\[p\] \= \[f&quot;Key {p} question about {section}&quot;\]
+
+    state\[&quot;questions&quot;\] \= questions_dict
+
+    return state
+
+def \_dispatch_queries(self, state: Dict) \-\&gt; Dict:
+
+    &quot;&quot;&quot;
+
+    Possibly prepare parallel queries for each question.
+
+    &quot;&quot;&quot;
+
+    \# ...
+
+    return state
+
+def \_execute_search(self, state: Dict) \-\&gt; Dict:
+
+    &quot;&quot;&quot;
+
+    Execute all queries, presumably via a search or retrieval tool.
+
+    Results stored in search_results\[section\]\[perspective\].
+
+    &quot;&quot;&quot;
+
+    results \= {}
+
+    for section, pers_map in state\[&quot;questions&quot;\].items():
+
+        results\[section\] \= {}
+
+        for p, q_list in pers_map.items():
+
+            \# call the knowledge base, gather text
+
+            results\[section\]\[p\] \= \[f&quot;Mock retrieved info for {q}&quot; for q in q_list\]
+
+    state\[&quot;search_results&quot;\] \= results
+
+    return state
+
+def \_collect_search_results(self, state: Dict) \-\&gt; Dict:
+
+    &quot;&quot;&quot;
+
+    Summarize or store them (if needed). Right now we just keep them in state.
+
+    &quot;&quot;&quot;
+
+    return state
+
+def \_synthesize_sections(self, state: Dict) \-\&gt; Dict:
+
+    &quot;&quot;&quot;
+
+    For each outline section, merge all relevant info from different perspectives
+
+    into a cohesive draft.
+
+    &quot;&quot;&quot;
+
+    synthesized \= {}
+
+    for section in state\[&quot;outline&quot;\]:
+
+        \# gather the search results for that section from all perspectives
+
+        \# feed them to a &#39;documentation&#39; LLM to produce a combined text
+
+        \# ...
+
+        synthesized\[section\] \= f&quot;Synthesized content for {section} from all perspective data.&quot;
+
+    state\[&quot;synthesized_sections&quot;\] \= synthesized
+
+    return state
+
+def \_compile_report(self, state: Dict) \-\&gt; Dict:
+
+    &quot;&quot;&quot;
+
+    Combine section texts into a final coherent report.
+
+    &quot;&quot;&quot;
+
+    final_text \= \[\]
+
+    for section in \[&quot;Introduction&quot;, &quot;MainBody&quot;, &quot;Conclusion&quot;\]:
+
+        sec_content \= state\[&quot;synthesized_sections&quot;\].get(section, &quot;&quot;)
+
+        final_text.append(f&quot;{section}:\\n{sec_content}&quot;)
+
+    state\[&quot;final_report&quot;\] \= &quot;\\n\\n&quot;.join(final_text)
+
+    return state
+</code></pre></div>
+<p><strong>Builder Tips:</strong></p>
+<ol>
+<li>
+<p><strong>Outline &amp; Perspectives</strong>: Provide separate prompts to generate a structured outline and the relevant expert viewpoints ("personas").</p>
+</li>
+<li>
+<p><strong>Multi-Question Generation</strong>: A for-loop approach over (section × perspective). The LLM can produce targeted queries for each vantage point.</p>
+</li>
+<li>
+<p><strong>Retrieval</strong>: Any search or knowledge-base calls happen in <code>_execute_search</code>. Could be parallel tasks in LangGraph if desired.</p>
+</li>
+<li>
+<p><strong>Synthesis</strong>: Merges the retrieved data from multiple angles, typically with a "documentation" model specialized for summarizing large text.</p>
+</li>
+<li>
+<p><strong>Customization</strong>:</p>
+</li>
+<li>
+<p>Expand the outline with sub-sections.</p>
+</li>
+<li>
+<p>For deeply technical writing, add additional reflection or re-check steps.</p>
+</li>
+</ol>
+<hr />
+<p>See <code>patterns/</code> directory for each pattern's reference implementation. The sections in this document serve as a template, ensuring consistency across patterns.</p>
+<hr />
+<h2 id="5-prompt-management"><strong>5. Prompt Management</strong></h2>
+<p>All patterns load prompt templates from the <code>prompts/</code> folder. <strong>Recommended structure</strong>:</p>
+<p>prompts/<br />
+├── ReActAgent/<br />
+│   ├── ThoughtStep/<br />
+│   │   ├── system.md<br />
+│   │   └── user.md<br />
+│   └── ...<br />
+├── ReflectionAgent/<br />
+│   ├── Generate/<br />
+│   │   ├── system.md<br />
+│   │   └── user.md<br />
+│   ├── Reflect/<br />
+│   │   ├── system.md<br />
+│   │   └── user.md<br />
+│   └── Refine/<br />
+│       ├── system.md<br />
+│       └── user.md<br />
+└── ...</p>
+<p><strong><code>_load_prompt(step_name)</code></strong> in each pattern will look for <code>system.md</code> and <code>user.md</code> in the subfolder matching <code>self.__class__.__name__/step_name</code>. This keeps prompts versioned separately from code, so you can adjust them without editing Python files.</p>
+<hr />
+<h2 id="6-environment-configuration"><strong>6. Environment Configuration</strong></h2>
+<p>We use a <code>.env</code> file for keys, model names, and provider details. Example:</p>
+<p>OPENAI_API_KEY= "your-key"<br />
+THINKING_MODEL_PROVIDER=openai<br />
+THINKING_MODEL_NAME="gpt-4-turbo"<br />
+REFLECTION_MODEL_PROVIDER=anthropic<br />
+REFLECTION_MODEL_NAME="claude-3.5"</p>
+<p><strong><code>llm_configs</code></strong> can be built by parsing <code>.env</code>:</p>
+<p>import os<br />
+from dotenv import load_dotenv</p>
+<p>load_dotenv()<br />
+llm_configs \= {<br />
+    "thinking": {<br />
+        "provider": os.getenv("THINKING_MODEL_PROVIDER"),<br />
+        "model_name": os.getenv("THINKING_MODEL_NAME"),<br />
+    },<br />
+    # ... likewise for reflection, documentation, etc.<br />
+}</p>
+<p>Then pass <code>llm_configs</code> to each pattern's constructor:</p>
+<p>my_reflection_agent \= ReflectionAgent(llm_configs=llm_configs, prompt_dir="prompts")<br />
+result \= my_reflection_agent.run("Explain quantum entanglement in simple terms.")</p>
+<hr />
+<h2 id="7-testing-example-usage"><strong>7. Testing &amp; Example Usage</strong></h2>
+<h3 id="71-example-scripts"><strong>7.1. Example Scripts</strong></h3>
+<p>Each pattern has a dedicated example script in <code>examples/</code>. For instance, <code>reflection_example.py</code> might look like:</p>
+<p># examples/reflection_example.py<br />
+import os<br />
+from dotenv import load_dotenv<br />
+from agent_patterns.patterns.reflection_agent import ReflectionAgent</p>
+<p>def main():<br />
+    load_dotenv()<br />
+    llm_configs \= {<br />
+        "documentation": {<br />
+            "provider": os.getenv("DOCUMENTATION_MODEL_PROVIDER"),<br />
+            "model_name": os.getenv("DOCUMENTATION_MODEL_NAME"),<br />
+        },<br />
+        "reflection": {<br />
+            "provider": os.getenv("REFLECTION_MODEL_PROVIDER"),<br />
+            "model_name": os.getenv("REFLECTION_MODEL_NAME"),<br />
+        }<br />
+    }</p>
+<div class="highlight"><pre><span></span><code>agent \= ReflectionAgent(llm_configs=llm_configs)  
+final_answer \= agent.run(&quot;Write a short story about a robot dog.&quot;)  
+print(final_answer)
+</code></pre></div>
+<p>if __name__ \== "__main__":<br />
+    main()</p>
+<h3 id="72-tests"><strong>7.2. Tests</strong></h3>
+<p>Under <code>tests/</code>, create unit tests ensuring each pattern handles typical and edge cases. Use mocks or stubs for LLM calls:</p>
+<p># tests/test_reflection.py<br />
+import pytest<br />
+from unittest.mock import patch<br />
+from agent_patterns.patterns.reflection_agent import ReflectionAgent</p>
+<p>def test_reflection_agent_basic():<br />
+    agent \= ReflectionAgent(llm_configs={}, prompt_dir="prompts")<br />
+    with patch.object(agent, "_get_llm", return_value=lambda x: "mock_llm_response"):<br />
+        output \= agent.run("Test input")<br />
+        assert "mock" in output  # simplistic check</p>
+<hr />
+<h2 id="8-notes-on-extensibility-best-practices"><strong>8. Notes on Extensibility &amp; Best Practices</strong></h2>
+<ol>
+<li>
+<p><strong>Externalize Tools</strong>: Patterns like ReAct rely on multiple external tools (e.g., web search, calculator). Provide a <code>ToolRegistry</code> or pass a <code>tools</code> dictionary into the agent's constructor so new tools can be added easily.</p>
+</li>
+<li>
+<p><strong>Parallel Execution</strong>: LangGraph supports parallel nodes. Use them for multi-step or multi-agent tasks if beneficial.</p>
+</li>
+<li>
+<p><strong>Prompt Tuning</strong>: Encourage domain-specific prompts. This design expects developers to refine their prompts in <code>.md</code> files.</p>
+</li>
+<li>
+<p><strong>Iteration Limits &amp; Safety</strong>: Patterns like Reflection can loop. Always define a max iteration or safe stop condition to avoid infinite loops or excessive token usage.</p>
+</li>
+<li>
+<p><strong>Logging &amp; Observability</strong>: Consider hooking into the agent's lifecycle with logs for each node (e.g., logging the LLM's output at each step). This helps debug or interpret the agent's chain-of-thought.</p>
+</li>
+</ol>
+<hr />
+<h2 id="9-how-to-create-a-new-pattern"><strong>9. How to Create a New Pattern</strong></h2>
+<ol>
+<li>
+<p><strong>Subclass</strong> either <code>BaseAgent</code> or <code>MultiAgentBase</code>.</p>
+</li>
+<li>
+<p><strong>Define <code>build_graph()</code></strong>: Create a <code>StateGraph</code>, add your nodes, transitions, and compile it.</p>
+</li>
+<li>
+<p><strong>Implement</strong> all node functions (the "steps"):</p>
+</li>
+<li>
+<p>Each step function takes and returns a <code>state: dict</code>.</p>
+</li>
+<li>
+<p>Include the logic or LLM calls needed.</p>
+</li>
+<li>
+<p><strong>Handle</strong> prompts for each step with <code>_load_prompt(step_name)</code>. Provide step-specific subfolders in <code>prompts/&lt;YourPatternClass&gt;/</code>.</p>
+</li>
+<li>
+<p><strong>Write</strong> at least one example script and unit test to demonstrate usage and confirm correctness.</p>
+</li>
+</ol>
+<p>This approach ensures <strong>all</strong> patterns follow a consistent lifecycle and are easy to pick up by new developers.</p>
+<hr />
+<h2 id="conclusion"><strong>Conclusion</strong></h2>
+<p>This updated design document aims to be a <strong>comprehensive reference</strong> for implementing and extending the <em>agent-patterns</em> library. By combining <strong>clear base abstractions</strong>, <strong>externalized prompts</strong>, <strong>detailed pattern examples</strong>, and <strong>robust environment configuration</strong>, we ensure that developers understand precisely how to <strong>code new agent patterns</strong> and <strong>customize existing ones</strong>.</p>
+<p>For questions or contributions:</p>
+<ul>
+<li>
+<p>See <a href="https://chatgpt.com/c/examples"><strong>examples/</strong></a> for usage demos.</p>
+</li>
+<li>
+<p>Consult each pattern's docstrings for detailed instructions.</p>
+</li>
+<li>
+<p>Submit issues or PRs on our GitHub repository to propose improvements or new patterns.</p>
+</li>
+</ul>
+<p><strong>Happy coding with agent-patterns!</strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.indexes", "content.code.copy", "content.code.annotate"], "search": "../assets/javascripts/workers/search.f8cc74c7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.c8b220af.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,747 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agent Memory Systems Integration Design for Agent-Patterns &mdash; agent-patterns 0.1.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=a58bc63e"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Model Context Protocol (MCP) Integration Design for Agent-Patterns" href="Agent_Tools_Design.html" />
+    <link rel="prev" title="Agent-Patterns Project: Design Document" href="Design.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            agent-patterns
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Documentation:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="guides/index.html">Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="patterns/index.html">Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Design.html"><strong>Agent-Patterns Project: Design Document</strong></a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#"><strong>Agent Memory Systems Integration Design for Agent-Patterns</strong></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview"><strong>1. Overview</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#design-goals"><strong>2. Design Goals</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#memory-types"><strong>3. Memory Types</strong></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#semantic-memory"><strong>3.1. Semantic Memory</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#episodic-memory"><strong>3.2. Episodic Memory</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#procedural-memory"><strong>3.3. Procedural Memory</strong></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#architecture"><strong>4. Architecture</strong></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#core-components"><strong>4.1 Core Components</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#key-interfaces"><strong>4.2 Key Interfaces</strong></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#basememory-abstract-base-class"><strong>BaseMemory (Abstract Base Class)</strong></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#memorypersistence-abstract-base-class"><strong>MemoryPersistence (Abstract Base Class)</strong></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#concrete-implementations"><strong>4.3 Concrete Implementations</strong></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#semanticmemory"><strong>SemanticMemory</strong></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#compositememory"><strong>CompositeMemory</strong></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#vector-store-integration"><strong>4.4 Vector Store Integration</strong></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#integration-with-agent-patterns"><strong>5. Integration with Agent Patterns</strong></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#baseagent-enhancement"><strong>5.1 BaseAgent Enhancement</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pattern-specific-enhancements"><strong>5.2 Pattern-Specific Enhancements</strong></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#reactagent-with-memory"><strong>ReActAgent with Memory</strong></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Agent_Tools_Design.html"><strong>Model Context Protocol (MCP) Integration Design for Agent-Patterns</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="Memory%20API%20Documentation.html">Memory System API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Memory%20Integration%20Tutorial.html">Memory Integration Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Tool%20Provider%20API%20Documentation.html">Tool Provider API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="MCP%20Tool%20Integration%20Tutorial.html">MCP Tool Integration Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="memory_and_mcp_integration.html">Memory and MCP Tool Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Next%20Steps.html">Next Steps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">agent-patterns</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active"><strong>Agent Memory Systems Integration Design for Agent-Patterns</strong></li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/Agent Memory Design.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="agent-memory-systems-integration-design-for-agent-patterns">
+<h1><strong>Agent Memory Systems Integration Design for Agent-Patterns</strong><a class="headerlink" href="#agent-memory-systems-integration-design-for-agent-patterns" title="Link to this heading"></a></h1>
+<p><strong>Version:</strong> 1.0<br />
+<strong>Date:</strong> April 10, 2025<br />
+<strong>Author:</strong> Agent-Patterns Team</p>
+<hr class="docutils" />
+<section id="overview">
+<h2><strong>1. Overview</strong><a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>This design document outlines the integration of comprehensive memory systems into the agent-patterns library. Memory is crucial for agents to maintain context across interactions, learn from experience, and provide personalized responses. Our implementation will support multiple memory types based on recent research in the field, with the flexibility to enable or disable specific memory capabilities as needed.</p>
+</section>
+<section id="design-goals">
+<h2><strong>2. Design Goals</strong><a class="headerlink" href="#design-goals" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>Modularity</strong>: Support various memory types that can be combined or used independently</p></li>
+<li><p><strong>Persistence</strong>: Allow memories to be stored across sessions and conversations</p></li>
+<li><p><strong>Configurability</strong>: Let developers toggle specific memory types on/off</p></li>
+<li><p><strong>Scalability</strong>: Support efficient retrieval as memory stores grow</p></li>
+<li><p><strong>Extensibility</strong>: Enable easy addition of new memory types in the future</p></li>
+</ol>
+</section>
+<section id="memory-types">
+<h2><strong>3. Memory Types</strong><a class="headerlink" href="#memory-types" title="Link to this heading"></a></h2>
+<p>Based on cognitive science and AI research, we’ll implement three primary memory types:</p>
+<section id="semantic-memory">
+<h3><strong>3.1. Semantic Memory</strong><a class="headerlink" href="#semantic-memory" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Purpose</strong>: Store factual knowledge, concepts, and relationships</p></li>
+<li><p><strong>Usage</strong>: Personalization, domain knowledge, preferences</p></li>
+<li><p><strong>Implementation</strong>: Vector store + structured key-value pairs</p></li>
+</ul>
+</section>
+<section id="episodic-memory">
+<h3><strong>3.2. Episodic Memory</strong><a class="headerlink" href="#episodic-memory" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Purpose</strong>: Store sequences of past events and interactions</p></li>
+<li><p><strong>Usage</strong>: Few-shot examples, learning from experience</p></li>
+<li><p><strong>Implementation</strong>: Vector store with temporal metadata</p></li>
+</ul>
+</section>
+<section id="procedural-memory">
+<h3><strong>3.3. Procedural Memory</strong><a class="headerlink" href="#procedural-memory" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Purpose</strong>: Store learned behaviors and action patterns</p></li>
+<li><p><strong>Usage</strong>: Dynamic system prompts, evolving behaviors</p></li>
+<li><p><strong>Implementation</strong>: Updatable prompt templates + action sequences</p></li>
+</ul>
+</section>
+</section>
+<section id="architecture">
+<h2><strong>4. Architecture</strong><a class="headerlink" href="#architecture" title="Link to this heading"></a></h2>
+<section id="core-components">
+<h3><strong>4.1 Core Components</strong><a class="headerlink" href="#core-components" title="Link to this heading"></a></h3>
+<p>agent_patterns/<br />
+├── core/<br />
+│   ├── memory/<br />
+│   │   ├── __init__.py<br />
+│   │   ├── base.py              # Base memory interfaces<br />
+│   │   ├── semantic.py          # Semantic memory implementation<br />
+│   │   ├── episodic.py          # Episodic memory implementation<br />
+│   │   ├── procedural.py        # Procedural memory implementation<br />
+│   │   ├── composite.py         # Composite memory (combines multiple types)<br />
+│   │   └── persistence/         # Storage backends<br />
+│   │       ├── __init__.py<br />
+│   │       ├── in_memory.py     # Non-persistent (for testing)<br />
+│   │       ├── file_system.py   # Local file storage<br />
+│   │       ├── vector_store.py  # Vector DB integration<br />
+│   │       └── redis.py         # Redis integration<br />
+│   └── …<br />
+└── …</p>
+</section>
+<section id="key-interfaces">
+<h3><strong>4.2 Key Interfaces</strong><a class="headerlink" href="#key-interfaces" title="Link to this heading"></a></h3>
+<section id="basememory-abstract-base-class">
+<h4><strong>BaseMemory (Abstract Base Class)</strong><a class="headerlink" href="#basememory-abstract-base-class" title="Link to this heading"></a></h4>
+<p>from abc import ABC, abstractmethod<br />
+from typing import Dict, List, Any, Optional, TypeVar, Generic</p>
+<p>T = TypeVar(‘T’)  # Memory item type</p>
+<p>class BaseMemory(Generic[T], ABC):<br />
+“””Base interface for all memory types.”””</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@abstractmethod  
+def save(self, item: T, \*\*metadata) \-\&gt; str:  
+    &quot;&quot;&quot;  
+    Save an item to memory.  
+      
+    Args:  
+        item: The item to save  
+        \*\*metadata: Additional metadata for storage  
+          
+    Returns:  
+        A unique identifier for the saved item  
+    &quot;&quot;&quot;  
+    pass  
+  
+@abstractmethod  
+def retrieve(self, query: Any, limit: int \= 5, \*\*filters) \-\&gt; List\[T\]:  
+    &quot;&quot;&quot;  
+    Retrieve items from memory based on a query.  
+      
+    Args:  
+        query: The query to match against  
+        limit: Maximum number of items to return  
+        \*\*filters: Additional filters to apply  
+          
+    Returns:  
+        A list of memory items matching the query  
+    &quot;&quot;&quot;  
+    pass  
+  
+@abstractmethod  
+def update(self, id: str, item: T, \*\*metadata) \-\&gt; bool:  
+    &quot;&quot;&quot;  
+    Update an existing memory item.  
+      
+    Args:  
+        id: The identifier of the item to update  
+        item: The new item data  
+        \*\*metadata: Additional metadata to update  
+          
+    Returns:  
+        Whether the update was successful  
+    &quot;&quot;&quot;  
+    pass  
+  
+@abstractmethod  
+def delete(self, id: str) \-\&gt; bool:  
+    &quot;&quot;&quot;  
+    Delete an item from memory.  
+      
+    Args:  
+        id: The identifier of the item to delete  
+          
+    Returns:  
+        Whether the deletion was successful  
+    &quot;&quot;&quot;  
+    pass  
+  
+@abstractmethod  
+def clear(self) \-\&gt; None:  
+    &quot;&quot;&quot;Clear all items from memory.&quot;&quot;&quot;  
+    pass
+</pre></div>
+</div>
+</section>
+<section id="memorypersistence-abstract-base-class">
+<h4><strong>MemoryPersistence (Abstract Base Class)</strong><a class="headerlink" href="#memorypersistence-abstract-base-class" title="Link to this heading"></a></h4>
+<p>from abc import ABC, abstractmethod<br />
+from typing import Dict, List, Any, Optional, TypeVar, Generic</p>
+<p>T = TypeVar(‘T’)  # The type of items being stored</p>
+<p>class MemoryPersistence(Generic[T], ABC):<br />
+“””Interface for memory persistence backends.”””</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@abstractmethod  
+async def initialize(self) \-\&gt; None:  
+    &quot;&quot;&quot;Initialize the persistence layer.&quot;&quot;&quot;  
+    pass  
+  
+@abstractmethod  
+async def store(self, namespace: str, key: str, value: T, metadata: Dict \= None) \-\&gt; None:  
+    &quot;&quot;&quot;  
+    Store a value with an associated key.  
+      
+    Args:  
+        namespace: The namespace for organization  
+        key: The unique key to store the value under  
+        value: The value to store  
+        metadata: Optional metadata for retrieval  
+    &quot;&quot;&quot;  
+    pass  
+  
+@abstractmethod  
+async def retrieve(self, namespace: str, key: str) \-\&gt; Optional\[T\]:  
+    &quot;&quot;&quot;  
+    Retrieve a value by key.  
+      
+    Args:  
+        namespace: The namespace to look in  
+        key: The key to retrieve  
+          
+    Returns:  
+        The stored value, or None if not found  
+    &quot;&quot;&quot;  
+    pass  
+  
+@abstractmethod  
+async def search(self, namespace: str, query: Any, limit: int \= 10, \*\*filters) \-\&gt; List\[Dict\]:  
+    &quot;&quot;&quot;  
+    Search for values matching a query.  
+      
+    Args:  
+        namespace: The namespace to search in  
+        query: The query to match against  
+        limit: Maximum number of results  
+        \*\*filters: Additional filters  
+          
+    Returns:  
+        A list of matching items with metadata  
+    &quot;&quot;&quot;  
+    pass  
+  
+@abstractmethod  
+async def delete(self, namespace: str, key: str) \-\&gt; bool:  
+    &quot;&quot;&quot;  
+    Delete a value by key.  
+      
+    Args:  
+        namespace: The namespace to delete from  
+        key: The key to delete  
+          
+    Returns:  
+        Whether the deletion was successful  
+    &quot;&quot;&quot;  
+    pass  
+  
+@abstractmethod  
+async def clear\_namespace(self, namespace: str) \-\&gt; None:  
+    &quot;&quot;&quot;  
+    Clear all data in a namespace.  
+      
+    Args:  
+        namespace: The namespace to clear  
+    &quot;&quot;&quot;  
+    pass
+</pre></div>
+</div>
+</section>
+</section>
+<section id="concrete-implementations">
+<h3><strong>4.3 Concrete Implementations</strong><a class="headerlink" href="#concrete-implementations" title="Link to this heading"></a></h3>
+<section id="semanticmemory">
+<h4><strong>SemanticMemory</strong><a class="headerlink" href="#semanticmemory" title="Link to this heading"></a></h4>
+<p>from typing import Dict, List, Any, Optional<br />
+from .base import BaseMemory<br />
+from .persistence import MemoryPersistence</p>
+<p>class SemanticMemory(BaseMemory[Dict[str, Any]]):<br />
+“””<br />
+Stores factual knowledge as structured data.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Semantic memories represent:  
+\- Facts about entities (users, domains, etc.)  
+\- Preferences and settings  
+\- Conceptual relationships  
+&quot;&quot;&quot;  
+  
+def \_\_init\_\_(self,   
+             persistence: MemoryPersistence,  
+             namespace: str \= &quot;semantic&quot;,  
+             llm\_config: Optional\[Dict\] \= None):  
+    &quot;&quot;&quot;  
+    Initialize semantic memory.  
+      
+    Args:  
+        persistence: The storage backend  
+        namespace: Namespace for organization  
+        llm\_config: Configuration for LLM-assisted memory operations  
+    &quot;&quot;&quot;  
+    self.persistence \= persistence  
+    self.namespace \= namespace  
+    self.llm\_config \= llm\_config or {}  
+      
+async def save(self, item: Dict\[str, Any\], \*\*metadata) \-\&gt; str:  
+    &quot;&quot;&quot;Save a semantic memory item.&quot;&quot;&quot;  
+    \# Generate a unique ID  
+    memory\_id \= f&quot;sem\_{uuid.uuid4().hex}&quot;  
+      
+    \# Process with LLM if configured (for extraction/normalization)  
+    if self.llm\_config and &quot;save\_processor&quot; in self.llm\_config:  
+        item \= await self.\_process\_with\_llm(&quot;save&quot;, item)  
+      
+    \# Store in persistence layer  
+    await self.persistence.store(  
+        self.namespace,  
+        memory\_id,  
+        item,  
+        metadata  
+    )  
+      
+    return memory\_id  
+  
+async def retrieve(self, query: Any, limit: int \= 5, \*\*filters) \-\&gt; List\[Dict\[str, Any\]\]:  
+    &quot;&quot;&quot;Retrieve semantic memories matching the query.&quot;&quot;&quot;  
+    \# Process query with LLM if configured  
+    if self.llm\_config and &quot;query\_processor&quot; in self.llm\_config:  
+        query \= await self.\_process\_with\_llm(&quot;query&quot;, query)  
+          
+    \# Search in persistence layer  
+    results \= await self.persistence.search(  
+        self.namespace,  
+        query,  
+        limit,  
+        \*\*filters  
+    )  
+      
+    return \[item\[&quot;value&quot;\] for item in results\]  
+  
+async def update(self, id: str, item: Dict\[str, Any\], \*\*metadata) \-\&gt; bool:  
+    &quot;&quot;&quot;Update an existing semantic memory.&quot;&quot;&quot;  
+    existing \= await self.persistence.retrieve(self.namespace, id)  
+    if not existing:  
+        return False  
+          
+    \# Process with LLM if configured  
+    if self.llm\_config and &quot;update\_processor&quot; in self.llm\_config:  
+        item \= await self.\_process\_with\_llm(&quot;update&quot;, {  
+            &quot;existing&quot;: existing,  
+            &quot;update&quot;: item  
+        })  
+          
+    \# Store updated value  
+    await self.persistence.store(  
+        self.namespace,  
+        id,  
+        item,  
+        metadata  
+    )  
+      
+    return True  
+  
+async def delete(self, id: str) \-\&gt; bool:  
+    &quot;&quot;&quot;Delete a semantic memory.&quot;&quot;&quot;  
+    return await self.persistence.delete(self.namespace, id)  
+  
+async def clear(self) \-\&gt; None:  
+    &quot;&quot;&quot;Clear all semantic memories.&quot;&quot;&quot;  
+    await self.persistence.clear\_namespace(self.namespace)  
+  
+async def \_process\_with\_llm(self, operation: str, data: Any) \-\&gt; Any:  
+    &quot;&quot;&quot;Process memory operations with an LLM.&quot;&quot;&quot;  
+    \# Implementation depends on LLM integration  
+    \# ...
+</pre></div>
+</div>
+<p>Similar implementations would be created for <code class="docutils literal notranslate"><span class="pre">EpisodicMemory</span></code> and <code class="docutils literal notranslate"><span class="pre">ProceduralMemory</span></code>.</p>
+</section>
+<section id="compositememory">
+<h4><strong>CompositeMemory</strong><a class="headerlink" href="#compositememory" title="Link to this heading"></a></h4>
+<p>from typing import Dict, List, Any, Optional<br />
+from .base import BaseMemory</p>
+<p>class CompositeMemory:<br />
+“””<br />
+Combines multiple memory types into a unified interface.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>This allows agents to use different memory types without  
+having to manage them individually.  
+&quot;&quot;&quot;  
+  
+def \_\_init\_\_(self, memories: Dict\[str, BaseMemory\]):  
+    &quot;&quot;&quot;  
+    Initialize with a dictionary of memory instances.  
+      
+    Args:  
+        memories: Dictionary mapping memory names to instances  
+    &quot;&quot;&quot;  
+    self.memories \= memories  
+      
+async def save\_to(self, memory\_type: str, item: Any, \*\*metadata) \-\&gt; str:  
+    &quot;&quot;&quot;  
+    Save an item to a specific memory type.  
+      
+    Args:  
+        memory\_type: Which memory to save to  
+        item: The item to save  
+        \*\*metadata: Additional metadata  
+          
+    Returns:  
+        A unique identifier for the saved item  
+    &quot;&quot;&quot;  
+    if memory\_type not in self.memories:  
+        raise ValueError(f&quot;Unknown memory type: {memory\_type}&quot;)  
+          
+    return await self.memories\[memory\_type\].save(item, \*\*metadata)  
+  
+async def retrieve\_from(self, memory\_type: str, query: Any, limit: int \= 5, \*\*filters) \-\&gt; List\[Any\]:  
+    &quot;&quot;&quot;  
+    Retrieve items from a specific memory type.  
+      
+    Args:  
+        memory\_type: Which memory to retrieve from  
+        query: The query to match against  
+        limit: Maximum number of items to return  
+        \*\*filters: Additional filters to apply  
+          
+    Returns:  
+        A list of memory items matching the query  
+    &quot;&quot;&quot;  
+    if memory\_type not in self.memories:  
+        raise ValueError(f&quot;Unknown memory type: {memory\_type}&quot;)  
+          
+    return await self.memories\[memory\_type\].retrieve(query, limit, \*\*filters)  
+  
+async def retrieve\_all(self, query: Any, limits: Dict\[str, int\] \= None) \-\&gt; Dict\[str, List\[Any\]\]:  
+    &quot;&quot;&quot;  
+    Retrieve items from all memory types.  
+      
+    Args:  
+        query: The query to match against  
+        limits: Dictionary mapping memory types to result limits  
+          
+    Returns:  
+        Dictionary mapping memory types to retrieved items  
+    &quot;&quot;&quot;  
+    limits \= limits or {k: 5 for k in self.memories}  
+    results \= {}  
+      
+    for memory\_type, memory in self.memories.items():  
+        limit \= limits.get(memory\_type, 5\)  
+        results\[memory\_type\] \= await memory.retrieve(query, limit)  
+          
+    return results
+</pre></div>
+</div>
+</section>
+</section>
+<section id="vector-store-integration">
+<h3><strong>4.4 Vector Store Integration</strong><a class="headerlink" href="#vector-store-integration" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">VectorStorePersistence</span></code> class provides an implementation of <code class="docutils literal notranslate"><span class="pre">MemoryPersistence</span></code> that uses vector databases:</p>
+<p>from typing import Dict, List, Any, Optional<br />
+from .base import MemoryPersistence</p>
+<p>class VectorStorePersistence(MemoryPersistence):<br />
+“””Vector store implementation of memory persistence.”””</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>def \_\_init\_\_(self, vector\_store, embedding\_function):  
+    &quot;&quot;&quot;  
+    Initialize with a vector store and embedding function.  
+      
+    Args:  
+        vector\_store: The vector database client  
+        embedding\_function: Function to convert items to vectors  
+    &quot;&quot;&quot;  
+    self.vector\_store \= vector\_store  
+    self.embedding\_function \= embedding\_function  
+      
+async def initialize(self) \-\&gt; None:  
+    &quot;&quot;&quot;Initialize the vector store.&quot;&quot;&quot;  
+    \# Implementation depends on the specific vector store  
+    pass  
+  
+async def store(self, namespace: str, key: str, value: Any, metadata: Dict \= None) \-\&gt; None:  
+    &quot;&quot;&quot;Store a value with an associated key.&quot;&quot;&quot;  
+    metadata \= metadata or {}  
+    metadata\[&quot;\_id&quot;\] \= key  
+      
+    \# Generate embedding  
+    embedding \= await self.embedding\_function(value)  
+      
+    \# Store in vector database  
+    await self.vector\_store.add(  
+        collection=namespace,  
+        embedding=embedding,  
+        document=value,  
+        metadata=metadata  
+    )  
+  
+async def retrieve(self, namespace: str, key: str) \-\&gt; Optional\[Any\]:  
+    &quot;&quot;&quot;Retrieve a value by key.&quot;&quot;&quot;  
+    result \= await self.vector\_store.get(  
+        collection=namespace,  
+        filter={&quot;\_id&quot;: key}  
+    )  
+      
+    if not result:  
+        return None  
+          
+    return result\[0\]\[&quot;document&quot;\]  
+  
+async def search(self, namespace: str, query: Any, limit: int \= 10, \*\*filters) \-\&gt; List\[Dict\]:  
+    &quot;&quot;&quot;Search for values matching a query.&quot;&quot;&quot;  
+    \# Generate query embedding  
+    embedding \= await self.embedding\_function(query)  
+      
+    \# Search vector database  
+    results \= await self.vector\_store.search(  
+        collection=namespace,  
+        query\_embedding=embedding,  
+        limit=limit,  
+        filter=filters  
+    )  
+      
+    return \[  
+        {  
+            &quot;id&quot;: item\[&quot;metadata&quot;\]\[&quot;\_id&quot;\],  
+            &quot;value&quot;: item\[&quot;document&quot;\],  
+            &quot;metadata&quot;: item\[&quot;metadata&quot;\],  
+            &quot;score&quot;: item\[&quot;score&quot;\]  
+        }  
+        for item in results  
+    \]  
+  
+async def delete(self, namespace: str, key: str) \-\&gt; bool:  
+    &quot;&quot;&quot;Delete a value by key.&quot;&quot;&quot;  
+    return await self.vector\_store.delete(  
+        collection=namespace,  
+        filter={&quot;\_id&quot;: key}  
+    )  
+  
+async def clear\_namespace(self, namespace: str) \-\&gt; None:  
+    &quot;&quot;&quot;Clear all data in a namespace.&quot;&quot;&quot;  
+    await self.vector\_store.delete\_collection(namespace)
+</pre></div>
+</div>
+</section>
+</section>
+<section id="integration-with-agent-patterns">
+<h2><strong>5. Integration with Agent Patterns</strong><a class="headerlink" href="#integration-with-agent-patterns" title="Link to this heading"></a></h2>
+<section id="baseagent-enhancement">
+<h3><strong>5.1 BaseAgent Enhancement</strong><a class="headerlink" href="#baseagent-enhancement" title="Link to this heading"></a></h3>
+<p>Update the <code class="docutils literal notranslate"><span class="pre">BaseAgent</span></code> class to support memory:</p>
+<p>class BaseAgent(abc.ABC):<br />
+def __init__(self,<br />
+llm_configs: dict,<br />
+prompt_dir: str = “prompts”,<br />
+tool_provider: Optional[ToolProvider] = None,<br />
+memory: Optional[CompositeMemory] = None,<br />
+memory_config: Optional[Dict[str, bool]] = None):<br />
+“””<br />
+Initialize the agent.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>    Args:  
+        llm\_configs: Dictionary specifying provider, model, and roles  
+        prompt\_dir: Directory for prompt templates  
+        tool\_provider: Optional provider for tools the agent can use  
+        memory: Optional composite memory instance  
+        memory\_config: Configuration for which memory types to use  
+    &quot;&quot;&quot;  
+    self.llm\_configs \= llm\_configs  
+    self.prompt\_dir \= prompt\_dir  
+    self.tool\_provider \= tool\_provider  
+    self.memory \= memory  
+    self.memory\_config \= memory\_config or {  
+        &quot;semantic&quot;: True,  
+        &quot;episodic&quot;: True,  
+        &quot;procedural&quot;: False  \# Off by default as it&#39;s more experimental  
+    }  
+      
+    self.graph \= None  \# set by self.build\_graph()  
+      
+    \# Subclass is expected to build/compile its graph  
+    self.build\_graph()  
+  
+async def \_retrieve\_memories(self, query: str) \-\&gt; Dict\[str, List\[Any\]\]:  
+    &quot;&quot;&quot;  
+    Retrieve relevant memories for a query.  
+      
+    Args:  
+        query: The input query or context  
+          
+    Returns:  
+        Dictionary mapping memory types to retrieved items  
+    &quot;&quot;&quot;  
+    if not self.memory:  
+        return {}  
+          
+    \# Filter enabled memory types  
+    enabled\_memories \= {  
+        k: v for k, v in self.memory.memories.items()  
+        if self.memory\_config.get(k, False)  
+    }  
+      
+    if not enabled\_memories:  
+        return {}  
+          
+    \# Create a filtered composite memory  
+    filtered\_memory \= CompositeMemory(enabled\_memories)  
+      
+    \# Retrieve from all enabled memories  
+    return await filtered\_memory.retrieve\_all(query)  
+  
+async def \_save\_memory(self, memory\_type: str, item: Any, \*\*metadata) \-\&gt; Optional\[str\]:  
+    &quot;&quot;&quot;  
+    Save an item to a specific memory type if enabled.  
+      
+    Args:  
+        memory\_type: Which memory to save to  
+        item: The item to save  
+        \*\*metadata: Additional metadata  
+          
+    Returns:  
+        A unique identifier for the saved item, or None if memory type is disabled  
+    &quot;&quot;&quot;  
+    if not self.memory or not self.memory\_config.get(memory\_type, False):  
+        return None  
+          
+    return await self.memory.save\_to(memory\_type, item, \*\*metadata)
+</pre></div>
+</div>
+</section>
+<section id="pattern-specific-enhancements">
+<h3><strong>5.2 Pattern-Specific Enhancements</strong><a class="headerlink" href="#pattern-specific-enhancements" title="Link to this heading"></a></h3>
+<section id="reactagent-with-memory">
+<h4><strong>ReActAgent with Memory</strong><a class="headerlink" href="#reactagent-with-memory" title="Link to this heading"></a></h4>
+<p>def _generate_thought_and_action(self, state: Dict) -&gt; Dict:<br />
+“””Generate the next thought and action based on the current state.”””<br />
+# Retrieve relevant memories<br />
+memories = await self._retrieve_memories(state[“input”])</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>\# Prepare the prompt with memories  
+prompt\_data \= self.\_loa
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="Design.html" class="btn btn-neutral float-left" title="Agent-Patterns Project: Design Document" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Agent_Tools_Design.html" class="btn btn-neutral float-right" title="Model Context Protocol (MCP) Integration Design for Agent-Patterns" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Your Name.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

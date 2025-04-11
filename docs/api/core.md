@@ -70,23 +70,13 @@ This document provides detailed API reference for the core components of Agent P
 
 ## Persistence
 
-### BasePersistence
+### Persistence Providers
 
-::: agent_patterns.core.memory.persistence.base.BasePersistence
-    handler: python
-    selection:
-      members:
-        - __init__
-        - initialize
-        - save
-        - retrieve
-        - update
-        - delete
-        - close
+The memory system includes several persistence providers for storing memory data.
 
 ### InMemoryPersistence
 
-::: agent_patterns.core.memory.persistence.in_memory.InMemoryPersistence
+::: agent_patterns.core.memory.persistence.InMemoryPersistence
     handler: python
     selection:
       members:
@@ -98,9 +88,23 @@ This document provides detailed API reference for the core components of Agent P
         - delete
         - close
 
-### FilePersistence
+### FileSystemPersistence
 
-::: agent_patterns.core.memory.persistence.file.FilePersistence
+::: agent_patterns.core.memory.persistence.FileSystemPersistence
+    handler: python
+    selection:
+      members:
+        - __init__
+        - initialize
+        - save
+        - retrieve
+        - update
+        - delete
+        - close
+
+### VectorStorePersistence
+
+::: agent_patterns.core.memory.persistence.VectorStorePersistence
     handler: python
     selection:
       members:
@@ -114,37 +118,25 @@ This document provides detailed API reference for the core components of Agent P
 
 ## Tool System
 
-### BaseToolProvider
+### ToolProvider
 
-::: agent_patterns.core.tools.base.BaseToolProvider
+::: agent_patterns.core.tools.base.ToolProvider
     handler: python
     selection:
       members:
         - __init__
-        - get_tools
+        - list_tools
         - execute_tool
-        - get_tool
 
-### Tool
+### Tool Errors
 
-::: agent_patterns.core.tools.base.Tool
+::: agent_patterns.core.tools.base.ToolNotFoundError
     handler: python
-    selection:
-      members:
-        - __init__
-        - to_dict
-        - get_schema
 
-### CompositeToolProvider
-
-::: agent_patterns.core.tools.providers.composite_provider.CompositeToolProvider
+::: agent_patterns.core.tools.base.ToolExecutionError
     handler: python
-    selection:
-      members:
-        - __init__
-        - get_tools
-        - execute_tool
-        - get_tool
+
+
 
 ### MCPToolProvider
 
@@ -153,9 +145,8 @@ This document provides detailed API reference for the core components of Agent P
     selection:
       members:
         - __init__
-        - get_tools
+        - list_tools
         - execute_tool
-        - get_tool
         - start_servers
         - stop_servers
 
@@ -168,8 +159,8 @@ This document provides detailed API reference for the core components of Agent P
         - __init__
         - start
         - stop
-        - send_request
-        - get_tools
+        - list_tools
+        - call_tool
 
 ## Utility Functions
 
@@ -178,7 +169,3 @@ This document provides detailed API reference for the core components of Agent P
 ::: agent_patterns.core.tools.providers.mcp_provider.create_mcp_server_connection
     handler: python
 
-### format_prompt
-
-::: agent_patterns.core.utils.prompts.format_prompt
-    handler: python

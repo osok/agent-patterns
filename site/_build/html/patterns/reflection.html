@@ -1,0 +1,296 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reflection Pattern &mdash; agent-patterns 0.1.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a58bc63e"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Reflexion Pattern" href="reflexion.html" />
+    <link rel="prev" title="Plan and Solve Pattern" href="plan_and_solve.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            agent-patterns
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Documentation:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../guides/index.html">Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Patterns</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="re_act.html">ReAct Pattern</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plan_and_solve.html">Plan and Solve Pattern</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Reflection Pattern</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#diagrams">Diagrams</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#class-structure">Class Structure</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#execution-flow">Execution Flow</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#state-transitions">State Transitions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#use-cases">Use Cases</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#implementation-guide">Implementation Guide</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#example-references">Example References</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#best-practices">Best Practices</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#related-patterns">Related Patterns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="reflexion.html">Reflexion Pattern</a></li>
+<li class="toctree-l2"><a class="reference internal" href="llm_compiler.html">LLM Compiler Pattern</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rewoo.html">ReWOO Pattern</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lats.html">LATS (LangChain Agents Tracing System) Pattern</a></li>
+<li class="toctree-l2"><a class="reference internal" href="storm.html">STORM Pattern</a></li>
+<li class="toctree-l2"><a class="reference internal" href="self_discovery.html">Self-Discovery Pattern</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reflection_and_refinement.html">Reflection and Refinement Pattern</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Design.html"><strong>Agent-Patterns Project: Design Document</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Agent%20Memory%20Design.html"><strong>Agent Memory Systems Integration Design for Agent-Patterns</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Agent_Tools_Design.html"><strong>Model Context Protocol (MCP) Integration Design for Agent-Patterns</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Memory%20API%20Documentation.html">Memory System API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Memory%20Integration%20Tutorial.html">Memory Integration Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Tool%20Provider%20API%20Documentation.html">Tool Provider API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../MCP%20Tool%20Integration%20Tutorial.html">MCP Tool Integration Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../memory_and_mcp_integration.html">Memory and MCP Tool Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Next%20Steps.html">Next Steps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">agent-patterns</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Patterns</a></li>
+      <li class="breadcrumb-item active">Reflection Pattern</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/patterns/reflection.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="reflection-pattern">
+<h1>Reflection Pattern<a class="headerlink" href="#reflection-pattern" title="Link to this heading"></a></h1>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>The Reflection pattern introduces periodic reflection phases into the agent’s execution flow. Unlike the Reflexion pattern which reflects after actions, this pattern schedules regular reflection at predefined intervals. The pattern involves:</p>
+<ol class="arabic simple">
+<li><p><strong>Normal Execution</strong>: Standard reasoning and action execution</p></li>
+<li><p><strong>Scheduled Reflection</strong>: Periodic pauses to review progress</p></li>
+<li><p><strong>Strategic Adjustment</strong>: Using reflections to adjust the overall approach</p></li>
+<li><p><strong>Knowledge Integration</strong>: Incorporating insights into the agent’s understanding</p></li>
+</ol>
+<p>This pattern is particularly effective for longer-running tasks where course corrections may be needed.</p>
+</section>
+<section id="diagrams">
+<h2>Diagrams<a class="headerlink" href="#diagrams" title="Link to this heading"></a></h2>
+<section id="class-structure">
+<h3>Class Structure<a class="headerlink" href="#class-structure" title="Link to this heading"></a></h3>
+<p><img alt="Class Diagram" src="../_images/reflection_class.png" /></p>
+<p>The Reflection pattern is implemented through:</p>
+<ul class="simple">
+<li><p><strong>ReflectionState</strong>: Extends the basic agent state with reflection information</p></li>
+<li><p><strong>ReflectionAgent</strong>: Implements the agent logic with scheduled reflection capabilities</p></li>
+<li><p><strong>BaseAgent</strong>: The abstract base class from which the Reflection agent inherits</p></li>
+</ul>
+</section>
+<section id="execution-flow">
+<h3>Execution Flow<a class="headerlink" href="#execution-flow" title="Link to this heading"></a></h3>
+<p><img alt="Sequence Diagram" src="../_images/reflection_sequence.png" /></p>
+<p>The execution flow follows:</p>
+<ol class="arabic simple">
+<li><p>User provides input to the ReflectionAgent</p></li>
+<li><p>The agent processes the task through standard reasoning and tool execution</p></li>
+<li><p>At predefined intervals (e.g., every X steps), a reflection phase is triggered</p></li>
+<li><p>During reflection, the agent reviews its progress and approach</p></li>
+<li><p>Insights from reflection inform subsequent execution</p></li>
+<li><p>The process continues until a final answer is reached</p></li>
+<li><p>Final result is returned to the user</p></li>
+</ol>
+</section>
+<section id="state-transitions">
+<h3>State Transitions<a class="headerlink" href="#state-transitions" title="Link to this heading"></a></h3>
+<p><img alt="State Diagram" src="../_images/reflection_state.png" /></p>
+<p>The Reflection pattern transitions through these states:</p>
+<ul class="simple">
+<li><p><strong>Initialized</strong>: Agent is created but not yet ready</p></li>
+<li><p><strong>Ready</strong>: Agent is ready to process input</p></li>
+<li><p><strong>Processing</strong>: Agent is actively working on the task</p>
+<ul>
+<li><p><strong>Thinking</strong>: Agent is reasoning about what to do next</p></li>
+<li><p><strong>Tool Execution</strong>: Agent is using a tool</p></li>
+<li><p><strong>Reflection</strong>: Agent is performing scheduled reflection</p></li>
+</ul>
+</li>
+<li><p>Final state is reached when the agent determines a final answer</p></li>
+</ul>
+</section>
+</section>
+<section id="use-cases">
+<h2>Use Cases<a class="headerlink" href="#use-cases" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>Long-Running Tasks</strong>: For tasks that require extended execution time</p></li>
+<li><p><strong>Strategic Planning</strong>: When high-level strategy adjustments might be needed</p></li>
+<li><p><strong>Learning During Execution</strong>: For agents that need to adapt their approach as they go</p></li>
+<li><p><strong>Complex Problem Solving</strong>: When the solution approach isn’t clear from the start</p></li>
+<li><p><strong>Explorative Research</strong>: For open-ended research tasks where direction may need adjustment</p></li>
+</ul>
+</section>
+<section id="implementation-guide">
+<h2>Implementation Guide<a class="headerlink" href="#implementation-guide" title="Link to this heading"></a></h2>
+<p>Here’s a simple example of using the ReflectionAgent:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.patterns</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReflectionAgent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">ToolRegistry</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompositeMemory</span><span class="p">,</span> <span class="n">SemanticMemory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">langchain.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">tool</span>
+
+<span class="c1"># Define tools</span>
+<span class="nd">@tool</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">search</span><span class="p">(</span><span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Search for information about a topic.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Results for </span><span class="si">{</span><span class="n">query</span><span class="si">}</span><span class="s2">: Some relevant information...&quot;</span>
+
+<span class="nd">@tool</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">note</span><span class="p">(</span><span class="n">content</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Make a note of important information.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Noted: </span><span class="si">{</span><span class="n">content</span><span class="si">}</span><span class="s2">&quot;</span>
+
+<span class="c1"># Create tool registry</span>
+<span class="n">tool_registry</span> <span class="o">=</span> <span class="n">ToolRegistry</span><span class="p">([</span><span class="n">search</span><span class="p">,</span> <span class="n">note</span><span class="p">])</span>
+
+<span class="c1"># Create memory system</span>
+<span class="n">memory</span> <span class="o">=</span> <span class="n">CompositeMemory</span><span class="p">({</span>
+    <span class="s2">&quot;semantic&quot;</span><span class="p">:</span> <span class="n">SemanticMemory</span><span class="p">(),</span>  <span class="c1"># For storing reflections as knowledge</span>
+<span class="p">})</span>
+
+<span class="c1"># Configure the LLMs</span>
+<span class="n">llm_configs</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;provider&quot;</span><span class="p">:</span> <span class="s2">&quot;openai&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="s2">&quot;gpt-4o&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mf">0.7</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;reflection&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;provider&quot;</span><span class="p">:</span> <span class="s2">&quot;openai&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="s2">&quot;gpt-4o&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mf">0.5</span>  <span class="c1"># Lower temperature for more focused reflection</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1"># Initialize the Reflection agent</span>
+<span class="n">agent</span> <span class="o">=</span> <span class="n">ReflectionAgent</span><span class="p">(</span>
+    <span class="n">llm_configs</span><span class="o">=</span><span class="n">llm_configs</span><span class="p">,</span>
+    <span class="n">tool_provider</span><span class="o">=</span><span class="n">tool_registry</span><span class="p">,</span>
+    <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
+    <span class="n">reflection_frequency</span><span class="o">=</span><span class="mi">5</span>  <span class="c1"># Reflect every 5 steps</span>
+<span class="p">)</span>
+
+<span class="c1"># Run the agent</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">&quot;Research the impact of climate change on agriculture and suggest three adaptation strategies.&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="example-references">
+<h2>Example References<a class="headerlink" href="#example-references" title="Link to this heading"></a></h2>
+<p>The examples directory contains implementations of the Reflection pattern:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">examples/reflection_basic.py</span></code>: Basic implementation with periodic reflection</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">examples/reflection_advanced.py</span></code>: Advanced implementation with adaptive reflection frequency</p></li>
+</ul>
+</section>
+<section id="best-practices">
+<h2>Best Practices<a class="headerlink" href="#best-practices" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Set reflection frequency based on task complexity and duration</p></li>
+<li><p>Use a separate LLM configuration for reflection with lower temperature</p></li>
+<li><p>Store reflections in semantic memory for future reference</p></li>
+<li><p>Design reflection prompts that focus on different aspects (progress, strategy, gaps)</p></li>
+<li><p>Consider implementing adaptive reflection frequency based on progress</p></li>
+<li><p>Structure reflection output to be actionable for subsequent steps</p></li>
+<li><p>Include explicit consideration of unexamined alternatives during reflection</p></li>
+</ul>
+</section>
+<section id="related-patterns">
+<h2>Related Patterns<a class="headerlink" href="#related-patterns" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>Reflexion Pattern</strong>: Similar but with reflection after actions rather than at intervals</p></li>
+<li><p><strong>Reflection and Refinement Pattern</strong>: Extends Reflection with explicit refinement steps</p></li>
+<li><p><strong>Plan and Solve Pattern</strong>: Can incorporate reflections during the planning phase</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="plan_and_solve.html" class="btn btn-neutral float-left" title="Plan and Solve Pattern" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="reflexion.html" class="btn btn-neutral float-right" title="Reflexion Pattern" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Your Name.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -91,19 +91,19 @@ This document provides detailed API reference for the agent patterns in Agent Pa
 
 ## ReWOOAgent
 
-::: agent_patterns.patterns.rewoo_agent.ReWOOAgent
+::: agent_patterns.patterns.rewoo_agent.REWOOAgent
     handler: python
     selection:
       members:
         - __init__
         - build_graph
-        - start_node
-        - reason_node
-        - world_model_node
-        - observe_node
-        - outcome_node
-        - final_node
-        - should_continue
+        - run
+        - stream
+        - _plan_steps
+        - _execute_step
+        - _check_completion
+        - _format_final_answer
+        - _should_continue_execution
 
 ## LATSAgent
 
@@ -124,20 +124,20 @@ This document provides detailed API reference for the agent patterns in Agent Pa
 
 ## STORMAgent
 
-::: agent_patterns.patterns.storm_agent.StormAgent
+::: agent_patterns.patterns.storm_agent.STORMAgent
     handler: python
     selection:
       members:
         - __init__
         - build_graph
-        - start_node
-        - self_evaluation_node
-        - think_options_node
-        - reasoning_options_node
-        - reason_step_node
-        - mistake_detection_node
-        - final_node
-        - should_retry
+        - run
+        - stream
+        - _generate_initial_outline
+        - _identify_perspectives
+        - _simulate_conversations
+        - _refine_outline
+        - _write_sections
+        - _finalize_article
 
 ## SelfDiscoveryAgent
 
@@ -155,11 +155,16 @@ This document provides detailed API reference for the agent patterns in Agent Pa
         - final_node
         - should_discover
 
-## Agent Factory
+## Agent Factory Functions
 
-::: agent_patterns.patterns.factory.AgentFactory
+::: agent_patterns.patterns.factory.create_reflection_and_refinement_agent
     handler: python
-    selection:
-      members:
-        - create_agent
-        - get_available_patterns
+
+::: agent_patterns.patterns.factory.create_plan_and_solve_agent
+    handler: python
+
+::: agent_patterns.patterns.factory.create_react_agent
+    handler: python
+
+::: agent_patterns.patterns.factory.create_reflection_agent
+    handler: python

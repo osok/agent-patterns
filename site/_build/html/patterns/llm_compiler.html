@@ -1,0 +1,289 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LLM Compiler Pattern &mdash; agent-patterns 0.1.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a58bc63e"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ReWOO Pattern" href="rewoo.html" />
+    <link rel="prev" title="Reflexion Pattern" href="reflexion.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            agent-patterns
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Documentation:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../guides/index.html">Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Patterns</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="re_act.html">ReAct Pattern</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plan_and_solve.html">Plan and Solve Pattern</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reflection.html">Reflection Pattern</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reflexion.html">Reflexion Pattern</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">LLM Compiler Pattern</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#diagrams">Diagrams</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#class-structure">Class Structure</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#execution-flow">Execution Flow</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#state-transitions">State Transitions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#use-cases">Use Cases</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#implementation-guide">Implementation Guide</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#example-references">Example References</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#best-practices">Best Practices</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#related-patterns">Related Patterns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="rewoo.html">ReWOO Pattern</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lats.html">LATS (LangChain Agents Tracing System) Pattern</a></li>
+<li class="toctree-l2"><a class="reference internal" href="storm.html">STORM Pattern</a></li>
+<li class="toctree-l2"><a class="reference internal" href="self_discovery.html">Self-Discovery Pattern</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reflection_and_refinement.html">Reflection and Refinement Pattern</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Design.html"><strong>Agent-Patterns Project: Design Document</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Agent%20Memory%20Design.html"><strong>Agent Memory Systems Integration Design for Agent-Patterns</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Agent_Tools_Design.html"><strong>Model Context Protocol (MCP) Integration Design for Agent-Patterns</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Memory%20API%20Documentation.html">Memory System API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Memory%20Integration%20Tutorial.html">Memory Integration Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Tool%20Provider%20API%20Documentation.html">Tool Provider API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../MCP%20Tool%20Integration%20Tutorial.html">MCP Tool Integration Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../memory_and_mcp_integration.html">Memory and MCP Tool Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Next%20Steps.html">Next Steps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">agent-patterns</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Patterns</a></li>
+      <li class="breadcrumb-item active">LLM Compiler Pattern</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/patterns/llm_compiler.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="llm-compiler-pattern">
+<h1>LLM Compiler Pattern<a class="headerlink" href="#llm-compiler-pattern" title="Link to this heading"></a></h1>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>The LLM Compiler pattern separates the planning and execution phases of problem-solving, similar to how a compiler translates high-level code into executable instructions. This approach involves:</p>
+<ol class="arabic simple">
+<li><p><strong>Planning Phase</strong>: The LLM generates a detailed execution plan with a series of steps</p></li>
+<li><p><strong>Execution Phase</strong>: Each step is executed sequentially, with possible replanning if needed</p></li>
+<li><p><strong>Error Handling</strong>: Includes mechanisms to detect and respond to execution failures</p></li>
+</ol>
+<p>The key innovation of this pattern is the clear separation between planning (what to do) and execution (how to do it), leading to more predictable and controllable agent behavior.</p>
+</section>
+<section id="diagrams">
+<h2>Diagrams<a class="headerlink" href="#diagrams" title="Link to this heading"></a></h2>
+<section id="class-structure">
+<h3>Class Structure<a class="headerlink" href="#class-structure" title="Link to this heading"></a></h3>
+<p><img alt="Class Diagram" src="../_images/llm_compiler_class.png" /></p>
+<p>The LLM Compiler pattern is implemented through:</p>
+<ul class="simple">
+<li><p><strong>LLMCompilerState</strong>: Tracks the execution plan, current step, intermediate results, and overall state</p></li>
+<li><p><strong>LLMCompilerAgent</strong>: Implements the planning and execution logic, with methods for planning, executing steps, and replanning when necessary</p></li>
+<li><p><strong>BaseAgent</strong>: The abstract base class from which the compiler agent inherits</p></li>
+</ul>
+</section>
+<section id="execution-flow">
+<h3>Execution Flow<a class="headerlink" href="#execution-flow" title="Link to this heading"></a></h3>
+<p><img alt="Sequence Diagram" src="../_images/llm_compiler_sequence.png" /></p>
+<p>The execution flow follows:</p>
+<ol class="arabic simple">
+<li><p>User provides input to the LLMCompilerAgent</p></li>
+<li><p>The Planner component creates a detailed execution plan</p></li>
+<li><p>For each step in the plan:</p>
+<ul class="simple">
+<li><p>The Executor component executes the step</p></li>
+<li><p>If successful, the agent moves to the next step</p></li>
+<li><p>If unsuccessful, the Planner revises the plan</p></li>
+</ul>
+</li>
+<li><p>Once all steps are complete, the final result is returned to the user</p></li>
+</ol>
+</section>
+<section id="state-transitions">
+<h3>State Transitions<a class="headerlink" href="#state-transitions" title="Link to this heading"></a></h3>
+<p><img alt="State Diagram" src="../_images/llm_compiler_state.png" /></p>
+<p>The LLM Compiler pattern transitions through these states:</p>
+<ul class="simple">
+<li><p><strong>Initialized</strong>: Agent is created but not yet ready</p></li>
+<li><p><strong>Ready</strong>: Agent is ready to process input</p></li>
+<li><p><strong>Processing</strong>: Agent is actively working on the task</p>
+<ul>
+<li><p><strong>Planning</strong>: Agent is creating or updating the execution plan</p></li>
+<li><p><strong>Step Execution</strong>: Agent is executing an individual step from the plan</p></li>
+<li><p><strong>Replanning</strong>: Agent is revising the plan due to execution failures or new information</p></li>
+</ul>
+</li>
+<li><p>Final state is reached when all steps in the plan are successfully executed</p></li>
+</ul>
+</section>
+</section>
+<section id="use-cases">
+<h2>Use Cases<a class="headerlink" href="#use-cases" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>Complex Sequential Tasks</strong>: For tasks requiring multiple ordered steps</p></li>
+<li><p><strong>Structured Problem Solving</strong>: When a clear plan needs to be established before action</p></li>
+<li><p><strong>Reproducible Workflows</strong>: When consistency across multiple runs is important</p></li>
+<li><p><strong>Debugging-Friendly Applications</strong>: The separation of planning and execution makes it easier to identify and fix issues</p></li>
+<li><p><strong>Tasks Requiring Specialized Tools</strong>: When different steps might require different tools or approaches</p></li>
+</ul>
+</section>
+<section id="implementation-guide">
+<h2>Implementation Guide<a class="headerlink" href="#implementation-guide" title="Link to this heading"></a></h2>
+<p>Here’s a simple example of using the LLMCompilerAgent:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.patterns</span><span class="w"> </span><span class="kn">import</span> <span class="n">LLMCompilerAgent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">ToolRegistry</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">langchain.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">tool</span>
+
+<span class="c1"># Define tools</span>
+<span class="nd">@tool</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">search</span><span class="p">(</span><span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Search for information about a topic.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Results for </span><span class="si">{</span><span class="n">query</span><span class="si">}</span><span class="s2">: Some relevant information...&quot;</span>
+
+<span class="nd">@tool</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">calculate</span><span class="p">(</span><span class="n">expression</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate the result of a mathematical expression.&quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Result: </span><span class="si">{</span><span class="nb">eval</span><span class="p">(</span><span class="n">expression</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;Error in calculation&quot;</span>
+
+<span class="c1"># Create tool registry</span>
+<span class="n">tool_registry</span> <span class="o">=</span> <span class="n">ToolRegistry</span><span class="p">([</span><span class="n">search</span><span class="p">,</span> <span class="n">calculate</span><span class="p">])</span>
+
+<span class="c1"># Configure the LLMs</span>
+<span class="n">llm_configs</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;provider&quot;</span><span class="p">:</span> <span class="s2">&quot;openai&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="s2">&quot;gpt-4o&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mf">0.7</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1"># Initialize the LLM Compiler agent</span>
+<span class="n">agent</span> <span class="o">=</span> <span class="n">LLMCompilerAgent</span><span class="p">(</span>
+    <span class="n">llm_configs</span><span class="o">=</span><span class="n">llm_configs</span><span class="p">,</span>
+    <span class="n">tool_provider</span><span class="o">=</span><span class="n">tool_registry</span><span class="p">,</span>
+    <span class="n">max_steps</span><span class="o">=</span><span class="mi">10</span>
+<span class="p">)</span>
+
+<span class="c1"># Run the agent</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">&quot;Calculate the population density of France by finding the population and area.&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="example-references">
+<h2>Example References<a class="headerlink" href="#example-references" title="Link to this heading"></a></h2>
+<p>The examples directory contains implementations of the LLM Compiler pattern:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">examples/llm_compiler_basic.py</span></code>: Basic compiler pattern implementation</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">examples/llm_compiler_complex.py</span></code>: Advanced implementation with error handling</p></li>
+</ul>
+</section>
+<section id="best-practices">
+<h2>Best Practices<a class="headerlink" href="#best-practices" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Design the planning prompt to encourage detailed, step-by-step plans</p></li>
+<li><p>Include expected outputs for each step to aid in error detection</p></li>
+<li><p>Implement robust error handling in the execution phase</p></li>
+<li><p>Consider different LLM configurations for planning vs. execution</p></li>
+<li><p>Structure the plan format to be machine-readable for better processing</p></li>
+<li><p>Include validation steps in the plan to verify intermediate results</p></li>
+<li><p>Store successful plans in memory for reuse in similar future tasks</p></li>
+</ul>
+</section>
+<section id="related-patterns">
+<h2>Related Patterns<a class="headerlink" href="#related-patterns" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>Plan and Solve Pattern</strong>: Similar approach but with less emphasis on compilation analogy</p></li>
+<li><p><strong>ReAct Pattern</strong>: More integrated approach without clear separation of planning and execution</p></li>
+<li><p><strong>Self-Discovery Pattern</strong>: Can be combined with LLM Compiler to discover available capabilities during planning</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="reflexion.html" class="btn btn-neutral float-left" title="Reflexion Pattern" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="rewoo.html" class="btn btn-neutral float-right" title="ReWOO Pattern" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Your Name.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

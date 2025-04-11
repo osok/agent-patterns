@@ -1,0 +1,594 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Memory System API Documentation &mdash; agent-patterns 0.1.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=a58bc63e"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Memory Integration Tutorial" href="Memory%20Integration%20Tutorial.html" />
+    <link rel="prev" title="Model Context Protocol (MCP) Integration Design for Agent-Patterns" href="Agent_Tools_Design.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            agent-patterns
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Documentation:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="guides/index.html">Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="patterns/index.html">Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Design.html"><strong>Agent-Patterns Project: Design Document</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="Agent%20Memory%20Design.html"><strong>Agent Memory Systems Integration Design for Agent-Patterns</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="Agent_Tools_Design.html"><strong>Model Context Protocol (MCP) Integration Design for Agent-Patterns</strong></a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Memory System API Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#memory-types">Memory Types</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#semantic-memory">1. Semantic Memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#episodic-memory">2. Episodic Memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#procedural-memory">3. Procedural Memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#composite-memory">Composite Memory</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#persistence-backends">Persistence Backends</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#inmemorypersistence">InMemoryPersistence</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#filesystempersistence">FileSystemPersistence</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#vectorstorepersistence">VectorStorePersistence</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#integration-with-agents">Integration with Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#advanced-usage">Advanced Usage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#custom-memory-types">Custom Memory Types</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#custom-persistence-backends">Custom Persistence Backends</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#synchronous-usage">Synchronous Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#best-practices">Best Practices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#conclusion">Conclusion</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Memory%20Integration%20Tutorial.html">Memory Integration Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Tool%20Provider%20API%20Documentation.html">Tool Provider API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="MCP%20Tool%20Integration%20Tutorial.html">MCP Tool Integration Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="memory_and_mcp_integration.html">Memory and MCP Tool Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Next%20Steps.html">Next Steps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">agent-patterns</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Memory System API Documentation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/Memory API Documentation.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="memory-system-api-documentation">
+<h1>Memory System API Documentation<a class="headerlink" href="#memory-system-api-documentation" title="Link to this heading"></a></h1>
+<p>This document provides detailed information about the memory system implementation in the agent-patterns library.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>The agent-patterns memory system provides agents with the ability to store and retrieve information across interactions. This capability is crucial for maintaining context, learning from past interactions, and providing personalized responses.</p>
+<p>The memory system is designed to be:</p>
+<ul class="simple">
+<li><p><strong>Modular</strong>: Different memory types can be used independently or together</p></li>
+<li><p><strong>Flexible</strong>: Customizable retrieval and storage strategies</p></li>
+<li><p><strong>Extensible</strong>: Easy to add new memory types or persistence backends</p></li>
+<li><p><strong>Optional</strong>: Can be enabled or disabled as needed</p></li>
+</ul>
+</section>
+<section id="memory-types">
+<h2>Memory Types<a class="headerlink" href="#memory-types" title="Link to this heading"></a></h2>
+<p>The memory system includes three primary types of memory, inspired by cognitive science:</p>
+<section id="semantic-memory">
+<h3>1. Semantic Memory<a class="headerlink" href="#semantic-memory" title="Link to this heading"></a></h3>
+<p>Semantic memory stores factual knowledge, concepts, and relationships in a structured format. This type of memory is ideal for:</p>
+<ul class="simple">
+<li><p>Storing user preferences and attributes</p></li>
+<li><p>Recording facts and knowledge</p></li>
+<li><p>Maintaining entity relationships</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">SemanticMemory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory.persistence</span><span class="w"> </span><span class="kn">import</span> <span class="n">InMemoryPersistence</span>
+
+<span class="c1"># Initialize the persistence layer</span>
+<span class="n">persistence</span> <span class="o">=</span> <span class="n">InMemoryPersistence</span><span class="p">()</span>
+<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">persistence</span><span class="o">.</span><span class="n">initialize</span><span class="p">())</span>
+
+<span class="c1"># Create semantic memory</span>
+<span class="n">semantic_memory</span> <span class="o">=</span> <span class="n">SemanticMemory</span><span class="p">(</span>
+    <span class="n">persistence</span><span class="o">=</span><span class="n">persistence</span><span class="p">,</span>
+    <span class="n">namespace</span><span class="o">=</span><span class="s2">&quot;user_semantic&quot;</span>  <span class="c1"># Namespace for organization</span>
+<span class="p">)</span>
+
+<span class="c1"># Store information</span>
+<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">semantic_memory</span><span class="o">.</span><span class="n">save</span><span class="p">({</span>
+    <span class="s2">&quot;entity&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;attribute&quot;</span><span class="p">:</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;Alice&quot;</span>
+<span class="p">}))</span>
+
+<span class="c1"># Retrieve information (returns list of matching items)</span>
+<span class="n">user_info</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">semantic_memory</span><span class="o">.</span><span class="n">retrieve</span><span class="p">(</span><span class="s2">&quot;user&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+</section>
+<section id="episodic-memory">
+<h3>2. Episodic Memory<a class="headerlink" href="#episodic-memory" title="Link to this heading"></a></h3>
+<p>Episodic memory stores sequences of events, interactions, and experiences. This memory type is useful for:</p>
+<ul class="simple">
+<li><p>Remembering conversation history</p></li>
+<li><p>Learning from past interactions</p></li>
+<li><p>Providing contextual continuity</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpisodicMemory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory.persistence</span><span class="w"> </span><span class="kn">import</span> <span class="n">InMemoryPersistence</span>
+
+<span class="c1"># Initialize the persistence layer</span>
+<span class="n">persistence</span> <span class="o">=</span> <span class="n">InMemoryPersistence</span><span class="p">()</span>
+<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">persistence</span><span class="o">.</span><span class="n">initialize</span><span class="p">())</span>
+
+<span class="c1"># Create episodic memory</span>
+<span class="n">episodic_memory</span> <span class="o">=</span> <span class="n">EpisodicMemory</span><span class="p">(</span>
+    <span class="n">persistence</span><span class="o">=</span><span class="n">persistence</span><span class="p">,</span>
+    <span class="n">namespace</span><span class="o">=</span><span class="s2">&quot;conversation_history&quot;</span>
+<span class="p">)</span>
+
+<span class="c1"># Store an experience</span>
+<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">episodic_memory</span><span class="o">.</span><span class="n">save</span><span class="p">({</span>
+    <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;User asked about climate change solutions&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;importance&quot;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span>  <span class="c1"># Optional importance score</span>
+    <span class="s2">&quot;tags&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;climate&quot;</span><span class="p">,</span> <span class="s2">&quot;question&quot;</span><span class="p">]</span>  <span class="c1"># Optional tags for retrieval</span>
+<span class="p">}))</span>
+
+<span class="c1"># Retrieve relevant memories</span>
+<span class="n">climate_memories</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">episodic_memory</span><span class="o">.</span><span class="n">retrieve</span><span class="p">(</span><span class="s2">&quot;climate change&quot;</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">5</span><span class="p">))</span>
+</pre></div>
+</div>
+</section>
+<section id="procedural-memory">
+<h3>3. Procedural Memory<a class="headerlink" href="#procedural-memory" title="Link to this heading"></a></h3>
+<p>Procedural memory stores patterns, workflows, and templates that guide the agent’s behavior. This is useful for:</p>
+<ul class="simple">
+<li><p>Storing reasoning patterns</p></li>
+<li><p>Defining behavior templates</p></li>
+<li><p>Creating dynamic system prompts</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProceduralMemory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory.persistence</span><span class="w"> </span><span class="kn">import</span> <span class="n">InMemoryPersistence</span>
+
+<span class="c1"># Initialize the persistence layer</span>
+<span class="n">persistence</span> <span class="o">=</span> <span class="n">InMemoryPersistence</span><span class="p">()</span>
+<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">persistence</span><span class="o">.</span><span class="n">initialize</span><span class="p">())</span>
+
+<span class="c1"># Create procedural memory</span>
+<span class="n">procedural_memory</span> <span class="o">=</span> <span class="n">ProceduralMemory</span><span class="p">(</span>
+    <span class="n">persistence</span><span class="o">=</span><span class="n">persistence</span><span class="p">,</span>
+    <span class="n">namespace</span><span class="o">=</span><span class="s2">&quot;reasoning_patterns&quot;</span>
+<span class="p">)</span>
+
+<span class="c1"># Store a reasoning pattern</span>
+<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">procedural_memory</span><span class="o">.</span><span class="n">save</span><span class="p">({</span>
+    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;explain_concept&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;template&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;When explaining </span><span class="si">{concept}</span><span class="s2">, follow these steps:</span>
+<span class="s2">1. Start with a simple analogy</span>
+<span class="s2">2. Define key terms</span>
+<span class="s2">3. Provide concrete examples</span>
+<span class="s2">4. Address common misconceptions</span>
+<span class="s2">5. Summarize the main points&quot;&quot;&quot;</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Template for explaining complex concepts&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;tags&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;explanation&quot;</span><span class="p">,</span> <span class="s2">&quot;teaching&quot;</span><span class="p">]</span>
+<span class="p">}))</span>
+
+<span class="c1"># Retrieve relevant patterns</span>
+<span class="n">explanation_patterns</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">procedural_memory</span><span class="o">.</span><span class="n">retrieve</span><span class="p">(</span><span class="s2">&quot;explanation&quot;</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+</section>
+<section id="composite-memory">
+<h3>Composite Memory<a class="headerlink" href="#composite-memory" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">CompositeMemory</span></code> class combines multiple memory types into a unified interface, making it easy to work with different memory types together:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompositeMemory</span><span class="p">,</span> <span class="n">SemanticMemory</span><span class="p">,</span> <span class="n">EpisodicMemory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory.persistence</span><span class="w"> </span><span class="kn">import</span> <span class="n">InMemoryPersistence</span>
+
+<span class="c1"># Initialize the persistence layer</span>
+<span class="n">persistence</span> <span class="o">=</span> <span class="n">InMemoryPersistence</span><span class="p">()</span>
+<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">persistence</span><span class="o">.</span><span class="n">initialize</span><span class="p">())</span>
+
+<span class="c1"># Create individual memory types</span>
+<span class="n">semantic_memory</span> <span class="o">=</span> <span class="n">SemanticMemory</span><span class="p">(</span><span class="n">persistence</span><span class="p">,</span> <span class="s2">&quot;semantic&quot;</span><span class="p">)</span>
+<span class="n">episodic_memory</span> <span class="o">=</span> <span class="n">EpisodicMemory</span><span class="p">(</span><span class="n">persistence</span><span class="p">,</span> <span class="s2">&quot;episodic&quot;</span><span class="p">)</span>
+
+<span class="c1"># Create composite memory</span>
+<span class="n">memory</span> <span class="o">=</span> <span class="n">CompositeMemory</span><span class="p">({</span>
+    <span class="s2">&quot;semantic&quot;</span><span class="p">:</span> <span class="n">semantic_memory</span><span class="p">,</span>
+    <span class="s2">&quot;episodic&quot;</span><span class="p">:</span> <span class="n">episodic_memory</span>
+<span class="p">})</span>
+
+<span class="c1"># Save to a specific memory type</span>
+<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">memory</span><span class="o">.</span><span class="n">save_to</span><span class="p">(</span><span class="s2">&quot;semantic&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;entity&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;attribute&quot;</span><span class="p">:</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;Alice&quot;</span><span class="p">}))</span>
+
+<span class="c1"># Retrieve from a specific memory type</span>
+<span class="n">user_info</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">memory</span><span class="o">.</span><span class="n">retrieve_from</span><span class="p">(</span><span class="s2">&quot;semantic&quot;</span><span class="p">,</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">5</span><span class="p">))</span>
+
+<span class="c1"># Retrieve from all memory types</span>
+<span class="n">all_memories</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">memory</span><span class="o">.</span><span class="n">retrieve_all</span><span class="p">(</span><span class="s2">&quot;query&quot;</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;semantic&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;episodic&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">}))</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="persistence-backends">
+<h2>Persistence Backends<a class="headerlink" href="#persistence-backends" title="Link to this heading"></a></h2>
+<p>The memory system supports multiple persistence backends through the <code class="docutils literal notranslate"><span class="pre">MemoryPersistence</span></code> interface:</p>
+<section id="inmemorypersistence">
+<h3>InMemoryPersistence<a class="headerlink" href="#inmemorypersistence" title="Link to this heading"></a></h3>
+<p>Stores memories in memory (non-persistent, useful for testing and development):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory.persistence</span><span class="w"> </span><span class="kn">import</span> <span class="n">InMemoryPersistence</span>
+
+<span class="c1"># Initialize in-memory storage</span>
+<span class="n">persistence</span> <span class="o">=</span> <span class="n">InMemoryPersistence</span><span class="p">()</span>
+<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">persistence</span><span class="o">.</span><span class="n">initialize</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<section id="filesystempersistence">
+<h3>FileSystemPersistence<a class="headerlink" href="#filesystempersistence" title="Link to this heading"></a></h3>
+<p>Stores memories on disk for persistence between runs:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory.persistence</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileSystemPersistence</span>
+
+<span class="c1"># Initialize file system storage</span>
+<span class="n">persistence</span> <span class="o">=</span> <span class="n">FileSystemPersistence</span><span class="p">(</span><span class="n">directory</span><span class="o">=</span><span class="s2">&quot;./memory_data&quot;</span><span class="p">)</span>
+<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">persistence</span><span class="o">.</span><span class="n">initialize</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<section id="vectorstorepersistence">
+<h3>VectorStorePersistence<a class="headerlink" href="#vectorstorepersistence" title="Link to this heading"></a></h3>
+<p>Stores memories in a vector database for semantic search capabilities:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory.persistence</span><span class="w"> </span><span class="kn">import</span> <span class="n">VectorStorePersistence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">langchain_community.embeddings</span><span class="w"> </span><span class="kn">import</span> <span class="n">OpenAIEmbeddings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">langchain_community.vectorstores</span><span class="w"> </span><span class="kn">import</span> <span class="n">Chroma</span>
+
+<span class="c1"># Initialize the embedding function</span>
+<span class="n">embedding_function</span> <span class="o">=</span> <span class="n">OpenAIEmbeddings</span><span class="p">()</span>
+
+<span class="c1"># Initialize vector store</span>
+<span class="n">vector_store</span> <span class="o">=</span> <span class="n">Chroma</span><span class="p">(</span>
+    <span class="n">collection_name</span><span class="o">=</span><span class="s2">&quot;agent_memory&quot;</span><span class="p">,</span>
+    <span class="n">embedding_function</span><span class="o">=</span><span class="n">embedding_function</span><span class="p">,</span>
+    <span class="n">persist_directory</span><span class="o">=</span><span class="s2">&quot;./chroma_db&quot;</span>
+<span class="p">)</span>
+
+<span class="c1"># Initialize vector store persistence</span>
+<span class="n">persistence</span> <span class="o">=</span> <span class="n">VectorStorePersistence</span><span class="p">(</span>
+    <span class="n">vector_store</span><span class="o">=</span><span class="n">vector_store</span><span class="p">,</span>
+    <span class="n">embedding_function</span><span class="o">=</span><span class="n">embedding_function</span>
+<span class="p">)</span>
+<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">persistence</span><span class="o">.</span><span class="n">initialize</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="integration-with-agents">
+<h2>Integration with Agents<a class="headerlink" href="#integration-with-agents" title="Link to this heading"></a></h2>
+<p>All agent patterns in the library support memory integration through the <code class="docutils literal notranslate"><span class="pre">BaseAgent</span></code> class:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.patterns.re_act_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReActAgent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompositeMemory</span><span class="p">,</span> <span class="n">SemanticMemory</span><span class="p">,</span> <span class="n">EpisodicMemory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory.persistence</span><span class="w"> </span><span class="kn">import</span> <span class="n">InMemoryPersistence</span>
+
+<span class="c1"># Set up memory</span>
+<span class="n">persistence</span> <span class="o">=</span> <span class="n">InMemoryPersistence</span><span class="p">()</span>
+<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">persistence</span><span class="o">.</span><span class="n">initialize</span><span class="p">())</span>
+
+<span class="n">semantic_memory</span> <span class="o">=</span> <span class="n">SemanticMemory</span><span class="p">(</span><span class="n">persistence</span><span class="p">,</span> <span class="s2">&quot;semantic&quot;</span><span class="p">)</span>
+<span class="n">episodic_memory</span> <span class="o">=</span> <span class="n">EpisodicMemory</span><span class="p">(</span><span class="n">persistence</span><span class="p">,</span> <span class="s2">&quot;episodic&quot;</span><span class="p">)</span>
+
+<span class="n">memory</span> <span class="o">=</span> <span class="n">CompositeMemory</span><span class="p">({</span>
+    <span class="s2">&quot;semantic&quot;</span><span class="p">:</span> <span class="n">semantic_memory</span><span class="p">,</span>
+    <span class="s2">&quot;episodic&quot;</span><span class="p">:</span> <span class="n">episodic_memory</span>
+<span class="p">})</span>
+
+<span class="c1"># Create agent with memory</span>
+<span class="n">agent</span> <span class="o">=</span> <span class="n">ReActAgent</span><span class="p">(</span>
+    <span class="n">llm_configs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;provider&quot;</span><span class="p">:</span> <span class="s2">&quot;openai&quot;</span><span class="p">,</span> <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="s2">&quot;gpt-4o&quot;</span><span class="p">}},</span>
+    <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
+    <span class="n">memory_config</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;semantic&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>  <span class="c1"># Enable semantic memory</span>
+        <span class="s2">&quot;episodic&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>   <span class="c1"># Enable episodic memory</span>
+        <span class="s2">&quot;procedural&quot;</span><span class="p">:</span> <span class="kc">False</span> <span class="c1"># Disable procedural memory</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+
+<span class="c1"># The agent will now automatically retrieve and save memories during its operation</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">&quot;What&#39;s the weather in New York?&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="advanced-usage">
+<h2>Advanced Usage<a class="headerlink" href="#advanced-usage" title="Link to this heading"></a></h2>
+<section id="custom-memory-types">
+<h3>Custom Memory Types<a class="headerlink" href="#custom-memory-types" title="Link to this heading"></a></h3>
+<p>You can create custom memory types by extending the <code class="docutils literal notranslate"><span class="pre">BaseMemory</span></code> class:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseMemory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory.persistence</span><span class="w"> </span><span class="kn">import</span> <span class="n">MemoryPersistence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">uuid</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">CustomMemory</span><span class="p">(</span><span class="n">BaseMemory</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Custom memory implementation.&quot;&quot;&quot;</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
+                 <span class="n">persistence</span><span class="p">:</span> <span class="n">MemoryPersistence</span><span class="p">,</span>
+                 <span class="n">namespace</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;custom&quot;</span><span class="p">,</span>
+                 <span class="n">config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">persistence</span> <span class="o">=</span> <span class="n">persistence</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">namespace</span> <span class="o">=</span> <span class="n">namespace</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span> <span class="ow">or</span> <span class="p">{}</span>
+    
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="o">**</span><span class="n">metadata</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Save an item to memory.&quot;&quot;&quot;</span>
+        <span class="n">memory_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;custom_</span><span class="si">{</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span><span class="si">}</span><span class="s2">&quot;</span>
+        
+        <span class="c1"># Process the item if needed</span>
+        <span class="n">processed_item</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_item</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+        
+        <span class="c1"># Store in persistence layer</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">persistence</span><span class="o">.</span><span class="n">store</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">namespace</span><span class="p">,</span>
+            <span class="n">memory_id</span><span class="p">,</span>
+            <span class="n">processed_item</span><span class="p">,</span>
+            <span class="n">metadata</span>
+        <span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">memory_id</span>
+    
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">retrieve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="o">**</span><span class="n">filters</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve items from memory.&quot;&quot;&quot;</span>
+        <span class="c1"># Process query if needed</span>
+        <span class="n">processed_query</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_query</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+        
+        <span class="c1"># Search in persistence layer</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">persistence</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">namespace</span><span class="p">,</span>
+            <span class="n">processed_query</span><span class="p">,</span>
+            <span class="n">limit</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">filters</span>
+        <span class="p">)</span>
+        
+        <span class="k">return</span> <span class="p">[</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">results</span><span class="p">]</span>
+    
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">item</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="o">**</span><span class="n">metadata</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update an existing memory item.&quot;&quot;&quot;</span>
+        <span class="n">existing</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">persistence</span><span class="o">.</span><span class="n">retrieve</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">namespace</span><span class="p">,</span> <span class="nb">id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">existing</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        
+        <span class="c1"># Process the update</span>
+        <span class="n">processed_item</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_update</span><span class="p">(</span><span class="n">existing</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span>
+        
+        <span class="c1"># Store updated value</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">persistence</span><span class="o">.</span><span class="n">store</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">namespace</span><span class="p">,</span>
+            <span class="nb">id</span><span class="p">,</span>
+            <span class="n">processed_item</span><span class="p">,</span>
+            <span class="n">metadata</span>
+        <span class="p">)</span>
+        
+        <span class="k">return</span> <span class="kc">True</span>
+    
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Delete a memory item.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">persistence</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">namespace</span><span class="p">,</span> <span class="nb">id</span><span class="p">)</span>
+    
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Clear all memory items.&quot;&quot;&quot;</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">persistence</span><span class="o">.</span><span class="n">clear_namespace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">namespace</span><span class="p">)</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_process_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Process an item before saving.&quot;&quot;&quot;</span>
+        <span class="c1"># Implement custom processing logic</span>
+        <span class="k">return</span> <span class="n">item</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_process_query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Process a query before retrieval.&quot;&quot;&quot;</span>
+        <span class="c1"># Implement custom query processing</span>
+        <span class="k">return</span> <span class="n">query</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_process_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">existing</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">update</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Process an update.&quot;&quot;&quot;</span>
+        <span class="c1"># Implement custom update logic</span>
+        <span class="k">return</span> <span class="p">{</span><span class="o">**</span><span class="n">existing</span><span class="p">,</span> <span class="o">**</span><span class="n">update</span><span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="custom-persistence-backends">
+<h3>Custom Persistence Backends<a class="headerlink" href="#custom-persistence-backends" title="Link to this heading"></a></h3>
+<p>You can create custom persistence backends by implementing the <code class="docutils literal notranslate"><span class="pre">MemoryPersistence</span></code> interface:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agent_patterns.core.memory.persistence</span><span class="w"> </span><span class="kn">import</span> <span class="n">MemoryPersistence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">CustomPersistence</span><span class="p">(</span><span class="n">MemoryPersistence</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Custom persistence implementation.&quot;&quot;&quot;</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">client</span> <span class="o">=</span> <span class="kc">None</span>
+    
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the persistence layer.&quot;&quot;&quot;</span>
+        <span class="c1"># Set up connection to your storage backend</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">client</span> <span class="o">=</span> <span class="n">YourStorageClient</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+    
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">store</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">namespace</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">metadata</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Store a value with an associated key.&quot;&quot;&quot;</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="n">metadata</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="c1"># Implement storage logic</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">metadata</span><span class="p">)</span>
+    
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">retrieve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">namespace</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve a value by key.&quot;&quot;&quot;</span>
+        <span class="c1"># Implement retrieval logic</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+    
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">namespace</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="o">**</span><span class="n">filters</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Search for values matching a query.&quot;&quot;&quot;</span>
+        <span class="c1"># Implement search logic</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">limit</span><span class="p">,</span> <span class="n">filters</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">item</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="n">item</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span> <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="n">item</span><span class="o">.</span><span class="n">score</span><span class="p">}</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">results</span>
+        <span class="p">]</span>
+    
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">namespace</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Delete a value by key.&quot;&quot;&quot;</span>
+        <span class="c1"># Implement deletion logic</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+    
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">clear_namespace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">namespace</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Clear all data in a namespace.&quot;&quot;&quot;</span>
+        <span class="c1"># Implement namespace clearing</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">clear</span><span class="p">(</span><span class="n">namespace</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="synchronous-usage">
+<h2>Synchronous Usage<a class="headerlink" href="#synchronous-usage" title="Link to this heading"></a></h2>
+<p>While the memory API is primarily asynchronous, the agent patterns provide synchronous convenience methods for working with memory:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># In an agent class</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">sync_retrieve_memories</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Synchronous wrapper for memory retrieval.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{}</span>
+        
+    <span class="k">return</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_retrieve_memories</span><span class="p">(</span><span class="n">query</span><span class="p">))</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">sync_save_memory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">memory_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">item</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">metadata</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Synchronous wrapper for memory saving.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">memory</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">memory_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">memory_type</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+        
+    <span class="k">return</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">save_to</span><span class="p">(</span><span class="n">memory_type</span><span class="p">,</span> <span class="n">item</span><span class="p">,</span> <span class="o">**</span><span class="n">metadata</span><span class="p">))</span>
+</pre></div>
+</div>
+</section>
+<section id="best-practices">
+<h2>Best Practices<a class="headerlink" href="#best-practices" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>Memory Organization</strong>:</p>
+<ul class="simple">
+<li><p>Use namespaces to organize different types of data</p></li>
+<li><p>Use consistent schemas for similar types of information</p></li>
+<li><p>Add metadata to improve retrieval accuracy</p></li>
+</ul>
+</li>
+<li><p><strong>Retrieval Optimization</strong>:</p>
+<ul class="simple">
+<li><p>Be specific with queries to get the most relevant results</p></li>
+<li><p>Set appropriate limits to avoid overwhelming the model</p></li>
+<li><p>Use filters to narrow down results when possible</p></li>
+</ul>
+</li>
+<li><p><strong>Memory Management</strong>:</p>
+<ul class="simple">
+<li><p>Implement regular pruning of less relevant memories</p></li>
+<li><p>Consider the importance score when retrieving memories</p></li>
+<li><p>Use tags consistently to improve retrieval</p></li>
+</ul>
+</li>
+<li><p><strong>Integration with Agents</strong>:</p>
+<ul class="simple">
+<li><p>Retrieve memories at the beginning of agent workflows</p></li>
+<li><p>Save important information after completing tasks</p></li>
+<li><p>Use memory-aware prompts to incorporate retrieved information</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="conclusion">
+<h2>Conclusion<a class="headerlink" href="#conclusion" title="Link to this heading"></a></h2>
+<p>The memory system provides powerful capabilities for building agents with persistent knowledge and contextual awareness. By integrating memory into your agents, you can create more personalized, consistent, and intelligent experiences.</p>
+<p>For detailed examples, see the <code class="docutils literal notranslate"><span class="pre">examples/memory_example.py</span></code> and <code class="docutils literal notranslate"><span class="pre">examples/combined_memory_tools_example.py</span></code> files in the repository.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="Agent_Tools_Design.html" class="btn btn-neutral float-left" title="Model Context Protocol (MCP) Integration Design for Agent-Patterns" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Memory%20Integration%20Tutorial.html" class="btn btn-neutral float-right" title="Memory Integration Tutorial" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Your Name.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

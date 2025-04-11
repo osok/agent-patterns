@@ -75,23 +75,13 @@ This document provides detailed API reference for the memory system in Agent Pat
 
 ## Persistence
 
-### BasePersistence
+### Persistence Providers
 
-::: agent_patterns.core.memory.persistence.base.BasePersistence
-    handler: python
-    selection:
-      members:
-        - __init__
-        - initialize
-        - save
-        - retrieve
-        - update
-        - delete
-        - close
+The memory system includes several persistence providers for storing memory data.
 
 ### InMemoryPersistence
 
-::: agent_patterns.core.memory.persistence.in_memory.InMemoryPersistence
+::: agent_patterns.core.memory.persistence.InMemoryPersistence
     handler: python
     selection:
       members:
@@ -104,9 +94,9 @@ This document provides detailed API reference for the memory system in Agent Pat
         - close
         - _filter_by_query
 
-### FilePersistence
+### FileSystemPersistence
 
-::: agent_patterns.core.memory.persistence.file.FilePersistence
+::: agent_patterns.core.memory.persistence.FileSystemPersistence
     handler: python
     selection:
       members:
@@ -120,9 +110,9 @@ This document provides detailed API reference for the memory system in Agent Pat
         - _get_namespace_dir
         - _ensure_namespace_dir
 
-### VectorDBPersistence
+### VectorStorePersistence
 
-::: agent_patterns.core.memory.persistence.vector_db.VectorDBPersistence
+::: agent_patterns.core.memory.persistence.VectorStorePersistence
     handler: python
     selection:
       members:
@@ -135,37 +125,3 @@ This document provides detailed API reference for the memory system in Agent Pat
         - close
         - _calculate_embedding
 
-## Memory Utilities
-
-### MemoryFormatter
-
-::: agent_patterns.core.memory.utils.formatter.MemoryFormatter
-    handler: python
-    selection:
-      members:
-        - format_memory
-        - format_semantic_memory
-        - format_episodic_memory
-        - format_procedural_memory
-        - format_composite_memory
-
-### MemoryEncoder
-
-::: agent_patterns.core.memory.utils.encoder.MemoryEncoder
-    handler: python
-    selection:
-      members:
-        - encode_memory
-        - decode_memory
-        - calculate_embedding
-
-### MemoryRetriever
-
-::: agent_patterns.core.memory.utils.retriever.MemoryRetriever
-    handler: python
-    selection:
-      members:
-        - retrieve_relevant
-        - retrieve_recent
-        - retrieve_by_tag
-        - combine_retrievals
