@@ -18,7 +18,9 @@
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" /> 
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Reflection Pattern" href="reflection.html" />
+    <link rel="prev" title="ReAct Pattern" href="re_act.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -40,25 +42,49 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <!-- Local TOC -->
-              <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">Plan and Solve Pattern</a><ul>
-<li><a class="reference internal" href="#overview">Overview</a></li>
-<li><a class="reference internal" href="#diagrams">Diagrams</a><ul>
-<li><a class="reference internal" href="#class-structure">Class Structure</a></li>
-<li><a class="reference internal" href="#execution-flow">Execution Flow</a></li>
-<li><a class="reference internal" href="#state-transitions">State Transitions</a></li>
+              <p class="caption" role="heading"><span class="caption-text">Documentation:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../guides/index.html">Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Patterns</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="re_act.html">ReAct Pattern</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Plan and Solve Pattern</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#diagrams">Diagrams</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#class-structure">Class Structure</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#execution-flow">Execution Flow</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#state-transitions">State Transitions</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#use-cases">Use Cases</a></li>
-<li><a class="reference internal" href="#implementation-guide">Implementation Guide</a></li>
-<li><a class="reference internal" href="#example-references">Example References</a></li>
-<li><a class="reference internal" href="#best-practices">Best Practices</a></li>
-<li><a class="reference internal" href="#related-patterns">Related Patterns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#use-cases">Use Cases</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#implementation-guide">Implementation Guide</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#example-references">Example References</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#best-practices">Best Practices</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#related-patterns">Related Patterns</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="reflection.html">Reflection Pattern</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reflexion.html">Reflexion Pattern</a></li>
+<li class="toctree-l2"><a class="reference internal" href="llm_compiler.html">LLM Compiler Pattern</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rewoo.html">ReWOO Pattern</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lats.html">LATS (LangChain Agents Tracing System) Pattern</a></li>
+<li class="toctree-l2"><a class="reference internal" href="storm.html">STORM Pattern</a></li>
+<li class="toctree-l2"><a class="reference internal" href="self_discovery.html">Self-Discovery Pattern</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reflection_and_refinement.html">Reflection and Refinement Pattern</a></li>
 </ul>
-</div>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Design.html"><strong>Agent-Patterns Project: Design Document</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Agent%20Memory%20Design.html"><strong>Agent Memory Systems Integration Design for Agent-Patterns</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Agent_Tools_Design.html"><strong>Model Context Protocol (MCP) Integration Design for Agent-Patterns</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Memory%20API%20Documentation.html">Memory System API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Memory%20Integration%20Tutorial.html">Memory Integration Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Tool%20Provider%20API%20Documentation.html">Tool Provider API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../MCP%20Tool%20Integration%20Tutorial.html">MCP Tool Integration Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../memory_and_mcp_integration.html">Memory and MCP Tool Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Next%20Steps.html">Next Steps</a></li>
+</ul>
+
         </div>
       </div>
     </nav>
@@ -73,6 +99,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Patterns</a></li>
       <li class="breadcrumb-item active">Plan and Solve Pattern</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/patterns/plan_and_solve.md.txt" rel="nofollow"> View page source</a>
@@ -250,7 +277,10 @@
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="re_act.html" class="btn btn-neutral float-left" title="ReAct Pattern" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="reflection.html" class="btn btn-neutral float-right" title="Reflection Pattern" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 

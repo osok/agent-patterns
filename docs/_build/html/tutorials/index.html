@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Agent Patterns Tutorials &mdash; agent-patterns 0.1.1 documentation</title>
+  <title>Tutorials &mdash; agent-patterns 0.1.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
 
@@ -18,7 +18,9 @@
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" /> 
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Building a Research Assistant" href="research_assistant.html" />
+    <link rel="prev" title="Migration Guide" href="../guides/migration.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -40,17 +42,29 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <!-- Local TOC -->
-              <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">Agent Patterns Tutorials</a><ul>
-<li><a class="reference internal" href="#available-tutorials">Available Tutorials</a></li>
-<li><a class="reference internal" href="#tutorial-structure">Tutorial Structure</a></li>
-<li><a class="reference internal" href="#skill-level">Skill Level</a></li>
-<li><a class="reference internal" href="#feedback-and-contributions">Feedback and Contributions</a></li>
+              <p class="caption" role="heading"><span class="caption-text">Documentation:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../guides/index.html">Guides</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorials</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="research_assistant.html">Building a Research Assistant</a></li>
+<li class="toctree-l2"><a class="reference internal" href="customer_support_bot.html">Building a Customer Support Bot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="code_generation_agent.html">Building a Code Generation Agent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multi_agent_system.html">Building a Multi-Agent System</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../patterns/index.html">Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Design.html"><strong>Agent-Patterns Project: Design Document</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Agent%20Memory%20Design.html"><strong>Agent Memory Systems Integration Design for Agent-Patterns</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Agent_Tools_Design.html"><strong>Model Context Protocol (MCP) Integration Design for Agent-Patterns</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Memory%20API%20Documentation.html">Memory System API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Memory%20Integration%20Tutorial.html">Memory Integration Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Tool%20Provider%20API%20Documentation.html">Tool Provider API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../MCP%20Tool%20Integration%20Tutorial.html">MCP Tool Integration Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../memory_and_mcp_integration.html">Memory and MCP Tool Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Next%20Steps.html">Next Steps</a></li>
 </ul>
-</div>
+
         </div>
       </div>
     </nav>
@@ -65,9 +79,9 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Agent Patterns Tutorials</li>
+      <li class="breadcrumb-item active">Tutorials</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/tutorials/index.md.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/tutorials/index.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -75,55 +89,79 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="agent-patterns-tutorials">
-<h1>Agent Patterns Tutorials<a class="headerlink" href="#agent-patterns-tutorials" title="Link to this heading"></a></h1>
-<p>This section contains step-by-step tutorials for building complete applications using agent patterns.</p>
-<section id="available-tutorials">
-<h2>Available Tutorials<a class="headerlink" href="#available-tutorials" title="Link to this heading"></a></h2>
-<ul class="simple">
-<li><p>🟢 <strong><a class="reference internal" href="research_assistant.html"><span class="std std-doc">Research Assistant</span></a></strong> - Build an AI research assistant that can search, summarize, and synthesize information</p></li>
-<li><p>🟢 <strong><a class="reference internal" href="customer_support_bot.html"><span class="std std-doc">Customer Support Bot</span></a></strong> - Create a support agent that can handle customer inquiries and integrate with support systems</p></li>
-<li><p>🟡 <strong><a class="reference internal" href="code_generation_agent.html"><span class="std std-doc">Code Generation Agent</span></a></strong> - Develop an agent that can generate, explain, and refactor code</p></li>
-<li><p>🔴 <strong><a class="reference internal" href="multi_agent_system.html"><span class="std std-doc">Multi-Agent System</span></a></strong> - Build a collaborative system with multiple specialized agents</p></li>
+  <section id="tutorials">
+<h1>Tutorials<a class="headerlink" href="#tutorials" title="Link to this heading"></a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="research_assistant.html">Building a Research Assistant</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="research_assistant.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="research_assistant.html#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="research_assistant.html#step-1-setting-up-the-project">Step 1: Setting Up the Project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="research_assistant.html#step-2-setting-up-memory">Step 2: Setting Up Memory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="research_assistant.html#step-3-setting-up-tools">Step 3: Setting Up Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="research_assistant.html#step-4-creating-the-research-agent">Step 4: Creating the Research Agent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="research_assistant.html#step-5-creating-a-research-manager">Step 5: Creating a Research Manager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="research_assistant.html#step-6-using-the-research-assistant">Step 6: Using the Research Assistant</a></li>
+<li class="toctree-l2"><a class="reference internal" href="research_assistant.html#step-7-enhancing-with-source-evaluation">Step 7: Enhancing with Source Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="research_assistant.html#complete-code">Complete Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="research_assistant.html#architecture-diagram">Architecture Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="research_assistant.html#next-steps">Next Steps</a></li>
 </ul>
-</section>
-<section id="tutorial-structure">
-<h2>Tutorial Structure<a class="headerlink" href="#tutorial-structure" title="Link to this heading"></a></h2>
-<p>Each tutorial follows a consistent structure:</p>
-<ul class="simple">
-<li><p><strong>Overview</strong> - Introduces the application and its use case</p></li>
-<li><p><strong>Architecture</strong> - Describes the system design and components</p></li>
-<li><p><strong>Prerequisites</strong> - Lists required dependencies and setup</p></li>
-<li><p><strong>Implementation</strong> - Provides step-by-step implementation instructions</p></li>
-<li><p><strong>Testing</strong> - Shows how to test the application</p></li>
-<li><p><strong>Extensions</strong> - Suggests ways to enhance and customize the application</p></li>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="customer_support_bot.html">Building a Customer Support Bot</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="customer_support_bot.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="customer_support_bot.html#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="customer_support_bot.html#step-1-setting-up-the-project">Step 1: Setting Up the Project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="customer_support_bot.html#step-2-creating-custom-tools">Step 2: Creating Custom Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="customer_support_bot.html#step-3-setting-up-memory">Step 3: Setting Up Memory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="customer_support_bot.html#step-4-creating-the-support-bot-agent">Step 4: Creating the Support Bot Agent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="customer_support_bot.html#step-5-creating-a-customer-support-interface">Step 5: Creating a Customer Support Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="customer_support_bot.html#step-6-creating-a-simple-command-line-interface">Step 6: Creating a Simple Command Line Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="customer_support_bot.html#step-7-adding-analytics-and-performance-tracking">Step 7: Adding Analytics and Performance Tracking</a></li>
+<li class="toctree-l2"><a class="reference internal" href="customer_support_bot.html#complete-code">Complete Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="customer_support_bot.html#architecture-diagram">Architecture Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="customer_support_bot.html#next-steps">Next Steps</a></li>
 </ul>
-</section>
-<section id="skill-level">
-<h2>Skill Level<a class="headerlink" href="#skill-level" title="Link to this heading"></a></h2>
-<p>Tutorials are marked with skill level indicators:</p>
-<ul class="simple">
-<li><p>🟢 <strong>Beginner</strong> - Suitable for those new to the library</p></li>
-<li><p>🟡 <strong>Intermediate</strong> - Requires basic understanding of agent patterns</p></li>
-<li><p>🔴 <strong>Advanced</strong> - Involves complex concepts and integrations</p></li>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="code_generation_agent.html">Building a Code Generation Agent</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="code_generation_agent.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="code_generation_agent.html#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="code_generation_agent.html#step-1-setting-up-the-project">Step 1: Setting Up the Project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="code_generation_agent.html#step-2-creating-custom-tools">Step 2: Creating Custom Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="code_generation_agent.html#step-3-setting-up-memory">Step 3: Setting Up Memory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="code_generation_agent.html#step-4-creating-the-code-generation-agent">Step 4: Creating the Code Generation Agent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="code_generation_agent.html#step-5-creating-a-code-generation-manager">Step 5: Creating a Code Generation Manager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="code_generation_agent.html#step-6-creating-a-cli-interface">Step 6: Creating a CLI Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="code_generation_agent.html#complete-code">Complete Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="code_generation_agent.html#architecture-diagram">Architecture Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="code_generation_agent.html#next-steps">Next Steps</a></li>
 </ul>
-</section>
-<section id="feedback-and-contributions">
-<h2>Feedback and Contributions<a class="headerlink" href="#feedback-and-contributions" title="Link to this heading"></a></h2>
-<p>If you complete a tutorial and have feedback or want to contribute your own:</p>
-<ol class="arabic simple">
-<li><p>Share your experience in the discussions</p></li>
-<li><p>Submit pull requests for improvements</p></li>
-<li><p>Propose new tutorial ideas through issues</p></li>
-</ol>
-<p>See our <a class="reference internal" href="#../contributing.md"><span class="xref myst">Contributing Guidelines</span></a> for more information.</p>
-</section>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="multi_agent_system.html">Building a Multi-Agent System</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="multi_agent_system.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multi_agent_system.html#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multi_agent_system.html#step-1-setting-up-the-project">Step 1: Setting Up the Project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multi_agent_system.html#step-2-creating-the-memory-system">Step 2: Creating the Memory System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multi_agent_system.html#step-3-creating-specialized-agents">Step 3: Creating Specialized Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multi_agent_system.html#step-4-creating-the-agent-coordinator">Step 4: Creating the Agent Coordinator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multi_agent_system.html#step-5-creating-a-user-interface">Step 5: Creating a User Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multi_agent_system.html#step-6-adding-agent-specific-tools">Step 6: Adding Agent-Specific Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multi_agent_system.html#complete-code">Complete Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multi_agent_system.html#architecture-diagram">Architecture Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multi_agent_system.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+</ul>
+</div>
 </section>
 
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../guides/migration.html" class="btn btn-neutral float-left" title="Migration Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="research_assistant.html" class="btn btn-neutral float-right" title="Building a Research Assistant" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 

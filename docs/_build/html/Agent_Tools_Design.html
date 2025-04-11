@@ -18,7 +18,9 @@
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Memory System API Documentation" href="Memory%20API%20Documentation.html" />
+    <link rel="prev" title="Agent Memory Systems Integration Design for Agent-Patterns" href="Agent%20Memory%20Design.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -40,48 +42,60 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <!-- Local TOC -->
-              <div class="local-toc"><ul>
-<li><a class="reference internal" href="#"><strong>Model Context Protocol (MCP) Integration Design for Agent-Patterns</strong></a><ul>
-<li><a class="reference internal" href="#overview"><strong>1. Overview</strong></a></li>
-<li><a class="reference internal" href="#design-goals"><strong>2. Design Goals</strong></a></li>
-<li><a class="reference internal" href="#architecture"><strong>3. Architecture</strong></a><ul>
-<li><a class="reference internal" href="#core-components"><strong>3.1 Core Components</strong></a></li>
-<li><a class="reference internal" href="#class-hierarchy"><strong>3.2 Class Hierarchy</strong></a></li>
-<li><a class="reference internal" href="#key-interfaces"><strong>3.3 Key Interfaces</strong></a><ul>
-<li><a class="reference internal" href="#toolprovider-abstract-base-class"><strong>ToolProvider (Abstract Base Class)</strong></a></li>
-<li><a class="reference internal" href="#mcptoolprovider-implementation"><strong>MCPToolProvider (Implementation)</strong></a></li>
+              <p class="caption" role="heading"><span class="caption-text">Documentation:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="guides/index.html">Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="patterns/index.html">Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Design.html"><strong>Agent-Patterns Project: Design Document</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="Agent%20Memory%20Design.html"><strong>Agent Memory Systems Integration Design for Agent-Patterns</strong></a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#"><strong>Model Context Protocol (MCP) Integration Design for Agent-Patterns</strong></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview"><strong>1. Overview</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#design-goals"><strong>2. Design Goals</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#architecture"><strong>3. Architecture</strong></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#core-components"><strong>3.1 Core Components</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#class-hierarchy"><strong>3.2 Class Hierarchy</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#key-interfaces"><strong>3.3 Key Interfaces</strong></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#toolprovider-abstract-base-class"><strong>ToolProvider (Abstract Base Class)</strong></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mcptoolprovider-implementation"><strong>MCPToolProvider (Implementation)</strong></a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a class="reference internal" href="#integration-with-agent-patterns"><strong>4. Integration with Agent Patterns</strong></a><ul>
-<li><a class="reference internal" href="#baseagent-enhancement"><strong>4.1 BaseAgent Enhancement</strong></a></li>
-<li><a class="reference internal" href="#react-pattern-update"><strong>4.2 ReAct Pattern Update</strong></a></li>
-<li><a class="reference internal" href="#other-pattern-updates"><strong>4.3 Other Pattern Updates</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#integration-with-agent-patterns"><strong>4. Integration with Agent Patterns</strong></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#baseagent-enhancement"><strong>4.1 BaseAgent Enhancement</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#react-pattern-update"><strong>4.2 ReAct Pattern Update</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#other-pattern-updates"><strong>4.3 Other Pattern Updates</strong></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#mcp-server-connection-management"><strong>5. MCP Server Connection Management</strong></a><ul>
-<li><a class="reference internal" href="#helper-functions"><strong>5.1 Helper Functions</strong></a></li>
-<li><a class="reference internal" href="#configuration"><strong>5.2 Configuration</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mcp-server-connection-management"><strong>5. MCP Server Connection Management</strong></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#helper-functions"><strong>5.1 Helper Functions</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#configuration"><strong>5.2 Configuration</strong></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#usage-examples"><strong>6. Usage Examples</strong></a><ul>
-<li><a class="reference internal" href="#basic-usage"><strong>6.1 Basic Usage</strong></a></li>
-<li><a class="reference internal" href="#environment-variables"><strong>6.2 Environment Variables</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#usage-examples"><strong>6. Usage Examples</strong></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#basic-usage"><strong>6.1 Basic Usage</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#environment-variables"><strong>6.2 Environment Variables</strong></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#testing"><strong>7. Testing</strong></a><ul>
-<li><a class="reference internal" href="#mock-mcp-servers"><strong>7.1 Mock MCP Servers</strong></a></li>
-<li><a class="reference internal" href="#unit-tests"><strong>7.2 Unit Tests</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#testing"><strong>7. Testing</strong></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#mock-mcp-servers"><strong>7.1 Mock MCP Servers</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#unit-tests"><strong>7.2 Unit Tests</strong></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#future-enhancements"><strong>8. Future Enhancements</strong></a></li>
-<li><a class="reference internal" href="#conclusion"><strong>9. Conclusion</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#future-enhancements"><strong>8. Future Enhancements</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#conclusion"><strong>9. Conclusion</strong></a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="Memory%20API%20Documentation.html">Memory System API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Memory%20Integration%20Tutorial.html">Memory Integration Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Tool%20Provider%20API%20Documentation.html">Tool Provider API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="MCP%20Tool%20Integration%20Tutorial.html">MCP Tool Integration Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="memory_and_mcp_integration.html">Memory and MCP Tool Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Next%20Steps.html">Next Steps</a></li>
 </ul>
-</div>
+
         </div>
       </div>
     </nav>
@@ -98,7 +112,7 @@
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
       <li class="breadcrumb-item active"><strong>Model Context Protocol (MCP) Integration Design for Agent-Patterns</strong></li>
       <li class="wy-breadcrumbs-aside">
-            <a href="_sources/Agent Tools Design.md.md.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/Agent_Tools_Design.md.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -473,7 +487,10 @@ with pytest.raises(ToolNotFoundError):
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="Agent%20Memory%20Design.html" class="btn btn-neutral float-left" title="Agent Memory Systems Integration Design for Agent-Patterns" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Memory%20API%20Documentation.html" class="btn btn-neutral float-right" title="Memory System API Documentation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 

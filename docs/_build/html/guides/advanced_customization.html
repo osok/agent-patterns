@@ -18,7 +18,9 @@
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" /> 
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Troubleshooting Guide" href="troubleshooting.html" />
+    <link rel="prev" title="Pattern Selection Guide" href="pattern_selection.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -40,33 +42,53 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <!-- Local TOC -->
-              <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">Advanced Customization Guide</a><ul>
-<li><a class="reference internal" href="#creating-custom-agent-patterns">Creating Custom Agent Patterns</a><ul>
-<li><a class="reference internal" href="#extension-points-for-custom-patterns">Extension Points for Custom Patterns</a></li>
-<li><a class="reference internal" href="#step-by-step-implementation">Step-by-Step Implementation</a></li>
+              <p class="caption" role="heading"><span class="caption-text">Documentation:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Guides</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="getting_started.html">Getting Started Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pattern_selection.html">Pattern Selection Guide</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Advanced Customization Guide</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#creating-custom-agent-patterns">Creating Custom Agent Patterns</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#extension-points-for-custom-patterns">Extension Points for Custom Patterns</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#step-by-step-implementation">Step-by-Step Implementation</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#building-custom-memory-implementations">Building Custom Memory Implementations</a><ul>
-<li><a class="reference internal" href="#creating-a-custom-memory-type">Creating a Custom Memory Type</a></li>
-<li><a class="reference internal" href="#creating-a-custom-persistence-layer">Creating a Custom Persistence Layer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#building-custom-memory-implementations">Building Custom Memory Implementations</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#creating-a-custom-memory-type">Creating a Custom Memory Type</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#creating-a-custom-persistence-layer">Creating a Custom Persistence Layer</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#developing-specialized-tool-providers">Developing Specialized Tool Providers</a><ul>
-<li><a class="reference internal" href="#creating-a-custom-tool-provider">Creating a Custom Tool Provider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#developing-specialized-tool-providers">Developing Specialized Tool Providers</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#creating-a-custom-tool-provider">Creating a Custom Tool Provider</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#extending-baseagent-class">Extending BaseAgent Class</a><ul>
-<li><a class="reference internal" href="#extension-points-in-baseagent">Extension Points in BaseAgent</a></li>
-<li><a class="reference internal" href="#example-custom-llm-integration">Example: Custom LLM Integration</a></li>
-<li><a class="reference internal" href="#example-custom-ux-integration">Example: Custom UX Integration</a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="#extending-baseagent-class">Extending BaseAgent Class</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#extension-points-in-baseagent">Extension Points in BaseAgent</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#example-custom-llm-integration">Example: Custom LLM Integration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#example-custom-ux-integration">Example: Custom UX Integration</a></li>
 </ul>
 </li>
 </ul>
-</div>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html">Troubleshooting Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deployment.html">Deployment Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="migration.html">Migration Guide</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../patterns/index.html">Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Design.html"><strong>Agent-Patterns Project: Design Document</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Agent%20Memory%20Design.html"><strong>Agent Memory Systems Integration Design for Agent-Patterns</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Agent_Tools_Design.html"><strong>Model Context Protocol (MCP) Integration Design for Agent-Patterns</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Memory%20API%20Documentation.html">Memory System API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Memory%20Integration%20Tutorial.html">Memory Integration Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Tool%20Provider%20API%20Documentation.html">Tool Provider API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../MCP%20Tool%20Integration%20Tutorial.html">MCP Tool Integration Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../memory_and_mcp_integration.html">Memory and MCP Tool Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Next%20Steps.html">Next Steps</a></li>
+</ul>
+
         </div>
       </div>
     </nav>
@@ -81,6 +103,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Guides</a></li>
       <li class="breadcrumb-item active">Advanced Customization Guide</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/guides/advanced_customization.md.txt" rel="nofollow"> View page source</a>
@@ -890,7 +913,10 @@
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="pattern_selection.html" class="btn btn-neutral float-left" title="Pattern Selection Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="troubleshooting.html" class="btn btn-neutral float-right" title="Troubleshooting Guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 

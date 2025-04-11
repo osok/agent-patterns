@@ -18,7 +18,9 @@
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" /> 
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Core API Reference" href="core.html" />
+    <link rel="prev" title="Reflection and Refinement Pattern" href="../patterns/reflection_and_refinement.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -40,18 +42,29 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <!-- Local TOC -->
-              <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">API Reference</a><ul>
-<li><a class="reference internal" href="#core-apis">Core APIs</a></li>
-<li><a class="reference internal" href="#pattern-apis">Pattern APIs</a></li>
-<li><a class="reference internal" href="#api-organization">API Organization</a></li>
-<li><a class="reference internal" href="#using-the-api-reference">Using the API Reference</a></li>
-<li><a class="reference internal" href="#development-status">Development Status</a></li>
+              <p class="caption" role="heading"><span class="caption-text">Documentation:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../guides/index.html">Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../patterns/index.html">Patterns</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="core.html">Core API Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="patterns.html">Patterns API Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="memory.html">Memory API Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tools.html">Tools API Reference</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../Design.html"><strong>Agent-Patterns Project: Design Document</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Agent%20Memory%20Design.html"><strong>Agent Memory Systems Integration Design for Agent-Patterns</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Agent_Tools_Design.html"><strong>Model Context Protocol (MCP) Integration Design for Agent-Patterns</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Memory%20API%20Documentation.html">Memory System API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Memory%20Integration%20Tutorial.html">Memory Integration Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Tool%20Provider%20API%20Documentation.html">Tool Provider API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../MCP%20Tool%20Integration%20Tutorial.html">MCP Tool Integration Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../memory_and_mcp_integration.html">Memory and MCP Tool Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Next%20Steps.html">Next Steps</a></li>
 </ul>
-</div>
+
         </div>
       </div>
     </nav>
@@ -68,7 +81,7 @@
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
       <li class="breadcrumb-item active">API Reference</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/api/index.md.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/api/index.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -78,66 +91,35 @@
              
   <section id="api-reference">
 <h1>API Reference<a class="headerlink" href="#api-reference" title="Link to this heading"></a></h1>
-<p>This section provides detailed API documentation for the Agent Patterns library.</p>
-<section id="core-apis">
-<h2>Core APIs<a class="headerlink" href="#core-apis" title="Link to this heading"></a></h2>
-<ul class="simple">
-<li><p><strong><a class="reference internal" href="core.html#baseagent"><span class="std std-ref">BaseAgent</span></a></strong> - Abstract base class for all agent patterns</p></li>
-<li><p><strong><a class="reference internal" href="core.html#memory-system"><span class="std std-ref">Memory System</span></a></strong> - Classes for working with different memory types</p></li>
-<li><p><strong><a class="reference internal" href="core.html#tool-system"><span class="std std-ref">Tool System</span></a></strong> - Interfaces and implementations for tool integration</p></li>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="core.html">Core API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="core.html#baseagent">BaseAgent</a></li>
 </ul>
-</section>
-<section id="pattern-apis">
-<h2>Pattern APIs<a class="headerlink" href="#pattern-apis" title="Link to this heading"></a></h2>
-<ul class="simple">
-<li><p><strong><a class="reference internal" href="patterns.html#reactagent"><span class="std std-ref">ReAct</span></a></strong> - API for the Reason + Act pattern</p></li>
-<li><p><strong><a class="reference internal" href="patterns.html#reflexionagent"><span class="std std-ref">Reflexion</span></a></strong> - API for the Reflexion pattern</p></li>
-<li><p><strong><a class="reference internal" href="patterns.html#llmcompileragent"><span class="std std-ref">LLM Compiler</span></a></strong> - API for the LLM Compiler pattern</p></li>
-<li><p><strong><a class="reference internal" href="patterns.html#selfdiscoveryagent"><span class="std std-ref">Self-Discovery</span></a></strong> - API for the Self-Discovery pattern</p></li>
-<li><p><strong><a class="reference internal" href="patterns.html#latsagent"><span class="std std-ref">LATS</span></a></strong> - API for the LangChain Agents Tracing System pattern</p></li>
-<li><p><strong><a class="reference internal" href="patterns.html#reflectionagent"><span class="std std-ref">Reflection</span></a></strong> - API for the Reflection pattern</p></li>
-<li><p><strong><a class="reference internal" href="patterns.html#rewooagent"><span class="std std-ref">ReWOO</span></a></strong> - API for the Reason, World model, Observe, Outcome pattern</p></li>
-<li><p><strong><a class="reference internal" href="patterns.html#reflectionandrefinementagent"><span class="std std-ref">Reflection and Refinement</span></a></strong> - API for the Reflection and Refinement pattern</p></li>
-<li><p><strong><a class="reference internal" href="patterns.html#planandsolveagent"><span class="std std-ref">Plan and Solve</span></a></strong> - API for the Plan and Solve pattern</p></li>
-<li><p><strong><a class="reference internal" href="patterns.html#stormagent"><span class="std std-ref">STORM</span></a></strong> - API for the STORM pattern</p></li>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="patterns.html">Patterns API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="patterns.html#reactagent">ReActAgent</a></li>
 </ul>
-</section>
-<section id="api-organization">
-<h2>API Organization<a class="headerlink" href="#api-organization" title="Link to this heading"></a></h2>
-<p>The API documentation is organized by module:</p>
-<ul class="simple">
-<li><p><a class="reference internal" href="core.html"><span class="std std-doc">Core API</span></a> - Documentation for core components</p></li>
-<li><p><a class="reference internal" href="patterns.html"><span class="std std-doc">Patterns API</span></a> - Documentation for pattern implementations</p></li>
-<li><p><a class="reference internal" href="memory.html"><span class="std std-doc">Memory API</span></a> - Documentation for memory system</p></li>
-<li><p><a class="reference internal" href="tools.html"><span class="std std-doc">Tools API</span></a> - Documentation for tool system</p></li>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="memory.html">Memory API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="memory.html#memory-components">Memory Components</a></li>
 </ul>
-</section>
-<section id="using-the-api-reference">
-<h2>Using the API Reference<a class="headerlink" href="#using-the-api-reference" title="Link to this heading"></a></h2>
-<p>This API reference is automatically generated from the codebase and includes:</p>
-<ul class="simple">
-<li><p>Class and method definitions</p></li>
-<li><p>Parameter descriptions and types</p></li>
-<li><p>Return value descriptions and types</p></li>
-<li><p>Inheritance information</p></li>
-<li><p>Code examples</p></li>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tools.html">Tools API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tools.html#core-components">Core Components</a></li>
 </ul>
-</section>
-<section id="development-status">
-<h2>Development Status<a class="headerlink" href="#development-status" title="Link to this heading"></a></h2>
-<p>The Agent Patterns API is under active development. API stability is indicated with these markers:</p>
-<ul class="simple">
-<li><p>✓ <strong>Stable</strong> - API is stable and not expected to change</p></li>
-<li><p>⚠️ <strong>Experimental</strong> - API may change in future versions</p></li>
-<li><p>🔄 <strong>Beta</strong> - API is mostly stable but may have minor changes</p></li>
+</li>
 </ul>
-</section>
+</div>
 </section>
 
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../patterns/reflection_and_refinement.html" class="btn btn-neutral float-left" title="Reflection and Refinement Pattern" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="core.html" class="btn btn-neutral float-right" title="Core API Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 

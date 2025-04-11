@@ -18,7 +18,9 @@
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Memory and MCP Tool Integration" href="memory_and_mcp_integration.html" />
+    <link rel="prev" title="Tool Provider API Documentation" href="Tool%20Provider%20API%20Documentation.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -40,45 +42,57 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <!-- Local TOC -->
-              <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">MCP Tool Integration Tutorial</a><ul>
-<li><a class="reference internal" href="#introduction">Introduction</a></li>
-<li><a class="reference internal" href="#what-is-mcp">What is MCP?</a></li>
-<li><a class="reference internal" href="#basic-tool-integration">Basic Tool Integration</a><ul>
-<li><a class="reference internal" href="#step-1-set-up-an-mcp-tool-provider">Step 1: Set Up an MCP Tool Provider</a></li>
-<li><a class="reference internal" href="#step-2-configure-an-agent-with-tools">Step 2: Configure an Agent with Tools</a></li>
-<li><a class="reference internal" href="#step-3-run-the-agent">Step 3: Run the Agent</a></li>
+              <p class="caption" role="heading"><span class="caption-text">Documentation:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="guides/index.html">Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="patterns/index.html">Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Design.html"><strong>Agent-Patterns Project: Design Document</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="Agent%20Memory%20Design.html"><strong>Agent Memory Systems Integration Design for Agent-Patterns</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="Agent_Tools_Design.html"><strong>Model Context Protocol (MCP) Integration Design for Agent-Patterns</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="Memory%20API%20Documentation.html">Memory System API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Memory%20Integration%20Tutorial.html">Memory Integration Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Tool%20Provider%20API%20Documentation.html">Tool Provider API Documentation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">MCP Tool Integration Tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#what-is-mcp">What is MCP?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#basic-tool-integration">Basic Tool Integration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#step-1-set-up-an-mcp-tool-provider">Step 1: Set Up an MCP Tool Provider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-2-configure-an-agent-with-tools">Step 2: Configure an Agent with Tools</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-3-run-the-agent">Step 3: Run the Agent</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#mcp-server-connection-types">MCP Server Connection Types</a><ul>
-<li><a class="reference internal" href="#standard-input-output-stdio">Standard Input/Output (stdio)</a></li>
-<li><a class="reference internal" href="#http-sse-connection">HTTP/SSE Connection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mcp-server-connection-types">MCP Server Connection Types</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#standard-input-output-stdio">Standard Input/Output (stdio)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#http-sse-connection">HTTP/SSE Connection</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#creating-a-simple-mcp-server">Creating a Simple MCP Server</a></li>
-<li><a class="reference internal" href="#advanced-tool-integration">Advanced Tool Integration</a><ul>
-<li><a class="reference internal" href="#combining-multiple-tool-providers">Combining Multiple Tool Providers</a></li>
-<li><a class="reference internal" href="#creating-a-custom-tool-provider">Creating a Custom Tool Provider</a></li>
-<li><a class="reference internal" href="#memory-aware-tool-provider">Memory-Aware Tool Provider</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#creating-a-simple-mcp-server">Creating a Simple MCP Server</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#advanced-tool-integration">Advanced Tool Integration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#combining-multiple-tool-providers">Combining Multiple Tool Providers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#creating-a-custom-tool-provider">Creating a Custom Tool Provider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#memory-aware-tool-provider">Memory-Aware Tool Provider</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#tool-integration-with-different-agent-patterns">Tool Integration with Different Agent Patterns</a><ul>
-<li><a class="reference internal" href="#reactagent">ReActAgent</a></li>
-<li><a class="reference internal" href="#planandsolveagent">PlanAndSolveAgent</a></li>
-<li><a class="reference internal" href="#reflexionagent">ReflexionAgent</a></li>
-<li><a class="reference internal" href="#llmcompileragent">LLMCompilerAgent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tool-integration-with-different-agent-patterns">Tool Integration with Different Agent Patterns</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#reactagent">ReActAgent</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#planandsolveagent">PlanAndSolveAgent</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reflexionagent">ReflexionAgent</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#llmcompileragent">LLMCompilerAgent</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#example-building-a-tool-enhanced-agent">Example: Building a Tool-Enhanced Agent</a></li>
-<li><a class="reference internal" href="#combining-memory-and-tools">Combining Memory and Tools</a></li>
-<li><a class="reference internal" href="#tool-execution-error-handling">Tool Execution Error Handling</a></li>
-<li><a class="reference internal" href="#best-practices">Best Practices</a></li>
-<li><a class="reference internal" href="#conclusion">Conclusion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#example-building-a-tool-enhanced-agent">Example: Building a Tool-Enhanced Agent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#combining-memory-and-tools">Combining Memory and Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tool-execution-error-handling">Tool Execution Error Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#best-practices">Best Practices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#conclusion">Conclusion</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="memory_and_mcp_integration.html">Memory and MCP Tool Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Next%20Steps.html">Next Steps</a></li>
 </ul>
-</div>
+
         </div>
       </div>
     </nav>
@@ -648,7 +662,10 @@
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="Tool%20Provider%20API%20Documentation.html" class="btn btn-neutral float-left" title="Tool Provider API Documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="memory_and_mcp_integration.html" class="btn btn-neutral float-right" title="Memory and MCP Tool Integration" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "agent-patterns"
-version = "0.1.1"
+version = "0.1.3"
 description = "A library of reusable, extensible AI agent patterns using LangGraph"
 readme = "README.md"
 requires-python = ">=3.8"
@@ -33,6 +33,7 @@ dependencies = [
 
 [project.urls]
 "Homepage" = "https://github.com/osok/agent-patterns"
+"Documentation" = "https://agent-patterns.readthedocs.io/"
 "Bug Tracker" = "https://github.com/osok/agent-patterns/issues"
 
 [project.optional-dependencies]
