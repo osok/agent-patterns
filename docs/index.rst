@@ -4,13 +4,20 @@ Welcome to agent-patterns documentation!
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
+   :glob:
 
    guides/index
    tutorials/index
    patterns/index
    api/index
-   core/index
-   
+   Design
+   *Tool Provider API Documentation
+   *MCP Tool Integration Tutorial
+   Agent*
+   Memory*
+   *memory_and_mcp_integration
+   Next*
+
 Overview
 --------
 
