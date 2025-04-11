@@ -4,10 +4,10 @@ This section contains step-by-step tutorials for building complete applications 
 
 ## Available Tutorials
 
-- **Research Assistant** - Build an AI research assistant that can search, summarize, and synthesize information
-- **Customer Support Bot** - Create a support agent that can handle customer inquiries and integrate with support systems
-- **Code Generation Agent** - Develop an agent that can generate, explain, and refactor code
-- **Multi-Agent System** - Build a collaborative system with multiple specialized agents
+- 🟢 **[Research Assistant](research_assistant.md)** - Build an AI research assistant that can search, summarize, and synthesize information
+- 🟢 **[Customer Support Bot](customer_support_bot.md)** - Create a support agent that can handle customer inquiries and integrate with support systems
+- 🟡 **[Code Generation Agent](code_generation_agent.md)** - Develop an agent that can generate, explain, and refactor code
+- 🔴 **[Multi-Agent System](multi_agent_system.md)** - Build a collaborative system with multiple specialized agents
 
 ## Tutorial Structure
 

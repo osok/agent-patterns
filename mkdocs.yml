@@ -1,6 +1,6 @@
 site_name: Agent Patterns
 site_url: https://agent-patterns.readthedocs.io/
-repo_url: https://github.com/yourusername/agent-patterns/
+repo_url: https://github.com/osok/agent-patterns/
 repo_name: Agent Patterns
 
 theme:

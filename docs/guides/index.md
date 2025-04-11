@@ -4,12 +4,12 @@ This section contains comprehensive guides to help you understand, select, custo
 
 ## Available Guides
 
-- **Getting Started Guide** - Begin your journey with agent patterns
-- **Pattern Selection Guide** - Choose the right pattern for your use case
-- **Advanced Customization Guide** - Extend and customize the library
-- **Troubleshooting Guide** - Solve common issues and optimize performance
-- **Deployment Guide** - Deploy agent patterns in production
-- **Migration Guide** - Migrate from other frameworks
+- **[Getting Started Guide](getting_started.md)** - Begin your journey with agent patterns
+- **[Pattern Selection Guide](pattern_selection.md)** - Choose the right pattern for your use case
+- **[Advanced Customization Guide](advanced_customization.md)** - Extend and customize the library
+- **[Troubleshooting Guide](troubleshooting.md)** - Solve common issues and optimize performance
+- **[Deployment Guide](deployment.md)** - Deploy agent patterns in production
+- **[Migration Guide](migration.md)** - Migrate from other frameworks
 
 ## Guide Structure
 

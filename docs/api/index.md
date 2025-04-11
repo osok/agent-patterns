@@ -4,22 +4,22 @@ This section provides detailed API documentation for the Agent Patterns library.
 
 ## Core APIs
 
-- **BaseAgent** - Abstract base class for all agent patterns
-- **Memory System** - Classes for working with different memory types
-- **Tool System** - Interfaces and implementations for tool integration
+- **[BaseAgent](core.md#baseagent)** - Abstract base class for all agent patterns
+- **[Memory System](core.md#memory-system)** - Classes for working with different memory types
+- **[Tool System](core.md#tool-system)** - Interfaces and implementations for tool integration
 
 ## Pattern APIs
 
-- **ReAct** - API for the Reason + Act pattern
-- **Reflexion** - API for the Reflexion pattern
-- **LLM Compiler** - API for the LLM Compiler pattern
-- **Self-Discovery** - API for the Self-Discovery pattern
-- **LATS** - API for the LangChain Agents Tracing System pattern
-- **Reflection** - API for the Reflection pattern
-- **ReWOO** - API for the Reason, World model, Observe, Outcome pattern
-- **Reflection and Refinement** - API for the Reflection and Refinement pattern
-- **Plan and Solve** - API for the Plan and Solve pattern
-- **STORM** - API for the STORM pattern
+- **[ReAct](patterns.md#reactagent)** - API for the Reason + Act pattern
+- **[Reflexion](patterns.md#reflexionagent)** - API for the Reflexion pattern
+- **[LLM Compiler](patterns.md#llmcompileragent)** - API for the LLM Compiler pattern
+- **[Self-Discovery](patterns.md#selfdiscoveryagent)** - API for the Self-Discovery pattern
+- **[LATS](patterns.md#latsagent)** - API for the LangChain Agents Tracing System pattern
+- **[Reflection](patterns.md#reflectionagent)** - API for the Reflection pattern
+- **[ReWOO](patterns.md#rewooagent)** - API for the Reason, World model, Observe, Outcome pattern
+- **[Reflection and Refinement](patterns.md#reflectionandrefinementagent)** - API for the Reflection and Refinement pattern
+- **[Plan and Solve](patterns.md#planandsolveagent)** - API for the Plan and Solve pattern
+- **[STORM](patterns.md#stormagent)** - API for the STORM pattern
 
 ## API Organization
 
