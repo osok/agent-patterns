@@ -63,6 +63,20 @@ Example Model Context Protocol (MCP) server implementations:
 - [Search Server](./mcp_servers/search_server.py) - Provides mock search functionality via MCP
 - [README](./mcp_servers/README.md) - Detailed information on MCP server implementation and usage
 
+### Root-Level Examples
+
+#### [Memory Example](./memory_example.py)
+Demonstrates integration of memory systems with agents:
+- Sets up semantic, episodic, and procedural memory
+- Shows multi-turn interactions that leverage memory
+- Demonstrates memory retrieval and persistence
+
+#### [Combined Memory Tools Example](./combined_memory_tools_example.py)
+Demonstrates combined integration of memory and tools:
+- Memory-aware tool providers that enhance tool calls with user context
+- Mock MCP server implementation
+- Personalized tool responses based on memory contents
+
 ## Running the Examples
 
 Each example can be run directly using Python. Make sure you have set up your environment variables first:
@@ -71,6 +85,8 @@ Each example can be run directly using Python. Make sure you have set up your en
 # Set your OpenAI API key
 export OPENAI_API_KEY=your-api-key-here
 ```
+
+**Note: All examples should be run from the project root directory, not from within the examples directory.**
 
 Then run any example:
 

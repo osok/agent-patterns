@@ -146,6 +146,15 @@ When installing the package via pip, you might encounter the following issues:
 
 3. **Missing Agents in __init__.py**: Some agent classes might not be included in the package's `__init__.py` files.
 
+4. **Running Examples**: All examples must be run from the project root directory, not from within the examples directory:
+   ```bash
+   # Correct
+   python examples/react/simple_example.py
+   
+   # Incorrect
+   cd examples && python react/simple_example.py
+   ```
+
 ### Fixing the Issues
 
 We provide a helper script to automatically fix import paths and prompt directory issues:
