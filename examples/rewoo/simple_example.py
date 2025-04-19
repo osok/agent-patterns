@@ -5,6 +5,13 @@ This example demonstrates how to use the REWOO (Reasoning Without Observation) a
 to perform a research task with a structured plan, enhanced with memory and tool integration.
 """
 
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
+
 import os
 import sys
 import logging
@@ -12,6 +19,7 @@ import time
 import asyncio
 from typing import Dict, Any, List
 from pathlib import Path
+from dotenv import load_dotenv
 
 # Add the src directory to the path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
@@ -27,7 +35,10 @@ from agent_patterns.core.memory.persistence import (
     InMemoryPersistence
 )
 from agent_patterns.core.tools.base import ToolProvider
-from langchain_openai import ChatOpenAI
+from examples.utils.model_config import get_llm_configs
+
+# Load environment variables
+load_dotenv()
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -161,11 +172,11 @@ and adapting to the changing climate.
             return f"Error evaluating expression: {str(e)}"
 
 
-def setup_memory():
+async def setup_memory():
     """Set up a composite memory system."""
     # Create persistence backend
     persistence = InMemoryPersistence()
-    asyncio.run(persistence.initialize())
+    await persistence.initialize()
     
     # Create individual memory types
     semantic_memory = SemanticMemory(persistence, namespace="climate_semantic")
@@ -180,18 +191,18 @@ def setup_memory():
     })
     
     # Pre-populate with some semantic memories
-    asyncio.run(memory.save_to(
+    await memory.save_to(
         "semantic", 
         {"entity": "climate_change", "attribute": "definition", "value": "Long-term shifts in temperatures and weather patterns"}
-    ))
+    )
     
-    asyncio.run(memory.save_to(
+    await memory.save_to(
         "semantic", 
         {"entity": "user", "attribute": "research_focus", "value": "environmental impacts and solutions"}
-    ))
+    )
     
     # Add a procedural memory for research methodology
-    asyncio.run(memory.save_to(
+    await memory.save_to(
         "procedural",
         {
             "name": "research_methodology",
@@ -206,16 +217,13 @@ def setup_memory():
             "description": "Template for conducting thorough research",
             "tags": ["research", "methodology", "structured"]
         }
-    ))
+    )
     
     return memory
 
 
 def main():
     """Run the example."""
-    # Get API key from environment
-    api_key = None  # Always use mock mode for testing
-    
     # Get the project root directory
     current_dir = Path(__file__).parent.absolute()
     project_root = current_dir.parent.parent
@@ -230,14 +238,33 @@ def main():
         prompt_dir = str(pkg_prompt_dir)
     
     # Set up memory
-    memory = setup_memory()
+    memory = asyncio.run(setup_memory())
     
     # Set up tool provider
     tool_provider = ResearchToolProvider()
     
-    if not api_key:
-        logger.warning("OPENAI_API_KEY not set. Using mock mode.")
-        # Create mock implementation
+    # Get model configurations from environment
+    try:
+        llm_configs = get_llm_configs()
+        # Use real models from environment
+        agent = REWOOAgent(
+            llm_configs={
+                "planner": llm_configs.get("planning", llm_configs["default"]),
+                "solver": llm_configs.get("solver", llm_configs["default"])
+            },
+            memory=memory,
+            memory_config={
+                "semantic": True,
+                "episodic": True,
+                "procedural": True
+            },
+            tool_provider=tool_provider,
+            prompt_dir=prompt_dir
+        )
+        logger.info("Using models from environment configuration")
+    except ValueError as e:
+        # Fall back to mock mode
+        logger.warning(f"Error loading model configuration: {e}. Using mock mode.")
         from unittest.mock import MagicMock
         
         # Create a mock LLM that gives pre-scripted responses
@@ -306,35 +333,22 @@ The scientific consensus indicates that immediate action is necessary to mitigat
         # Create mock LLMs
         planner_llm = MockLLM(mock_responses)
         solver_llm = MockLLM(mock_responses)
-    else:
-        # Create real OpenAI LLMs
-        planner_llm = ChatOpenAI(
-            model="gpt-4o",
-            temperature=0.7,
-            api_key=api_key
-        )
         
-        solver_llm = ChatOpenAI(
-            model="gpt-4o",
-            temperature=0.2,
-            api_key=api_key
+        # Create REWOO agent with mock LLMs
+        agent = REWOOAgent(
+            llm_configs={
+                "planner": planner_llm,
+                "solver": solver_llm
+            },
+            memory=memory,
+            memory_config={
+                "semantic": True,
+                "episodic": True,
+                "procedural": True
+            },
+            tool_provider=tool_provider,
+            prompt_dir=prompt_dir
         )
-    
-    # Create REWOO agent with memory and tools
-    agent = REWOOAgent(
-        llm_configs={
-            "planner": planner_llm,
-            "solver": solver_llm
-        },
-        memory=memory,
-        memory_config={
-            "semantic": True,
-            "episodic": True,
-            "procedural": True
-        },
-        tool_provider=tool_provider,
-        prompt_dir=prompt_dir
-    )
     
     # Run the agent
     query = "Research the effects of climate change and summarize your findings."

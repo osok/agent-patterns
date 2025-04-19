@@ -4,6 +4,13 @@ This example demonstrates the directed acyclic graph (DAG) of tasks created by
 the LLM Compiler pattern and visualizes the dependencies between tasks.
 """
 
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
+
 import os
 import sys
 import logging
@@ -198,7 +205,7 @@ def main():
     agent = LLMCompilerAgent(
         llm_configs=llm_configs,
         tools=tools,
-        prompt_dir="agent_patterns/prompts",
+        prompt_dir="/ai/work/agents/agent-patterns/src/agent_patterns/prompts",
         log_level=logging.INFO
     )
     

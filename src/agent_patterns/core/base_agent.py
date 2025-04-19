@@ -6,7 +6,6 @@ from pathlib import Path
 from typing import Any, Dict, Optional, Generator, Union, List, Tuple
 import abc # Use abc for abstract base class
 import importlib.util
-import asyncio
 
 from langgraph.graph import StateGraph
 from langchain_core.language_models import BaseLanguageModel
@@ -25,6 +24,13 @@ class BaseAgent(abc.ABC): # Inherit from abc.ABC
         memory (Optional[Any]): Memory system for the agent.
         memory_config (Dict[str, bool]): Configuration of which memory types to use.
     """
+
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
 
     def __init__(
         self, 
@@ -256,7 +262,7 @@ class BaseAgent(abc.ABC): # Inherit from abc.ABC
             # Should never get here because of the earlier check, but just in case
             raise FileNotFoundError(f"Prompt template '{name}' not found and no fallback available.")
 
-    async def _retrieve_memories(self, query: str) -> Dict[str, List[Any]]:
+    def _retrieve_memories(self, query: str) -> Dict[str, List[Any]]:
         """
         Retrieve relevant memories for a query.
         
@@ -278,18 +284,10 @@ class BaseAgent(abc.ABC): # Inherit from abc.ABC
         if not enabled_memories:
             return {}
             
-        # Create a filtered composite memory
-        from .memory import CompositeMemory
-        filtered_memory = CompositeMemory(enabled_memories)
-        
-        # Retrieve from all enabled memories
-        return await filtered_memory.retrieve_all(query)
+        # Direct synchronous memory retrieval
+        return self.memory.retrieve_all(query)
     
-    def sync_retrieve_memories(self, query: str) -> Dict[str, List[Any]]:
-        """Synchronous wrapper for _retrieve_memories."""
-        return asyncio.run(self._retrieve_memories(query))
-    
-    async def _save_memory(self, memory_type: str, item: Any, **metadata) -> Optional[str]:
+    def _save_memory(self, memory_type: str, item: Any, **metadata) -> Optional[str]:
         """
         Save an item to a specific memory type if enabled.
         
@@ -304,11 +302,8 @@ class BaseAgent(abc.ABC): # Inherit from abc.ABC
         if not self.memory or not self.memory_config.get(memory_type, False):
             return None
             
-        return await self.memory.save_to(memory_type, item, **metadata)
-    
-    def sync_save_memory(self, memory_type: str, item: Any, **metadata) -> Optional[str]:
-        """Synchronous wrapper for _save_memory."""
-        return asyncio.run(self._save_memory(memory_type, item, **metadata))
+        # Direct synchronous memory save
+        return self.memory.save_to(memory_type, item, **metadata)
 
     # --- Lifecycle Hooks (as per design doc) ---
 

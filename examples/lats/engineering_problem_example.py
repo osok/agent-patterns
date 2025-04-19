@@ -5,6 +5,13 @@ This example shows how LATS can be used to explore multiple approaches to solve
 a complex engineering problem by systematically exploring solution paths.
 """
 
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
+
 import os
 from dotenv import load_dotenv
 from agent_patterns.patterns.lats_agent import LATSAgent

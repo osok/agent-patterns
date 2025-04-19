@@ -5,6 +5,13 @@ through multiple trials, learning from past attempts, with the enhanced
 capabilities of memory and tool access.
 """
 
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
+
 import os
 import sys
 from pathlib import Path
@@ -160,28 +167,34 @@ def setup_llm_configs() -> Dict:
     Returns:
         Dictionary with LLM configurations for each role.
     """
-    # Default to OpenAI if specific providers aren't specified
-    default_provider = os.getenv("DEFAULT_MODEL_PROVIDER", "openai")
-    default_model = os.getenv("DEFAULT_MODEL_NAME", "gpt-4o")
+    # Use models defined in .env file
+    # If specific role models aren't defined, fall back to general reflection/planning models from .env
+    reflection_provider = os.getenv("REFLECTION_MODEL_PROVIDER")
+    reflection_model = os.getenv("REFLECTION_MODEL_NAME")
+    planning_provider = os.getenv("PLANNING_MODEL_PROVIDER")
+    planning_model = os.getenv("PLANNING_MODEL_NAME")
+    
+    if not reflection_provider or not reflection_model or not planning_provider or not planning_model:
+        raise ValueError("Required environment variables for models are not set. Please define REFLECTION_MODEL_PROVIDER, REFLECTION_MODEL_NAME, PLANNING_MODEL_PROVIDER, and PLANNING_MODEL_NAME in your .env file.")
     
     # Define configurations for each role
-    # In a production setting, you might want different models for different roles
+    # Use specific role models if defined, otherwise fall back to the general models
     llm_configs = {
         "planner": {
-            "provider": os.getenv("PLANNER_MODEL_PROVIDER", default_provider),
-            "model_name": os.getenv("PLANNER_MODEL_NAME", default_model),
+            "provider": os.getenv("PLANNER_MODEL_PROVIDER", planning_provider),
+            "model_name": os.getenv("PLANNER_MODEL_NAME", planning_model),
         },
         "executor": {
-            "provider": os.getenv("EXECUTOR_MODEL_PROVIDER", default_provider),
-            "model_name": os.getenv("EXECUTOR_MODEL_NAME", default_model),
+            "provider": os.getenv("EXECUTOR_MODEL_PROVIDER", planning_provider),
+            "model_name": os.getenv("EXECUTOR_MODEL_NAME", planning_model),
         },
         "evaluator": {
-            "provider": os.getenv("EVALUATOR_MODEL_PROVIDER", default_provider),
-            "model_name": os.getenv("EVALUATOR_MODEL_NAME", default_model),
+            "provider": os.getenv("EVALUATOR_MODEL_PROVIDER", reflection_provider),
+            "model_name": os.getenv("EVALUATOR_MODEL_NAME", reflection_model),
         },
         "reflector": {
-            "provider": os.getenv("REFLECTOR_MODEL_PROVIDER", default_provider),
-            "model_name": os.getenv("REFLECTOR_MODEL_NAME", default_model),
+            "provider": os.getenv("REFLECTOR_MODEL_PROVIDER", reflection_provider),
+            "model_name": os.getenv("REFLECTOR_MODEL_NAME", reflection_model),
         }
     }
     

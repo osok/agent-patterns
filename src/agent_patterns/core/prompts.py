@@ -16,6 +16,13 @@ def load_prompt(prompt_path: Union[str, Path]) -> str:
     Raises:
         FileNotFoundError: If the prompt file cannot be found
     """
+
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
     # Handle both Path objects and strings
     path = Path(prompt_path) if isinstance(prompt_path, str) else prompt_path
     

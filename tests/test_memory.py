@@ -3,7 +3,6 @@
 import pytest
 import os
 import shutil
-import asyncio
 import tempfile
 from datetime import datetime, timedelta
 from typing import Dict, List, Any, Optional
@@ -22,8 +21,15 @@ from src.agent_patterns.core.memory.persistence.file_system import FileSystemPer
 @pytest.fixture
 def in_memory_persistence():
     """Create a new in-memory persistence backend for testing."""
+
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
     persistence = InMemoryPersistence()
-    asyncio.run(persistence.initialize())
+    persistence.initialize()
     return persistence
 
 
@@ -32,7 +38,7 @@ def file_system_persistence():
     """Create a new file system persistence backend for testing."""
     temp_dir = tempfile.mkdtemp()
     persistence = FileSystemPersistence(temp_dir)
-    asyncio.run(persistence.initialize())
+    persistence.initialize()
     
     yield persistence
     
@@ -43,42 +49,21 @@ def file_system_persistence():
 @pytest.fixture
 def semantic_memory(in_memory_persistence):
     """Create a semantic memory instance for testing."""
-    memory = asyncio.run(initialize_semantic_memory(in_memory_persistence))
-    return memory
-
-async def initialize_semantic_memory(persistence):
-    """Initialize semantic memory with existing event loop."""
-    memory = SemanticMemory(persistence)
-    # Wait for persistence initialization to complete
-    await asyncio.sleep(0)  # Allow any scheduled tasks to run
+    memory = SemanticMemory(in_memory_persistence)
     return memory
 
 
 @pytest.fixture
 def episodic_memory(in_memory_persistence):
     """Create an episodic memory instance for testing."""
-    memory = asyncio.run(initialize_episodic_memory(in_memory_persistence))
-    return memory
-
-async def initialize_episodic_memory(persistence):
-    """Initialize episodic memory with existing event loop."""
-    memory = EpisodicMemory(persistence)
-    # Wait for persistence initialization to complete
-    await asyncio.sleep(0)  # Allow any scheduled tasks to run
+    memory = EpisodicMemory(in_memory_persistence)
     return memory
 
 
 @pytest.fixture
 def procedural_memory(in_memory_persistence):
     """Create a procedural memory instance for testing."""
-    memory = asyncio.run(initialize_procedural_memory(in_memory_persistence))
-    return memory
-
-async def initialize_procedural_memory(persistence):
-    """Initialize procedural memory with existing event loop."""
-    memory = ProceduralMemory(persistence)
-    # Wait for persistence initialization to complete
-    await asyncio.sleep(0)  # Allow any scheduled tasks to run
+    memory = ProceduralMemory(in_memory_persistence)
     return memory
 
 
@@ -114,20 +99,20 @@ def sample_episodes():
         Episode(
             content="User asked about machine learning basics",
             timestamp=now - timedelta(days=7),
-            importance=0.7,
-            tags=["question", "machine-learning"]
+            tags=["question", "machine-learning"],
+            metadata={"importance": 0.7}
         ),
         Episode(
             content="Explained linear regression to user",
             timestamp=now - timedelta(days=5),
-            importance=0.8,
-            tags=["explanation", "machine-learning", "linear-regression"]
+            tags=["explanation", "machine-learning", "linear-regression"],
+            metadata={"importance": 0.8}
         ),
         Episode(
             content="User requested code example for decision trees",
             timestamp=now - timedelta(days=2),
-            importance=0.9,
-            tags=["request", "code-example", "decision-trees"]
+            tags=["request", "code-example", "decision-trees"],
+            metadata={"importance": 0.9}
         )
     ]
 
@@ -161,75 +146,72 @@ def sample_procedures():
 
 # ----- Tests for InMemoryPersistence -----
 
-@pytest.mark.asyncio
-async def test_in_memory_persistence_basic_operations(in_memory_persistence):
+def test_in_memory_persistence_basic_operations(in_memory_persistence):
     """Test basic CRUD operations for InMemoryPersistence."""
     # Store an item
-    await in_memory_persistence.store("test_namespace", "test_key", {"value": "test"})
+    in_memory_persistence.store("test_namespace", "test_key", {"value": "test"})
     
     # Retrieve the item
-    item = await in_memory_persistence.retrieve("test_namespace", "test_key")
+    item = in_memory_persistence.retrieve("test_namespace", "test_key")
     assert item == {"value": "test"}
     
     # Search for items
-    results = await in_memory_persistence.search("test_namespace", "test")
+    results = in_memory_persistence.search("test_namespace", "test")
     assert len(results) == 1
     assert results[0]["value"] == {"value": "test"}
     
     # Delete the item
-    result = await in_memory_persistence.delete("test_namespace", "test_key")
+    result = in_memory_persistence.delete("test_namespace", "test_key")
     assert result is True
     
     # Verify it's gone
-    item = await in_memory_persistence.retrieve("test_namespace", "test_key")
+    item = in_memory_persistence.retrieve("test_namespace", "test_key")
     assert item is None
 
 
-@pytest.mark.asyncio
-async def test_in_memory_persistence_filtering(in_memory_persistence):
+def test_in_memory_persistence_filtering(in_memory_persistence):
     """Test filtering capabilities of InMemoryPersistence."""
     # Store items with metadata
-    await in_memory_persistence.store(
+    in_memory_persistence.store(
         "filters", "item1", {"name": "Item 1"}, {"type": "A", "priority": "high"}
     )
-    await in_memory_persistence.store(
+    in_memory_persistence.store(
         "filters", "item2", {"name": "Item 2"}, {"type": "B", "priority": "medium"}
     )
-    await in_memory_persistence.store(
+    in_memory_persistence.store(
         "filters", "item3", {"name": "Item 3"}, {"type": "A", "priority": "low"}
     )
     
     # Search with filters
-    results = await in_memory_persistence.search("filters", "", type="A")
+    results = in_memory_persistence.search("filters", "", type="A")
     assert len(results) == 2
     assert {r["id"] for r in results} == {"item1", "item3"}
     
     # Multiple filters
-    results = await in_memory_persistence.search("filters", "", type="A", priority="high")
+    results = in_memory_persistence.search("filters", "", type="A", priority="high")
     assert len(results) == 1
     assert results[0]["id"] == "item1"
 
 
-@pytest.mark.asyncio
-async def test_in_memory_persistence_namespace_isolation(in_memory_persistence):
+def test_in_memory_persistence_namespace_isolation(in_memory_persistence):
     """Test that namespaces properly isolate data."""
     # Store items in different namespaces
-    await in_memory_persistence.store("namespace1", "key1", "value1")
-    await in_memory_persistence.store("namespace2", "key1", "value2")
+    in_memory_persistence.store("namespace1", "key1", "value1")
+    in_memory_persistence.store("namespace2", "key1", "value2")
     
     # Retrieve from each namespace
-    item1 = await in_memory_persistence.retrieve("namespace1", "key1")
-    item2 = await in_memory_persistence.retrieve("namespace2", "key1")
+    item1 = in_memory_persistence.retrieve("namespace1", "key1")
+    item2 = in_memory_persistence.retrieve("namespace2", "key1")
     
     assert item1 == "value1"
     assert item2 == "value2"
     
     # Clear one namespace
-    await in_memory_persistence.clear_namespace("namespace1")
+    in_memory_persistence.clear_namespace("namespace1")
     
     # Verify only that namespace was cleared
-    item1 = await in_memory_persistence.retrieve("namespace1", "key1")
-    item2 = await in_memory_persistence.retrieve("namespace2", "key1")
+    item1 = in_memory_persistence.retrieve("namespace1", "key1")
+    item2 = in_memory_persistence.retrieve("namespace2", "key1")
     
     assert item1 is None
     assert item2 == "value2"
@@ -237,35 +219,33 @@ async def test_in_memory_persistence_namespace_isolation(in_memory_persistence):
 
 # ----- Tests for FileSystemPersistence -----
 
-@pytest.mark.asyncio
-async def test_file_system_persistence_basic_operations(file_system_persistence):
+def test_file_system_persistence_basic_operations(file_system_persistence):
     """Test basic CRUD operations for FileSystemPersistence."""
     # Store an item
-    await file_system_persistence.store("test_namespace", "test_key", {"value": "test"})
+    file_system_persistence.store("test_namespace", "test_key", {"value": "test"})
     
     # Retrieve the item
-    item = await file_system_persistence.retrieve("test_namespace", "test_key")
+    item = file_system_persistence.retrieve("test_namespace", "test_key")
     assert item == {"value": "test"}
     
     # Delete the item
-    result = await file_system_persistence.delete("test_namespace", "test_key")
+    result = file_system_persistence.delete("test_namespace", "test_key")
     assert result is True
     
     # Verify it's gone
-    item = await file_system_persistence.retrieve("test_namespace", "test_key")
+    item = file_system_persistence.retrieve("test_namespace", "test_key")
     assert item is None
 
 
-@pytest.mark.asyncio
-async def test_file_system_persistence_search(file_system_persistence):
+def test_file_system_persistence_search(file_system_persistence):
     """Test search capabilities of FileSystemPersistence."""
     # Store items
-    await file_system_persistence.store("search_test", "item1", {"name": "Python Programming"})
-    await file_system_persistence.store("search_test", "item2", {"name": "Java Programming"})
-    await file_system_persistence.store("search_test", "item3", {"name": "Python Data Science"})
+    file_system_persistence.store("search_test", "item1", {"name": "Python Programming"})
+    file_system_persistence.store("search_test", "item2", {"name": "Java Programming"})
+    file_system_persistence.store("search_test", "item3", {"name": "Python Data Science"})
     
     # Search for "Python"
-    results = await file_system_persistence.search("search_test", "Python")
+    results = file_system_persistence.search("search_test", "Python")
     assert len(results) >= 2  # At least the two Python-related items
     
     # Check that the Python items are in the results
@@ -276,51 +256,48 @@ async def test_file_system_persistence_search(file_system_persistence):
 
 # ----- Tests for SemanticMemory -----
 
-@pytest.mark.asyncio
-async def test_semantic_memory_save_retrieve(semantic_memory, sample_semantic_data):
+def test_semantic_memory_save_retrieve(semantic_memory, sample_semantic_data):
     """Test saving and retrieving semantic memories."""
     # Save items
     ids = []
     for item in sample_semantic_data:
-        id = await semantic_memory.save(item)
+        id = semantic_memory.save(item)
         ids.append(id)
     
     # Retrieve with query
-    results = await semantic_memory.retrieve("user name")
+    results = semantic_memory.retrieve("user name")
     assert len(results) > 0
     
     # At least one result should contain user name
     assert any("John Doe" in str(r) for r in results)
 
 
-@pytest.mark.asyncio
-async def test_semantic_memory_update(semantic_memory):
+def test_semantic_memory_update(semantic_memory):
     """Test updating semantic memories."""
     # Save an item
-    id = await semantic_memory.save({"entity": "user", "attribute": "score", "value": 85})
+    id = semantic_memory.save({"entity": "user", "attribute": "score", "value": 85})
     
     # Update the item
-    result = await semantic_memory.update(id, {"entity": "user", "attribute": "score", "value": 95})
+    result = semantic_memory.update(id, {"entity": "user", "attribute": "score", "value": 95})
     assert result is True
     
     # Retrieve and verify
-    items = await semantic_memory.retrieve("user score")
+    items = semantic_memory.retrieve("user score")
     assert any(item.get("value") == 95 for item in items)
 
 
 # ----- Tests for EpisodicMemory -----
 
-@pytest.mark.asyncio
-async def test_episodic_memory_save_retrieve(episodic_memory, sample_episodes):
+def test_episodic_memory_save_retrieve(episodic_memory, sample_episodes):
     """Test saving and retrieving episodic memories."""
     # Save episodes
     ids = []
     for episode in sample_episodes:
-        id = await episodic_memory.save(episode)
+        id = episodic_memory.save(episode)
         ids.append(id)
     
     # Retrieve with query
-    results = await episodic_memory.retrieve("machine learning")
+    results = episodic_memory.retrieve("machine learning")
     assert len(results) >= 2  # Should match at least two episodes
     
     # Verify content
@@ -328,9 +305,8 @@ async def test_episodic_memory_save_retrieve(episodic_memory, sample_episodes):
     assert any("machine learning basics" in content for content in result_contents)
 
 
-@pytest.mark.asyncio
 @pytest.mark.skip(reason="Needs rework to handle vector search behavior")
-async def test_episodic_memory_timerange(episodic_memory, sample_episodes):
+def test_episodic_memory_timerange(episodic_memory, sample_episodes):
     """Test retrieving episodic memories by time range."""
     # Modify timestamps to ensure they are correctly ordered relative to test time
     now = datetime.now()
@@ -342,22 +318,21 @@ async def test_episodic_memory_timerange(episodic_memory, sample_episodes):
     
     # Save episodes with updated timestamps
     for episode in sample_episodes:
-        await episodic_memory.save(episode)
+        episodic_memory.save(episode)
     
     # Define time range (last 3 days)
     start_time = now - timedelta(days=3)
     
     # Retrieve by time range
-    results = await episodic_memory.retrieve_by_timerange(start_time)
+    results = episodic_memory.retrieve_by_timerange(start_time)
     
     # Should find the most recent episode
     assert len(results) == 1
     assert "decision trees" in results[0].content  # The most recent episode
 
 
-@pytest.mark.asyncio
 @pytest.mark.skip(reason="Needs rework to handle vector search behavior")
-async def test_episodic_memory_filtering(episodic_memory, sample_episodes):
+def test_episodic_memory_filtering(episodic_memory, sample_episodes):
     """Test filtering episodic memories by tags and importance."""
     # Make sure tags are explicitly set for consistent testing
     sample_episodes[0].tags = ["question", "machine-learning"]
@@ -371,39 +346,37 @@ async def test_episodic_memory_filtering(episodic_memory, sample_episodes):
     
     # Save episodes with explicit tags and importance
     for episode in sample_episodes:
-        await episodic_memory.save(episode)
+        episodic_memory.save(episode)
     
     # Filter by tag
-    results = await episodic_memory.retrieve("", tags=["machine-learning"])
+    results = episodic_memory.retrieve("", tags=["machine-learning"])
     assert len(results) >= 2
     
     # Filter by importance threshold
-    results = await episodic_memory.retrieve("", importance_threshold=0.8)
+    results = episodic_memory.retrieve("", importance_threshold=0.8)
     assert len(results) >= 2
     assert all(ep.importance >= 0.8 for ep in results)
 
 
 # ----- Tests for ProceduralMemory -----
 
-@pytest.mark.asyncio
-async def test_procedural_memory_save_retrieve(procedural_memory, sample_procedures):
+def test_procedural_memory_save_retrieve(procedural_memory, sample_procedures):
     """Test saving and retrieving procedural memories."""
     # Save procedures
     ids = []
     for procedure in sample_procedures:
-        id = await procedural_memory.save(procedure)
+        id = procedural_memory.save(procedure)
         ids.append(id)
     
     # Retrieve with query
-    results = await procedural_memory.retrieve("explain concept")
+    results = procedural_memory.retrieve("explain concept")
     assert len(results) >= 1
     
     # Verify content
     assert any("explain_ml_concept" == proc.name for proc in results)
 
 
-@pytest.mark.asyncio
-async def test_procedural_memory_usage_tracking(procedural_memory):
+def test_procedural_memory_usage_tracking(procedural_memory):
     """Test tracking usage statistics for procedures."""
     # Create a procedure
     procedure = Procedure(
@@ -413,22 +386,22 @@ async def test_procedural_memory_usage_tracking(procedural_memory):
     )
     
     # Save the procedure
-    id = await procedural_memory.save(procedure)
+    id = procedural_memory.save(procedure)
     
     # Record successful usage
-    await procedural_memory.record_usage(id, True)
+    procedural_memory.record_usage(id, True)
     
     # Retrieve and verify
-    results = await procedural_memory.retrieve("test procedure")
+    results = procedural_memory.retrieve("test procedure")
     assert len(results) == 1
     assert results[0].usage_count == 1
     assert results[0].success_rate == 1.0
     
     # Record unsuccessful usage
-    await procedural_memory.record_usage(id, False)
+    procedural_memory.record_usage(id, False)
     
     # Retrieve and verify
-    results = await procedural_memory.retrieve("test procedure")
+    results = procedural_memory.retrieve("test procedure")
     assert len(results) == 1
     assert results[0].usage_count == 2
     # Current implementation has different success rate calculation
@@ -437,42 +410,40 @@ async def test_procedural_memory_usage_tracking(procedural_memory):
 
 # ----- Tests for CompositeMemory -----
 
-@pytest.mark.asyncio
-async def test_composite_memory_save_retrieve(composite_memory, sample_semantic_data, sample_episodes):
+def test_composite_memory_save_retrieve(composite_memory, sample_semantic_data, sample_episodes):
     """Test saving and retrieving from different memory types via composite memory."""
     # Save a semantic memory
-    sem_id = await composite_memory.save_to("semantic", sample_semantic_data[0])
+    sem_id = composite_memory.save_to("semantic", sample_semantic_data[0])
     
     # Save an episodic memory
-    ep_id = await composite_memory.save_to("episodic", sample_episodes[0])
+    ep_id = composite_memory.save_to("episodic", sample_episodes[0])
     
     # Retrieve from semantic memory
-    sem_results = await composite_memory.retrieve_from("semantic", "user name")
+    sem_results = composite_memory.retrieve_from("semantic", "user name")
     assert len(sem_results) > 0
     
     # Retrieve from episodic memory
-    ep_results = await composite_memory.retrieve_from("episodic", "machine learning")
+    ep_results = composite_memory.retrieve_from("episodic", "machine learning")
     assert len(ep_results) > 0
     
     # Retrieve from all memories
-    all_results = await composite_memory.retrieve_all("learning")
+    all_results = composite_memory.retrieve_all("learning")
     assert "semantic" in all_results
     assert "episodic" in all_results
     assert "procedural" in all_results
 
 
-@pytest.mark.asyncio
-async def test_composite_memory_filtering(composite_memory, sample_semantic_data, sample_episodes, sample_procedures):
+def test_composite_memory_filtering(composite_memory, sample_semantic_data, sample_episodes, sample_procedures):
     """Test retrieving with filters from composite memory."""
     # Save items to each memory type
     for item in sample_semantic_data:
-        await composite_memory.save_to("semantic", item)
+        composite_memory.save_to("semantic", item)
     
     for episode in sample_episodes:
-        await composite_memory.save_to("episodic", episode)
+        composite_memory.save_to("episodic", episode)
     
     for procedure in sample_procedures:
-        await composite_memory.save_to("procedural", procedure)
+        composite_memory.save_to("procedural", procedure)
     
     # Retrieve with different limits
     limits = {
@@ -481,7 +452,7 @@ async def test_composite_memory_filtering(composite_memory, sample_semantic_data
         "procedural": 1
     }
     
-    results = await composite_memory.retrieve_all("machine learning", limits=limits)
+    results = composite_memory.retrieve_all("machine learning", limits=limits)
     
     # Check the number of results respects limits
     assert len(results["semantic"]) <= 1
@@ -489,21 +460,22 @@ async def test_composite_memory_filtering(composite_memory, sample_semantic_data
     assert len(results["procedural"]) <= 1
 
 
-@pytest.mark.asyncio
-async def test_composite_memory_error_handling(composite_memory):
+def test_composite_memory_error_handling(composite_memory):
     """Test error handling in composite memory."""
     # Try to save to non-existent memory type
-    result = await composite_memory.save_to("nonexistent", {"test": "data"})
+    result = composite_memory.save_to("nonexistent", {"test": "data"})
     assert result is None
     
     # Try to retrieve from non-existent memory type
-    results = await composite_memory.retrieve_from("nonexistent", "query")
+    results = composite_memory.retrieve_from("nonexistent", "query")
     assert results == []
     
-    # Try to update in non-existent memory type
-    result = await composite_memory.update_in("nonexistent", "id", {"test": "data"})
-    assert result is False
+    # Try to retrieve all with non-existent memory type in limits
+    limits = {
+        "semantic": 1,
+        "nonexistent": 5
+    }
     
-    # Try to delete from non-existent memory type
-    result = await composite_memory.delete_from("nonexistent", "id")
-    assert result is False 
+    results = composite_memory.retrieve_all("query", limits=limits)
+    assert "semantic" in results
+    assert "nonexistent" not in results 

@@ -5,6 +5,13 @@ This example shows how to set up a PlanAndSolve agent with semantic, episodic, a
 and how the agent can use this memory during planning and execution.
 """
 
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
+
 import os
 import sys
 from dotenv import load_dotenv
@@ -27,6 +34,8 @@ from agent_patterns.core.memory import (
 from agent_patterns.core.memory.persistence import (
     InMemoryPersistence
 )
+from agent_patterns.core.tools.base import ToolProvider
+from examples.utils.model_config import get_llm_configs, get_model_config
 
 # Define a simple calculator tool
 def calculate(expression):
@@ -38,23 +47,35 @@ def calculate(expression):
     except Exception as e:
         return f"Error: {str(e)}"
 
-class CalculatorTool:
-    """Calculator tool for the agent."""
+class CalculatorTool(ToolProvider):
+    """Calculator tool provider for the agent."""
     
-    def __init__(self):
-        self.name = "calculator"
+    def list_tools(self):
+        """List the available tools."""
+        return [{
+            "name": "calculator",
+            "description": "Perform basic mathematical operations",
+            "parameters": {
+                "expression": {
+                    "type": "string", 
+                    "description": "The mathematical expression to evaluate"
+                }
+            }
+        }]
     
-    def run(self, args):
-        """Run the calculator."""
-        if "expression" not in args:
-            return "Error: No expression provided"
-        return calculate(args["expression"])
+    def execute_tool(self, tool_name, params):
+        """Execute the calculator tool."""
+        if tool_name != "calculator":
+            return f"Unknown tool: {tool_name}"
+            
+        expression = params.get("expression", "")
+        return calculate(expression)
 
-def main():
-    """Run the PlanAndSolve with memory example."""
+async def setup_memory_async():
+    """Set up a composite memory system asynchronously."""
     # Create persistence backend (in-memory for this example)
     persistence = InMemoryPersistence()
-    asyncio.run(persistence.initialize())
+    await persistence.initialize()
     
     # Create individual memory types
     semantic_memory = SemanticMemory(persistence, namespace="user_semantic")
@@ -69,23 +90,23 @@ def main():
     })
     
     # Pre-populate with some semantic memories about the user
-    asyncio.run(memory.save_to(
+    await memory.save_to(
         "semantic", 
         {"entity": "user", "attribute": "name", "value": "Alex"}
-    ))
+    )
     
-    asyncio.run(memory.save_to(
+    await memory.save_to(
         "semantic", 
         {"entity": "user", "attribute": "occupation", "value": "Data Scientist"}
-    ))
+    )
     
-    asyncio.run(memory.save_to(
+    await memory.save_to(
         "semantic", 
         {"entity": "user", "attribute": "math_skill_level", "value": "advanced"}
-    ))
+    )
     
     # Create a procedural memory for mathematical problems
-    asyncio.run(memory.save_to(
+    await memory.save_to(
         "procedural",
         {
             "name": "solve_math_problem",
@@ -99,25 +120,45 @@ def main():
             "description": "Template for solving mathematical problems systematically",
             "tags": ["math", "problem-solving"]
         }
-    ))
+    )
+    
+    return memory
+
+def setup_memory():
+    """Wrapper to run the async setup_memory_async function."""
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    memory = loop.run_until_complete(setup_memory_async())
+    loop.close()
+    return memory
+
+def main():
+    """Run the PlanAndSolve with memory example."""
+    # Set up memory using the new helper function
+    memory = setup_memory()
     
     # Configure LLM 
     openai_api_key = os.getenv("OPENAI_API_KEY")
     if not openai_api_key:
         raise ValueError("OPENAI_API_KEY environment variable is not set. Please set it in .env file.")
     
+    # Setup LLM configs using the utility function
+    base_configs = get_llm_configs()
     llm_configs = {
         "planner": {
-            "provider": "openai",
-            "model_name": "gpt-4o",
+            **base_configs.get("planning", base_configs["default"]),
             "temperature": 0.7
         },
         "executor": {
-            "provider": "openai",
-            "model_name": "gpt-4o",
+            **base_configs.get("planning", base_configs["default"]),
             "temperature": 0.5
         }
     }
+    
+    # Get the project root directory
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    project_root = os.path.abspath(os.path.join(current_dir, '../..'))
+    prompt_dir = os.path.join(project_root, "src", "agent_patterns", "prompts")
     
     # Create a calculator tool
     calculator_tool = CalculatorTool()
@@ -125,7 +166,8 @@ def main():
     # Create PlanAndSolve agent with memory
     agent = PlanAndSolveAgent(
         llm_configs=llm_configs,
-        tools=[calculator_tool],
+        prompt_dir=prompt_dir,
+        tool_provider=calculator_tool,
         memory=memory,
         memory_config={
             "semantic": True,  # Enable semantic memory
@@ -144,7 +186,10 @@ def main():
     
     # Let's check what the agent stored in episodic memory
     print("\nEpisodic memories after first interaction:")
-    episodes = asyncio.run(memory.retrieve_from("episodic", "square root 144", limit=5))
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    episodes = loop.run_until_complete(memory.retrieve_from("episodic", "square root 144", limit=5))
+    loop.close()
     for i, episode in enumerate(episodes):
         print(f"{i+1}. {episode.content}")
     
@@ -157,10 +202,13 @@ def main():
     print(result["output"])
     
     # Add semantic memory about the user's interest
-    asyncio.run(memory.save_to(
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(memory.save_to(
         "semantic", 
         {"entity": "user", "attribute": "interests", "value": ["statistics", "machine learning", "data visualization"]}
     ))
+    loop.close()
     
     # Run a third query that leverages semantic memory
     print("\n======= THIRD INTERACTION =======")
@@ -173,17 +221,26 @@ def main():
     # Let's examine all memories to see what the agent has learned and stored
     print("\n======= MEMORY CONTENTS =======")
     print("Semantic memories:")
-    facts = asyncio.run(memory.retrieve_from("semantic", "", limit=10))
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    facts = loop.run_until_complete(memory.retrieve_from("semantic", "", limit=10))
+    loop.close()
     for i, fact in enumerate(facts):
         print(f"{i+1}. {fact}")
     
     print("\nEpisodic memories:")
-    episodes = asyncio.run(memory.retrieve_from("episodic", "", limit=10))
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    episodes = loop.run_until_complete(memory.retrieve_from("episodic", "", limit=10))
+    loop.close()
     for i, episode in enumerate(episodes):
         print(f"{i+1}. {episode.content}")
     
     print("\nProcedural memories:")
-    procedures = asyncio.run(memory.retrieve_from("procedural", "", limit=10))
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    procedures = loop.run_until_complete(memory.retrieve_from("procedural", "", limit=10))
+    loop.close()
     for i, proc in enumerate(procedures):
         print(f"{i+1}. {proc.name}: {proc.description}")
 

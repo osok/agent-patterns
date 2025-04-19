@@ -10,6 +10,13 @@ T = TypeVar('T')  # Memory item type
 
 class InMemoryPersistence(MemoryPersistence[T]):
     """
+
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
     In-memory implementation of memory persistence.
     
     This implementation stores all data in memory and is intended primarily for testing.
@@ -21,12 +28,12 @@ class InMemoryPersistence(MemoryPersistence[T]):
         self._storage: Dict[str, Dict[str, Dict[str, Any]]] = {}
         self._initialized = False
     
-    async def initialize(self) -> None:
+    def initialize(self) -> None:
         """Initialize the persistence layer."""
         self._storage = {}
         self._initialized = True
     
-    async def store(self, namespace: str, key: str, value: T, metadata: Dict = None) -> None:
+    def store(self, namespace: str, key: str, value: T, metadata: Dict = None) -> None:
         """
         Store a value with an associated key.
         
@@ -46,7 +53,7 @@ class InMemoryPersistence(MemoryPersistence[T]):
             "metadata": metadata or {}
         }
     
-    async def retrieve(self, namespace: str, key: str) -> Optional[T]:
+    def retrieve(self, namespace: str, key: str) -> Optional[T]:
         """
         Retrieve a value by key.
         
@@ -64,7 +71,7 @@ class InMemoryPersistence(MemoryPersistence[T]):
         
         return self._storage[namespace][key]["value"]
     
-    async def search(self, namespace: str, query: Any, limit: int = 10, **filters) -> List[Dict]:
+    def search(self, namespace: str, query: Any, limit: int = 10, **filters) -> List[Dict]:
         """
         Search for values matching a query.
         
@@ -111,7 +118,7 @@ class InMemoryPersistence(MemoryPersistence[T]):
         results.sort(key=lambda x: x["score"], reverse=True)
         return results[:limit]
     
-    async def delete(self, namespace: str, key: str) -> bool:
+    def delete(self, namespace: str, key: str) -> bool:
         """
         Delete a value by key.
         
@@ -130,7 +137,7 @@ class InMemoryPersistence(MemoryPersistence[T]):
         del self._storage[namespace][key]
         return True
     
-    async def clear_namespace(self, namespace: str) -> None:
+    def clear_namespace(self, namespace: str) -> None:
         """
         Clear all data in a namespace.
         
@@ -148,12 +155,20 @@ class InMemoryPersistence(MemoryPersistence[T]):
             raise RuntimeError("Persistence layer not initialized. Call initialize() first.")
     
     def _matches_filters(self, metadata: Dict, filters: Dict) -> bool:
-        """Check if metadata matches all given filters."""
+        """
+        Check if metadata matches all filters.
+        
+        Args:
+            metadata: The metadata to check
+            filters: The filters to apply
+            
+        Returns:
+            Whether the metadata matches all filters
+        """
         if not filters:
             return True
-        
-        for key, value in filters.items():
-            if key not in metadata or metadata[key] != value:
-                return False
-        
-        return True 
+            
+        return all(
+            key in metadata and metadata[key] == value
+            for key, value in filters.items()
+        ) 

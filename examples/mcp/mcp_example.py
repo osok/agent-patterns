@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
 """Example of using MCP with ReActAgent."""
 
 import os
@@ -90,7 +96,7 @@ def create_llm_configs_from_env() -> Dict[str, Any]:
         return {
             "default": {
                 "provider": "anthropic",
-                "model_name": model or "claude-3-opus-20240229",
+                "model_name": model or "claude-3-5-sonnet-latest",
                 "temperature": float(os.getenv("LLM_TEMPERATURE", "0.7"))
             }
         }

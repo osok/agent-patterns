@@ -29,6 +29,13 @@ class ReActState(TypedDict):
         memories: Dictionary of relevant memories retrieved for the current query.
         # Removed tools, max_steps, step_count - these are agent instance properties, not state
     """
+
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
     input: str
     # Use Annotated list with add_messages reducer for history
     chat_history: Annotated[Sequence[BaseMessage], add_messages]
@@ -191,7 +198,7 @@ class ReActAgent(BaseAgent):
         if self.memory and not state.get("memories"):
             try:
                 # Retrieve memories asynchronously
-                memories = self.sync_retrieve_memories(state["input"])
+                memories = self._retrieve_memories(state["input"])
                 self.logger.debug(f"Retrieved memories for query: {state['input']}")
             except Exception as e:
                 self.logger.warning(f"Error retrieving memories: {str(e)}")
@@ -291,7 +298,7 @@ class ReActAgent(BaseAgent):
             if isinstance(agent_outcome, AgentFinish) and self.memory:
                 try:
                     # Store the interaction in episodic memory
-                    self.sync_save_memory(
+                    self._save_memory(
                         "episodic",
                         {
                             "content": f"Query: {state['input']}\nResponse: {agent_outcome.return_values.get('output', '')}",
@@ -371,7 +378,7 @@ class ReActAgent(BaseAgent):
         if self.memory:
             try:
                 # Store in episodic memory
-                self.sync_save_memory(
+                self._save_memory(
                     "episodic",
                     {
                         "content": f"Tool use: {agent_action.tool}({agent_action.tool_input})\nResult: {observation}",
@@ -507,7 +514,7 @@ class ReActAgent(BaseAgent):
         memories = {}
         if self.memory:
             try:
-                memories = self.sync_retrieve_memories(input_text)
+                memories = self._retrieve_memories(input_text)
                 self.logger.debug("Retrieved memories for initial query")
             except Exception as e:
                 self.logger.warning(f"Error retrieving initial memories: {str(e)}")

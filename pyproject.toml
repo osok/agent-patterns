@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "agent-patterns"
-version = "0.1.6-beta"
+version = "0.1.7-beta"
 description = "A library of reusable, extensible AI agent patterns using LangGraph"
 readme = "README.md"
 requires-python = ">=3.8"
@@ -24,14 +24,16 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
 ]
 dependencies = [
-    "langchain>=0.1.0",
-    "langgraph>=0.0.10",
-    "langchain-openai>=0.0.2",
-    "langchain-anthropic>=0.0.1",
-    "langchain-community>=0.0.13",
-    "python-dotenv>=1.0.0",
-    "openai>=1.12.0",
-    "anthropic>=0.8.0"
+    "langchain==0.3.23",
+    "langgraph==0.3.31",
+    "langchain-openai==0.3.14",
+    "langchain-anthropic==0.3.12",
+    "langchain-community==0.3.21",
+    "python-dotenv==1.1.0",
+    "openai==1.75.0",
+    "anthropic==0.49.0",
+    "celery==5.5.1",
+    "redis==5.0.1"
 ]
 
 [project.urls]
@@ -46,15 +48,21 @@ dev = [
     "mypy>=1.8.0",
     "ruff>=0.2.0",
     "pytest>=8.3.0",
-    "pytest-asyncio>=0.23.0",
+    "pytest-asyncio>=0.26.0",
     "pytest-cov>=4.1.0"
 ]
 
 docs = [
-    "mkdocs>=1.5.0",
-    "mkdocs-material>=9.0.0",
+    "mkdocs>=1.6.1",
+    "mkdocs-material>=9.6.12",
     "mkdocstrings>=0.24.0",
-    "mkdocstrings-python>=1.7.0"
+    "mkdocstrings-python>=1.16.10"
+]
+
+celery-extras = [
+    "flower==2.0.1",
+    "msgpack==1.0.7",
+    "librabbitmq==2.0.0"
 ]
 
 [tool.setuptools.packages.find]

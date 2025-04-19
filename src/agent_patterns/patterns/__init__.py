@@ -3,6 +3,13 @@
 This package contains implementations of various agent patterns to solve different
 types of problems and implement different reasoning strategies."""
 
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
+
 from agent_patterns.patterns.re_act_agent import ReActAgent
 from agent_patterns.patterns.reflection_agent import ReflectionAgent
 from agent_patterns.patterns.plan_and_solve_agent import PlanAndSolveAgent

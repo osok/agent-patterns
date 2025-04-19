@@ -10,6 +10,13 @@ STORM creates long-form articles by:
 6. Finalizing the article with citations
 """
 
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
+
 import re
 import uuid
 from typing import Any, Dict, List, Optional, Union, TypedDict, Annotated, Sequence, Callable, Generator
@@ -264,7 +271,7 @@ class STORMAgent(BaseAgent):
         # Retrieve relevant memories if memory is enabled
         memory_context = ""
         if self.memory:
-            memories = self.sync_retrieve_memories(state["input_topic"])
+            memories = self._retrieve_memories(state["input_topic"])
             
             # Format memories for inclusion in the prompt
             if memories:
@@ -678,7 +685,7 @@ class STORMAgent(BaseAgent):
         # Retrieve relevant memories if memory is enabled
         memory_context = ""
         if self.memory:
-            memories = self.sync_retrieve_memories(state["input_topic"])
+            memories = self._retrieve_memories(state["input_topic"])
             
             # Format memories for inclusion in the prompt
             if memories:
@@ -733,7 +740,7 @@ class STORMAgent(BaseAgent):
         # Save the final article to memory if memory is enabled
         if self.memory:
             # Save to episodic memory with article structure, references and content
-            self.sync_save_memory(
+            self._save_memory(
                 memory_type="episodic",
                 item={
                     "event_type": "article_creation",
@@ -747,7 +754,7 @@ class STORMAgent(BaseAgent):
             )
             
             # Save to semantic memory with summary of the article
-            self.sync_save_memory(
+            self._save_memory(
                 memory_type="semantic",
                 item={
                     "topic": state["input_topic"],

@@ -28,6 +28,13 @@ class SelfDiscoveryState(TypedDict):
         execution_result: The result of executing the reasoning structure.
         final_answer: The final answer to the task.
     """
+
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
     input: str
     chat_history: Annotated[Sequence[BaseMessage], add_messages]
     reasoning_modules: List[Dict[str, str]]
@@ -226,7 +233,7 @@ class SelfDiscoveryAgent(BaseAgent):
             # Retrieve relevant memories if memory is enabled
             memory_context = ""
             if self.memory:
-                memories = self.sync_retrieve_memories(state["input"])
+                memories = self._retrieve_memories(state["input"])
                 
                 # Format memories for inclusion in the prompt
                 if memories:
@@ -337,7 +344,7 @@ class SelfDiscoveryAgent(BaseAgent):
             # Retrieve relevant memories if memory is enabled
             memory_context = ""
             if self.memory:
-                memories = self.sync_retrieve_memories(state["input"])
+                memories = self._retrieve_memories(state["input"])
                 
                 # Format memories for inclusion in the prompt
                 if memories:
@@ -414,7 +421,7 @@ class SelfDiscoveryAgent(BaseAgent):
             # Retrieve relevant memories if memory is enabled
             memory_context = ""
             if self.memory:
-                memories = self.sync_retrieve_memories(state["input"])
+                memories = self._retrieve_memories(state["input"])
                 
                 # Format memories for inclusion in the prompt
                 if memories:
@@ -564,7 +571,7 @@ class SelfDiscoveryAgent(BaseAgent):
             # Retrieve relevant memories if memory is enabled
             memory_context = ""
             if self.memory:
-                memories = self.sync_retrieve_memories(state["input"])
+                memories = self._retrieve_memories(state["input"])
                 
                 # Format memories for inclusion in the prompt
                 if memories:
@@ -638,7 +645,7 @@ class SelfDiscoveryAgent(BaseAgent):
             
             # Save the execution to memory if enabled
             if self.memory:
-                self.sync_save_memory(
+                self._save_memory(
                     memory_type="episodic",
                     item={
                         "event_type": "execution",
@@ -753,7 +760,7 @@ class SelfDiscoveryAgent(BaseAgent):
         # Save the final answer to memory if enabled
         if self.memory:
             # Save to episodic memory
-            self.sync_save_memory(
+            self._save_memory(
                 memory_type="episodic",
                 item={
                     "event_type": "final_answer",
@@ -765,7 +772,7 @@ class SelfDiscoveryAgent(BaseAgent):
             )
             
             # Save to semantic memory
-            self.sync_save_memory(
+            self._save_memory(
                 memory_type="semantic",
                 item={
                     "task_type": " ".join(state["input"].split()[:5]),  # Use first few words as task type

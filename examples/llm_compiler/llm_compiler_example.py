@@ -5,6 +5,13 @@ for parallel task execution with dependency management, enhanced with memory
 capabilities and tool integration.
 """
 
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
+
 import os
 import sys
 import logging
@@ -189,7 +196,13 @@ def basic_example():
     # Get the project root directory
     current_dir = Path(__file__).parent.absolute()
     project_root = current_dir.parent.parent
-    prompt_dir = str(project_root / "agent_patterns" / "prompts")
+    
+    # Configure prompt directory - check both locations
+    src_prompt_dir = str(project_root / "src" / "agent_patterns" / "prompts")
+    pkg_prompt_dir = str(project_root / "agent_patterns" / "prompts")
+    
+    # Use src path if it exists, otherwise use package path
+    prompt_dir = src_prompt_dir if os.path.exists(src_prompt_dir) else pkg_prompt_dir
     
     # Initialize the LLM Compiler agent with memory
     agent = LLMCompilerAgent(
@@ -268,7 +281,13 @@ def complex_query_example():
     # Get the project root directory
     current_dir = Path(__file__).parent.absolute()
     project_root = current_dir.parent.parent
-    prompt_dir = str(project_root / "agent_patterns" / "prompts")
+    
+    # Configure prompt directory - check both locations
+    src_prompt_dir = str(project_root / "src" / "agent_patterns" / "prompts")
+    pkg_prompt_dir = str(project_root / "agent_patterns" / "prompts")
+    
+    # Use src path if it exists, otherwise use package path
+    prompt_dir = src_prompt_dir if os.path.exists(src_prompt_dir) else pkg_prompt_dir
     
     # Initialize the LLM Compiler agent with memory
     agent = LLMCompilerAgent(
@@ -345,7 +364,13 @@ def streaming_example():
     # Get the project root directory
     current_dir = Path(__file__).parent.absolute()
     project_root = current_dir.parent.parent
-    prompt_dir = str(project_root / "agent_patterns" / "prompts")
+    
+    # Configure prompt directory - check both locations
+    src_prompt_dir = str(project_root / "src" / "agent_patterns" / "prompts")
+    pkg_prompt_dir = str(project_root / "agent_patterns" / "prompts")
+    
+    # Use src path if it exists, otherwise use package path
+    prompt_dir = src_prompt_dir if os.path.exists(src_prompt_dir) else pkg_prompt_dir
     
     # Initialize the LLM Compiler agent with memory
     agent = LLMCompilerAgent(

@@ -5,6 +5,13 @@ This example shows how LATS can systematically explore multiple diagnostic hypot
 and treatment options for a medical case by reasoning through different pathways.
 """
 
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
+
 import os
 from dotenv import load_dotenv
 from agent_patterns.patterns.lats_agent import LATSAgent

@@ -5,6 +5,13 @@ This example shows how to initialize and run a Reflection Agent with memory
 and tool integration for enhanced capabilities.
 """
 
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
+
 import os
 import sys
 import logging
@@ -89,7 +96,6 @@ def setup_memory():
     """Set up a composite memory system."""
     # Create persistence backend
     persistence = InMemoryPersistence()
-    asyncio.run(persistence.initialize())
     
     # Create individual memory types
     semantic_memory = SemanticMemory(persistence, namespace="theory_semantic")
@@ -103,19 +109,26 @@ def setup_memory():
         "procedural": procedural_memory
     })
     
+    return memory, persistence
+
+async def initialize_memory(memory, persistence):
+    """Initialize memory and add pre-populated data."""
+    # Initialize the persistence layer
+    await persistence.initialize()
+    
     # Pre-populate with some semantic memories about the topic
-    asyncio.run(memory.save_to(
+    await memory.save_to(
         "semantic", 
         {"entity": "relativity", "attribute": "core_concept", "value": "space and time are relative"}
-    ))
+    )
     
-    asyncio.run(memory.save_to(
+    await memory.save_to(
         "semantic", 
         {"entity": "user", "attribute": "knowledge_level", "value": "beginner"}
-    ))
+    )
     
     # Add a procedural memory for explaining complex topics
-    asyncio.run(memory.save_to(
+    await memory.save_to(
         "procedural",
         {
             "name": "explain_complex_topic",
@@ -131,11 +144,9 @@ def setup_memory():
             "description": "Template for explaining complex scientific concepts",
             "tags": ["explanation", "science", "teaching"]
         }
-    ))
-    
-    return memory
+    )
 
-def main():
+async def main_async():
     """Run a simple example of the Reflection Agent with memory and tools."""
     
     # Configure LLMs for different roles in the agent
@@ -153,7 +164,8 @@ def main():
     }
     
     # Set up memory
-    memory = setup_memory()
+    memory, persistence = setup_memory()
+    await initialize_memory(memory, persistence)
     
     # Set up search tool
     search_tool = SearchTool()
@@ -205,14 +217,18 @@ def main():
     print("\nMEMORY AFTER EXECUTION:")
     
     print("\nSemantic memories:")
-    facts = asyncio.run(memory.retrieve_from("semantic", "", limit=5))
+    facts = await memory.retrieve_from("semantic", "", limit=5)
     for i, fact in enumerate(facts):
         print(f"{i+1}. {fact}")
     
     print("\nEpisodic memories:")
-    episodes = asyncio.run(memory.retrieve_from("episodic", "relativity", limit=5))
+    episodes = await memory.retrieve_from("episodic", "relativity", limit=5)
     for i, episode in enumerate(episodes):
         print(f"{i+1}. {episode.content}")
-    
+
+def main():
+    """Run the main async function."""
+    asyncio.run(main_async())
+
 if __name__ == "__main__":
     main()

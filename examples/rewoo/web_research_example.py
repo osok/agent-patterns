@@ -5,6 +5,13 @@ This example demonstrates how to use the REWOO (Reasoning Without Observation) a
 for conducting structured web research on a topic.
 """
 
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
+
 import os
 import sys
 import logging

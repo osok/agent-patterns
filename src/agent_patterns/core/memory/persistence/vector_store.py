@@ -12,6 +12,13 @@ T = TypeVar('T')  # Memory item type
 
 class VectorStorePersistence(MemoryPersistence[T]):
     """
+
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
     Vector store implementation of memory persistence.
     
     This implementation uses a vector database for semantic search.

@@ -9,6 +9,13 @@ This pattern implements a tree search approach to reasoning where an agent:
 
 LATS unifies reasoning, acting, and planning capabilities in language models.
 """
+
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
 import math
 import uuid
 from typing import Any, Dict, List, Optional, Tuple, Union, Callable, TypedDict, Sequence
@@ -292,7 +299,7 @@ class LATSAgent(BaseAgent):
                 path_query.append(node["content"])
             
             query = state["input_task"] + " " + " ".join(path_query)
-            memories = self.sync_retrieve_memories(query)
+            memories = self._retrieve_memories(query)
             
             # Format memories for inclusion in the prompt
             if memories:
@@ -410,7 +417,7 @@ class LATSAgent(BaseAgent):
         # Retrieve relevant memories for evaluation context
         memory_context = ""
         if self.memory:
-            memories = self.sync_retrieve_memories(state["input_task"])
+            memories = self._retrieve_memories(state["input_task"])
             
             # Format memories for inclusion in the prompt
             if memories:
@@ -610,7 +617,7 @@ class LATSAgent(BaseAgent):
         # Retrieve relevant memories if memory is enabled
         memory_context = ""
         if self.memory:
-            memories = self.sync_retrieve_memories(state["input_task"])
+            memories = self._retrieve_memories(state["input_task"])
             
             # Format memories for inclusion in the prompt
             if memories:
@@ -657,7 +664,7 @@ class LATSAgent(BaseAgent):
                 path_content.append(node["content"])
             
             # Save to episodic memory
-            self.sync_save_memory(
+            self._save_memory(
                 memory_type="episodic",
                 item={
                     "event_type": "path_search",
@@ -672,7 +679,7 @@ class LATSAgent(BaseAgent):
             )
             
             # Save to semantic memory
-            self.sync_save_memory(
+            self._save_memory(
                 memory_type="semantic",
                 item={
                     "task_type": state["input_task"].split()[:5],  # Use first few words as task type

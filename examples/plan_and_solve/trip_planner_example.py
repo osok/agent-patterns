@@ -1,86 +1,133 @@
-"""Example demonstrating the PlanAndSolveAgent for trip planning."""
+"""
+Trip Planning Agent using the Plan and Solve Pattern
+
+This example demonstrates how to use the Plan and Solve agent pattern to
+create a trip planning agent that can help users plan a trip to a specific destination.
+"""
+
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
 
 import os
+import sys
 import logging
 from pathlib import Path
+from typing import Dict, Any
+from dotenv import load_dotenv
+
+# Add the parent directory to the path to allow imports
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 from agent_patterns.patterns.plan_and_solve_agent import PlanAndSolveAgent
 
+# Configure logging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
+
+# Load environment variables
+load_dotenv()
+
 def main():
-    # Configure logging
-    logging.basicConfig(level=logging.INFO, 
-                        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    logger = logging.getLogger(__name__)
-    
-    # Setup LLM configs
-    # Make sure your environment variables are set (e.g., OPENAI_API_KEY)
-    llm_configs = {
-        "planner": {
-            "model_name": "gpt-4-turbo-preview",  # More powerful model for planning
-            "provider": "openai",
-            "temperature": 0.7
-        },
-        "executor": {
-            "model_name": "gpt-4-turbo-preview",  # Using the same model for detailed itinerary
-            "provider": "openai",
-            "temperature": 0.5
-        }
-    }
+    # Check if the required environment variables are set
+    openai_api_key = os.getenv("OPENAI_API_KEY")
+    if not openai_api_key:
+        logger.error("OPENAI_API_KEY environment variable not set. Please set it in your .env file.")
+        return
     
     # Get the project root directory
     current_dir = Path(__file__).parent.absolute()
     project_root = current_dir.parent.parent
-
-    # Try to find prompts directory - check both installed package and development paths
+    
+    # Check both potential prompt directory paths
     src_prompt_dir = project_root / "src" / "agent_patterns" / "prompts"
-    pkg_prompt_dir = project_root / "agent_patterns" / "prompts"
-
+    non_src_prompt_dir = project_root / "agent_patterns" / "prompts"
+    
+    # Use the path that exists
     if src_prompt_dir.exists():
         prompt_dir = str(src_prompt_dir)
     else:
-        prompt_dir = str(pkg_prompt_dir)
+        prompt_dir = str(non_src_prompt_dir)
     
-    # Initialize the agent
+    # Get model names from environment variables with defaults
+    openai_model = os.getenv("OPENAI_MODEL", "gpt-4.1")
+    anthropic_model = os.getenv("ANTHROPIC_MODEL", "claude-3-7-sonnet-latest")
+    google_model = os.getenv("GOOGLE_MODEL", "models/gemini-2.5-pro-preview-03-25")
+    
+    # Configure LLM for the planner and executor
+    planner_config = {
+        "provider": "openai",
+        "model_name": openai_model,
+        "temperature": 0.7
+    }
+    
+    executor_config = {
+        "provider": "openai",
+        "model_name": openai_model,
+        "temperature": 0.7
+    }
+    
+    # Create LLM configurations for different roles
+    llm_configs = {
+        "planner": planner_config,
+        "executor": executor_config
+    }
+    
+    # Create a Plan and Solve agent for trip planning
     agent = PlanAndSolveAgent(
         llm_configs=llm_configs,
-        prompt_dir=prompt_dir,
-        log_level=logging.INFO
+        prompt_dir=prompt_dir
     )
     
-    # Example task for trip planning
-    task = """
-    Create a detailed 5-day itinerary for a trip to Tokyo, Japan. The travelers are a couple in their 30s 
-    who are interested in food, culture, and technology. They have a moderate budget (about $200/day for 
-    activities and meals, not including accommodation). They want a mix of popular tourist attractions and 
-    off-the-beaten-path experiences. They prefer public transportation and walking.
+    # Define example trip planning queries
+    example_queries = [
+        "I want to plan a 3-day trip to Paris. What are the must-see attractions and how should I organize my days?",
+        "I'm planning a trip to Japan for 10 days. I want to visit Tokyo, Kyoto, and Osaka. How should I plan my trip?",
+        "I want to take my family of 4 to Yellowstone National Park for a week in July. What should we see and do?"
+    ]
     
-    The itinerary should include:
-    1. Day-by-day schedule with morning, afternoon, and evening activities
-    2. Recommended restaurants for each day (breakfast, lunch, dinner)
-    3. Estimated costs for activities and meals
-    4. Transit information between locations
-    5. One day trip outside of central Tokyo
+    # User selects a query or enters a custom one
+    print("Trip Planning Agent")
+    print("==================")
+    print("\nExample queries:")
+    for i, query in enumerate(example_queries):
+        print(f"{i+1}. {query}")
+    print("\nEnter the number of an example query or type your own query:")
     
-    The travelers are arriving on a Monday morning and departing Saturday evening.
-    """
+    user_input = input("> ")
     
-    logger.info(f"Running Plan and Solve agent for trip planning")
+    try:
+        # Try to parse as a number for example selection
+        selection = int(user_input) - 1
+        if 0 <= selection < len(example_queries):
+            query = example_queries[selection]
+        else:
+            query = user_input
+    except ValueError:
+        # User entered a custom query
+        query = user_input
     
-    # Run the agent
-    result = agent.run(task)
+    # Execute the trip planning query
+    logger.info(f"Planning trip with query: {query}")
+    result = agent.run(query)
     
-    # Display the result
+    # Print the plan and solution
+    print("\nTrip Planning Results")
+    print("==================")
+    
     if "error" in result:
-        logger.error(f"Agent execution failed: {result['error']}")
-    else:
-        logger.info("Trip planning completed successfully")
-        print("\n" + "="*80 + "\n")
-        print("TRIP PLANNING TASK:")
-        print(task)
-        print("\n" + "="*80 + "\n")
-        print("ITINERARY RESULT:")
+        print("\nERROR:")
+        print(result["error"])
+    elif "output" in result:
+        print("\nRESULT:")
         print(result["output"])
-        print("\n" + "="*80 + "\n")
+    else:
+        print("\nNo output was generated. Available keys in result:")
+        for key in result:
+            print(f"- {key}")
 
 if __name__ == "__main__":
     main()

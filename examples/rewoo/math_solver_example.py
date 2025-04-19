@@ -5,6 +5,13 @@ This example demonstrates how to use the REWOO (Reasoning Without Observation) a
 for solving complex math problems in a step-by-step manner.
 """
 
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
+
 import os
 import sys
 import logging
@@ -13,14 +20,17 @@ from typing import Dict, Any, List, Optional, Union, Tuple, ClassVar, Type
 import re
 import json
 import numpy as np
+from dotenv import load_dotenv
 
 # Add the src directory to the path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from agent_patterns.rewoo.agent import REWOOAgent
-from agent_patterns.rewoo.types import TaskDecompositionResponse
-from agent_patterns.rewoo.tool_provider import ToolProvider
-from agent_patterns.rewoo.solution_validator import SolutionValidator
+# Load environment variables
+load_dotenv()
+
+from agent_patterns.patterns.rewoo_agent import REWOOAgent
+from agent_patterns.core.tools.base import ToolProvider
+from examples.utils.model_config import get_llm_configs
 from langchain_openai import ChatOpenAI
 
 # Configure logging
@@ -261,11 +271,6 @@ def main():
     # Setup logging
     logging.basicConfig(level=logging.INFO)
     
-    # Get the openai key from the environment
-    openai_key = os.environ.get("OPENAI_API_KEY")
-    if not openai_key:
-        raise ValueError("OPENAI_API_KEY environment variable not set")
-    
     # Define the prompt directory
     script_dir = os.path.dirname(os.path.abspath(__file__))
     repo_root = os.path.dirname(os.path.dirname(script_dir))
@@ -276,18 +281,43 @@ def main():
     if os.path.exists(src_prompt_dir):
         prompt_dir = src_prompt_dir
     
-    # Create real OpenAI LLMs
-    planner_llm = ChatOpenAI(
-        model="gpt-4o",
-        temperature=0.7,
-        api_key=openai_key
-    )
-    
-    solver_llm = ChatOpenAI(
-        model="gpt-4o",
-        temperature=0.2,
-        api_key=openai_key
-    )
+    # Get model configurations from environment
+    try:
+        llm_configs = get_llm_configs()
+        # Use models from environment
+        llm_config = {
+            "planner": llm_configs.get("planning", llm_configs["default"]),
+            "solver": llm_configs.get("solver", llm_configs["default"])
+        }
+        use_mock = False
+        logger.info("Using models from environment configuration")
+    except ValueError as e:
+        # Fall back to hardcoded OpenAI models
+        logger.warning(f"Error loading model configuration: {e}. Using OpenAI models.")
+        
+        # Get the openai key from the environment
+        openai_key = os.environ.get("OPENAI_API_KEY")
+        if not openai_key:
+            raise ValueError("OPENAI_API_KEY environment variable not set")
+            
+        # Create real OpenAI LLMs
+        planner_llm = ChatOpenAI(
+            model="gpt-4o",
+            temperature=0.7,
+            api_key=openai_key
+        )
+        
+        solver_llm = ChatOpenAI(
+            model="gpt-4o",
+            temperature=0.2,
+            api_key=openai_key
+        )
+        
+        llm_config = {
+            "planner": planner_llm,
+            "solver": solver_llm
+        }
+        use_mock = False
     
     # Create tools
     calculator_tool = CalculatorTool()
@@ -296,19 +326,107 @@ def main():
     integral_tool = IntegralTool()
     matrix_tool = MatrixTool()
     
+    # Create a tool provider for the ReWOO agent
+    class MathToolsProvider(ToolProvider):
+        def list_tools(self):
+            return [
+                {
+                    "name": "calculator",
+                    "description": "Perform a mathematical calculation",
+                    "parameters": {
+                        "expression": {
+                            "type": "string",
+                            "description": "The mathematical expression to evaluate"
+                        }
+                    }
+                },
+                {
+                    "name": "equation_solver",
+                    "description": "Solve an algebraic equation for a variable",
+                    "parameters": {
+                        "equation": {
+                            "type": "string",
+                            "description": "The equation to solve"
+                        },
+                        "variable": {
+                            "type": "string",
+                            "description": "The variable to solve for, defaults to 'x'"
+                        }
+                    }
+                },
+                {
+                    "name": "derivative",
+                    "description": "Calculate the derivative of an expression",
+                    "parameters": {
+                        "expression": {
+                            "type": "string",
+                            "description": "The expression to differentiate"
+                        },
+                        "variable": {
+                            "type": "string",
+                            "description": "The variable to differentiate with respect to, defaults to 'x'"
+                        }
+                    }
+                },
+                {
+                    "name": "integral",
+                    "description": "Calculate the indefinite integral of an expression",
+                    "parameters": {
+                        "expression": {
+                            "type": "string",
+                            "description": "The expression to integrate"
+                        },
+                        "variable": {
+                            "type": "string",
+                            "description": "The variable to integrate with respect to, defaults to 'x'"
+                        }
+                    }
+                },
+                {
+                    "name": "matrix",
+                    "description": "Perform matrix operations",
+                    "parameters": {
+                        "operation": {
+                            "type": "string",
+                            "description": "The operation to perform (determinant, inverse, multiply)"
+                        },
+                        "matrix_a": {
+                            "type": "string",
+                            "description": "The first matrix in string format, e.g., '[[1, 2], [3, 4]]'"
+                        },
+                        "matrix_b": {
+                            "type": "string",
+                            "description": "The second matrix for operations that require two matrices"
+                        }
+                    }
+                }
+            ]
+        
+        def execute_tool(self, tool_name, params):
+            if tool_name == "calculator":
+                return calculator_tool(params.get("expression", ""))
+            elif tool_name == "equation_solver":
+                return equation_solver_tool(params.get("equation", ""), params.get("variable", "x"))
+            elif tool_name == "derivative":
+                return derivative_tool(params.get("expression", ""), params.get("variable", "x"))
+            elif tool_name == "integral":
+                return integral_tool(params.get("expression", ""), params.get("variable", "x"))
+            elif tool_name == "matrix":
+                return matrix_tool(
+                    params.get("operation", ""),
+                    params.get("matrix_a", ""),
+                    params.get("matrix_b", "")
+                )
+            else:
+                return f"Unknown tool: {tool_name}"
+    
+    # Create the tool provider instance
+    tool_provider = MathToolsProvider()
+    
     # Create REWOO agent
     agent = REWOOAgent(
-        llm_configs={
-            "planner": planner_llm,
-            "solver": solver_llm
-        },
-        tool_registry={
-            "calculator": calculator_tool,
-            "equation_solver": equation_solver_tool,
-            "derivative": derivative_tool,
-            "integral": integral_tool,
-            "matrix": matrix_tool
-        },
+        llm_configs=llm_config,
+        tool_provider=tool_provider,
         prompt_dir=prompt_dir
     )
     

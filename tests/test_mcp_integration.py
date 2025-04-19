@@ -17,6 +17,13 @@ from langchain_core.messages import AIMessage
 
 class MockMCPServer:
     """Mock implementation of an MCP server for testing."""
+
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
     
     def __init__(self, tools: List[Dict[str, Any]], server_id: str = "mock-server"):
         self.tools = tools

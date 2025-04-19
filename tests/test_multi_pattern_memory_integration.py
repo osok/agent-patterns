@@ -4,8 +4,14 @@ This test module verifies that memory functionality works consistently
 across different agent patterns and that they can share memory.
 """
 
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
+
 import pytest
-import asyncio
 from unittest.mock import MagicMock, patch
 from typing import Dict, List, Any, Optional
 from langchain_core.messages import AIMessage
@@ -36,25 +42,22 @@ from agent_patterns.patterns.factory import (
 def in_memory_persistence():
     """Create a new in-memory persistence backend for testing."""
     persistence = InMemoryPersistence()
-    asyncio.run(persistence.initialize())
+    persistence.initialize()
     return persistence
 
 
 @pytest.fixture
 def shared_memory(in_memory_persistence):
     """Create a shared composite memory for testing."""
-    return asyncio.run(initialize_composite_memory(in_memory_persistence))
+    return initialize_composite_memory(in_memory_persistence)
 
 
-async def initialize_composite_memory(persistence):
-    """Initialize all memory types with a proper event loop."""
+def initialize_composite_memory(persistence):
+    """Initialize all memory types."""
     # Initialize all memory types
     semantic_memory = SemanticMemory(persistence)
     episodic_memory = EpisodicMemory(persistence)
     procedural_memory = ProceduralMemory(persistence)
-    
-    # Allow initialization tasks to complete
-    await asyncio.sleep(0)
     
     return CompositeMemory({
         "semantic": semantic_memory,
@@ -67,23 +70,23 @@ async def initialize_composite_memory(persistence):
 def memory_with_data(shared_memory):
     """Initialize memory with sample data."""
     # Add semantic memory items
-    asyncio.run(shared_memory.save_to(
+    shared_memory.save_to(
         "semantic", 
         {"entity": "user", "attribute": "interests", "value": ["AI", "programming", "history"]}
-    ))
+    )
     
     # Add episodic memory items
-    asyncio.run(shared_memory.save_to(
+    shared_memory.save_to(
         "episodic",
         Episode(
             content="User asked about the history of AI",
             importance=0.8,
             tags=["query", "AI", "history"]
         )
-    ))
+    )
     
     # Add procedural memory items
-    asyncio.run(shared_memory.save_to(
+    shared_memory.save_to(
         "procedural",
         Procedure(
             name="explain_ai_history",
@@ -93,7 +96,7 @@ def memory_with_data(shared_memory):
             usage_count=5,
             tags=["explanation", "AI", "history"]
         )
-    ))
+    )
     
     return shared_memory
 
@@ -212,17 +215,17 @@ def test_memory_shared_across_agents(memory_with_data, mock_llm, mock_tool_provi
     reflection_agent = create_reflection_agent(mock_llm, memory=memory_with_data, tool_provider=mock_tool_provider)
     react_agent = create_react_agent(mock_llm, memory=memory_with_data, tool_provider=mock_tool_provider)
     
-    # Mock the sync_retrieve_memories method in each agent
+    # Mock the _retrieve_memories method in each agent
     mock_memories = {"semantic": [], "episodic": [], "procedural": []}
     
     # Create a spy on the original method to count calls
-    original_ps_retrieve = plan_solve_agent.sync_retrieve_memories
-    original_reflection_retrieve = reflection_agent.sync_retrieve_memories
-    original_react_retrieve = react_agent.sync_retrieve_memories
+    original_ps_retrieve = plan_solve_agent._retrieve_memories
+    original_reflection_retrieve = reflection_agent._retrieve_memories
+    original_react_retrieve = react_agent._retrieve_memories
     
-    plan_solve_agent.sync_retrieve_memories = MagicMock(return_value=mock_memories)
-    reflection_agent.sync_retrieve_memories = MagicMock(return_value=mock_memories)
-    react_agent.sync_retrieve_memories = MagicMock(return_value=mock_memories)
+    plan_solve_agent._retrieve_memories = MagicMock(return_value=mock_memories)
+    reflection_agent._retrieve_memories = MagicMock(return_value=mock_memories)
+    react_agent._retrieve_memories = MagicMock(return_value=mock_memories)
     
     # Run each agent with the same query
     query = "Tell me about the history of AI"
@@ -231,9 +234,9 @@ def test_memory_shared_across_agents(memory_with_data, mock_llm, mock_tool_provi
     react_result = react_agent.run(query)
     
     # Verify memory was accessed by each agent
-    assert plan_solve_agent.sync_retrieve_memories.call_count >= 1
-    assert reflection_agent.sync_retrieve_memories.call_count >= 1
-    assert react_agent.sync_retrieve_memories.call_count >= 1
+    assert plan_solve_agent._retrieve_memories.call_count >= 1
+    assert reflection_agent._retrieve_memories.call_count >= 1
+    assert react_agent._retrieve_memories.call_count >= 1
     
     # Check agent responses include memory-aware content
     assert isinstance(plan_solve_result, dict)
@@ -252,7 +255,7 @@ def test_memory_updated_across_agents(memory_with_data, mock_llm, mock_tool_prov
     memory_with_data.save_to = MagicMock(side_effect=original_save)
     
     # First agent adds to memory
-    plan_solve_agent.sync_save_memory("episodic", 
+    plan_solve_agent._save_memory("episodic", 
         Episode(
             content="User is particularly interested in neural networks",
             importance=0.9,
@@ -263,8 +266,8 @@ def test_memory_updated_across_agents(memory_with_data, mock_llm, mock_tool_prov
     # Verify the save occurred
     assert memory_with_data.save_to.call_count == 1
     
-    # Mock the sync_retrieve_memories method in react_agent
-    react_agent.sync_retrieve_memories = MagicMock(return_value={
+    # Mock the _retrieve_memories method in react_agent
+    react_agent._retrieve_memories = MagicMock(return_value={
         "semantic": [],
         "episodic": [Episode(
             content="User is particularly interested in neural networks",
@@ -279,16 +282,16 @@ def test_memory_updated_across_agents(memory_with_data, mock_llm, mock_tool_prov
     react_agent.run(query)
     
     # Verify memory retrieval occurred for the second agent
-    react_agent.sync_retrieve_memories.assert_called_with(query)
+    react_agent._retrieve_memories.assert_called_with(query)
     
     # Verify that the retrieved memories include the new information
-    assert react_agent.sync_retrieve_memories.call_count >= 1
+    assert react_agent._retrieve_memories.call_count >= 1
 
 
 def test_memory_initialization_for_multiple_patterns(in_memory_persistence, mock_llm, mock_tool_provider):
     """Test that different agent patterns correctly initialize with a fresh memory instance."""
     # Create a new shared memory
-    shared_memory = asyncio.run(initialize_composite_memory(in_memory_persistence))
+    shared_memory = initialize_composite_memory(in_memory_persistence)
     
     # Create agents with this shared memory
     plan_solve_agent = create_plan_and_solve_agent(mock_llm, memory=shared_memory, tool_provider=mock_tool_provider)
@@ -296,21 +299,21 @@ def test_memory_initialization_for_multiple_patterns(in_memory_persistence, mock
     react_agent = create_react_agent(mock_llm, memory=shared_memory, tool_provider=mock_tool_provider)
     
     # Add a piece of memory directly
-    asyncio.run(shared_memory.save_to(
+    shared_memory.save_to(
         "semantic", 
         {"entity": "system", "attribute": "version", "value": "1.0"}
-    ))
+    )
     
-    # Mock the sync_retrieve_memories method in each agent
+    # Mock the _retrieve_memories method in each agent
     mock_memories = {
         "semantic": [{"entity": "system", "attribute": "version", "value": "1.0"}],
         "episodic": [],
         "procedural": []
     }
     
-    plan_solve_agent.sync_retrieve_memories = MagicMock(return_value=mock_memories)
-    reflection_agent.sync_retrieve_memories = MagicMock(return_value=mock_memories)
-    react_agent.sync_retrieve_memories = MagicMock(return_value=mock_memories)
+    plan_solve_agent._retrieve_memories = MagicMock(return_value=mock_memories)
+    reflection_agent._retrieve_memories = MagicMock(return_value=mock_memories)
+    react_agent._retrieve_memories = MagicMock(return_value=mock_memories)
     
     # Run each agent
     plan_solve_agent.run("What version is the system?")
@@ -318,9 +321,9 @@ def test_memory_initialization_for_multiple_patterns(in_memory_persistence, mock
     react_agent.run("Which version am I using?")
     
     # Verify all agents accessed the memory
-    assert plan_solve_agent.sync_retrieve_memories.call_count >= 1
-    assert reflection_agent.sync_retrieve_memories.call_count >= 1
-    assert react_agent.sync_retrieve_memories.call_count >= 1
+    assert plan_solve_agent._retrieve_memories.call_count >= 1
+    assert reflection_agent._retrieve_memories.call_count >= 1
+    assert react_agent._retrieve_memories.call_count >= 1
 
 
 def test_complex_memory_patterns_across_agents(memory_with_data, mock_llm, mock_tool_provider):
@@ -333,7 +336,7 @@ def test_complex_memory_patterns_across_agents(memory_with_data, mock_llm, mock_
     # Sequence of operations that simulate a real conversation across multiple agent types
     
     # 1. First agent learns something
-    plan_solve_agent.sync_save_memory("semantic", {
+    plan_solve_agent._save_memory("semantic", {
         "entity": "user", 
         "attribute": "preferred_learning_style", 
         "value": "visual"
@@ -341,7 +344,7 @@ def test_complex_memory_patterns_across_agents(memory_with_data, mock_llm, mock_
     
     # 2. Second agent asks about user preferences
     # Mock retrieve for react agent
-    react_agent.sync_retrieve_memories = MagicMock(return_value={
+    react_agent._retrieve_memories = MagicMock(return_value={
         "semantic": [
             {"entity": "user", "attribute": "interests", "value": ["AI", "programming", "history"]},
             {"entity": "user", "attribute": "preferred_learning_style", "value": "visual"}
@@ -353,14 +356,14 @@ def test_complex_memory_patterns_across_agents(memory_with_data, mock_llm, mock_
     react_agent.run("How should I explain AI concepts to the user?")
     
     # 3. Third agent learns another preference
-    reflection_agent.sync_save_memory("episodic", Episode(
+    reflection_agent._save_memory("episodic", Episode(
         content="User prefers detailed technical explanations",
         importance=0.7,
         tags=["preference", "technical", "detail"]
     ))
     
     # 4. Set up first agent to access both pieces of information
-    plan_solve_agent.sync_retrieve_memories = MagicMock(return_value={
+    plan_solve_agent._retrieve_memories = MagicMock(return_value={
         "semantic": [
             {"entity": "user", "attribute": "interests", "value": ["AI", "programming", "history"]},
             {"entity": "user", "attribute": "preferred_learning_style", "value": "visual"}
@@ -376,4 +379,4 @@ def test_complex_memory_patterns_across_agents(memory_with_data, mock_llm, mock_
     result = plan_solve_agent.run("Explain neural networks to the user")
     
     # Verify memory was retrieved
-    assert plan_solve_agent.sync_retrieve_memories.call_count >= 1 
+    assert plan_solve_agent._retrieve_memories.call_count >= 1 

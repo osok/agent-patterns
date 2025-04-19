@@ -10,6 +10,8 @@
 
 This design document outlines the integration of comprehensive memory systems into the agent-patterns library. Memory is crucial for agents to maintain context across interactions, learn from experience, and provide personalized responses. Our implementation will support multiple memory types based on recent research in the field, with the flexibility to enable or disable specific memory capabilities as needed.
 
+IMPORTANT NOTE: UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC anything as long as we are using Python.
+
 ## **2\. Design Goals**
 
 1. **Modularity**: Support various memory types that can be combined or used independently  
@@ -147,12 +149,12 @@ class MemoryPersistence(Generic\[T\], ABC):
     """Interface for memory persistence backends."""  
       
     @abstractmethod  
-    async def initialize(self) \-\> None:  
+    def initialize(self) \-\> None:  
         """Initialize the persistence layer."""  
         pass  
       
     @abstractmethod  
-    async def store(self, namespace: str, key: str, value: T, metadata: Dict \= None) \-\> None:  
+    def store(self, namespace: str, key: str, value: T, metadata: Dict \= None) \-\> None:  
         """  
         Store a value with an associated key.  
           
@@ -165,7 +167,7 @@ class MemoryPersistence(Generic\[T\], ABC):
         pass  
       
     @abstractmethod  
-    async def retrieve(self, namespace: str, key: str) \-\> Optional\[T\]:  
+    def retrieve(self, namespace: str, key: str) \-\> Optional\[T\]:  
         """  
         Retrieve a value by key.  
           
@@ -179,7 +181,7 @@ class MemoryPersistence(Generic\[T\], ABC):
         pass  
       
     @abstractmethod  
-    async def search(self, namespace: str, query: Any, limit: int \= 10, \*\*filters) \-\> List\[Dict\]:  
+    def search(self, namespace: str, query: Any, limit: int \= 10, \*\*filters) \-\> List\[Dict\]:  
         """  
         Search for values matching a query.  
           
@@ -195,7 +197,7 @@ class MemoryPersistence(Generic\[T\], ABC):
         pass  
       
     @abstractmethod  
-    async def delete(self, namespace: str, key: str) \-\> bool:  
+    def delete(self, namespace: str, key: str) \-\> bool:  
         """  
         Delete a value by key.  
           
@@ -209,7 +211,7 @@ class MemoryPersistence(Generic\[T\], ABC):
         pass  
       
     @abstractmethod  
-    async def clear\_namespace(self, namespace: str) \-\> None:  
+    def clear\_namespace(self, namespace: str) \-\> None:  
         """  
         Clear all data in a namespace.  
           
@@ -252,17 +254,17 @@ class SemanticMemory(BaseMemory\[Dict\[str, Any\]\]):
         self.namespace \= namespace  
         self.llm\_config \= llm\_config or {}  
           
-    async def save(self, item: Dict\[str, Any\], \*\*metadata) \-\> str:  
+    def save(self, item: Dict\[str, Any\], \*\*metadata) \-\> str:  
         """Save a semantic memory item."""  
         \# Generate a unique ID  
         memory\_id \= f"sem\_{uuid.uuid4().hex}"  
           
         \# Process with LLM if configured (for extraction/normalization)  
         if self.llm\_config and "save\_processor" in self.llm\_config:  
-            item \= await self.\_process\_with\_llm("save", item)  
+            item \= self.\_process\_with\_llm("save", item)  
           
         \# Store in persistence layer  
-        await self.persistence.store(  
+        self.persistence.store(  
             self.namespace,  
             memory\_id,  
             item,  
@@ -271,14 +273,14 @@ class SemanticMemory(BaseMemory\[Dict\[str, Any\]\]):
           
         return memory\_id  
       
-    async def retrieve(self, query: Any, limit: int \= 5, \*\*filters) \-\> List\[Dict\[str, Any\]\]:  
+    def retrieve(self, query: Any, limit: int \= 5, \*\*filters) \-\> List\[Dict\[str, Any\]\]:  
         """Retrieve semantic memories matching the query."""  
         \# Process query with LLM if configured  
         if self.llm\_config and "query\_processor" in self.llm\_config:  
-            query \= await self.\_process\_with\_llm("query", query)  
+            query \= self.\_process\_with\_llm("query", query)  
               
         \# Search in persistence layer  
-        results \= await self.persistence.search(  
+        results \= self.persistence.search(  
             self.namespace,  
             query,  
             limit,  
@@ -287,21 +289,21 @@ class SemanticMemory(BaseMemory\[Dict\[str, Any\]\]):
           
         return \[item\["value"\] for item in results\]  
       
-    async def update(self, id: str, item: Dict\[str, Any\], \*\*metadata) \-\> bool:  
+    def update(self, id: str, item: Dict\[str, Any\], \*\*metadata) \-\> bool:  
         """Update an existing semantic memory."""  
-        existing \= await self.persistence.retrieve(self.namespace, id)  
+        existing \= self.persistence.retrieve(self.namespace, id)  
         if not existing:  
             return False  
               
         \# Process with LLM if configured  
         if self.llm\_config and "update\_processor" in self.llm\_config:  
-            item \= await self.\_process\_with\_llm("update", {  
+            item \= self.\_process\_with\_llm("update", {  
                 "existing": existing,  
                 "update": item  
             })  
               
         \# Store updated value  
-        await self.persistence.store(  
+        self.persistence.store(  
             self.namespace,  
             id,  
             item,  
@@ -310,15 +312,15 @@ class SemanticMemory(BaseMemory\[Dict\[str, Any\]\]):
           
         return True  
       
-    async def delete(self, id: str) \-\> bool:  
+    def delete(self, id: str) \-\> bool:  
         """Delete a semantic memory."""  
-        return await self.persistence.delete(self.namespace, id)  
+        return self.persistence.delete(self.namespace, id)  
       
-    async def clear(self) \-\> None:  
+    def clear(self) \-\> None:  
         """Clear all semantic memories."""  
-        await self.persistence.clear\_namespace(self.namespace)  
+        self.persistence.clear\_namespace(self.namespace)  
       
-    async def \_process\_with\_llm(self, operation: str, data: Any) \-\> Any:  
+    def \_process\_with\_llm(self, operation: str, data: Any) \-\> Any:  
         """Process memory operations with an LLM."""  
         \# Implementation depends on LLM integration  
         \# ...
@@ -347,7 +349,7 @@ class CompositeMemory:
         """  
         self.memories \= memories  
           
-    async def save\_to(self, memory\_type: str, item: Any, \*\*metadata) \-\> str:  
+    def save\_to(self, memory\_type: str, item: Any, \*\*metadata) \-\> str:  
         """  
         Save an item to a specific memory type.  
           
@@ -362,9 +364,9 @@ class CompositeMemory:
         if memory\_type not in self.memories:  
             raise ValueError(f"Unknown memory type: {memory\_type}")  
               
-        return await self.memories\[memory\_type\].save(item, \*\*metadata)  
+        return self.memories\[memory\_type\].save(item, \*\*metadata)  
       
-    async def retrieve\_from(self, memory\_type: str, query: Any, limit: int \= 5, \*\*filters) \-\> List\[Any\]:  
+    def retrieve\_from(self, memory\_type: str, query: Any, limit: int \= 5, \*\*filters) \-\> List\[Any\]:  
         """  
         Retrieve items from a specific memory type.  
           
@@ -380,9 +382,9 @@ class CompositeMemory:
         if memory\_type not in self.memories:  
             raise ValueError(f"Unknown memory type: {memory\_type}")  
               
-        return await self.memories\[memory\_type\].retrieve(query, limit, \*\*filters)  
+        return self.memories\[memory\_type\].retrieve(query, limit, \*\*filters)  
       
-    async def retrieve\_all(self, query: Any, limits: Dict\[str, int\] \= None) \-\> Dict\[str, List\[Any\]\]:  
+    def retrieve\_all(self, query: Any, limits: Dict\[str, int\] \= None) \-\> Dict\[str, List\[Any\]\]:  
         """  
         Retrieve items from all memory types.  
           
@@ -398,7 +400,7 @@ class CompositeMemory:
           
         for memory\_type, memory in self.memories.items():  
             limit \= limits.get(memory\_type, 5\)  
-            results\[memory\_type\] \= await memory.retrieve(query, limit)  
+            results\[memory\_type\] \= memory.retrieve(query, limit)  
               
         return results
 
@@ -423,30 +425,30 @@ class VectorStorePersistence(MemoryPersistence):
         self.vector\_store \= vector\_store  
         self.embedding\_function \= embedding\_function  
           
-    async def initialize(self) \-\> None:  
+    def initialize(self) \-\> None:  
         """Initialize the vector store."""  
         \# Implementation depends on the specific vector store  
         pass  
       
-    async def store(self, namespace: str, key: str, value: Any, metadata: Dict \= None) \-\> None:  
+    def store(self, namespace: str, key: str, value: Any, metadata: Dict \= None) \-\> None:  
         """Store a value with an associated key."""  
         metadata \= metadata or {}  
         metadata\["\_id"\] \= key  
           
         \# Generate embedding  
-        embedding \= await self.embedding\_function(value)  
+        embedding \= self.embedding\_function(value)  
           
         \# Store in vector database  
-        await self.vector\_store.add(  
+        self.vector\_store.add(  
             collection=namespace,  
             embedding=embedding,  
             document=value,  
             metadata=metadata  
         )  
       
-    async def retrieve(self, namespace: str, key: str) \-\> Optional\[Any\]:  
+    def retrieve(self, namespace: str, key: str) \-\> Optional\[Any\]:  
         """Retrieve a value by key."""  
-        result \= await self.vector\_store.get(  
+        result \= self.vector\_store.get(  
             collection=namespace,  
             filter={"\_id": key}  
         )  
@@ -456,13 +458,13 @@ class VectorStorePersistence(MemoryPersistence):
               
         return result\[0\]\["document"\]  
       
-    async def search(self, namespace: str, query: Any, limit: int \= 10, \*\*filters) \-\> List\[Dict\]:  
+    def search(self, namespace: str, query: Any, limit: int \= 10, \*\*filters) \-\> List\[Dict\]:  
         """Search for values matching a query."""  
         \# Generate query embedding  
-        embedding \= await self.embedding\_function(query)  
+        embedding \= self.embedding\_function(query)  
           
         \# Search vector database  
-        results \= await self.vector\_store.search(  
+        results \= self.vector\_store.search(  
             collection=namespace,  
             query\_embedding=embedding,  
             limit=limit,  
@@ -479,16 +481,16 @@ class VectorStorePersistence(MemoryPersistence):
             for item in results  
         \]  
       
-    async def delete(self, namespace: str, key: str) \-\> bool:  
+    def delete(self, namespace: str, key: str) \-\> bool:  
         """Delete a value by key."""  
-        return await self.vector\_store.delete(  
+        return self.vector\_store.delete(  
             collection=namespace,  
             filter={"\_id": key}  
         )  
       
-    async def clear\_namespace(self, namespace: str) \-\> None:  
+    def clear\_namespace(self, namespace: str) \-\> None:  
         """Clear all data in a namespace."""  
-        await self.vector\_store.delete\_collection(namespace)
+        self.vector\_store.delete\_collection(namespace)
 
 ## **5\. Integration with Agent Patterns**
 
@@ -528,7 +530,7 @@ class BaseAgent(abc.ABC):
         \# Subclass is expected to build/compile its graph  
         self.build\_graph()  
       
-    async def \_retrieve\_memories(self, query: str) \-\> Dict\[str, List\[Any\]\]:  
+    def \_retrieve\_memories(self, query: str) \-\> Dict\[str, List\[Any\]\]:  
         """  
         Retrieve relevant memories for a query.  
           
@@ -554,9 +556,9 @@ class BaseAgent(abc.ABC):
         filtered\_memory \= CompositeMemory(enabled\_memories)  
           
         \# Retrieve from all enabled memories  
-        return await filtered\_memory.retrieve\_all(query)  
+        return filtered\_memory.retrieve\_all(query)  
       
-    async def \_save\_memory(self, memory\_type: str, item: Any, \*\*metadata) \-\> Optional\[str\]:  
+    def \_save\_memory(self, memory\_type: str, item: Any, \*\*metadata) \-\> Optional\[str\]:  
         """  
         Save an item to a specific memory type if enabled.  
           
@@ -571,7 +573,7 @@ class BaseAgent(abc.ABC):
         if not self.memory or not self.memory\_config.get(memory\_type, False):  
             return None  
               
-        return await self.memory.save\_to(memory\_type, item, \*\*metadata)
+        return self.memory.save\_to(memory\_type, item, \*\*metadata)
 
 ### **5.2 Pattern-Specific Enhancements**
 
@@ -580,7 +582,7 @@ class BaseAgent(abc.ABC):
 def \_generate\_thought\_and\_action(self, state: Dict) \-\> Dict:  
     """Generate the next thought and action based on the current state."""  
     \# Retrieve relevant memories  
-    memories \= await self.\_retrieve\_memories(state\["input"\])  
+    memories \= self.\_retrieve\_memories(state\["input"\])  
       
     \# Prepare the prompt with memories  
     prompt\_data \= self.\_loa

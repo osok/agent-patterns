@@ -2,7 +2,6 @@
 
 import uuid
 import json
-import asyncio
 from typing import Dict, List, Any, Optional, TypeVar, Union, cast
 import logging
 
@@ -12,6 +11,13 @@ T = TypeVar('T')  # Item type, typically Dict[str, Any] for semantic memory
 
 class SemanticMemory(BaseMemory[Dict[str, Any]]):
     """
+
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
     Stores factual knowledge as structured data.
     
     Semantic memories represent:
@@ -42,9 +48,9 @@ class SemanticMemory(BaseMemory[Dict[str, Any]]):
         self.logger = logging.getLogger("SemanticMemory")
         
         # Ensure the storage system is initialized
-        asyncio.create_task(self.persistence.initialize())
+        self.persistence.initialize()
     
-    async def save(self, item: Dict[str, Any], **metadata) -> str:
+    def save(self, item: Dict[str, Any], **metadata) -> str:
         """
         Save a semantic memory item.
         
@@ -64,12 +70,12 @@ class SemanticMemory(BaseMemory[Dict[str, Any]]):
         # Process with LLM if configured (for extraction/normalization)
         if self.llm_config and "save_processor" in self.llm_config:
             try:
-                item = await self._process_with_llm("save", item)
+                item = self._process_with_llm("save", item)
             except Exception as e:
                 self.logger.warning(f"LLM processing failed during save: {str(e)}")
         
         # Store in persistence layer
-        await self.persistence.store(
+        self.persistence.store(
             self.namespace,
             memory_id,
             item,
@@ -79,7 +85,7 @@ class SemanticMemory(BaseMemory[Dict[str, Any]]):
         self.logger.debug(f"Saved semantic memory with ID {memory_id}")
         return memory_id
     
-    async def retrieve(self, query: Any, limit: int = 5, **filters) -> List[Dict[str, Any]]:
+    def retrieve(self, query: Any, limit: int = 5, **filters) -> List[Dict[str, Any]]:
         """
         Retrieve semantic memories matching the query.
         
@@ -94,12 +100,12 @@ class SemanticMemory(BaseMemory[Dict[str, Any]]):
         # Process query with LLM if configured
         if self.llm_config and "query_processor" in self.llm_config:
             try:
-                query = await self._process_with_llm("query", query)
+                query = self._process_with_llm("query", query)
             except Exception as e:
                 self.logger.warning(f"LLM processing failed during query: {str(e)}")
         
         # Search in persistence layer
-        results = await self.persistence.search(
+        results = self.persistence.search(
             self.namespace,
             query,
             limit,
@@ -108,7 +114,7 @@ class SemanticMemory(BaseMemory[Dict[str, Any]]):
         
         return [item["value"] for item in results]
     
-    async def update(self, id: str, item: Dict[str, Any], **metadata) -> bool:
+    def update(self, id: str, item: Dict[str, Any], **metadata) -> bool:
         """
         Update an existing semantic memory.
         
@@ -124,7 +130,7 @@ class SemanticMemory(BaseMemory[Dict[str, Any]]):
             raise TypeError("Semantic memory items must be dictionaries")
             
         # Check if the item exists
-        existing = await self.persistence.retrieve(self.namespace, id)
+        existing = self.persistence.retrieve(self.namespace, id)
         if not existing:
             self.logger.warning(f"Cannot update semantic memory with ID {id}: not found")
             return False
@@ -132,7 +138,7 @@ class SemanticMemory(BaseMemory[Dict[str, Any]]):
         # Process with LLM if configured
         if self.llm_config and "update_processor" in self.llm_config:
             try:
-                item = await self._process_with_llm("update", {
+                item = self._process_with_llm("update", {
                     "existing": existing,
                     "update": item
                 })
@@ -140,7 +146,7 @@ class SemanticMemory(BaseMemory[Dict[str, Any]]):
                 self.logger.warning(f"LLM processing failed during update: {str(e)}")
         
         # Store updated value
-        await self.persistence.store(
+        self.persistence.store(
             self.namespace,
             id,
             item,
@@ -150,7 +156,7 @@ class SemanticMemory(BaseMemory[Dict[str, Any]]):
         self.logger.debug(f"Updated semantic memory with ID {id}")
         return True
     
-    async def delete(self, id: str) -> bool:
+    def delete(self, id: str) -> bool:
         """
         Delete a semantic memory.
         
@@ -160,19 +166,19 @@ class SemanticMemory(BaseMemory[Dict[str, Any]]):
         Returns:
             Whether the deletion was successful
         """
-        result = await self.persistence.delete(self.namespace, id)
+        result = self.persistence.delete(self.namespace, id)
         if result:
             self.logger.debug(f"Deleted semantic memory with ID {id}")
         else:
             self.logger.warning(f"Failed to delete semantic memory with ID {id}")
         return result
     
-    async def clear(self) -> None:
+    def clear(self) -> None:
         """Clear all semantic memories."""
-        await self.persistence.clear_namespace(self.namespace)
+        self.persistence.clear_namespace(self.namespace)
         self.logger.debug(f"Cleared all semantic memories in namespace {self.namespace}")
     
-    async def _process_with_llm(self, operation: str, data: Any) -> Any:
+    def _process_with_llm(self, operation: str, data: Any) -> Any:
         """
         Process memory operations with an LLM.
         
@@ -188,7 +194,5 @@ class SemanticMemory(BaseMemory[Dict[str, Any]]):
         
         processor = self.llm_config[f"{operation}_processor"]
         
-        if asyncio.iscoroutinefunction(processor):
-            return await processor(data)
-        else:
-            return processor(data) 
+        # Always call processor synchronously
+        return processor(data) 

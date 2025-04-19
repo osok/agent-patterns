@@ -4,6 +4,13 @@ Agent Patterns Library
 A collection of reusable AI agent patterns implemented using LangGraph and LangChain.
 """
 
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
+
 from .core.base_agent import BaseAgent
 from .patterns.re_act_agent import ReActAgent
 from .patterns.plan_and_solve_agent import PlanAndSolveAgent

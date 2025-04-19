@@ -2,7 +2,6 @@
 
 import uuid
 import json
-import asyncio
 from typing import Dict, List, Any, Optional, TypeVar, Union, cast
 import logging
 
@@ -10,6 +9,13 @@ from .base import BaseMemory, MemoryPersistence
 
 class Procedure:
     """Represents a learned behavior or action pattern in procedural memory."""
+
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
     
     def __init__(
         self,
@@ -119,9 +125,9 @@ class ProceduralMemory(BaseMemory[Procedure]):
         self.logger = logging.getLogger("ProceduralMemory")
         
         # Ensure the storage system is initialized
-        asyncio.create_task(self.persistence.initialize())
+        self.persistence.initialize()
     
-    async def save(self, item: Union[Procedure, Dict, Any], **metadata) -> str:
+    def save(self, item: Union[Procedure, Dict, Any], **metadata) -> str:
         """
         Save a procedural memory.
         
@@ -138,7 +144,7 @@ class ProceduralMemory(BaseMemory[Procedure]):
         # Process with LLM if configured (for analysis, description generation, etc.)
         if self.llm_config and "save_processor" in self.llm_config:
             try:
-                procedure = await self._process_with_llm("save", procedure)
+                procedure = self._process_with_llm("save", procedure)
             except Exception as e:
                 self.logger.warning(f"LLM processing failed during save: {str(e)}")
         
@@ -157,7 +163,7 @@ class ProceduralMemory(BaseMemory[Procedure]):
         }
         
         # Store in persistence layer
-        await self.persistence.store(
+        self.persistence.store(
             self.namespace,
             memory_id,
             procedure.to_dict(),
@@ -167,7 +173,7 @@ class ProceduralMemory(BaseMemory[Procedure]):
         self.logger.debug(f"Saved procedural memory with ID {memory_id}")
         return memory_id
     
-    async def retrieve(self, query: Any, limit: int = 5, **filters) -> List[Procedure]:
+    def retrieve(self, query: Any, limit: int = 5, **filters) -> List[Procedure]:
         """
         Retrieve procedural memories matching the query.
         
@@ -182,7 +188,7 @@ class ProceduralMemory(BaseMemory[Procedure]):
         # Process query with LLM if configured
         if self.llm_config and "query_processor" in self.llm_config:
             try:
-                query = await self._process_with_llm("query", query)
+                query = self._process_with_llm("query", query)
             except Exception as e:
                 self.logger.warning(f"LLM processing failed during query: {str(e)}")
         
@@ -211,7 +217,7 @@ class ProceduralMemory(BaseMemory[Procedure]):
         combined_filters = {**proc_filters, **filters}
         
         # Search in persistence layer
-        results = await self.persistence.search(
+        results = self.persistence.search(
             self.namespace,
             query,
             limit,
@@ -233,7 +239,7 @@ class ProceduralMemory(BaseMemory[Procedure]):
         
         return procedures
     
-    async def record_usage(self, id: str, success: bool) -> bool:
+    def record_usage(self, id: str, success: bool) -> bool:
         """
         Record a usage of a procedure.
         
@@ -245,7 +251,7 @@ class ProceduralMemory(BaseMemory[Procedure]):
             Whether the update was successful
         """
         # Retrieve the existing procedure
-        existing = await self.persistence.retrieve(self.namespace, id)
+        existing = self.persistence.retrieve(self.namespace, id)
         if not existing:
             self.logger.warning(f"Cannot record usage for procedure with ID {id}: not found")
             return False
@@ -264,7 +270,7 @@ class ProceduralMemory(BaseMemory[Procedure]):
             procedure.record_usage(success)
             
             # Update in persistence layer
-            await self.persistence.store(
+            self.persistence.store(
                 self.namespace,
                 id,
                 procedure.to_dict(),
@@ -285,7 +291,7 @@ class ProceduralMemory(BaseMemory[Procedure]):
             self.logger.error(f"Error recording usage for procedure {id}: {str(e)}")
             return False
     
-    async def update(self, id: str, item: Union[Procedure, Dict, Any], **metadata) -> bool:
+    def update(self, id: str, item: Union[Procedure, Dict, Any], **metadata) -> bool:
         """
         Update an existing procedural memory.
         
@@ -298,7 +304,7 @@ class ProceduralMemory(BaseMemory[Procedure]):
             Whether the update was successful
         """
         # Check if the procedure exists
-        existing_data = await self.persistence.retrieve(self.namespace, id)
+        existing_data = self.persistence.retrieve(self.namespace, id)
         if not existing_data:
             self.logger.warning(f"Cannot update procedural memory with ID {id}: not found")
             return False
@@ -313,7 +319,7 @@ class ProceduralMemory(BaseMemory[Procedure]):
                     existing_data if isinstance(existing_data, Procedure) 
                     else Procedure.from_dict(existing_data)
                 )
-                procedure = await self._process_with_llm("update", {
+                procedure = self._process_with_llm("update", {
                     "existing": existing_procedure,
                     "update": procedure
                 })
@@ -332,7 +338,7 @@ class ProceduralMemory(BaseMemory[Procedure]):
         }
         
         # Store updated value
-        await self.persistence.store(
+        self.persistence.store(
             self.namespace,
             id,
             procedure.to_dict(),
@@ -342,7 +348,7 @@ class ProceduralMemory(BaseMemory[Procedure]):
         self.logger.debug(f"Updated procedural memory with ID {id}")
         return True
     
-    async def delete(self, id: str) -> bool:
+    def delete(self, id: str) -> bool:
         """
         Delete a procedural memory.
         
@@ -352,16 +358,16 @@ class ProceduralMemory(BaseMemory[Procedure]):
         Returns:
             Whether the deletion was successful
         """
-        result = await self.persistence.delete(self.namespace, id)
+        result = self.persistence.delete(self.namespace, id)
         if result:
             self.logger.debug(f"Deleted procedural memory with ID {id}")
         else:
             self.logger.warning(f"Failed to delete procedural memory with ID {id}")
         return result
     
-    async def clear(self) -> None:
+    def clear(self) -> None:
         """Clear all procedural memories."""
-        await self.persistence.clear_namespace(self.namespace)
+        self.persistence.clear_namespace(self.namespace)
         self.logger.debug(f"Cleared all procedural memories in namespace {self.namespace}")
     
     def _ensure_procedure(self, item: Union[Procedure, Dict, Any]) -> Procedure:
@@ -396,7 +402,7 @@ class ProceduralMemory(BaseMemory[Procedure]):
             pattern={"content": item}
         )
     
-    async def _process_with_llm(self, operation: str, data: Any) -> Any:
+    def _process_with_llm(self, operation: str, data: Any) -> Any:
         """
         Process memory operations with an LLM.
         
@@ -411,8 +417,4 @@ class ProceduralMemory(BaseMemory[Procedure]):
             return data
         
         processor = self.llm_config[f"{operation}_processor"]
-        
-        if asyncio.iscoroutinefunction(processor):
-            return await processor(data)
-        else:
-            return processor(data) 
+        return processor(data) 

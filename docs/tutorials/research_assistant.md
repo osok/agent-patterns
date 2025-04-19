@@ -103,7 +103,7 @@ llm_configs = {
     },
     "evaluation": {
         "provider": os.getenv("EVALUATION_MODEL_PROVIDER", "anthropic"),
-        "model_name": os.getenv("EVALUATION_MODEL_NAME", "claude-3-opus-20240229")
+        "model_name": os.getenv("EVALUATION_MODEL_NAME", "claude-3-5-sonnet-latest")
     }
 }
 
@@ -440,7 +440,7 @@ llm_configs = {
     },
     "evaluation": {
         "provider": os.getenv("EVALUATION_MODEL_PROVIDER", "anthropic"),
-        "model_name": os.getenv("EVALUATION_MODEL_NAME", "claude-3-opus-20240229")
+        "model_name": os.getenv("EVALUATION_MODEL_NAME", "claude-3-5-sonnet-latest")
     }
 }
 

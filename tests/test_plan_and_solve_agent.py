@@ -13,6 +13,13 @@ from langchain_core.messages import AIMessage, HumanMessage
 @pytest.fixture
 def test_prompts_dir(tmp_path):
     """Create a temporary directory with test prompts for Plan and Solve agent."""
+
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
     prompts_dir = tmp_path / "prompts"
     prompts_dir.mkdir()
     
@@ -63,7 +70,7 @@ def llm_configs():
     """Sample LLM configs for testing."""
     return {
         "planner": {
-            "model_name": "gpt-4-turbo",
+            "model_name": "gpt-4o",
             "provider": "openai"
         },
         "executor": {

@@ -4,6 +4,13 @@ This example demonstrates the performance advantage of the LLM Compiler pattern
 by comparing it to sequential execution of the same tasks.
 """
 
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
+
 import os
 import sys
 import logging
@@ -93,7 +100,7 @@ def run_llm_compiler(query: str, tools: List[BaseTool]) -> Dict[str, Any]:
     compiler_agent = LLMCompilerAgent(
         llm_configs=llm_configs,
         tools=tools,
-        prompt_dir="agent_patterns/prompts",
+        prompt_dir="/ai/work/agents/agent-patterns/src/agent_patterns/prompts",
         log_level=logging.INFO
     )
     
@@ -128,7 +135,7 @@ def run_sequential(query: str, tools: List[BaseTool]) -> Dict[str, Any]:
     react_agent = ReActAgent(
         llm_configs=llm_configs,
         tools=tools,
-        prompt_dir="agent_patterns/prompts",
+        prompt_dir="/ai/work/agents/agent-patterns/src/agent_patterns/prompts",
         log_level=logging.INFO
     )
     

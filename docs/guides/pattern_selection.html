@@ -1,0 +1,10 @@
+<span class="n">agent</span> <span class="o">=</span> <span class="n">ReflexionAgent</span><span class="p">(</span>
+    <span class="n">llm_configs</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;provider&quot;</span><span class="p">:</span> <span class="s2">&quot;openai&quot;</span><span class="p">,</span> <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="s2">&quot;gpt-4o&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;reflection&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;provider&quot;</span><span class="p">:</span> <span class="s2">&quot;anthropic&quot;</span><span class="p">,</span> <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="s2">&quot;claude-3-5-sonnet-latest&quot;</span><span class="p">}</span>
+    <span class="p">},</span>
+    <span class="n">reflection_config</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;reflection_threshold&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span>
+        <span class="s2">&quot;max_iterations&quot;</span><span class="p">:</span> <span class="mi">3</span>
+    <span class="p">}</span>
+<span class="p">)</span> 

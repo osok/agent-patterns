@@ -7,6 +7,13 @@ article on a given topic using multi-perspective research, enhanced with memory
 capabilities and tool integration.
 """
 
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
+
 import os
 import sys
 import logging
@@ -33,10 +40,30 @@ from agent_patterns.core.memory.persistence import (
     InMemoryPersistence
 )
 from agent_patterns.core.tools.base import ToolProvider
+from agent_patterns.core.base_agent import BaseAgent
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
+
+# Monkey patch the BaseAgent's sync_retrieve_memories method to avoid the nested asyncio.run() call
+original_sync_retrieve = BaseAgent.sync_retrieve_memories
+
+def patched_sync_retrieve(self, query):
+    """Patched version that doesn't use asyncio.run() when already in a loop"""
+    if asyncio.get_event_loop().is_running():
+        # Create a new loop and run the coroutine in that loop
+        loop = asyncio.new_event_loop()
+        try:
+            return loop.run_until_complete(self._retrieve_memories(query))
+        finally:
+            loop.close()
+    else:
+        # Use the original method if not in a running loop
+        return original_sync_retrieve(self, query)
+
+# Apply the patch
+BaseAgent.sync_retrieve_memories = patched_sync_retrieve
 
 # Load environment variables
 load_dotenv()
@@ -208,11 +235,11 @@ Luna Park, Award-winning Digital Artist: "We're moving toward a future where the
         
         return f"No specific expert quotes found for '{topic}', but experts generally emphasize the transformative potential balanced with ethical considerations in emerging technologies."
 
-def setup_memory():
+async def setup_memory():
     """Set up a composite memory system."""
     # Create persistence backend
     persistence = InMemoryPersistence()
-    asyncio.run(persistence.initialize())
+    await persistence.initialize()
     
     # Create individual memory types
     semantic_memory = SemanticMemory(persistence, namespace="article_semantic")
@@ -227,18 +254,18 @@ def setup_memory():
     })
     
     # Pre-populate with some semantic memories
-    asyncio.run(memory.save_to(
+    await memory.save_to(
         "semantic", 
         {"entity": "generative_ai", "attribute": "definition", "value": "AI systems that can create new content including text, images, code, and audio"}
-    ))
+    )
     
-    asyncio.run(memory.save_to(
+    await memory.save_to(
         "semantic", 
         {"entity": "article_style", "attribute": "preferences", "value": "balanced perspective, evidence-based claims, engaging narrative flow"}
-    ))
+    )
     
     # Add a procedural memory for article writing
-    asyncio.run(memory.save_to(
+    await memory.save_to(
         "procedural",
         {
             "name": "article_structure",
@@ -254,11 +281,11 @@ def setup_memory():
             "description": "Template for structuring well-researched articles",
             "tags": ["writing", "research", "structure"]
         }
-    ))
+    )
     
     return memory
 
-def main():
+async def main_async():
     # Check if the required environment variables are set
     openai_api_key = os.getenv("OPENAI_API_KEY")
     if not openai_api_key:
@@ -280,31 +307,57 @@ def main():
         prompt_dir = str(non_src_prompt_dir)
     
     # Set up memory
-    memory = setup_memory()
+    memory = await setup_memory()
     
     # Set up tool provider
     tool_provider = ContentResearchToolProvider()
 
+    # Get model names from environment variables with no hardcoded defaults
+    openai_model_high = os.getenv("THINKING_MODEL_NAME")
+    openai_provider = os.getenv("THINKING_MODEL_PROVIDER")
+    anthropic_model = os.getenv("DOCUMENTATION_MODEL_NAME")
+    anthropic_provider = os.getenv("DOCUMENTATION_MODEL_PROVIDER")
+    
     # Create LLM configurations for different roles in the STORM agent
     llm_configs = {}
     
-    # Use GPT-4 for roles that need high reasoning capabilities
+    # Use high-capability model for roles that need high reasoning capabilities
     high_reasoning_roles = ["outline_generator", "perspective_identifier", "expert", "editor"]
     for role in high_reasoning_roles:
-        llm_configs[role] = {
-            "provider": "openai",
-            "model_name": "gpt-4o",
-            "temperature": 0.5
-        }
+        if anthropic_model and anthropic_provider == "anthropic":
+            llm_configs[role] = {
+                "provider": "anthropic",
+                "model_name": anthropic_model,
+                "temperature": 0.5
+            }
+        elif openai_model_high and openai_provider == "openai":
+            llm_configs[role] = {
+                "provider": "openai",
+                "model_name": openai_model_high,
+                "temperature": 0.5
+            }
+        else:
+            logger.error(f"No model defined for high reasoning role: {role}. Please set appropriate model in .env file.")
+            return
     
-    # Use GPT-3.5 for roles that need more standard capabilities
+    # Use standard model for roles that need more standard capabilities
     standard_roles = ["researcher", "writer"]
     for role in standard_roles:
-        llm_configs[role] = {
-            "provider": "openai",
-            "model_name": "gpt-3.5-turbo",
-            "temperature": 0.7
-        }
+        if openai_model_high and openai_provider == "openai":
+            llm_configs[role] = {
+                "provider": "openai",
+                "model_name": openai_model_high,
+                "temperature": 0.7
+            }
+        elif anthropic_model and anthropic_provider == "anthropic":
+            llm_configs[role] = {
+                "provider": "anthropic",
+                "model_name": anthropic_model,
+                "temperature": 0.7
+            }
+        else:
+            logger.error(f"No model defined for standard role: {role}. Please set appropriate model in .env file.")
+            return
     
     # Create the STORM agent with memory and tools
     agent = STORMAgent(
@@ -354,14 +407,19 @@ def main():
     print("\n=== MEMORY AFTER EXECUTION ===")
     
     print("\nSemantic memories:")
-    facts = asyncio.run(memory.retrieve_from("semantic", "", limit=5))
+    facts = await memory.retrieve_from("semantic", "", limit=5)
     for i, fact in enumerate(facts):
         print(f"{i+1}. {fact}")
     
     print("\nEpisodic memories:")
-    episodes = asyncio.run(memory.retrieve_from("episodic", "generative AI creative", limit=5))
+    episodes = await memory.retrieve_from("episodic", "generative AI creative", limit=5)
     for i, episode in enumerate(episodes):
         print(f"{i+1}. {episode.content}")
+
+def main():
+    """Main function to run the example."""
+    # Run the async main function in the event loop
+    asyncio.run(main_async())
 
 if __name__ == "__main__":
     main() 

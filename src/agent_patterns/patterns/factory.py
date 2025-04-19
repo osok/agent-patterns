@@ -29,6 +29,13 @@ def create_reflection_and_refinement_agent(
     Returns:
         A configured ReflectionAndRefinementAgent instance
     """
+
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
     return ReflectionAndRefinementAgent(
         llm=llm,
         memory_provider=memory_provider,

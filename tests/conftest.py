@@ -9,6 +9,13 @@ from pathlib import Path
 @pytest.fixture
 def test_prompts_dir(tmp_path):
     """Create a temporary directory with test prompts for ReAct agent."""
+
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
     prompts_dir = tmp_path / "prompts"
     prompts_dir.mkdir()
     

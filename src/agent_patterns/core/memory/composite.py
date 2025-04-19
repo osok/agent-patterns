@@ -1,7 +1,6 @@
 """Composite memory implementation that combines multiple memory types."""
 
 import uuid
-import asyncio
 from typing import Dict, List, Any, Optional, TypeVar, Union, Generic, Type, cast
 import logging
 
@@ -11,6 +10,13 @@ T = TypeVar('T')  # Memory item type
 
 class CompositeMemory:
     """
+
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
     Combines multiple memory types into a unified interface.
     
     This allows agents to use different memory types without
@@ -26,8 +32,17 @@ class CompositeMemory:
         """
         self.memories = memories
         self.logger = logging.getLogger("CompositeMemory")
+        
+        # Initialize persistence layers
+        self._initialize_persistence()
     
-    async def save_to(self, memory_type: str, item: Any, **metadata) -> Optional[str]:
+    def _initialize_persistence(self):
+        """Initialize all persistence layers."""
+        for memory_type, memory in self.memories.items():
+            if hasattr(memory.persistence, 'initialize'):
+                memory.persistence.initialize()
+    
+    def save_to(self, memory_type: str, item: Any, **metadata) -> Optional[str]:
         """
         Save an item to a specific memory type.
         
@@ -44,14 +59,15 @@ class CompositeMemory:
             return None
         
         try:
-            memory_id = await self.memories[memory_type].save(item, **metadata)
+            memory = self.memories[memory_type]
+            memory_id = memory.save(item, **metadata)
             self.logger.debug(f"Saved item to {memory_type} memory with ID {memory_id}")
             return memory_id
         except Exception as e:
             self.logger.error(f"Error saving to {memory_type} memory: {str(e)}")
             return None
     
-    async def retrieve_from(self, memory_type: str, query: Any, limit: int = 5, **filters) -> List[Any]:
+    def retrieve_from(self, memory_type: str, query: Any, limit: int = 5, **filters) -> List[Any]:
         """
         Retrieve items from a specific memory type.
         
@@ -69,15 +85,16 @@ class CompositeMemory:
             return []
         
         try:
-            items = await self.memories[memory_type].retrieve(query, limit, **filters)
+            memory = self.memories[memory_type]
+            items = memory.retrieve(query, limit, **filters)
             self.logger.debug(f"Retrieved {len(items)} items from {memory_type} memory")
             return items
         except Exception as e:
             self.logger.error(f"Error retrieving from {memory_type} memory: {str(e)}")
             return []
     
-    async def retrieve_all(self, query: Any, limits: Optional[Dict[str, int]] = None, 
-                          filters: Optional[Dict[str, Dict[str, Any]]] = None) -> Dict[str, List[Any]]:
+    def retrieve_all(self, query: Any, limits: Optional[Dict[str, int]] = None, 
+                    filters: Optional[Dict[str, Dict[str, Any]]] = None) -> Dict[str, List[Any]]:
         """
         Retrieve items from all memory types.
         
@@ -93,21 +110,13 @@ class CompositeMemory:
         filters = filters or {}
         results = {}
         
-        # Create async tasks for all memory retrievals
-        tasks = []
+        # Retrieve from each memory type
         for memory_type, memory in self.memories.items():
             limit = limits.get(memory_type, 5)
             memory_filters = filters.get(memory_type, {})
             
-            task = asyncio.create_task(
-                self._safe_retrieve(memory_type, memory, query, limit, **memory_filters)
-            )
-            tasks.append((memory_type, task))
-        
-        # Gather all results
-        for memory_type, task in tasks:
             try:
-                items = await task
+                items = memory.retrieve(query, limit, **memory_filters)
                 results[memory_type] = items
             except Exception as e:
                 self.logger.error(f"Error retrieving from {memory_type} memory: {str(e)}")
@@ -115,7 +124,7 @@ class CompositeMemory:
         
         return results
     
-    async def update_in(self, memory_type: str, id: str, item: Any, **metadata) -> bool:
+    def update_in(self, memory_type: str, id: str, item: Any, **metadata) -> bool:
         """
         Update an item in a specific memory type.
         
@@ -133,17 +142,20 @@ class CompositeMemory:
             return False
         
         try:
-            result = await self.memories[memory_type].update(id, item, **metadata)
-            if result:
+            memory = self.memories[memory_type]
+            success = memory.update(id, item, **metadata)
+            
+            if success:
                 self.logger.debug(f"Updated item in {memory_type} memory with ID {id}")
             else:
                 self.logger.warning(f"Failed to update item in {memory_type} memory with ID {id}")
-            return result
+                
+            return success
         except Exception as e:
             self.logger.error(f"Error updating in {memory_type} memory: {str(e)}")
             return False
     
-    async def delete_from(self, memory_type: str, id: str) -> bool:
+    def delete_from(self, memory_type: str, id: str) -> bool:
         """
         Delete an item from a specific memory type.
         
@@ -159,27 +171,25 @@ class CompositeMemory:
             return False
         
         try:
-            result = await self.memories[memory_type].delete(id)
-            if result:
+            memory = self.memories[memory_type]
+            success = memory.delete(id)
+            
+            if success:
                 self.logger.debug(f"Deleted item from {memory_type} memory with ID {id}")
             else:
                 self.logger.warning(f"Failed to delete item from {memory_type} memory with ID {id}")
-            return result
+                
+            return success
         except Exception as e:
             self.logger.error(f"Error deleting from {memory_type} memory: {str(e)}")
             return False
     
-    async def clear_all(self) -> None:
+    def clear_all(self) -> None:
         """Clear all memories of all types."""
-        tasks = []
         for memory_type, memory in self.memories.items():
-            task = asyncio.create_task(self._safe_clear(memory_type, memory))
-            tasks.append(task)
-        
-        await asyncio.gather(*tasks)
-        self.logger.debug("Cleared all memories")
+            self.clear_type(memory_type)
     
-    async def clear_type(self, memory_type: str) -> bool:
+    def clear_type(self, memory_type: str) -> bool:
         """
         Clear all memories of a specific type.
         
@@ -194,59 +204,10 @@ class CompositeMemory:
             return False
         
         try:
-            await self.memories[memory_type].clear()
+            memory = self.memories[memory_type]
+            memory.clear()
             self.logger.debug(f"Cleared all {memory_type} memories")
             return True
         except Exception as e:
             self.logger.error(f"Error clearing {memory_type} memory: {str(e)}")
-            return False
-    
-    # Helper methods
-    
-    async def _safe_retrieve(self, memory_type: str, memory: BaseMemory, 
-                            query: Any, limit: int, **filters) -> List[Any]:
-        """Safely retrieve from a memory with error handling."""
-        try:
-            return await memory.retrieve(query, limit, **filters)
-        except Exception as e:
-            self.logger.error(f"Error retrieving from {memory_type} memory: {str(e)}")
-            return []
-    
-    async def _safe_clear(self, memory_type: str, memory: BaseMemory) -> None:
-        """Safely clear a memory with error handling."""
-        try:
-            await memory.clear()
-            self.logger.debug(f"Cleared {memory_type} memory")
-        except Exception as e:
-            self.logger.error(f"Error clearing {memory_type} memory: {str(e)}")
-    
-    # Synchronous versions of methods for convenience
-    
-    def sync_save_to(self, memory_type: str, item: Any, **metadata) -> Optional[str]:
-        """Synchronous wrapper for save_to."""
-        return asyncio.run(self.save_to(memory_type, item, **metadata))
-    
-    def sync_retrieve_from(self, memory_type: str, query: Any, limit: int = 5, **filters) -> List[Any]:
-        """Synchronous wrapper for retrieve_from."""
-        return asyncio.run(self.retrieve_from(memory_type, query, limit, **filters))
-    
-    def sync_retrieve_all(self, query: Any, limits: Optional[Dict[str, int]] = None, 
-                         filters: Optional[Dict[str, Dict[str, Any]]] = None) -> Dict[str, List[Any]]:
-        """Synchronous wrapper for retrieve_all."""
-        return asyncio.run(self.retrieve_all(query, limits, filters))
-    
-    def sync_update_in(self, memory_type: str, id: str, item: Any, **metadata) -> bool:
-        """Synchronous wrapper for update_in."""
-        return asyncio.run(self.update_in(memory_type, id, item, **metadata))
-    
-    def sync_delete_from(self, memory_type: str, id: str) -> bool:
-        """Synchronous wrapper for delete_from."""
-        return asyncio.run(self.delete_from(memory_type, id))
-    
-    def sync_clear_all(self) -> None:
-        """Synchronous wrapper for clear_all."""
-        asyncio.run(self.clear_all())
-    
-    def sync_clear_type(self, memory_type: str) -> bool:
-        """Synchronous wrapper for clear_type."""
-        return asyncio.run(self.clear_type(memory_type)) 
+            return False 

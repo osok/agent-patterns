@@ -10,10 +10,18 @@ from agent_patterns.core.memory.composite import CompositeMemory
 from agent_patterns.core.memory.semantic import SemanticMemory
 from agent_patterns.core.memory.episodic import EpisodicMemory
 from agent_patterns.core.tools.base import ToolProvider
+from langchain_core.messages import AIMessage
 
 
 class MockToolProvider(ToolProvider):
     """Mock implementation of tool provider for testing."""
+
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
 
     def __init__(self, tools_config=None):
         self.tools = tools_config or [
@@ -159,21 +167,21 @@ def test_reflexion_agent_constructor(mock_llm, mock_memory, mock_tool_provider):
 @patch("langchain_openai.ChatOpenAI")
 def test_reflexion_agent_memory_integration(mock_llm, test_agent):
     """Test that memory integration is properly implemented."""
-    # Verify that sync_retrieve_memories and sync_save_memory methods exist
-    assert hasattr(test_agent, 'sync_retrieve_memories')
-    assert hasattr(test_agent, 'sync_save_memory')
+    # Verify that _retrieve_memories and _save_memory methods exist
+    assert hasattr(test_agent, '_retrieve_memories')
+    assert hasattr(test_agent, '_save_memory')
     
-    # Verify memory code integration in _plan_action_with_memory
-    code = inspect.getsource(test_agent._plan_action_with_memory)
-    assert "retrieve_memories" in code or "sync_retrieve_memories" in code
+    # Check memory integration in plan_action_with_memory
+    plan_code = inspect.getsource(test_agent._plan_action_with_memory)
+    assert "retrieve_memories" in plan_code or "_retrieve_memories" in plan_code
     
-    # Verify memory code integration in _reflect_on_trial
-    code = inspect.getsource(test_agent._reflect_on_trial)
-    assert "save_memory" in code or "sync_save_memory" in code
+    # Check memory integration in execute_plan
+    execute_code = inspect.getsource(test_agent._execute_plan)
+    assert "save_memory" in execute_code or "_save_memory" in execute_code
     
-    # Verify memory code integration in _prepare_final_output
-    code = inspect.getsource(test_agent._prepare_final_output)
-    assert "save_memory" in code or "sync_save_memory" in code
+    # Check memory integration in evaluate_result
+    evaluate_code = inspect.getsource(test_agent._evaluate_result)
+    assert "save_memory" in evaluate_code or "_save_memory" in evaluate_code
 
 
 @patch("langchain_openai.ChatOpenAI")
@@ -189,3 +197,59 @@ def test_reflexion_agent_tool_integration(mock_llm, test_agent, mock_tool_provid
     
     # Verify the pattern for extracting tool calls exists
     assert "USE_TOOL:" in code or "tool_call_pattern" in code or "tool_call_match" in code 
+
+
+@patch("langchain_openai.ChatOpenAI")
+def test_reflexion_with_memory_usage(mock_llm, test_agent):
+    """Test that memory is properly used during the reflexion process."""
+    # Setup mock responses
+    plan_response = MagicMock()
+    plan_response.content = "Plan: Step 1, Step 2, Step 3"
+    
+    execution_response = MagicMock()
+    execution_response.content = "Execution result"
+    
+    evaluation_response = MagicMock()
+    evaluation_response.content = "Evaluation: Success=True"
+    
+    reflection_response = MagicMock()
+    reflection_response.content = "I learned to be more careful with step 2"
+    
+    # Configure mock to return different responses
+    mock_llm.return_value.invoke.side_effect = [
+        plan_response, execution_response, 
+        evaluation_response, reflection_response
+    ]
+    
+    # Mock the memory methods
+    test_agent._retrieve_memories = MagicMock(return_value={
+        "semantic": [{"fact": "Important context about the task"}],
+        "episodic": [{"event": "Previous attempt at similar task"}]
+    })
+    
+    test_agent._save_memory = MagicMock()
+    
+    # Create test state
+    initial_state = {
+        "input_task": "Test task",
+        "reflection_memory": [],
+        "trial_count": 1,
+        "max_trials": 3,
+        "current_plan": None,
+        "action_result": None,
+        "evaluation": None,
+        "trial_reflection": None,
+        "final_answer": None
+    }
+    
+    # Run each step individually to test memory integration
+    state = test_agent._plan_action_with_memory(initial_state)
+    state = test_agent._execute_plan(state)
+    state = test_agent._evaluate_result(state)
+    state = test_agent._reflect_on_trial(state)
+    
+    # Verify memory retrieval was called
+    test_agent._retrieve_memories.assert_called_with("Test task")
+    
+    # Verify memory was saved at least once
+    assert test_agent._save_memory.call_count >= 1 

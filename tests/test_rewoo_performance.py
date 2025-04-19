@@ -8,6 +8,13 @@ Note: These tests require OpenAI API access and will consume tokens.
 Set the OPENAI_API_KEY environment variable before running.
 """
 
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
+
 import unittest
 import os
 import sys
@@ -123,6 +130,7 @@ class TokenTrackingOpenAI:
                     else:
                         formatted_messages.append({"role": "user", "content": str(m)})
             
+            # Use the chat completions API
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=formatted_messages,

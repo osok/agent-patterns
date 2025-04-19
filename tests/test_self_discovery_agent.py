@@ -12,6 +12,13 @@ from agent_patterns.patterns.self_discovery_agent import SelfDiscoveryAgent, Sel
 class TestSelfDiscoveryAgent(unittest.TestCase):
     """Test cases for the Self-Discovery Agent implementation."""
 
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
+
     def setUp(self):
         """Set up test fixtures."""
         # Configure minimal LLM configs for testing
@@ -417,8 +424,8 @@ class TestSelfDiscoveryAgent(unittest.TestCase):
         )
         
         # Replace memory methods with mocks
-        agent.sync_retrieve_memories = mock_retrieve_memories
-        agent.sync_save_memory = mock_save_memory
+        agent._retrieve_memories = mock_retrieve_memories
+        agent._save_memory = mock_save_memory
         
         # Test selecting modules with memory
         state = {

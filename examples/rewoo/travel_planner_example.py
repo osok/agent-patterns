@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
 """
 Travel Planner Example using the REWOO agent pattern.
 
@@ -13,7 +19,7 @@ from typing import Dict, Any, List
 import json
 from datetime import datetime, timedelta
 
-from agent_patterns.rewoo.agent import REWOOAgent
+from agent_patterns.patterns.rewoo_agent import REWOOAgent
 from langchain_openai import ChatOpenAI
 
 # Configure logging
@@ -495,9 +501,16 @@ def main():
     """Run the example."""
     # Get API key from environment
     api_key = os.environ.get("OPENAI_API_KEY")
+    anthropic_api_key = os.environ.get("ANTHROPIC_API_KEY")
     
-    if not api_key:
-        logger.warning("OPENAI_API_KEY not set. Using mock mode.")
+    # Get model configurations from environment
+    planner_provider = os.environ.get("WORKER_MODEL_PROVIDER", "openai")
+    planner_model = os.environ.get("WORKER_MODEL_NAME", "gpt-4o")
+    solver_provider = os.environ.get("SOLVER_MODEL_PROVIDER", "openai")
+    solver_model = os.environ.get("SOLVER_MODEL_NAME", "gpt-4o")
+    
+    if not api_key and not anthropic_api_key:
+        logger.warning("Neither OPENAI_API_KEY nor ANTHROPIC_API_KEY set. Using mock mode.")
         # Create mock implementation
         from unittest.mock import MagicMock
         
@@ -692,18 +705,48 @@ Enjoy your trip to Paris! This beautiful city has something for everyone, from w
         planner_llm = MockLLM(mock_responses)
         solver_llm = MockLLM(mock_responses)
     else:
-        # Create real OpenAI LLMs
-        planner_llm = ChatOpenAI(
-            model="gpt-4o",
-            temperature=0.7,
-            api_key=api_key
-        )
+        # Create LLMs based on provider
+        if planner_provider.lower() == "openai":
+            planner_llm = ChatOpenAI(
+                model=planner_model,
+                temperature=0.7,
+                api_key=api_key
+            )
+        elif planner_provider.lower() == "anthropic":
+            from langchain_anthropic import ChatAnthropic
+            planner_llm = ChatAnthropic(
+                model=planner_model,
+                temperature=0.7,
+                api_key=anthropic_api_key
+            )
+        else:
+            logger.warning(f"Unsupported planner provider: {planner_provider}. Falling back to OpenAI.")
+            planner_llm = ChatOpenAI(
+                model=planner_model,
+                temperature=0.7,
+                api_key=api_key
+            )
         
-        solver_llm = ChatOpenAI(
-            model="gpt-4o",
-            temperature=0.2,
-            api_key=api_key
-        )
+        if solver_provider.lower() == "openai":
+            solver_llm = ChatOpenAI(
+                model=solver_model,
+                temperature=0.2,
+                api_key=api_key
+            )
+        elif solver_provider.lower() == "anthropic":
+            from langchain_anthropic import ChatAnthropic
+            solver_llm = ChatAnthropic(
+                model=solver_model,
+                temperature=0.2,
+                api_key=anthropic_api_key
+            )
+        else:
+            logger.warning(f"Unsupported solver provider: {solver_provider}. Falling back to OpenAI.")
+            solver_llm = ChatOpenAI(
+                model=solver_model,
+                temperature=0.2,
+                api_key=api_key
+            )
     
     # Create tools
     destination_info_tool = DestinationInfoTool()
@@ -733,7 +776,8 @@ Enjoy your trip to Paris! This beautiful city has something for everyone, from w
             "hotel_search": hotel_search_tool,
             "attraction_search": attraction_search_tool
         },
-        prompt_dir=prompt_dir
+        prompt_dir=prompt_dir,
+        max_iterations=20  # Increase from default to handle all steps in the plan
     )
     
     # Run the agent
@@ -743,7 +787,9 @@ Enjoy your trip to Paris! This beautiful city has something for everyone, from w
     print("Starting REWOO agent execution...\n")
     
     start_time = time.time()
-    result = agent.run(query)
+    # Increase recursion limit to handle the complex plan
+    config = {"recursion_limit": 100}
+    result = agent.run(query, config=config)
     elapsed_time = time.time() - start_time
     
     print("\nTravel Plan:")

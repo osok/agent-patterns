@@ -4,6 +4,13 @@ This example demonstrates using the ReflexionAgent to analyze a chess position
 through multiple trials, learning from past attempts to provide better analysis.
 """
 
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
+
 import sys
 import os
 from pathlib import Path
@@ -19,8 +26,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')
 
 # Import agent patterns modules
 from agent_patterns.patterns.reflexion_agent import ReflexionAgent
-from agent_patterns.utils.structured_string import StructuredString
-from agent_patterns.base import Task
+from examples.utils.model_config import get_llm_configs, get_model_config
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, 
@@ -36,30 +42,26 @@ def setup_llm_configs() -> Dict:
     Returns:
         Dictionary with LLM configurations for each role.
     """
-    # Default to OpenAI if specific providers aren't specified
-    default_provider = os.getenv("DEFAULT_MODEL_PROVIDER", "openai")
-    default_model = os.getenv("DEFAULT_MODEL_NAME", "gpt-3.5-turbo")
+    # Get the base configurations from environment variables
+    base_configs = get_llm_configs()
     
-    # For a chess analysis task, we might want more capable models
+    # For a chess analysis task, we might want to adjust temperature settings
+    # while keeping the model providers from the environment
     llm_configs = {
         "planner": {
-            "provider": os.getenv("PLANNER_MODEL_PROVIDER", default_provider),
-            "model_name": os.getenv("PLANNER_MODEL_NAME", "gpt-4-turbo-preview"),
+            **base_configs.get("planning", base_configs["default"]),
             "temperature": 0.7,
         },
         "executor": {
-            "provider": os.getenv("EXECUTOR_MODEL_PROVIDER", default_provider),
-            "model_name": os.getenv("EXECUTOR_MODEL_NAME", "gpt-4-turbo-preview"),
+            **base_configs.get("planning", base_configs["default"]),
             "temperature": 0.5,
         },
         "evaluator": {
-            "provider": os.getenv("EVALUATOR_MODEL_PROVIDER", default_provider),
-            "model_name": os.getenv("EVALUATOR_MODEL_NAME", "gpt-4-turbo-preview"),
+            **base_configs.get("reflection", base_configs["default"]),
             "temperature": 0.3,
         },
         "reflector": {
-            "provider": os.getenv("REFLECTOR_MODEL_PROVIDER", default_provider),
-            "model_name": os.getenv("REFLECTOR_MODEL_NAME", "gpt-4-turbo-preview"),
+            **base_configs.get("reflection", base_configs["default"]),
             "temperature": 0.4,
         }
     }

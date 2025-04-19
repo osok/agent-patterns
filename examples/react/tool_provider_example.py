@@ -5,6 +5,13 @@ This example shows how to set up a ReAct agent with a custom tool provider
 that gives access to multiple external APIs and services.
 """
 
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
+
 import os
 import sys
 from dotenv import load_dotenv
@@ -12,6 +19,7 @@ import logging
 
 # Add the parent directory to sys.path to import agent_patterns
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+from examples.utils.model_config import get_llm_configs
 
 # Load environment variables
 load_dotenv()
@@ -150,18 +158,14 @@ class CustomToolProvider(ToolProvider):
 
 def main():
     """Run the ReAct with tool provider example."""
-    # Configure LLM
-    openai_api_key = os.getenv("OPENAI_API_KEY")
-    if not openai_api_key:
-        raise ValueError("OPENAI_API_KEY environment variable is not set. Please set it in .env file.")
-    
-    llm_configs = {
-        "default": {
-            "provider": "openai",
-            "model_name": "gpt-4o",
-            "temperature": 0.7
-        }
-    }
+    # Setup LLM configs using the utility function
+    try:
+        # This will use PLANNING_MODEL_PROVIDER and PLANNING_MODEL_NAME from .env
+        llm_configs = get_llm_configs()
+    except ValueError as e:
+        logger.error(f"Error loading model configuration: {e}")
+        logger.error("Please ensure your .env file contains the necessary model configuration variables.")
+        return
     
     # Create tools
     wiki_search = WikiSearchTool()
@@ -177,10 +181,24 @@ def main():
         print(f"- {tool['name']}: {tool['description']}")
         print(f"  Parameters: {tool['parameters']}")
     
+    # Get the project root directory to find prompts
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    project_root = os.path.abspath(os.path.join(current_dir, '../..'))
+
+    # Try to find prompts directory - check both installed package and development paths
+    src_prompt_dir = os.path.join(project_root, "src", "agent_patterns", "prompts")
+    pkg_prompt_dir = os.path.join(project_root, "agent_patterns", "prompts")
+
+    if os.path.exists(src_prompt_dir):
+        prompt_dir = src_prompt_dir
+    else:
+        prompt_dir = pkg_prompt_dir
+    
     # Create the ReAct agent with the tool provider
     agent = ReActAgent(
         llm_configs=llm_configs,
         tool_provider=tool_provider,
+        prompt_dir=prompt_dir,
         max_steps=5  # Limit the maximum number of steps
     )
     
@@ -204,12 +222,65 @@ def main():
         print("\nIntermediate steps:")
         for j, step in enumerate(result.get("intermediate_steps", [])):
             print(f"Step {j+1}:")
-            if len(step) >= 2:
-                print(f"  Thought: {step[0]}")
-                print(f"  Action: {step[1]}")
-            if len(step) >= 3:
-                print(f"  Observation: {step[2]}")
+            if isinstance(step, tuple) and len(step) >= 2:
+                action, observation = step
+                print(f"  Action: {action}")
+                print(f"  Observation: {observation}")
+            else:
+                print(f"  Step data: {step}")
+
+
+def fixed_example():
+    """Run a fixed version of the example that doesn't rely on the agent framework."""
+    # Create tools
+    wiki_search = WikiSearchTool()
+    weather_tool = WeatherTool()
+    calculator_tool = CalculatorTool()
+    
+    # Create the custom tool provider with all tools
+    tool_provider = CustomToolProvider([wiki_search, weather_tool, calculator_tool])
+    
+    # Print the available tools
+    print("\n======= FIXED EXAMPLE =======")
+    print("Available tools:")
+    for tool in tool_provider.list_tools():
+        print(f"- {tool['name']}: {tool['description']}")
+        print(f"  Parameters: {tool['parameters']}")
+    
+    # Example 1: Wiki search for AI
+    print("\n\n======= EXAMPLE 1: Wiki Search =======")
+    print("Query: What is artificial intelligence?")
+    result = tool_provider.execute_tool("wiki_search", {"query": "artificial intelligence"})
+    print(f"Result: {result}")
+    
+    # Example 2: Weather in New York
+    print("\n\n======= EXAMPLE 2: Weather =======")
+    print("Query: What's the weather like in New York?")
+    result = tool_provider.execute_tool("weather", {"location": "New York"})
+    print(f"Result: {result}")
+    
+    # Example 3: Calculator
+    print("\n\n======= EXAMPLE 3: Calculator =======")
+    print("Query: Calculate 25 * 4 + 10")
+    result = tool_provider.execute_tool("calculator", {"expression": "25 * 4 + 10"})
+    print(f"Result: {result}")
+    
+    # Example 4: Multiple tools
+    print("\n\n======= EXAMPLE 4: Multiple Tools =======")
+    print("Query: First tell me about Python, then check the weather in London.")
+    print("Step 1: Get information about Python")
+    result1 = tool_provider.execute_tool("wiki_search", {"query": "python"})
+    print(f"Python info result: {result1}")
+    print("\nStep 2: Check weather in London")
+    result2 = tool_provider.execute_tool("weather", {"location": "london"})
+    print(f"London weather result: {result2}")
+    print("\nCombined response:")
+    print(f"Information about Python: {result1}\n\nWeather in London: {result2}")
 
 
 if __name__ == "__main__":
-    main() 
+    print("\n======= AGENT-BASED TOOL PROVIDER EXAMPLE =======")
+    main()
+    
+    print("\n======= FIXED TOOL PROVIDER EXAMPLE =======")
+    fixed_example() 

@@ -15,6 +15,13 @@ from langchain.prompts import ChatPromptTemplate
 
 class SimpleTestAgent(BaseAgent):
     """A simple agent implementation for testing."""
+
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
     
     def __init__(self, prompt_dir: str, llm_configs: Dict[str, Any], log_level: int = logging.INFO):
         """Initialize the test agent, passing llm_configs to BaseAgent."""

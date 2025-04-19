@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../">
 <head>
@@ -116,7 +114,7 @@
 <li><p>Debug and refactor existing code</p></li>
 <li><p>Answer programming questions</p></li>
 </ol>
-<p>For this use case, we’ll use the Reflexion agent pattern, which excels at iterative refinement through self-reflection.</p>
+<p>For this use case, we'll use the Reflexion agent pattern, which excels at iterative refinement through self-reflection.</p>
 </section>
 <section id="prerequisites">
 <h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading"></a></h2>
@@ -353,7 +351,7 @@
 </section>
 <section id="step-4-creating-the-code-generation-agent">
 <h2>Step 4: Creating the Code Generation Agent<a class="headerlink" href="#step-4-creating-the-code-generation-agent" title="Link to this heading"></a></h2>
-<p>Now, let’s create our Reflexion-based code generation agent:</p>
+<p>Now, let's create our Reflexion-based code generation agent:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Configure LLM settings</span>
 <span class="n">llm_configs</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -362,7 +360,7 @@
     <span class="p">},</span>
     <span class="s2">&quot;reflection&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;provider&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;REFLECTION_MODEL_PROVIDER&quot;</span><span class="p">,</span> <span class="s2">&quot;anthropic&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;REFLECTION_MODEL_NAME&quot;</span><span class="p">,</span> <span class="s2">&quot;claude-3-opus-20240229&quot;</span><span class="p">)</span>
+        <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;REFLECTION_MODEL_NAME&quot;</span><span class="p">,</span> <span class="s2">&quot;claude-3-5-sonnet-latest&quot;</span><span class="p">)</span>
     <span class="p">}</span>
 <span class="p">}</span>
 
@@ -389,7 +387,7 @@
 </section>
 <section id="step-5-creating-a-code-generation-manager">
 <h2>Step 5: Creating a Code Generation Manager<a class="headerlink" href="#step-5-creating-a-code-generation-manager" title="Link to this heading"></a></h2>
-<p>Let’s create a manager class to handle different code generation tasks:</p>
+<p>Let's create a manager class to handle different code generation tasks:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">CodeGenerationManager</span><span class="p">:</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">agent</span> <span class="o">=</span> <span class="n">code_agent</span>
@@ -517,7 +515,7 @@
 </section>
 <section id="step-6-creating-a-cli-interface">
 <h2>Step 6: Creating a CLI Interface<a class="headerlink" href="#step-6-creating-a-cli-interface" title="Link to this heading"></a></h2>
-<p>Let’s create a command-line interface to use our code generation agent:</p>
+<p>Let's create a command-line interface to use our code generation agent:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
     <span class="c1"># Create the code generation manager</span>
     <span class="n">manager</span> <span class="o">=</span> <span class="n">CodeGenerationManager</span><span class="p">()</span>
@@ -598,7 +596,7 @@
 </section>
 <section id="complete-code">
 <h2>Complete Code<a class="headerlink" href="#complete-code" title="Link to this heading"></a></h2>
-<p>Here’s the complete code for our code generation agent:</p>
+<p>Here's the complete code for our code generation agent:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
@@ -819,7 +817,7 @@
     <span class="p">},</span>
     <span class="s2">&quot;reflection&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;provider&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;REFLECTION_MODEL_PROVIDER&quot;</span><span class="p">,</span> <span class="s2">&quot;anthropic&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;REFLECTION_MODEL_NAME&quot;</span><span class="p">,</span> <span class="s2">&quot;claude-3-opus-20240229&quot;</span><span class="p">)</span>
+        <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;REFLECTION_MODEL_NAME&quot;</span><span class="p">,</span> <span class="s2">&quot;claude-3-5-sonnet-latest&quot;</span><span class="p">)</span>
     <span class="p">}</span>
 <span class="p">}</span>
 

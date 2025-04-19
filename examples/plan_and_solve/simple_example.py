@@ -5,6 +5,7 @@ import logging
 import asyncio
 from pathlib import Path
 import sys
+from dotenv import load_dotenv
 
 # Add the parent directory to sys.path to import agent_patterns
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
@@ -20,10 +21,21 @@ from agent_patterns.core.memory.persistence import (
     InMemoryPersistence
 )
 from agent_patterns.core.tools.base import ToolProvider
+from examples.utils.model_config import get_llm_configs, get_model_config
+
+# Load environment variables
+load_dotenv()
 
 # Simple calculator tool implementation
 class CalculatorTool(ToolProvider):
     """A simple calculator tool provider."""
+
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
     
     def list_tools(self):
         """List the available tools."""
@@ -58,11 +70,11 @@ class CalculatorTool(ToolProvider):
         except Exception as e:
             return f"Error calculating: {str(e)}"
 
-def setup_memory():
-    """Set up a composite memory system."""
+async def setup_memory_async():
+    """Set up a composite memory system asynchronously."""
     # Create persistence backend (in-memory for this example)
     persistence = InMemoryPersistence()
-    asyncio.run(persistence.initialize())
+    await persistence.initialize()
     
     # Create individual memory types
     semantic_memory = SemanticMemory(persistence, namespace="user_semantic")
@@ -77,18 +89,18 @@ def setup_memory():
     })
     
     # Pre-populate with some semantic memories
-    asyncio.run(memory.save_to(
+    await memory.save_to(
         "semantic", 
         {"entity": "user", "attribute": "learning_style", "value": "visual and hands-on"}
-    ))
+    )
     
-    asyncio.run(memory.save_to(
+    await memory.save_to(
         "semantic", 
         {"entity": "user", "attribute": "experience", "value": "beginner in programming"}
-    ))
+    )
     
     # Add a procedural memory for creating study plans
-    asyncio.run(memory.save_to(
+    await memory.save_to(
         "procedural",
         {
             "name": "create_study_plan",
@@ -103,8 +115,16 @@ def setup_memory():
             "description": "Template for creating effective study plans",
             "tags": ["learning", "study", "plan"]
         }
-    ))
+    )
     
+    return memory
+
+def setup_memory():
+    """Wrapper to run the async setup_memory_async function."""
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    memory = loop.run_until_complete(setup_memory_async())
+    loop.close()
     return memory
 
 def main():
@@ -113,17 +133,15 @@ def main():
                         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     logger = logging.getLogger(__name__)
     
-    # Setup LLM configs
-    # Make sure your environment variables are set (e.g., OPENAI_API_KEY)
+    # Setup LLM configs using the utility function
+    base_configs = get_llm_configs()
     llm_configs = {
         "planner": {
-            "model_name": "gpt-4-turbo-preview",  # More powerful model for planning
-            "provider": "openai",
+            **base_configs.get("planning", base_configs["default"]),
             "temperature": 0.7
         },
         "executor": {
-            "model_name": "gpt-4o",  # Using gpt-4o for execution
-            "provider": "openai",
+            **base_configs.get("planning", base_configs["default"]),
             "temperature": 0.5
         }
     }
@@ -131,7 +149,7 @@ def main():
     # Get the project root directory
     current_dir = Path(__file__).parent.absolute()
     project_root = current_dir.parent.parent
-    prompt_dir = str(project_root / "agent_patterns" / "prompts")
+    prompt_dir = str(project_root / "src" / "agent_patterns" / "prompts")
     
     # Set up memory
     memory = setup_memory()
@@ -178,12 +196,18 @@ def main():
     print("MEMORY AFTER EXECUTION:")
     
     print("\nSemantic memories:")
-    facts = asyncio.run(memory.retrieve_from("semantic", "", limit=5))
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    facts = loop.run_until_complete(memory.retrieve_from("semantic", "", limit=5))
+    loop.close()
     for i, fact in enumerate(facts):
         print(f"{i+1}. {fact}")
     
     print("\nEpisodic memories:")
-    episodes = asyncio.run(memory.retrieve_from("episodic", "Python study plan", limit=5))
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    episodes = loop.run_until_complete(memory.retrieve_from("episodic", "Python study plan", limit=5))
+    loop.close()
     for i, episode in enumerate(episodes):
         print(f"{i+1}. {episode.content}")
 

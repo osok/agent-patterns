@@ -26,6 +26,13 @@ class ReflectionState(TypedDict):
         needs_refinement: Flag indicating if refinement is needed.
         final_answer: The final output to return to the user.
     """
+
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
     input: str
     chat_history: Annotated[Sequence[BaseMessage], add_messages]
     initial_output: Optional[str]
@@ -149,7 +156,7 @@ class ReflectionAgent(BaseAgent):
         
         try:
             # Retrieve relevant memories if memory is enabled
-            memories = self.sync_retrieve_memories(state["input"])
+            memories = self._retrieve_memories(state["input"])
             memory_context = ""
             
             # Format memories for inclusion in the prompt
@@ -279,7 +286,7 @@ class ReflectionAgent(BaseAgent):
             
             # Save the reflection to episodic memory
             if self.memory:
-                self.sync_save_memory(
+                self._save_memory(
                     memory_type="episodic",
                     item={
                         "event_type": "reflection",
@@ -379,7 +386,7 @@ class ReflectionAgent(BaseAgent):
             
             # Save the refinement to episodic memory
             if self.memory:
-                self.sync_save_memory(
+                self._save_memory(
                     memory_type="episodic",
                     item={
                         "event_type": "refinement",
@@ -392,7 +399,7 @@ class ReflectionAgent(BaseAgent):
                 )
                 
                 # Also save to semantic memory for future reference
-                self.sync_save_memory(
+                self._save_memory(
                     memory_type="semantic",
                     item={
                         "query_type": state["input"].split()[0:5],  # Use first few words as query type
@@ -437,7 +444,7 @@ class ReflectionAgent(BaseAgent):
             
             # Save the initial output to semantic memory if no refinement was needed
             if self.memory:
-                self.sync_save_memory(
+                self._save_memory(
                     memory_type="semantic",
                     item={
                         "query_type": state["input"].split()[0:5],  # Use first few words as query type

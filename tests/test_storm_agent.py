@@ -11,6 +11,13 @@ from agent_patterns.patterns.storm_agent import STORMAgent, STORMState
 class TestSTORMAgent(unittest.TestCase):
     """Test suite for the STORM agent pattern."""
 
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
+
     def setUp(self):
         """Set up test fixtures."""
         # Mock LLM configs with all necessary roles
@@ -587,8 +594,8 @@ class TestSTORMAgent(unittest.TestCase):
         )
         
         # Replace memory methods with mocks
-        agent.sync_retrieve_memories = mock_retrieve_memories
-        agent.sync_save_memory = mock_save_memory
+        agent._retrieve_memories = mock_retrieve_memories
+        agent._save_memory = mock_save_memory
         
         # Test initial outline generation with memory
         state = self._create_initial_state()

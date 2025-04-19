@@ -17,6 +17,13 @@ from agent_patterns.core.tools.base import ToolProvider, ToolNotFoundError, Tool
 
 class MCPServer:
     """
+
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
     A representation of an MCP server connection.
     
     This class handles the low-level communication with an MCP server

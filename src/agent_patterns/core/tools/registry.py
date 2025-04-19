@@ -6,6 +6,13 @@ from agent_patterns.core.tools.base import ToolProvider, ToolNotFoundError, Tool
 
 class ToolRegistry:
     """
+
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
     A registry for managing and executing tools from multiple providers.
     
     This class maintains a collection of ToolProviders and provides a unified

@@ -8,6 +8,13 @@ This comprehensive example shows:
 4. How memory helps the agent be more personalized and context-aware
 """
 
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
+
 import os
 import sys
 from dotenv import load_dotenv
@@ -15,9 +22,13 @@ import asyncio
 import logging
 from pprint import pprint
 import json
+from pathlib import Path
 
 # Add the parent directory to sys.path to import agent_patterns
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+# Import utility for model configuration
+from examples.utils.model_config import get_llm_configs
 
 # Load environment variables
 load_dotenv()
@@ -122,7 +133,8 @@ class MemoryAwareToolProvider(ToolProvider):
         """Initialize with an MCP provider and optional memory."""
         self.mcp_provider = mcp_provider
         self.memory = memory
-    
+        self.memory_context_cache = ""
+        
     def list_tools(self):
         """List all available tools from the MCP provider."""
         return self.mcp_provider.list_tools()
@@ -131,21 +143,21 @@ class MemoryAwareToolProvider(ToolProvider):
         """Execute a tool, potentially enhancing the call with memory context."""
         # If we have memory and the tool is search, add memory context
         if self.memory and tool_name == "search":
-            # Get relevant memories
-            memory_context = asyncio.run(self._get_memory_context())
-            
-            # Add memory context to the parameters
-            params = params.copy()  # Make a copy to avoid modifying the original
-            params["memory_context"] = memory_context
+            # Use the cached memory context to avoid asyncio.run() calls
+            # The context cache is updated by refresh_memory_context() 
+            if self.memory_context_cache:
+                params = params.copy()  # Make a copy to avoid modifying the original
+                params["memory_context"] = self.memory_context_cache
         
         # Execute the tool with the potentially enhanced parameters
         return self.mcp_provider.execute_tool(tool_name, params)
     
-    async def _get_memory_context(self):
-        """Get a simplified string representation of key memories."""
+    async def refresh_memory_context(self):
+        """Refresh the cached memory context."""
         if not self.memory:
-            return ""
-        
+            self.memory_context_cache = ""
+            return
+            
         # Retrieve relevant memories
         memories = await self.memory.retrieve_all("user interests preferences", limits={"semantic": 3, "episodic": 2})
         
@@ -165,38 +177,38 @@ class MemoryAwareToolProvider(ToolProvider):
             if hasattr(item, "content"):
                 context_parts.append(f"previous interaction: {item.content}")
         
-        return "; ".join(context_parts)
+        self.memory_context_cache = "; ".join(context_parts)
 
 
 def setup_mock_mcp():
-    """Set up a mock MCP server and provider."""
-    # Define tool configurations
+    """Set up a mock MCP server with tools."""
+    # Define tool configurations for the mock MCP server
     tool_configs = [
         {
             "name": "search",
-            "description": "Search for information",
+            "description": "Search for general information on the web",
+            "parameters": {
+                "query": {"type": "string", "description": "The search query"}
+            }
+        },
+        {
+            "name": "personalized_search",
+            "description": "Search for information considering user's interests",
             "parameters": {
                 "query": {"type": "string", "description": "The search query"},
-                "memory_context": {"type": "string", "description": "Optional context from memory (added automatically)"}
+                "interests": {"type": "array", "description": "List of user interests"}
             }
         },
         {
-            "name": "news",
-            "description": "Get the latest news",
+            "name": "set_reminder",
+            "description": "Set a reminder for the user",
             "parameters": {
-                "topic": {"type": "string", "description": "The news topic or category"}
+                "description": {"type": "string", "description": "What to remind about"},
+                "time": {"type": "string", "description": "When to remind (e.g., '3pm tomorrow')"}
             }
         },
         {
-            "name": "reminder",
-            "description": "Set a reminder",
-            "parameters": {
-                "text": {"type": "string", "description": "The reminder text"},
-                "time": {"type": "string", "description": "When to remind (e.g., '5pm', 'tomorrow')"}
-            }
-        },
-        {
-            "name": "calculator",
+            "name": "calculate",
             "description": "Perform calculations",
             "parameters": {
                 "expression": {"type": "string", "description": "The mathematical expression to evaluate"}
@@ -213,11 +225,11 @@ def setup_mock_mcp():
     return mcp_provider
 
 
-def setup_memory():
+async def setup_memory():
     """Set up a composite memory with semantic, episodic, and procedural memory."""
     # Create persistence backend (in-memory for this example)
     persistence = InMemoryPersistence()
-    asyncio.run(persistence.initialize())
+    await persistence.initialize()
     
     # Create individual memory types
     semantic_memory = SemanticMemory(persistence, namespace="user_semantic")
@@ -232,33 +244,33 @@ def setup_memory():
     })
     
     # Pre-populate with some semantic memories
-    asyncio.run(memory.save_to(
+    await memory.save_to(
         "semantic", 
         {"entity": "user", "attribute": "name", "value": "Sam"}
-    ))
+    )
     
-    asyncio.run(memory.save_to(
+    await memory.save_to(
         "semantic", 
         {"entity": "user", "attribute": "location", "value": "New York"}
-    ))
+    )
     
-    asyncio.run(memory.save_to(
+    await memory.save_to(
         "semantic", 
         {"entity": "user", "attribute": "interests", "value": ["history", "cooking", "technology"]}
-    ))
+    )
     
     # Add an episodic memory
-    asyncio.run(memory.save_to(
+    await memory.save_to(
         "episodic",
         {
             "content": "User asked about historical events last week",
             "importance": 0.8,
             "tags": ["query", "history", "events"]
         }
-    ))
+    )
     
     # Add a procedural memory for answering questions
-    asyncio.run(memory.save_to(
+    await memory.save_to(
         "procedural",
         {
             "name": "answer_personalized",
@@ -272,34 +284,46 @@ def setup_memory():
             "description": "Template for personalizing answers based on user profile",
             "tags": ["personalization", "answering"]
         }
-    ))
+    )
     
-    return memory
+    return memory, persistence
 
 
-def main():
-    """Run the combined memory and tools example."""
-    # Configure LLM
-    openai_api_key = os.getenv("OPENAI_API_KEY")
-    if not openai_api_key:
-        raise ValueError("OPENAI_API_KEY environment variable is not set. Please set it in .env file.")
+async def main_async():
+    """Run the combined memory and tools example asynchronously."""
+    # Configure logging
+    logger = logging.getLogger(__name__)
     
-    llm_configs = {
-        "default": {
-            "provider": "openai",
-            "model_name": "gpt-4o",
-            "temperature": 0.7
-        }
-    }
+    try:
+        # Get model configuration from environment
+        llm_configs = get_llm_configs()
+        logger.info(f"Using model configuration from environment variables")
+    except ValueError as e:
+        logger.error(f"Error loading model configuration: {e}")
+        logger.error("Please ensure your .env file contains the necessary model configuration variables.")
+        return
     
     # Set up memory system
-    memory = setup_memory()
+    memory, persistence = await setup_memory()
     
     # Set up MCP tool provider
     mcp_provider = setup_mock_mcp()
     
     # Create a memory-aware tool provider
     memory_tool_provider = MemoryAwareToolProvider(mcp_provider, memory)
+    
+    # Pre-cache memory context to avoid asyncio.run() inside the event loop
+    await memory_tool_provider.refresh_memory_context()
+    
+    # Get the project root directory to find prompts
+    current_dir = Path(__file__).parent.absolute()
+    project_root = current_dir.parent
+    
+    # Try to find prompts directory - check both installed package and development paths
+    src_prompt_dir = project_root / "src" / "agent_patterns" / "prompts"
+    pkg_prompt_dir = project_root / "agent_patterns" / "prompts"
+    
+    prompt_dir = str(src_prompt_dir if src_prompt_dir.exists() else pkg_prompt_dir)
     
     # Create the ReAct agent with memory and tools
     agent = ReActAgent(
@@ -311,6 +335,7 @@ def main():
             "episodic": True,
             "procedural": True
         },
+        prompt_dir=prompt_dir,
         max_steps=5  # Limit the maximum number of steps
     )
     
@@ -331,6 +356,9 @@ def main():
     for i, example in enumerate(examples):
         print(f"\n\n======= EXAMPLE {i+1} =======")
         print(f"User: {example}")
+        
+        # Refresh memory context before each run to get updated context
+        await memory_tool_provider.refresh_memory_context()
         
         # Run the agent
         result = agent.run(example)
@@ -353,19 +381,24 @@ def main():
     print("\n\n======= MEMORY CONTENTS AFTER INTERACTIONS =======")
     
     print("\nSemantic memories:")
-    facts = asyncio.run(memory.retrieve_from("semantic", "", limit=10))
+    facts = await memory.retrieve_from("semantic", "", limit=10)
     for i, fact in enumerate(facts):
         print(f"{i+1}. {fact}")
     
     print("\nEpisodic memories:")
-    episodes = asyncio.run(memory.retrieve_from("episodic", "", limit=10))
+    episodes = await memory.retrieve_from("episodic", "", limit=10)
     for i, episode in enumerate(episodes):
         print(f"{i+1}. {episode.content}")
     
     print("\nProcedural memories:")
-    procedures = asyncio.run(memory.retrieve_from("procedural", "", limit=5))
+    procedures = await memory.retrieve_from("procedural", "", limit=5)
     for i, proc in enumerate(procedures):
         print(f"{i+1}. {proc.name}: {proc.description}")
+
+
+def main():
+    """Run the async main function with proper asyncio setup."""
+    asyncio.run(main_async())
 
 
 if __name__ == "__main__":

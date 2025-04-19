@@ -6,6 +6,13 @@ complex reasoning problems by letting the LLM select and compose reasoning struc
 enhanced with memory and tool access.
 """
 
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
+
 import logging
 import os
 import sys
@@ -294,15 +301,17 @@ I recommend prototyping the core loop with your target audience to validate enga
             """
 
 def setup_memory():
-    """Set up a composite memory system."""
+    """Set up a composite memory system.
+    
+    Returns the memory object and persistence layer.
+    """
     # Create persistence backend
     persistence = InMemoryPersistence()
-    asyncio.run(persistence.initialize())
     
     # Create individual memory types
-    semantic_memory = SemanticMemory(persistence, namespace="education_semantic")
-    episodic_memory = EpisodicMemory(persistence, namespace="education_episodic")
-    procedural_memory = ProceduralMemory(persistence, namespace="education_procedural")
+    semantic_memory = SemanticMemory(persistence, namespace="educational_semantic")
+    episodic_memory = EpisodicMemory(persistence, namespace="educational_episodic")
+    procedural_memory = ProceduralMemory(persistence, namespace="educational_procedural")
     
     # Create composite memory
     memory = CompositeMemory({
@@ -311,19 +320,26 @@ def setup_memory():
         "procedural": procedural_memory
     })
     
+    return memory, persistence
+
+async def initialize_memory(memory, persistence):
+    """Initialize memory and add pre-populated data."""
+    # Initialize persistence
+    await persistence.initialize()
+    
     # Pre-populate with some semantic memories
-    asyncio.run(memory.save_to(
+    await memory.save_to(
         "semantic", 
         {"entity": "learning_principles", "attribute": "effective_methods", "value": ["active learning", "spaced repetition", "immediate feedback", "contextualized content"]}
-    ))
+    )
     
-    asyncio.run(memory.save_to(
+    await memory.save_to(
         "semantic", 
         {"entity": "target_audience", "attribute": "children_8_12", "value": {"attention_span": "15-30 minutes", "cognitive_development": "concrete operational stage", "interests": ["adventure", "collection", "social interaction"]}}
-    ))
+    )
     
     # Add a procedural memory for educational design
-    asyncio.run(memory.save_to(
+    await memory.save_to(
         "procedural",
         {
             "name": "educational_design_process",
@@ -339,12 +355,9 @@ def setup_memory():
             "description": "Template for effective educational design process",
             "tags": ["education", "design", "learning"]
         }
-    ))
-    
-    return memory
+    )
 
-
-def main():
+async def main_async():
     """Run the Self-Discovery Agent example with memory and tools."""
     # Configure the LLMs for discovery and execution
     llm_configs = {
@@ -366,11 +379,15 @@ def main():
     current_dir = Path(__file__).parent.absolute()
     project_root = current_dir.parent.parent
     
-    # Set prompt directory path
-    prompt_dir = str(project_root / "agent_patterns" / "prompts")
+    # Try to find prompts directory - check both installed package and development paths
+    src_prompt_dir = project_root / "src" / "agent_patterns" / "prompts"
+    pkg_prompt_dir = project_root / "agent_patterns" / "prompts"
+    
+    prompt_dir = str(src_prompt_dir if src_prompt_dir.exists() else pkg_prompt_dir)
     
     # Set up memory
-    memory = setup_memory()
+    memory, persistence = setup_memory()
+    await initialize_memory(memory, persistence)
     
     # Set up tool provider
     tool_provider = EducationalDesignToolProvider()
@@ -397,29 +414,6 @@ def main():
     educational content, and how you'll measure its effectiveness.
     """
 
-    # Alternatively, try a logical reasoning problem
-    # task = """
-    # There are five houses in a row, each with a different color. The people living
-    # in these houses are of different nationalities, have different pets, drink
-    # different beverages, and play different sports. Given the following clues:
-    # 1. The Norwegian lives in the first house.
-    # 2. The person who plays tennis lives in the blue house.
-    # 3. The Spaniard owns a dog.
-    # 4. Coffee is drunk in the green house.
-    # 5. The Ukrainian drinks tea.
-    # 6. The green house is immediately to the right of the ivory house.
-    # 7. The person who plays cricket owns snails.
-    # 8. The person who plays hockey lives in the yellow house.
-    # 9. Milk is drunk in the middle house.
-    # 10. The American lives in the first house on the right.
-    # 11. The person who plays basketball lives in the house next to the house with a fox.
-    # 12. The person who plays hockey lives in the house next to the house where the horse is kept.
-    # 13. The person who plays golf drinks orange juice.
-    # 14. The Japanese plays baseball.
-    # 15. The Norwegian lives next to the blue house.
-    # Determine who plays basketball.
-    # """
-
     logger.info("Running Self-Discovery Agent with task: %s", task[:100] + "...")
 
     # Run the agent
@@ -442,17 +436,20 @@ def main():
     print("\n\n=== MEMORY AFTER EXECUTION ===\n")
     
     print("\nSemantic memories:")
-    facts = asyncio.run(memory.retrieve_from("semantic", "", limit=5))
+    facts = await memory.retrieve_from("semantic", "", limit=5)
     for i, fact in enumerate(facts):
         print(f"{i+1}. {fact}")
     
     print("\nEpisodic memories:")
-    episodes = asyncio.run(memory.retrieve_from("episodic", "educational game", limit=5))
+    episodes = await memory.retrieve_from("episodic", "educational game", limit=5)
     for i, episode in enumerate(episodes):
         print(f"{i+1}. {episode.content}")
 
+def main():
+    """Run the Self-Discovery Agent example."""
+    asyncio.run(main_async())
 
-def example_with_fake_streaming():
+async def example_with_fake_streaming_async():
     """Simulate a streaming example by running each step with visual separation."""
     # Configure the LLMs for discovery and execution
     llm_configs = {
@@ -478,7 +475,8 @@ def example_with_fake_streaming():
     prompt_dir = str(project_root / "agent_patterns" / "prompts")
     
     # Set up memory
-    memory = setup_memory()
+    memory, persistence = setup_memory()
+    await initialize_memory(memory, persistence)
     
     # Set up tool provider
     tool_provider = EducationalDesignToolProvider()
@@ -565,15 +563,18 @@ def example_with_fake_streaming():
     print("\n\n=== MEMORY AFTER EXECUTION ===\n")
     
     print("\nSemantic memories:")
-    facts = asyncio.run(memory.retrieve_from("semantic", "", limit=5))
+    facts = await memory.retrieve_from("semantic", "", limit=5)
     for i, fact in enumerate(facts):
         print(f"{i+1}. {fact}")
     
     print("\nEpisodic memories:")
-    episodes = asyncio.run(memory.retrieve_from("episodic", "transportation", limit=5))
+    episodes = await memory.retrieve_from("episodic", "transportation", limit=5)
     for i, episode in enumerate(episodes):
         print(f"{i+1}. {episode.content}")
 
+def example_with_fake_streaming():
+    """Run the fake streaming example."""
+    asyncio.run(example_with_fake_streaming_async())
 
 if __name__ == "__main__":
     # Run the main example

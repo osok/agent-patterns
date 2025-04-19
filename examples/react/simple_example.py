@@ -1,27 +1,42 @@
 """Example demonstrating the ReActAgent."""
 
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
+
 import os
 import logging
+import sys
 from pathlib import Path
+from dotenv import load_dotenv
 
 from langchain_core.tools import Tool
 from agent_patterns.patterns.re_act_agent import ReActAgent
 
+# Add the parent directory to sys.path to import from examples.utils
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+from examples.utils.model_config import get_llm_configs
+
 def main():
+    # Load environment variables
+    load_dotenv()
+    
     # Configure logging
     logging.basicConfig(level=logging.INFO, 
                         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     logger = logging.getLogger(__name__)
     
-    # Setup LLM configs
-    # Make sure your environment variables are set (e.g., OPENAI_API_KEY)
-    llm_configs = {
-        "default": {
-            "model_name": "gpt-4-turbo-preview",
-            "provider": "openai",
-            "temperature": 0.7
-        }
-    }
+    # Setup LLM configs using the utility function
+    try:
+        # This will use PLANNING_MODEL_PROVIDER and PLANNING_MODEL_NAME from .env
+        llm_configs = get_llm_configs()
+    except ValueError as e:
+        logger.error(f"Error loading model configuration: {e}")
+        logger.error("Please ensure your .env file contains the necessary model configuration variables.")
+        return
     
     # Define sample tools for the ReAct agent
     tools = [
@@ -42,10 +57,9 @@ def main():
         )
     ]
     
-    # Get the project root directory
-    current_dir = Path(__file__).parent.absolute()
-    project_root = current_dir.parent.parent
-    prompt_dir = str(project_root / "agent_patterns" / "prompts")
+    # Get the correct prompt directory
+    # The prompts are in src/agent_patterns/prompts
+    prompt_dir = "src/agent_patterns/prompts"
     
     # Initialize the agent
     agent = ReActAgent(

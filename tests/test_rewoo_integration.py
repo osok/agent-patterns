@@ -2,6 +2,13 @@
 Integration tests for the REWOO agent pattern.
 """
 
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
+
 import unittest
 from unittest.mock import MagicMock, patch
 import os

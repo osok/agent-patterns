@@ -26,6 +26,13 @@ class PlanAndSolveState(TypedDict):
         plan_done: Flag indicating if the plan execution is complete.
         final_result: The final aggregated result.
     """
+
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
     input: str
     chat_history: Annotated[Sequence[BaseMessage], add_messages]
     plan: List[str]
@@ -145,7 +152,7 @@ class PlanAndSolveAgent(BaseAgent):
         
         try:
             # Retrieve relevant memories if memory is enabled
-            memories = self.sync_retrieve_memories(state["input"])
+            memories = self._retrieve_memories(state["input"])
             memory_context = ""
             
             # Format memories for inclusion in the prompt
@@ -211,7 +218,7 @@ class PlanAndSolveAgent(BaseAgent):
             
             # Save the plan to episodic memory if memory is enabled
             if self.memory:
-                self.sync_save_memory(
+                self._save_memory(
                     memory_type="episodic",
                     item={
                         "event_type": "plan_generation",
@@ -265,7 +272,7 @@ class PlanAndSolveAgent(BaseAgent):
         try:
             # Retrieve relevant memories for this step
             step_query = f"{state['input']} - {current_step}"
-            memories = self.sync_retrieve_memories(step_query)
+            memories = self._retrieve_memories(step_query)
             memory_context = ""
             
             # Format memories for inclusion in the prompt
@@ -351,7 +358,7 @@ class PlanAndSolveAgent(BaseAgent):
             
             # Save the step execution result to episodic memory
             if self.memory:
-                self.sync_save_memory(
+                self._save_memory(
                     memory_type="episodic",
                     item={
                         "event_type": "step_execution",
@@ -436,7 +443,7 @@ class PlanAndSolveAgent(BaseAgent):
         
         try:
             # Retrieve relevant memories for final synthesis
-            memories = self.sync_retrieve_memories(state["input"])
+            memories = self._retrieve_memories(state["input"])
             memory_context = ""
             
             # Format memories for inclusion in the prompt
@@ -484,7 +491,7 @@ class PlanAndSolveAgent(BaseAgent):
             # Save the final result to memory (both semantic and episodic)
             if self.memory:
                 # Save to episodic memory
-                self.sync_save_memory(
+                self._save_memory(
                     memory_type="episodic",
                     item={
                         "event_type": "final_result",
@@ -496,7 +503,7 @@ class PlanAndSolveAgent(BaseAgent):
                 )
                 
                 # Save to semantic memory
-                self.sync_save_memory(
+                self._save_memory(
                     memory_type="semantic",
                     item={
                         "task_type": state["input"].split()[0:5],  # Use first few words as task type

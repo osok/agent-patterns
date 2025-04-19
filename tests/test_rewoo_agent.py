@@ -2,6 +2,13 @@
 Unit tests for the REWOO (Reasoning Without Observation) agent pattern.
 """
 
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
+
 import unittest
 from unittest.mock import MagicMock, patch
 import os
@@ -551,8 +558,8 @@ param: test
         )
         
         # Replace memory methods with mocks
-        agent.sync_retrieve_memories = mock_retrieve_memories
-        agent.sync_save_memory = mock_save_memory
+        agent._retrieve_memories = mock_retrieve_memories
+        agent._save_memory = mock_save_memory
         
         # Mock the _load_prompt_template method
         agent._load_prompt_template = MagicMock(return_value=self.prompt_template)

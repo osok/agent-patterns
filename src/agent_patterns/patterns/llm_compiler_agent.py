@@ -18,6 +18,13 @@ from agent_patterns.core.base_agent import BaseAgent
 # Define a simple ToolExecutor instead of importing from langgraph.prebuilt
 class ToolExecutor:
     """Simple executor for LangChain tools."""
+
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
     
     def __init__(self, tools: List[BaseTool]):
         """Initialize with a list of tools."""
@@ -201,7 +208,7 @@ class LLMCompilerAgent(BaseAgent):
         
         try:
             # Retrieve relevant memories if memory is enabled
-            memories = self.sync_retrieve_memories(state["input_query"])
+            memories = self._retrieve_memories(state["input_query"])
             memory_context = ""
             
             # Format memories for inclusion in the prompt
@@ -503,7 +510,7 @@ class LLMCompilerAgent(BaseAgent):
         
         try:
             # Retrieve relevant memories for final synthesis
-            memories = self.sync_retrieve_memories(state["input_query"])
+            memories = self._retrieve_memories(state["input_query"])
             memory_context = ""
             
             # Format memories for inclusion in the prompt
@@ -549,7 +556,7 @@ class LLMCompilerAgent(BaseAgent):
             # Save the execution results to memory if enabled
             if self.memory:
                 # Save task execution to episodic memory
-                self.sync_save_memory(
+                self._save_memory(
                     memory_type="episodic",
                     item={
                         "event_type": "task_execution",
@@ -569,7 +576,7 @@ class LLMCompilerAgent(BaseAgent):
                 )
                 
                 # Save to semantic memory
-                self.sync_save_memory(
+                self._save_memory(
                     memory_type="semantic",
                     item={
                         "query_type": " ".join(state["input_query"].split()[:5]),  # Use first few words as query type

@@ -10,6 +10,13 @@ from agent_patterns.patterns.reflection_agent import ReflectionAgent, Reflection
 class TestReflectionAgent(unittest.TestCase):
     """Test cases for the Reflection Agent implementation."""
 
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
+
     def setUp(self):
         """Set up test fixtures."""
         # Configure minimal LLM configs for testing

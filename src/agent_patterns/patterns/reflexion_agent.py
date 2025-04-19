@@ -28,6 +28,13 @@ class ReflexionState(TypedDict):
         trial_reflection: Reflection on the current trial.
         final_answer: The final output after all trials.
     """
+
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
     input_task: str
     reflection_memory: List[str]
     trial_count: int
@@ -165,7 +172,7 @@ class ReflexionAgent(BaseAgent):
         
         try:
             # Retrieve relevant memories if memory is enabled
-            memories = self.sync_retrieve_memories(state["input_task"])
+            memories = self._retrieve_memories(state["input_task"])
             memory_context = ""
             
             # Format memories for inclusion in the prompt
@@ -379,7 +386,7 @@ class ReflexionAgent(BaseAgent):
             
             # Save reflection to episodic memory if available
             if self.memory:
-                self.sync_save_memory(
+                self._save_memory(
                     memory_type="episodic",
                     item={
                         "event_type": "reflexion_trial",
@@ -478,7 +485,7 @@ class ReflexionAgent(BaseAgent):
                 success_indicators = ["10/10", "9/10", "8/10", "successful", "perfect", "complete", "excellent"]
                 success = any(indicator in evaluation for indicator in success_indicators)
             
-            self.sync_save_memory(
+            self._save_memory(
                 memory_type="semantic",
                 item={
                     "task_type": state["input_task"].split()[0:5],  # Use first few words as task type

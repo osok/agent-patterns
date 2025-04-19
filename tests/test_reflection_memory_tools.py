@@ -15,6 +15,13 @@ from agent_patterns.core.tools.base import ToolProvider
 class MockToolProvider(ToolProvider):
     """Mock implementation of tool provider for testing."""
 
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
+
     def __init__(self, tools_config=None):
         self.tools = tools_config or [
             {
@@ -143,25 +150,21 @@ def test_reflection_agent_constructor(mock_llm, mock_memory, mock_tool_provider)
 @patch("langchain_openai.ChatOpenAI")
 def test_reflection_agent_memory_integration(mock_llm, test_agent):
     """Test that memory integration is properly implemented."""
-    # Verify that sync_retrieve_memories and sync_save_memory methods exist
-    assert hasattr(test_agent, 'sync_retrieve_memories')
-    assert hasattr(test_agent, 'sync_save_memory')
+    # Verify that _retrieve_memories and _save_memory methods exist
+    assert hasattr(test_agent, '_retrieve_memories')
+    assert hasattr(test_agent, '_save_memory')
     
-    # Verify memory code integration in _generate_initial_output
-    code = inspect.getsource(test_agent._generate_initial_output)
-    assert "retrieve_memories" in code or "sync_retrieve_memories" in code
+    # Check memory integration in generate_initial_output
+    initial_output_code = inspect.getsource(test_agent._generate_initial_output)
+    assert "retrieve_memories" in initial_output_code or "_retrieve_memories" in initial_output_code
     
-    # Verify memory code integration in _reflect_on_output
-    code = inspect.getsource(test_agent._reflect_on_output)
-    assert "save_memory" in code or "sync_save_memory" in code
+    # Check memory integration in generate_reflection
+    reflection_code = inspect.getsource(test_agent._generate_reflection)
+    assert "save_memory" in reflection_code or "_save_memory" in reflection_code
     
-    # Verify memory code integration in _refine_output
-    code = inspect.getsource(test_agent._refine_output)
-    assert "save_memory" in code or "sync_save_memory" in code
-    
-    # Verify memory code integration in _prepare_final_output
-    code = inspect.getsource(test_agent._prepare_final_output)
-    assert "save_memory" in code or "sync_save_memory" in code
+    # Check memory integration in generate_refined_output
+    refined_output_code = inspect.getsource(test_agent._generate_refined_output)
+    assert "save_memory" in refined_output_code or "_save_memory" in refined_output_code
 
 
 @patch("langchain_openai.ChatOpenAI")
@@ -177,3 +180,42 @@ def test_reflection_agent_tool_integration(mock_llm, test_agent, mock_tool_provi
     
     # Verify the pattern for extracting tool calls exists
     assert "USE_TOOL:" in code or "tool_call_pattern" in code or "tool_call_match" in code 
+
+
+@patch("langchain_openai.ChatOpenAI")
+def test_reflection_with_memory_usage(mock_llm, test_agent):
+    """Test that memory is properly used during the reflection process."""
+    # Setup mock responses
+    initial_response = MagicMock()
+    initial_response.content = "Initial response"
+    
+    reflection_response = MagicMock()
+    reflection_response.content = "This could be improved by adding more context."
+    
+    refined_response = MagicMock()
+    refined_response.content = "Improved response with more context."
+    
+    # Configure mock to return different responses
+    mock_llm.return_value.invoke.side_effect = [
+        initial_response, reflection_response, refined_response
+    ]
+    
+    # Mock the memory methods
+    test_agent._retrieve_memories = MagicMock(return_value={
+        "semantic": [{"fact": "Important context about the query"}],
+        "episodic": [{"event": "Previous interaction about this topic"}]
+    })
+    
+    test_agent._save_memory = MagicMock()
+    
+    # Run the agent
+    result = test_agent.run("Test query")
+    
+    # Verify memory retrieval was called
+    test_agent._retrieve_memories.assert_called_once_with("Test query")
+    
+    # Verify memory was saved at least once
+    assert test_agent._save_memory.call_count >= 1
+    
+    # Verify result contains the refined output
+    assert result == "Improved response with more context." 

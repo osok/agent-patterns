@@ -14,6 +14,13 @@ Key advantages:
 - Enables using different LLMs for planning vs. execution
 """
 
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
+
 from typing import Any, Dict, List, Optional, TypedDict, Annotated, Sequence
 import operator
 import logging
@@ -231,7 +238,7 @@ class REWOOAgent(BaseAgent):
         # Retrieve relevant memories if memory is enabled
         memory_context = ""
         if self.memory:
-            memories = self.sync_retrieve_memories(state["input"])
+            memories = self._retrieve_memories(state["input"])
             
             # Format memories for inclusion in the prompt
             if memories:
@@ -376,7 +383,7 @@ class REWOOAgent(BaseAgent):
         
         # Save the plan to episodic memory if memory is enabled
         if self.memory:
-            self.sync_save_memory(
+            self._save_memory(
                 memory_type="episodic",
                 item={
                     "event_type": "plan_generation",
@@ -434,7 +441,7 @@ class REWOOAgent(BaseAgent):
         memory_context = ""
         if self.memory:
             step_query = f"{state['input']} - {current_step['description']}"
-            memories = self.sync_retrieve_memories(step_query)
+            memories = self._retrieve_memories(step_query)
             
             # Format memories for inclusion in the prompt
             if memories:
@@ -569,7 +576,7 @@ class REWOOAgent(BaseAgent):
         
         # Save the step execution to episodic memory if enabled
         if self.memory:
-            self.sync_save_memory(
+            self._save_memory(
                 memory_type="episodic",
                 item={
                     "event_type": "step_execution",
@@ -620,7 +627,7 @@ class REWOOAgent(BaseAgent):
         # Retrieve relevant memories for final synthesis
         memory_context = ""
         if self.memory:
-            memories = self.sync_retrieve_memories(state["input"])
+            memories = self._retrieve_memories(state["input"])
             
             # Format memories for inclusion in the prompt
             if memories:
@@ -702,7 +709,7 @@ class REWOOAgent(BaseAgent):
         # Save the final result to memory (both semantic and episodic)
         if self.memory:
             # Save to episodic memory
-            self.sync_save_memory(
+            self._save_memory(
                 memory_type="episodic",
                 item={
                     "event_type": "final_result",
@@ -714,7 +721,7 @@ class REWOOAgent(BaseAgent):
             )
             
             # Save to semantic memory
-            self.sync_save_memory(
+            self._save_memory(
                 memory_type="semantic",
                 item={
                     "task_type": " ".join(state["input"].split()[:5]),  # Use first few words as task type

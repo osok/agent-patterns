@@ -15,6 +15,13 @@ from agent_patterns.patterns.reflexion_agent import ReflexionAgent
 @pytest.fixture
 def mock_llm():
     """Create a mock LLM that returns predefined responses."""
+
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
     mock = MagicMock(spec=BaseLanguageModel)
     
     # Configure the mock to return specific responses based on the input

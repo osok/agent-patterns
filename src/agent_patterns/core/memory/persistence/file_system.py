@@ -2,8 +2,8 @@
 
 import os
 import json
-import asyncio
 import uuid
+import datetime
 from pathlib import Path
 from typing import Dict, List, Any, Optional, TypeVar, Union, cast
 import logging
@@ -15,6 +15,13 @@ T = TypeVar('T')  # Memory item type
 
 class FileSystemPersistence(MemoryPersistence[T]):
     """
+
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
     File system implementation of memory persistence.
     
     This implementation stores data in JSON files on the local file system.
@@ -34,13 +41,13 @@ class FileSystemPersistence(MemoryPersistence[T]):
         self._initialized = False
         self.logger = logging.getLogger("FileSystemPersistence")
     
-    async def initialize(self) -> None:
+    def initialize(self) -> None:
         """Initialize the persistence layer by creating the base directory."""
         os.makedirs(self.base_dir, exist_ok=True)
         self._initialized = True
         self.logger.debug(f"Initialized file system persistence at {self.base_dir}")
     
-    async def store(self, namespace: str, key: str, value: T, metadata: Dict = None) -> None:
+    def store(self, namespace: str, key: str, value: T, metadata: Dict = None) -> None:
         """
         Store a value with an associated key.
         
@@ -67,15 +74,14 @@ class FileSystemPersistence(MemoryPersistence[T]):
         
         # Write to file
         try:
-            async with asyncio.Lock():
-                with open(file_path, 'w', encoding=self.encoding) as f:
-                    json.dump(data, f, indent=2, default=self._json_serialize)
+            with open(file_path, 'w', encoding=self.encoding) as f:
+                json.dump(data, f, indent=2, default=self._json_serialize)
             self.logger.debug(f"Stored item at {file_path}")
         except Exception as e:
             self.logger.error(f"Error storing item at {file_path}: {str(e)}")
             raise
     
-    async def retrieve(self, namespace: str, key: str) -> Optional[T]:
+    def retrieve(self, namespace: str, key: str) -> Optional[T]:
         """
         Retrieve a value by key.
         
@@ -97,22 +103,21 @@ class FileSystemPersistence(MemoryPersistence[T]):
         
         # Read from file
         try:
-            async with asyncio.Lock():
-                with open(file_path, 'r', encoding=self.encoding) as f:
-                    data = json.load(f)
+            with open(file_path, 'r', encoding=self.encoding) as f:
+                data = json.load(f)
             
             return cast(T, data["value"])
         except Exception as e:
             self.logger.error(f"Error retrieving item from {file_path}: {str(e)}")
             return None
     
-    async def search(self, namespace: str, query: Any, limit: int = 10, **filters) -> List[Dict]:
+    def search(self, namespace: str, query: Any, limit: int = 10, **filters) -> List[Dict]:
         """
         Search for values matching a query.
         
-        This is a simple implementation that loads all files in a namespace
-        and performs an in-memory search. For large datasets, consider using
-        a more efficient storage mechanism like a vector database.
+        This is a simple search implementation that loads all files and compares them
+        using string similarity. For more sophisticated searches, consider using a 
+        vector store backend instead.
         
         Args:
             namespace: The namespace to search in
@@ -134,19 +139,18 @@ class FileSystemPersistence(MemoryPersistence[T]):
         query_str = str(query)
         results = []
         
-        # Iterate through all files in the namespace
+        # Get all json files in namespace directory
         for file_path in namespace_dir.glob("*.json"):
             try:
-                # Get key from filename
+                # Extract key from filename
                 key = file_path.stem
                 
-                # Read the file
-                async with asyncio.Lock():
-                    with open(file_path, 'r', encoding=self.encoding) as f:
-                        data = json.load(f)
+                # Load file content
+                with open(file_path, 'r', encoding=self.encoding) as f:
+                    data = json.load(f)
                 
-                # Check if matches filters
-                if not self._matches_filters(data["metadata"], filters):
+                # Check if item matches filters
+                if not self._matches_filters(data.get("metadata", {}), filters):
                     continue
                 
                 # Calculate similarity
@@ -156,18 +160,18 @@ class FileSystemPersistence(MemoryPersistence[T]):
                 results.append({
                     "id": key,
                     "value": data["value"],
-                    "metadata": data["metadata"],
+                    "metadata": data.get("metadata", {}),
                     "score": similarity
                 })
             except Exception as e:
-                self.logger.error(f"Error reading item from {file_path}: {str(e)}")
+                self.logger.error(f"Error searching item in {file_path}: {str(e)}")
                 continue
         
         # Sort by score and limit results
         results.sort(key=lambda x: x["score"], reverse=True)
         return results[:limit]
     
-    async def delete(self, namespace: str, key: str) -> bool:
+    def delete(self, namespace: str, key: str) -> bool:
         """
         Delete a value by key.
         
@@ -189,15 +193,14 @@ class FileSystemPersistence(MemoryPersistence[T]):
         
         # Delete the file
         try:
-            async with asyncio.Lock():
-                os.remove(file_path)
+            os.remove(file_path)
             self.logger.debug(f"Deleted item at {file_path}")
             return True
         except Exception as e:
             self.logger.error(f"Error deleting item at {file_path}: {str(e)}")
             return False
     
-    async def clear_namespace(self, namespace: str) -> None:
+    def clear_namespace(self, namespace: str) -> None:
         """
         Clear all data in a namespace.
         
@@ -214,9 +217,8 @@ class FileSystemPersistence(MemoryPersistence[T]):
         
         # Delete all files in the namespace
         try:
-            async with asyncio.Lock():
-                for file_path in namespace_dir.glob("*.json"):
-                    os.remove(file_path)
+            for file_path in namespace_dir.glob("*.json"):
+                os.remove(file_path)
             self.logger.debug(f"Cleared namespace {namespace}")
         except Exception as e:
             self.logger.error(f"Error clearing namespace {namespace}: {str(e)}")
@@ -228,19 +230,31 @@ class FileSystemPersistence(MemoryPersistence[T]):
             raise RuntimeError("Persistence layer not initialized. Call initialize() first.")
     
     def _matches_filters(self, metadata: Dict, filters: Dict) -> bool:
-        """Check if metadata matches all given filters."""
+        """
+        Check if metadata matches all given filters.
+        
+        Args:
+            metadata: The metadata to check
+            filters: The filters to apply
+            
+        Returns:
+            Whether the metadata matches all filters
+        """
         if not filters:
             return True
-        
+            
         for key, value in filters.items():
             if key not in metadata or metadata[key] != value:
                 return False
-        
+                
         return True
-    
-    def _json_serialize(self, obj: Any) -> Any:
+        
+    def _json_serialize(self, obj):
         """Custom JSON serializer for objects not serializable by default."""
-        try:
+        if isinstance(obj, (datetime.date, datetime.datetime)):
+            return obj.isoformat()
+        
+        if hasattr(obj, "__dict__"):
             return obj.__dict__
-        except AttributeError:
-            return str(obj) 
+            
+        return str(obj) 

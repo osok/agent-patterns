@@ -5,6 +5,13 @@ This example shows how to use the Reflection Agent to perform a code review,
 generating initial feedback and then refining it through reflection.
 """
 
+# CRITICAL IMPLEMENTATION REQUIREMENT:
+# UNDER NO CIRCUMSTANCES ARE YOU TO USE ASYNC ANYTHING IN ANY CODE
+# This applies to ALL files in the codebase - library code, tests, and examples
+# All implementations MUST be synchronous only
+
+
+
 import os
 import logging
 from pathlib import Path
