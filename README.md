@@ -5,6 +5,8 @@ A Python library of reusable AI agent workflow patterns implemented using LangGr
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+> **⚠️ Breaking Change in v0.2.0**: This version is a complete rewrite from the ground up. The previous 0.1.x version used asyncio extensively, which caused significant reliability issues and made debugging extremely difficult. Version 0.2.0+ eliminates async/await entirely in favor of a **synchronous-only architecture**. This makes the library more reliable, easier to use, and much simpler to debug. If you were using v0.1.x, please note this is a breaking change - all patterns now use standard synchronous Python.
+
 ## Features
 
 - **9 Battle-Tested Patterns**: ReAct, Plan & Solve, Reflection, Reflexion, LLM Compiler, REWOO, LATS, Self-Discovery, and STORM
@@ -17,9 +19,17 @@ A Python library of reusable AI agent workflow patterns implemented using LangGr
 
 ## Installation
 
+### From PyPI (Recommended)
+
+```bash
+pip install agent-patterns
+```
+
+### From Source
+
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/agent-patterns.git
+git clone https://github.com/osok/agent-patterns.git
 cd agent-patterns
 
 # Create and activate virtual environment
@@ -461,9 +471,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Support
 
-- **Issues**: [GitHub Issues](https://github.com/yourusername/agent-patterns/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/agent-patterns/discussions)
+- **Issues**: [GitHub Issues](https://github.com/osok/agent-patterns/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/osok/agent-patterns/discussions)
 - **Documentation**: See `docs/` directory
+- **PyPI**: [agent-patterns on PyPI](https://pypi.org/project/agent-patterns/)
 
 ## Roadmap
 

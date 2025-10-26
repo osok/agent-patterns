@@ -1,0 +1,18 @@
+# Include documentation
+include README.md
+include LICENSE
+include IMPLEMENTATION_SUMMARY.md
+
+# Include prompt templates
+recursive-include agent_patterns/prompts *.md
+
+# Exclude unnecessary files
+exclude .gitignore
+exclude .env.example
+recursive-exclude tests *
+recursive-exclude docs *
+recursive-exclude examples *
+recursive-exclude .github *
+global-exclude __pycache__
+global-exclude *.py[co]
+global-exclude .DS_Store
