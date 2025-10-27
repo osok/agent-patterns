@@ -2,11 +2,31 @@
 
 ## Issues Identified and Fixed
 
-### 1. Missing Python Package: `roman`
+### 1. Missing Python Package: `linkify-it-py`
 
-**Problem**: The Sphinx LaTeX builder requires the `roman` package, which was missing from `usr-docs/requirements.txt`.
+**Problem**: The MyST parser configuration enables the "linkify" extension in `usr-docs/conf.py`, but the required `linkify-it-py` package was missing from `usr-docs/requirements.txt`.
 
 **Error Message**:
+```
+ModuleNotFoundError: Linkify enabled but not installed.
+```
+
+**Root Cause**: The conf.py file has this configuration:
+```python
+myst_enable_extensions = [
+    ...
+    "linkify",  # This requires linkify-it-py package
+    ...
+]
+```
+
+**Fix**: Added `linkify-it-py>=2.0.0` to `usr-docs/requirements.txt`
+
+### 2. Missing Python Package: `roman`
+
+**Problem**: The Sphinx LaTeX builder (required for PDF generation) requires the `roman` package, which was missing from `usr-docs/requirements.txt`.
+
+**Error Message** (from initial local testing):
 ```
 Extension error:
 Could not import extension sphinx.builders.latex (exception: No module named 'roman')
@@ -14,7 +34,7 @@ Could not import extension sphinx.builders.latex (exception: No module named 'ro
 
 **Fix**: Added `roman>=4.0` to `usr-docs/requirements.txt`
 
-### 2. Duplicate `html_static_path` Configuration
+### 3. Duplicate `html_static_path` Configuration
 
 **Problem**: The `usr-docs/conf.py` file had `html_static_path` defined twice:
 - Line 33: `html_static_path = ['_static']` (pointing to non-existent directory)
@@ -39,6 +59,7 @@ sphinx>=7.0.0
 sphinx-rtd-theme>=2.0.0
 myst-parser>=2.0.0
 roman>=4.0
+linkify-it-py>=2.0.0
 ```
 
 ### [usr-docs/conf.py](usr-docs/conf.py)
@@ -169,8 +190,18 @@ python -m sphinx -b epub -d _build/doctrees usr-docs _build/epub
 ✅ **Configuration Clean**: Duplicate settings removed
 ✅ **Ready for Deployment**: Changes ready to commit and push
 
+## Summary of Changes
+
+| File | Change | Reason |
+|------|--------|--------|
+| `usr-docs/requirements.txt` | Added `linkify-it-py>=2.0.0` | Required by MyST parser's linkify extension |
+| `usr-docs/requirements.txt` | Added `roman>=4.0` | Required by Sphinx LaTeX builder for PDF generation |
+| `usr-docs/conf.py` | Removed duplicate `html_static_path` | Cleaner configuration |
+
 ---
 
 **Last Updated**: 2025-10-27
-**Build Status**: SUCCESS (52 non-critical warnings)
+**Build Status**: ✅ SUCCESS (52 non-critical warnings)
 **Files Changed**: 2 (usr-docs/requirements.txt, usr-docs/conf.py)
+**Primary Issue**: Missing `linkify-it-py` package
+**Build Time**: ~30 seconds
