@@ -219,7 +219,8 @@ class ReActAgent(BaseAgent):
         tool_input = action.get("tool_input", "")
 
         # Check if this is a final answer action
-        if tool_name.lower() == "final_answer":
+        # Handle both "Final Answer" (with space, as used in prompts) and "final_answer"
+        if tool_name.lower().replace(" ", "_") == "final_answer":
             state["observation"] = "FINAL_ANSWER"
             state["final_answer"] = tool_input
             return state

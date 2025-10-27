@@ -5,7 +5,18 @@
       "Bash(python -m pytest:*)",
       "Bash(find:*)",
       "Bash(python -m pip install:*)",
-      "Bash(python -m sphinx:*)"
+      "Bash(python -m sphinx:*)",
+      "Bash(pytest:*)",
+      "Bash(pip install:*)",
+      "Bash(./venv/bin/pytest -v)",
+      "Bash(venv/bin/pytest -v)",
+      "Bash(venv/bin/pip install:*)",
+      "Bash(venv/bin/pytest -v --tb=short)",
+      "Bash(venv/bin/pytest -v --tb=line)",
+      "Bash(venv/bin/pytest tests/test_plan_and_solve_agent.py -v)",
+      "Bash(venv/bin/pytest --cov=agent_patterns --cov-report=term-missing)",
+      "Bash(venv/bin/pytest:*)",
+      "Bash(venv/bin/python:*)"
     ],
     "deny": [],
     "ask": []

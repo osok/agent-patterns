@@ -160,8 +160,10 @@ class ReflectionAgent(BaseAgent):
 
             # If no final_answer set, use refined or initial output
             if not final_answer:
-                final_answer = result_state.get("refined_output") or result_state.get(
-                    "initial_output", "No output generated"
+                final_answer = (
+                    result_state.get("refined_output")
+                    or result_state.get("initial_output")
+                    or "No output generated"
                 )
 
             # Invoke lifecycle hook

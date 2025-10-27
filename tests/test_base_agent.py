@@ -143,8 +143,8 @@ def test_load_prompt_with_files():
         agent = TestAgent(llm_configs={}, prompt_dir=str(prompt_dir))
         prompts = agent._load_prompt("TestStep")
 
-        assert prompts["system_prompt"] == "System prompt content"
-        assert prompts["user_prompt"] == "User prompt template: {input}"
+        assert prompts["system"] == "System prompt content"
+        assert prompts["user"] == "User prompt template: {input}"
 
 
 def test_load_prompt_missing_files():
@@ -153,8 +153,8 @@ def test_load_prompt_missing_files():
         agent = TestAgent(llm_configs={}, prompt_dir=tmpdir)
         prompts = agent._load_prompt("NonexistentStep")
 
-        assert prompts["system_prompt"] == ""
-        assert prompts["user_prompt"] == ""
+        assert prompts["system"] == ""
+        assert prompts["user"] == ""
 
 
 def test_load_prompt_partial_files():
@@ -170,8 +170,8 @@ def test_load_prompt_partial_files():
         agent = TestAgent(llm_configs={}, prompt_dir=str(prompt_dir))
         prompts = agent._load_prompt("PartialStep")
 
-        assert prompts["system_prompt"] == "System only"
-        assert prompts["user_prompt"] == ""
+        assert prompts["system"] == "System only"
+        assert prompts["user"] == ""
 
 
 def test_stream_default_implementation():

@@ -19,7 +19,7 @@ A Python library of reusable AI agent workflow patterns implemented using LangGr
 - **Multi-Provider Support**: Works with OpenAI, Anthropic, and other LangChain-supported providers
 - **Type-Safe**: Full type hints for better IDE support and fewer bugs
 - **Extensible**: Abstract base classes make it easy to create custom patterns
-- **Well-Tested**: Comprehensive test suite with >80% coverage
+- **Well-Tested**: Comprehensive test suite with 156 passing tests covering 58% of the codebase (6 of 9 patterns have >80% coverage)
 
 ## Installation
 
