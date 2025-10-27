@@ -3,7 +3,9 @@
     "allow": [
       "Bash(python -c:*)",
       "Bash(python -m pytest:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(python -m pip install:*)",
+      "Bash(python -m sphinx:*)"
     ],
     "deny": [],
     "ask": []
