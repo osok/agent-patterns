@@ -46,7 +46,7 @@ dev = [
 
 [project.urls]
 Homepage = "https://github.com/osok/agent-patterns"
-Documentation = "https://github.com/osok/agent-patterns/blob/main/README.md"
+Documentation = "https://agent-patterns.readthedocs.io/en/latest/"
 Repository = "https://github.com/osok/agent-patterns"
 Issues = "https://github.com/osok/agent-patterns/issues"
 
