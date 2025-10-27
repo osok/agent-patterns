@@ -321,24 +321,30 @@ Design a database schema for an e-commerce platform that supports:
 
 ## Customizing Prompts
 
+### Understanding the System Prompt Structure
+
+Version 0.2.0 introduces **enterprise-grade prompts** with a comprehensive 9-section structure. Each system prompt is now 150-300+ lines, providing significantly better guidance.
+
+**The 9-Section Structure**: All prompts now include Role and Identity, Core Capabilities (CAN/CANNOT boundaries), Process, Output Format, Decision-Making Guidelines, Quality Standards, Edge Cases, Examples, and Critical Reminders. **Benefits**: Increased reliability, transparency, and robustness.
+
 ### Understanding Plan & Solve Prompts
 
-The pattern uses three prompt templates:
+The pattern uses three prompt templates (all now with comprehensive 9-section structure):
 
 1. **PlanStep**: Creates the multi-step plan
-   - Analyzes the task
-   - Breaks it into sequential steps
-   - Ensures logical flow
+   - Analyzes the task with systematic guidance
+   - Breaks it into sequential steps with quality standards
+   - Ensures logical flow with edge case handling
 
 2. **ExecuteStep**: Executes individual steps
    - Takes current step description
    - Has access to previous step results
-   - Produces detailed step output
+   - Produces detailed step output with examples
 
 3. **AggregateStep**: Combines results
-   - Reviews all step outputs
-   - Synthesizes coherent final answer
-   - Addresses original task
+   - Reviews all step outputs systematically
+   - Synthesizes coherent final answer with quality criteria
+   - Addresses original task comprehensively
 
 ### Method 1: Custom Instructions
 

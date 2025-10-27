@@ -4,6 +4,12 @@ Example: Using custom_instructions to add domain-specific context to agent patte
 This example demonstrates how to use the custom_instructions parameter to inject
 domain-specific knowledge, constraints, or guidelines into any agent pattern
 without modifying the original prompt templates.
+
+NOTE: In v0.2.0, all system prompts are enterprise-grade (150-300+ lines) with
+comprehensive sections including Role, Capabilities, Process, Examples, and more.
+Your custom_instructions are appended to these comprehensive prompts, building on
+a solid foundation that already includes error handling, quality standards, and
+edge case management.
 """
 
 from agent_patterns.patterns.self_discovery_agent import SelfDiscoveryAgent

@@ -332,15 +332,21 @@ agent = ReflexionAgent(
 
 ## Customizing Prompts
 
+### Understanding the System Prompt Structure
+
+Version 0.2.0 introduces **enterprise-grade prompts** with a comprehensive 9-section structure providing significantly better guidance (150-300+ lines vs ~32 lines).
+
+**The 9-Section Structure**: All prompts include Role and Identity, Core Capabilities, Process, Output Format, Decision-Making Guidelines, Quality Standards, Edge Cases, Examples, and Critical Reminders. **Benefits**: Increased reliability and robustness.
+
 ### Understanding Reflexion Prompts
 
-Reflexion uses five prompt templates:
+Reflexion uses five prompt templates (all now with comprehensive 9-section structure):
 
-1. **PlanWithMemory**: Creates plan using reflection memory from previous trials
-2. **Execute**: Executes the current plan
-3. **Evaluate**: Judges success or failure
-4. **ReflectOnTrial**: Generates insights from the trial
-5. **GenerateFinal**: Creates final answer when trials exhausted
+1. **PlanWithMemory**: Creates plan using reflection memory from previous trials with systematic guidance
+2. **Execute**: Executes the current plan with quality standards and edge case handling
+3. **Evaluate**: Judges success or failure using explicit criteria and examples
+4. **ReflectOnTrial**: Generates insights from the trial with structured process
+5. **GenerateFinal**: Creates final answer when trials exhausted with comprehensive quality standards
 
 ### Method 1: Custom Instructions
 

@@ -383,12 +383,18 @@ REWOO automatically resolves placeholders in parameters:
 
 ## Customizing Prompts
 
+### Understanding the System Prompt Structure
+
+Version 0.2.0 introduces **enterprise-grade prompts** with a comprehensive 9-section structure (150-300+ lines vs ~32 lines).
+
+**The 9-Section Structure**: All prompts include Role and Identity, Core Capabilities, Process, Output Format, Decision-Making Guidelines, Quality Standards, Edge Cases, Examples, and Critical Reminders. **Benefits**: Better reliability and transparency.
+
 ### Understanding REWOO Prompts
 
-REWOO uses two main prompts:
+REWOO uses two main prompts (both now with comprehensive 9-section structure):
 
-1. **WorkerPlan**: Worker LLM creates plan with placeholders and solver requests
-2. **WorkerIntegrate**: Worker LLM combines solver results into final answer
+1. **WorkerPlan**: Worker LLM creates plan with placeholders and solver requests using systematic guidance
+2. **WorkerIntegrate**: Worker LLM combines solver results into final answer with quality standards
 
 ### Method 1: Custom Instructions
 

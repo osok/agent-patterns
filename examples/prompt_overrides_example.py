@@ -8,6 +8,12 @@ This is useful for:
 - Dynamic prompt generation based on runtime conditions
 - Experimenting with prompt engineering
 - Creating specialized variants of patterns
+
+IMPORTANT: In v0.2.0, default system prompts are enterprise-grade (150-300+ lines)
+with comprehensive structure including Role, Capabilities, Process, Examples, etc.
+When you override prompts, you're replacing these comprehensive prompts. For
+production use, consider maintaining the comprehensive structure. See the
+documentation for template examples that preserve quality standards.
 """
 
 from agent_patterns.patterns.self_discovery_agent import SelfDiscoveryAgent

@@ -325,14 +325,91 @@ def list_directory(path: str = ".") -> str:
 
 ## Customizing Prompts
 
+### Understanding the System Prompt Structure
+
+Version 0.2.0 introduces **enterprise-grade prompts** with a comprehensive 9-section structure. Each system prompt is now 150-300+ lines (compared to ~32 lines previously), providing significantly better guidance to the LLM.
+
+#### The 9-Section Comprehensive Structure
+
+All ReAct system prompts now follow this proven architecture:
+
+1. **Role and Identity**
+   - Clear definition of the agent's purpose and capabilities
+   - Context for how this step fits into the overall pattern
+   - Explicit statement of the agent's responsibilities
+
+2. **Core Capabilities**
+   - **What You CAN Do**: Explicit list of allowed operations and capabilities
+   - **What You CANNOT Do**: Clear boundaries to prevent hallucination and errors
+   - Prevents the LLM from attempting invalid or out-of-scope operations
+
+3. **Process**
+   - Step-by-step workflow guidance
+   - Detailed instructions for executing the reasoning cycle
+   - Ensures consistent, methodical execution
+
+4. **Output Format**
+   - Precise specifications for structured responses
+   - Format requirements and examples
+   - Rules for formatting thoughts, actions, and observations
+
+5. **Decision-Making Guidelines**
+   - Context-specific rules and best practices
+   - When to use which tools
+   - How to handle different types of tasks
+
+6. **Quality Standards**
+   - Clear criteria for excellent vs. poor outputs
+   - What makes a good thought/action/decision
+   - Standards the agent should meet
+
+7. **Edge Cases and Error Handling**
+   - Built-in guidance for special situations
+   - How to recover from errors
+   - Handling unexpected tool responses
+
+8. **Examples**
+   - 2-3 concrete examples demonstrating expected behavior
+   - Shows the full thought-action-observation cycle
+   - Illustrates best practices in action
+
+9. **Critical Reminders**
+   - Key points emphasized for reliability
+   - Important constraints or requirements
+   - Common pitfalls to avoid
+
+#### Benefits of Comprehensive Prompts
+
+**Increased Reliability**
+- Explicit CAN/CANNOT boundaries reduce hallucination
+- Detailed process steps ensure consistent execution
+- Edge case handling prevents common failures
+
+**Better Transparency**
+- Clear role definitions make behavior predictable
+- Quality standards set expectations
+- Examples demonstrate desired outcomes
+
+**Improved Robustness**
+- Built-in error recovery mechanisms
+- Guidelines for handling unexpected situations
+- Comprehensive coverage of scenarios
+
+**Backward Compatible**
+- All improvements are transparent to existing code
+- No changes required to benefit from enhanced prompts
+- Same simple API, better results
+
 ### Understanding ReAct Prompts
 
 ReAct uses the following prompt structure:
 
-**ThoughtStep/system.md**: System prompt for reasoning
-- Sets the agent's role and capabilities
+**ThoughtStep/system.md**: Comprehensive system prompt for reasoning
+- Now includes all 9 sections for maximum guidance
+- Sets the agent's role, capabilities, and boundaries
 - Lists available tools and their descriptions
-- Defines output format
+- Defines output format with examples
+- Includes decision-making guidelines and quality standards
 
 **ThoughtStep/user.md**: User prompt for each iteration
 - Current task
@@ -357,10 +434,11 @@ agent = ReActAgent(
 
 ### Method 2: Prompt Overrides
 
-Replace prompts entirely:
+Replace prompts entirely. When creating overrides, consider maintaining the comprehensive structure for best results:
 
 ```python
-overrides = {
+# Simple override (replaces comprehensive prompt)
+simple_overrides = {
     "ThoughtStep": {
         "system": """You are a research assistant with access to these tools:
 {tool_descriptions}
@@ -380,8 +458,63 @@ What's your next step?"""
     }
 }
 
-agent = ReActAgent(llm_configs=llm_configs, tools=tools, prompt_overrides=overrides)
+# Comprehensive override (maintains enterprise-grade structure)
+comprehensive_overrides = {
+    "ThoughtStep": {
+        "system": """# Role and Identity
+You are a methodical research assistant that reasons through tasks step-by-step.
+
+# Core Capabilities
+**What You CAN Do:**
+- Reason through problems systematically
+- Select and use appropriate tools
+- Build on previous observations
+- Decide when you have enough information
+
+**What You CANNOT Do:**
+- Make assumptions about tool capabilities
+- Skip the reasoning process
+- Use tools not in your toolkit
+
+# Process
+1. Analyze the current situation
+2. Determine what information is needed
+3. Select the most appropriate tool
+4. Execute and observe the result
+5. Repeat or finish based on progress
+
+# Output Format
+Always follow this exact format:
+Thought: [Your reasoning about what to do next]
+Action: [tool_name or FINISH]
+Action Input: [parameters for the tool]
+
+# Available Tools
+{tool_descriptions}
+
+# Quality Standards
+- Thoughts should be clear and purposeful
+- Tool selection should be justified
+- Action inputs should be well-formed
+- Know when to stop and provide an answer
+
+# Critical Reminders
+- Always use the exact output format
+- FINISH when you have sufficient information
+- Tools may return errors—handle them gracefully""",
+        "user": """Task: {input}
+
+History:
+{history}
+
+What's your next step?"""
+    }
+}
+
+agent = ReActAgent(llm_configs=llm_configs, tools=tools, prompt_overrides=comprehensive_overrides)
 ```
+
+**Note**: While you can use simple overrides, maintaining the comprehensive structure provides better reliability and error handling.
 
 ### Method 3: Custom Prompt Directory
 

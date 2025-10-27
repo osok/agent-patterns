@@ -283,22 +283,44 @@ between two strings. Include error handling.
 
 ## Customizing Prompts
 
+### Understanding the System Prompt Structure
+
+Version 0.2.0 introduces **enterprise-grade prompts** with a comprehensive 9-section structure. Each system prompt is now 150-300+ lines (compared to ~32 lines previously), providing significantly better guidance to the LLM.
+
+#### The 9-Section Comprehensive Structure
+
+All Reflection system prompts now follow this proven architecture:
+
+1. **Role and Identity** - Clear definition of the agent's purpose and capabilities
+2. **Core Capabilities** - Explicit CAN/CANNOT boundaries to prevent hallucination
+3. **Process** - Step-by-step workflow guidance for consistent execution
+4. **Output Format** - Precise specifications for structured responses
+5. **Decision-Making Guidelines** - Context-specific rules and best practices
+6. **Quality Standards** - Clear criteria for excellent vs. poor outputs
+7. **Edge Cases** - Built-in error handling and special situation guidance
+8. **Examples** - 2-3 concrete examples demonstrating expected behavior
+9. **Critical Reminders** - Key points emphasized for reliability
+
+**Benefits**: Increased reliability, better transparency, improved robustness, and backward compatibility. No code changes required to benefit from enhanced prompts.
+
 ### Understanding Reflection Prompts
 
-The Reflection pattern uses three prompt templates:
+The Reflection pattern uses three prompt templates (all now with comprehensive 9-section structure):
 
 **Generate/system.md & user.md**: Initial content generation
-- Sets the agent's role and task requirements
-- Produces first draft
+- Now includes all 9 sections for better generation quality
+- Sets the agent's role, capabilities, and boundaries
+- Produces first draft with clear quality standards
 
 **Reflect/system.md & user.md**: Critique generation
-- Analyzes the current output
-- Identifies strengths and weaknesses
-- Suggests improvements
+- Comprehensive guidance on analyzing outputs
+- Identifies strengths and weaknesses systematically
+- Suggests improvements with examples
 
 **Refine/system.md & user.md**: Improvement generation
+- Detailed process for addressing feedback
 - Takes original output and critique
-- Produces improved version addressing feedback
+- Produces improved version with quality checks
 
 ### Method 1: Custom Instructions
 

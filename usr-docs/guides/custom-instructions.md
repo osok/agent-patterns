@@ -27,15 +27,19 @@ agent = SelfDiscoveryAgent(
     custom_instructions="You are a medical expert. Always cite sources."
 )
 
-# What the LLM actually receives (simplified)
+# What the LLM actually receives (v0.2.0 with comprehensive prompts)
 system_prompt = """
-[Original pattern system prompt]
+# Role and Identity
+You are the Module Discovery Specialist in a Self-Discovery workflow...
+[~150-300 lines of comprehensive prompt with 9 sections]
 
 ## Custom Instructions
 
 You are a medical expert. Always cite sources.
 """
 ```
+
+**New in v0.2.0**: Custom instructions are now appended to **enterprise-grade comprehensive prompts** (150-300+ lines) instead of basic prompts (~32 lines). This means your domain-specific instructions build on top of a much more robust foundation, providing both comprehensive guidance AND your specialized context.
 
 This happens for **every step** in the agent's workflow:
 - Discovery steps

@@ -10,6 +10,7 @@ A Python library of reusable AI agent workflow patterns implemented using LangGr
 ## Features
 
 - **9 Battle-Tested Patterns**: ReAct, Plan & Solve, Reflection, Reflexion, LLM Compiler, REWOO, LATS, Self-Discovery, and STORM
+- **Enterprise-Grade Prompts**: 150-300+ line comprehensive system prompts with 9-section structure (Role, Capabilities, Process, Examples, Edge Cases, Quality Standards, etc.) following Anthropic/OpenAI prompt engineering best practices
 - **Synchronous Design**: No async/await complexity - simple, debuggable code
 - **Flexible Prompt Customization**: Three ways to customize prompts - file-based, custom instructions, and programmatic overrides
 - **Multi-Provider Support**: Works with OpenAI, Anthropic, and other LangChain-supported providers

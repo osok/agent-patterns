@@ -18,6 +18,15 @@ Version 0.2.0 is a complete architectural rewrite of Agent Patterns. The previou
 #### Core Features
 - **Synchronous Architecture**: Complete elimination of async/await for simplicity and debuggability
 - **9 Production-Ready Patterns**: ReAct, Reflection, Plan & Solve, Reflexion, LLM Compiler, REWOO, LATS, Self-Discovery, STORM
+- **Enterprise-Grade Prompt Engineering** (NEW):
+  - Comprehensive prompt redesign with 9.4x more detailed system prompts (150-300+ lines vs ~32 lines)
+  - All prompts follow 9-section structure: Role, Capabilities, Process, Output Format, Decision-Making Guidelines, Quality Standards, Edge Cases, Examples, and Critical Reminders
+  - Based on Anthropic and OpenAI prompt engineering best practices
+  - 2-3 examples per system prompt for clear guidance
+  - Explicit CAN/CANNOT boundaries to prevent hallucination
+  - Built-in error recovery and edge case handling
+  - Improved reliability, robustness, and transparency
+  - Backward compatible—no code changes required
 - **Three-Layer Prompt Customization System**:
   - File-based prompts from directory structure
   - Custom instructions appended to all system prompts

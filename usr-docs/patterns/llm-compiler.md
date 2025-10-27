@@ -412,12 +412,18 @@ Tools can reference other node outputs using `#node_id`:
 
 ## Customizing Prompts
 
+### Understanding the System Prompt Structure
+
+Version 0.2.0 introduces **enterprise-grade prompts** with a comprehensive 9-section structure (150-300+ lines vs ~32 lines).
+
+**The 9-Section Structure**: All prompts include Role and Identity, Core Capabilities, Process, Output Format, Decision-Making Guidelines, Quality Standards, Edge Cases, Examples, and Critical Reminders. **Benefits**: Better reliability and robustness.
+
 ### Understanding LLM Compiler Prompts
 
-Uses two main prompts:
+Uses two main prompts (both now with comprehensive 9-section structure):
 
-1. **PlanGraph**: Planner LLM creates DAG structure
-2. **Synthesize**: Synthesizer LLM combines results
+1. **PlanGraph**: Planner LLM creates DAG structure with detailed quality standards and edge case handling
+2. **Synthesize**: Synthesizer LLM combines results with systematic process guidance
 
 ### Method 1: Custom Instructions
 

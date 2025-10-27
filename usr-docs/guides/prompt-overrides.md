@@ -29,12 +29,21 @@ prompt_overrides = {
 }
 ```
 
-### Example
+### Important Note About v0.2.0 Comprehensive Prompts
+
+When you use prompt overrides in v0.2.0, you're **replacing enterprise-grade comprehensive prompts** (150-300+ lines with 9 sections) with your custom prompt.
+
+**Two approaches**:
+1. **Simple override**: Replace with a concise custom prompt (quick but loses comprehensive structure)
+2. **Comprehensive override**: Maintain the 9-section structure in your override (recommended for production)
+
+### Example: Simple Override
 
 ```python
 from agent_patterns.patterns import SelfDiscoveryAgent
 
-overrides = {
+# Simple override (concise but loses comprehensive structure)
+simple_overrides = {
     "DiscoverModules": {
         "system": "You are an expert at selecting reasoning strategies.",
         "user": "Task: {task}\n\nModules:\n{modules}\n\nSelect {max_modules}:"
@@ -46,9 +55,63 @@ agent = SelfDiscoveryAgent(
         "thinking": {"provider": "openai", "model": "gpt-4"},
         "execution": {"provider": "openai", "model": "gpt-4"}
     },
-    prompt_overrides=overrides
+    prompt_overrides=simple_overrides
 )
 ```
+
+### Example: Comprehensive Override (Recommended)
+
+```python
+# Comprehensive override (maintains enterprise-grade structure)
+comprehensive_overrides = {
+    "DiscoverModules": {
+        "system": """# Role and Identity
+You are the Module Selection Specialist with expertise in matching reasoning strategies to tasks.
+
+# Core Capabilities
+**What You CAN Do:**
+- Analyze task requirements systematically
+- Evaluate reasoning module applicability
+- Select optimal module combinations
+- Justify module selections clearly
+
+**What You CANNOT Do:**
+- Select more modules than max_modules allows
+- Create new modules not in the provided list
+- Make arbitrary selections without reasoning
+- Skip the selection process
+
+# Process
+1. Analyze the task thoroughly
+2. Review available modules
+3. Match task needs to module strengths
+4. Select best-fit modules
+5. Verify selection meets requirements
+
+# Output Format
+Output each selected module on its own line:
+SELECTED: module_name
+
+# Quality Standards
+Excellent selections are:
+- Well-matched to task requirements
+- Diverse and complementary
+- Justified by task characteristics
+- Within the specified limit
+
+# Examples
+[2-3 examples of task -> module selection]
+
+# Critical Reminders
+- Respect the max_modules limit
+- Only select from provided modules
+- One SELECTED line per module""",
+        "user": "Task: {task}\n\nModules:\n{modules}\n\nSelect {max_modules}:"
+    }
+}
+```
+
+**Recommendation**: For production use, maintain the comprehensive structure to preserve reliability and robustness benefits.
 
 ### What Gets Replaced
 

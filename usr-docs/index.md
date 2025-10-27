@@ -15,10 +15,43 @@ Agent Patterns is a Python library that implements proven AI agent architectures
 ### Key Features
 
 - **9 Production-Ready Patterns**: ReAct, Reflection, Self-Discovery, STORM, and more
+- **Enterprise-Grade Prompts**: 150-300+ line comprehensive system prompts following industry best practices from Anthropic and OpenAI
 - **Synchronous Design**: Simple, debuggable code without async complexity
 - **Flexible Customization**: Multiple ways to customize prompts and behavior
 - **Type-Safe**: Full type hints throughout
 - **Multi-Provider**: Works with OpenAI, Anthropic, and other LLM providers
+
+## What Makes Agent Patterns Different?
+
+### Enterprise-Grade Prompt Engineering
+
+Version 0.2.0 introduces a **comprehensive prompt redesign** that sets Agent Patterns apart:
+
+**9.4x More Detailed System Prompts**
+- System prompts expanded from ~32 lines to 150-300+ lines
+- Each prompt includes 9 structured sections for maximum clarity and reliability
+
+**Comprehensive 9-Section Structure**
+Every system prompt now includes:
+1. **Role and Identity**: Clear definition of the agent's purpose and capabilities
+2. **Core Capabilities**: Explicit CAN/CANNOT boundaries to prevent hallucination
+3. **Process**: Step-by-step workflow guidance for consistent execution
+4. **Output Format**: Precise specifications for structured responses
+5. **Decision-Making Guidelines**: Context-specific rules and best practices
+6. **Quality Standards**: Clear criteria for excellent vs. poor outputs
+7. **Edge Cases**: Built-in error handling and special situation guidance
+8. **Examples**: 2-3 concrete examples demonstrating expected behavior
+9. **Critical Reminders**: Key points emphasized for reliability
+
+**Benefits**
+- **Increased Reliability**: Comprehensive guidance reduces errors and inconsistencies
+- **Better Transparency**: Clear role definitions and boundaries make agent behavior predictable
+- **Improved Robustness**: Edge case handling and quality standards prevent common failures
+- **Professional Output**: Industry best practices ensure production-ready results
+- **Maintainability**: Consistent structure across all patterns simplifies debugging and updates
+
+**Backward Compatible**
+All improvements are transparent to existing code—no changes required. Your agents automatically benefit from enhanced prompts while maintaining the same simple API.
 
 ## Quick Start
 
@@ -38,6 +71,7 @@ agent = ReflectionAgent(
 
 result = agent.run("Write a blog post about AI agents")
 print(result)
+# Now benefits from enterprise-grade prompts automatically!
 ```
 
 ## Your Learning Journey

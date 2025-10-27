@@ -373,6 +373,14 @@ agent = SelfDiscoveryAgent(
 
 ## Customizing Reasoning Modules
 
+### Understanding the System Prompt Structure
+
+Version 0.2.0 introduces **enterprise-grade prompts** with a comprehensive 9-section structure. Each system prompt is now 150-300+ lines (vs ~32 lines), providing significantly better guidance.
+
+**The 9-Section Structure**: All Self-Discovery prompts now include Role and Identity, Core Capabilities (CAN/CANNOT boundaries), Process, Output Format, Decision-Making Guidelines, Quality Standards, Edge Cases, Examples, and Critical Reminders.
+
+**Benefits**: The five Self-Discovery steps (DiscoverModules, AdaptModules, PlanReasoning, ExecuteStep, SynthesizeOutput) all benefit from comprehensive prompts with increased reliability, better transparency, and improved robustness. No code changes required.
+
 ### Creating Domain-Specific Modules
 
 ```python

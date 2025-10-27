@@ -353,6 +353,14 @@ agent = LATSAgent(
 
 ## Customizing Search Parameters
 
+### Understanding the System Prompt Structure
+
+Version 0.2.0 introduces **enterprise-grade prompts** with a comprehensive 9-section structure (150-300+ lines vs ~32 lines).
+
+**The 9-Section Structure**: All LATS prompts now include Role and Identity, Core Capabilities, Process, Output Format, Decision-Making Guidelines, Quality Standards, Edge Cases, Examples, and Critical Reminders.
+
+**Benefits**: LATS steps for tree generation, evaluation, and selection all benefit from comprehensive prompts with increased reliability and better transparency. No code changes required.
+
 ### Exploration vs Exploitation
 
 ```python

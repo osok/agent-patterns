@@ -431,15 +431,23 @@ def google_search(query: str) -> str:
 
 ## Customizing Prompts
 
+### Understanding the System Prompt Structure
+
+Version 0.2.0 introduces **enterprise-grade prompts** with a comprehensive 9-section structure. Each system prompt is now 150-300+ lines (compared to ~32 lines previously), providing significantly better guidance to the LLM.
+
+**The 9-Section Comprehensive Structure**: All STORM system prompts now include Role and Identity, Core Capabilities (CAN/CANNOT boundaries), Process, Output Format, Decision-Making Guidelines, Quality Standards, Edge Cases, Examples, and Critical Reminders.
+
+**Benefits**: Increased reliability, better transparency, improved robustness, and backward compatibility.
+
 ### Understanding STORM Prompts
 
-STORM uses six prompt templates for different stages:
+STORM uses six prompt templates for different stages (all now with comprehensive 9-section structure):
 
-1. **GenerateOutline**: Creates hierarchical document structure
-2. **GeneratePerspectives**: Selects relevant viewpoints
-3. **GenerateQuestions**: Creates questions from each perspective
-4. **SynthesizeSection**: Combines multi-perspective info for each section
-5. **CompileReport**: Assembles final document
+1. **GenerateOutline**: Creates hierarchical document structure with detailed quality standards
+2. **GeneratePerspectives**: Selects relevant viewpoints using systematic process guidance
+3. **GenerateQuestions**: Creates questions from each perspective with examples
+4. **SynthesizeSection**: Combines multi-perspective info with edge case handling
+5. **CompileReport**: Assembles final document with quality criteria
 
 ### Method 1: Custom Instructions
 
