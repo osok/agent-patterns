@@ -72,7 +72,6 @@ def main():
         llm_configs=llm_configs,
         tools=tools,
         max_iterations=5,
-        prompt_dir="agent_patterns/prompts",
     )
 
     # Example 1: Simple search question

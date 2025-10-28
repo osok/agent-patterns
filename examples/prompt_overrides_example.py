@@ -44,8 +44,8 @@ SELECTED: module_name
 
     agent = SelfDiscoveryAgent(
         llm_configs={
-            "thinking": {"provider": "openai", "model": "gpt-4"},
-            "execution": {"provider": "openai", "model": "gpt-4"}
+            "thinking": {"provider": "openai", "model_name": "gpt-4"},
+            "execution": {"provider": "openai", "model_name": "gpt-4"}
         },
         prompt_overrides=overrides,
         max_selected_modules=3
@@ -79,8 +79,8 @@ def example_multiple_overrides():
 
     agent = SelfDiscoveryAgent(
         llm_configs={
-            "thinking": {"provider": "openai", "model": "gpt-4"},
-            "execution": {"provider": "openai", "model": "gpt-4"}
+            "thinking": {"provider": "openai", "model_name": "gpt-4"},
+            "execution": {"provider": "openai", "model_name": "gpt-4"}
         },
         prompt_overrides=overrides,
         max_selected_modules=2
@@ -118,8 +118,8 @@ def example_style_customization():
 
     agent = ReflectionAgent(
         llm_configs={
-            "documentation": {"provider": "openai", "model": "gpt-4"},
-            "reflection": {"provider": "openai", "model": "gpt-4"}
+            "documentation": {"provider": "openai", "model_name": "gpt-4"},
+            "reflection": {"provider": "openai", "model_name": "gpt-4"}
         },
         prompt_overrides=concise_overrides,
         max_reflection_cycles=1
@@ -156,8 +156,8 @@ Ask 3-5 Socratic questions that would improve this response:"""
 
     agent = ReflectionAgent(
         llm_configs={
-            "documentation": {"provider": "openai", "model": "gpt-4"},
-            "reflection": {"provider": "openai", "model": "gpt-4"}
+            "documentation": {"provider": "openai", "model_name": "gpt-4"},
+            "reflection": {"provider": "openai", "model_name": "gpt-4"}
         },
         prompt_overrides=socratic_overrides,
         max_reflection_cycles=1
@@ -188,8 +188,8 @@ def example_expert_level():
 
     agent = ReflectionAgent(
         llm_configs={
-            "documentation": {"provider": "openai", "model": "gpt-4"},
-            "reflection": {"provider": "openai", "model": "gpt-4"}
+            "documentation": {"provider": "openai", "model_name": "gpt-4"},
+            "reflection": {"provider": "openai", "model_name": "gpt-4"}
         },
         prompt_overrides=expert_overrides,
         max_reflection_cycles=1
@@ -230,8 +230,8 @@ Analyze what went wrong and suggest corrections:"""
 
     agent = ReflexionAgent(
         llm_configs={
-            "execution": {"provider": "openai", "model": "gpt-4"},
-            "reflection": {"provider": "openai", "model": "gpt-4"}
+            "execution": {"provider": "openai", "model_name": "gpt-4"},
+            "reflection": {"provider": "openai", "model_name": "gpt-4"}
         },
         prompt_overrides=debugging_overrides,
         max_trials=3
@@ -264,8 +264,8 @@ FORMAT: Include diagrams (described in text), code examples, and trade-offs
 
     agent = ReflectionAgent(
         llm_configs={
-            "documentation": {"provider": "openai", "model": "gpt-4"},
-            "reflection": {"provider": "openai", "model": "gpt-4"}
+            "documentation": {"provider": "openai", "model_name": "gpt-4"},
+            "reflection": {"provider": "openai", "model_name": "gpt-4"}
         },
         prompt_overrides=overrides,
         custom_instructions=instructions,
@@ -316,8 +316,8 @@ def example_dynamic_overrides():
     task1 = "Calculate the compound interest on $10,000 at 5% for 10 years"
     agent1 = SelfDiscoveryAgent(
         llm_configs={
-            "thinking": {"provider": "openai", "model": "gpt-4"},
-            "execution": {"provider": "openai", "model": "gpt-4"}
+            "thinking": {"provider": "openai", "model_name": "gpt-4"},
+            "execution": {"provider": "openai", "model_name": "gpt-4"}
         },
         prompt_overrides=create_overrides_for_task(task1)
     )
@@ -329,8 +329,8 @@ def example_dynamic_overrides():
     task2 = "Design a logo for a tech startup focused on sustainability"
     agent2 = SelfDiscoveryAgent(
         llm_configs={
-            "thinking": {"provider": "openai", "model": "gpt-4"},
-            "execution": {"provider": "openai", "model": "gpt-4"}
+            "thinking": {"provider": "openai", "model_name": "gpt-4"},
+            "execution": {"provider": "openai", "model_name": "gpt-4"}
         },
         prompt_overrides=create_overrides_for_task(task2)
     )

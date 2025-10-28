@@ -62,7 +62,14 @@ class BaseAgent(abc.ABC):
                             Example: {"ThoughtStep": {"system": "Think like a scientist"}}
         """
         self.llm_configs = llm_configs
-        self.prompt_dir = prompt_dir
+
+        # If prompt_dir is relative, make it absolute relative to the package directory
+        # This ensures prompts are loaded from the package location, not the current working directory
+        if not os.path.isabs(prompt_dir):
+            package_dir = Path(__file__).parent.parent  # Go up from core/ to agent_patterns/
+            self.prompt_dir = str(package_dir / prompt_dir)
+        else:
+            self.prompt_dir = prompt_dir
         self.custom_instructions = custom_instructions
         self.prompt_overrides = prompt_overrides or {}
         self.graph: Optional[CompiledStateGraph] = None

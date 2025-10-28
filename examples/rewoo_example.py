@@ -147,12 +147,12 @@ def example_1_simple_workflow():
     llm_configs = {
         "thinking": {
             "provider": "openai",
-            "model": os.getenv("OPENAI_THINKING_MODEL", "gpt-4"),
+            "model_name": os.getenv("OPENAI_THINKING_MODEL", "gpt-4"),
             "temperature": 0.7
         },
         "solver": {
             "provider": "openai",
-            "model": os.getenv("OPENAI_SOLVER_MODEL", "gpt-3.5-turbo"),
+            "model_name": os.getenv("OPENAI_SOLVER_MODEL", "gpt-3.5-turbo"),
             "temperature": 0.3
         }
     }
@@ -194,12 +194,12 @@ def example_2_dependent_queries():
     llm_configs = {
         "thinking": {
             "provider": "openai",
-            "model": os.getenv("OPENAI_THINKING_MODEL", "gpt-4"),
+            "model_name": os.getenv("OPENAI_THINKING_MODEL", "gpt-4"),
             "temperature": 0.7
         },
         "solver": {
             "provider": "openai",
-            "model": os.getenv("OPENAI_SOLVER_MODEL", "gpt-3.5-turbo"),
+            "model_name": os.getenv("OPENAI_SOLVER_MODEL", "gpt-3.5-turbo"),
             "temperature": 0.3
         }
     }
@@ -241,12 +241,12 @@ def example_3_calculation_workflow():
     llm_configs = {
         "thinking": {
             "provider": "openai",
-            "model": os.getenv("OPENAI_THINKING_MODEL", "gpt-4"),
+            "model_name": os.getenv("OPENAI_THINKING_MODEL", "gpt-4"),
             "temperature": 0.7
         },
         "solver": {
             "provider": "openai",
-            "model": os.getenv("OPENAI_SOLVER_MODEL", "gpt-3.5-turbo"),
+            "model_name": os.getenv("OPENAI_SOLVER_MODEL", "gpt-3.5-turbo"),
             "temperature": 0.3
         }
     }
@@ -289,12 +289,12 @@ def example_4_cost_optimization():
     llm_configs = {
         "thinking": {
             "provider": "openai",
-            "model": "gpt-4",  # Expensive model for planning/integration
+            "model_name": "gpt-4",  # Expensive model for planning/integration
             "temperature": 0.7
         },
         "solver": {
             "provider": "openai",
-            "model": "gpt-3.5-turbo",  # Cheaper model for execution
+            "model_name": "gpt-3.5-turbo",  # Cheaper model for execution
             "temperature": 0.3
         }
     }
@@ -337,12 +337,12 @@ def example_5_anthropic_models():
     llm_configs = {
         "thinking": {
             "provider": "anthropic",
-            "model": os.getenv("ANTHROPIC_THINKING_MODEL", "claude-3-5-sonnet-20241022"),
+            "model_name": os.getenv("ANTHROPIC_THINKING_MODEL", "claude-3-5-sonnet-20241022"),
             "temperature": 0.7
         },
         "solver": {
             "provider": "anthropic",
-            "model": os.getenv("ANTHROPIC_SOLVER_MODEL", "claude-3-5-sonnet-20241022"),
+            "model_name": os.getenv("ANTHROPIC_SOLVER_MODEL", "claude-3-5-sonnet-20241022"),
             "temperature": 0.3
         }
     }

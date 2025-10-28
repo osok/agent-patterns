@@ -132,17 +132,17 @@ def example_1_simple_calculation():
     print("EXAMPLE 1: Simple Multi-Step Calculation")
     print("=" * 80)
 
-    # Configure LLMs
+    # Configure LLMs - use provider and models from .env
     llm_configs = {
         "thinking": {
-            "provider": "openai",
-            "model": os.getenv("OPENAI_THINKING_MODEL", "gpt-4"),
-            "temperature": 0.7
+            "provider": os.getenv("THINKING_MODEL_PROVIDER", "openai"),
+            "model_name": os.getenv("THINKING_MODEL_NAME", "gpt-4o"),
+            "temperature": float(os.getenv("THINKING_TEMPERATURE", "0.7"))
         },
         "documentation": {
-            "provider": "openai",
-            "model": os.getenv("OPENAI_DOCUMENTATION_MODEL", "gpt-4"),
-            "temperature": 0.3
+            "provider": os.getenv("DOCUMENTATION_MODEL_PROVIDER", "openai"),
+            "model_name": os.getenv("DOCUMENTATION_MODEL_NAME", "gpt-4o-mini"),
+            "temperature": float(os.getenv("DOCUMENTATION_TEMPERATURE", "0.3"))
         }
     }
 
@@ -179,16 +179,17 @@ def example_2_parallel_execution():
     print("EXAMPLE 2: Parallel Execution Opportunity")
     print("=" * 80)
 
+    # Configure LLMs - use provider and models from .env
     llm_configs = {
         "thinking": {
-            "provider": "openai",
-            "model": os.getenv("OPENAI_THINKING_MODEL", "gpt-4"),
-            "temperature": 0.7
+            "provider": os.getenv("THINKING_MODEL_PROVIDER", "openai"),
+            "model_name": os.getenv("THINKING_MODEL_NAME", "gpt-4o"),
+            "temperature": float(os.getenv("THINKING_TEMPERATURE", "0.7"))
         },
         "documentation": {
-            "provider": "openai",
-            "model": os.getenv("OPENAI_DOCUMENTATION_MODEL", "gpt-4"),
-            "temperature": 0.3
+            "provider": os.getenv("DOCUMENTATION_MODEL_PROVIDER", "openai"),
+            "model_name": os.getenv("DOCUMENTATION_MODEL_NAME", "gpt-4o-mini"),
+            "temperature": float(os.getenv("DOCUMENTATION_TEMPERATURE", "0.3"))
         }
     }
 
@@ -224,16 +225,17 @@ def example_3_complex_workflow():
     print("EXAMPLE 3: Complex Multi-Tool Workflow")
     print("=" * 80)
 
+    # Configure LLMs - use provider and models from .env
     llm_configs = {
         "thinking": {
-            "provider": "openai",
-            "model": os.getenv("OPENAI_THINKING_MODEL", "gpt-4"),
-            "temperature": 0.7
+            "provider": os.getenv("THINKING_MODEL_PROVIDER", "openai"),
+            "model_name": os.getenv("THINKING_MODEL_NAME", "gpt-4o"),
+            "temperature": float(os.getenv("THINKING_TEMPERATURE", "0.7"))
         },
         "documentation": {
-            "provider": "openai",
-            "model": os.getenv("OPENAI_DOCUMENTATION_MODEL", "gpt-4"),
-            "temperature": 0.3
+            "provider": os.getenv("DOCUMENTATION_MODEL_PROVIDER", "openai"),
+            "model_name": os.getenv("DOCUMENTATION_MODEL_NAME", "gpt-4o-mini"),
+            "temperature": float(os.getenv("DOCUMENTATION_TEMPERATURE", "0.3"))
         }
     }
 
@@ -276,12 +278,12 @@ def example_4_anthropic_model():
     llm_configs = {
         "thinking": {
             "provider": "anthropic",
-            "model": os.getenv("ANTHROPIC_THINKING_MODEL", "claude-3-5-sonnet-20241022"),
+            "model_name": os.getenv("THINKING_MODEL_NAME", "claude-opus-4-1-20250805"),
             "temperature": 0.7
         },
         "documentation": {
             "provider": "anthropic",
-            "model": os.getenv("ANTHROPIC_DOCUMENTATION_MODEL", "claude-3-5-sonnet-20241022"),
+            "model_name": os.getenv("DOCUMENTATION_MODEL_NAME", "claude-sonnet-4-5-20250929"),
             "temperature": 0.3
         }
     }

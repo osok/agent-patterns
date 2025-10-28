@@ -186,6 +186,174 @@ result = agent.run("Who won the 2023 Nobel Prize in Physics and what was their c
 
 ---
 
+### Plan & Solve Pattern Example
+
+**File**: `examples/plan_and_solve_example.py`
+
+Demonstrates Plan & Solve pattern that separates planning from execution.
+
+**Features:**
+- Two-phase approach (planning then execution)
+- Sequential step execution
+- Structured problem solving
+- Step-by-step tracking
+
+**Key Code:**
+
+```python
+from agent_patterns.patterns import PlanAndSolveAgent
+
+agent = PlanAndSolveAgent(
+    llm_configs={
+        "planning": {"provider": "openai", "model_name": "gpt-4o"},
+        "execution": {"provider": "openai", "model_name": "gpt-4o-mini"},
+        "documentation": {"provider": "openai", "model_name": "gpt-4o-mini"}
+    }
+)
+
+result = agent.run("Research the benefits and drawbacks of solar energy, then write a balanced summary")
+```
+
+**Learn More**: [Plan & Solve Pattern API](../api/patterns.md#plan-and-solve-pattern)
+
+---
+
+### Reflexion Pattern Example
+
+**File**: `examples/reflexion_example.py`
+
+Shows Reflexion pattern with multi-trial learning and persistent reflection memory.
+
+**Features:**
+- Multiple trial attempts
+- Learning from failures
+- Persistent reflection memory
+- Iterative improvement
+
+**Key Code:**
+
+```python
+from agent_patterns.patterns import ReflexionAgent
+
+agent = ReflexionAgent(
+    llm_configs={
+        "thinking": {"provider": "openai", "model_name": "gpt-4o"},
+        "execution": {"provider": "openai", "model_name": "gpt-4o-mini"},
+        "reflection": {"provider": "openai", "model_name": "gpt-4o"},
+        "documentation": {"provider": "openai", "model_name": "gpt-4o-mini"}
+    },
+    max_trials=3
+)
+
+result = agent.run("Design a solution for reducing office energy consumption by 30%")
+```
+
+**Learn More**: [Reflexion Pattern API](../api/patterns.md#reflexion-pattern)
+
+---
+
+### LATS Pattern Example
+
+**File**: `examples/lats_example.py`
+
+Demonstrates LATS (Language Agent Tree Search) pattern for exploring multiple reasoning paths.
+
+**Features:**
+- Tree search exploration
+- UCB node selection
+- Multi-path reasoning
+- Best solution selection
+
+**Key Code:**
+
+```python
+from agent_patterns.patterns import LATSAgent
+
+agent = LATSAgent(
+    llm_configs={
+        "thinking": {"provider": "openai", "model_name": "gpt-4o"},
+        "documentation": {"provider": "openai", "model_name": "gpt-4o-mini"}
+    },
+    max_iterations=10,
+    num_candidates=3
+)
+
+result = agent.run("Design a solution for a smart home system that optimizes energy usage while maintaining comfort")
+```
+
+**Learn More**: [LATS Pattern API](../api/patterns.md#lats-pattern)
+
+---
+
+### Self-Discovery Pattern Example
+
+**File**: `examples/self_discovery_example.py`
+
+Shows Self-Discovery pattern that dynamically selects and adapts reasoning modules.
+
+**Features:**
+- Dynamic reasoning module selection
+- Module adaptation to task
+- Problem-solving heuristics library
+- Flexible approach
+
+**Key Code:**
+
+```python
+from agent_patterns.patterns import SelfDiscoveryAgent
+
+agent = SelfDiscoveryAgent(
+    llm_configs={
+        "thinking": {"provider": "openai", "model_name": "gpt-4o"},
+        "execution": {"provider": "openai", "model_name": "gpt-4o-mini"},
+        "documentation": {"provider": "openai", "model_name": "gpt-4o-mini"}
+    }
+)
+
+result = agent.run("Analyze the potential risks and opportunities of expanding a retail business into e-commerce")
+```
+
+**Learn More**: [Self-Discovery Pattern API](../api/patterns.md#self-discovery-pattern)
+
+---
+
+### STORM Pattern Example
+
+**File**: `examples/storm_example.py`
+
+Demonstrates STORM pattern for creating comprehensive multi-perspective reports.
+
+**Features:**
+- Multi-perspective generation
+- Hierarchical outline creation
+- Research from multiple viewpoints
+- Structured synthesis
+
+**Key Code:**
+
+```python
+from agent_patterns.patterns import STORMAgent
+
+def search_tool(query: str) -> str:
+    """Research tool."""
+    return f"[Research findings for: {query}]"
+
+agent = STORMAgent(
+    llm_configs={
+        "thinking": {"provider": "openai", "model_name": "gpt-4o"},
+        "documentation": {"provider": "openai", "model_name": "gpt-4o-mini"}
+    },
+    retrieval_tools={"search": search_tool},
+    num_perspectives=4
+)
+
+result = agent.run("Create a comprehensive report on quantum computing applications in cryptography")
+```
+
+**Learn More**: [STORM Pattern API](../api/patterns.md#storm-pattern)
+
+---
+
 ## Customization Examples
 
 ### Custom Instructions Example

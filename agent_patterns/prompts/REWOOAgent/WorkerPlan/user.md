@@ -4,7 +4,7 @@
 
 You are in the **Planning Phase** of the REWOO (Reason Without Observation) process. You must create an execution plan using tool calls with placeholders for results you haven't seen yet.
 
-This is the unique aspect of REWOO: you design the entire information-gathering strategy WITHOUT seeing actual tool results. You work with placeholders like {result_name} instead.
+This is the unique aspect of REWOO: you design the entire information-gathering strategy WITHOUT seeing actual tool results. You work with placeholders like {{result_name}} instead.
 
 ## Task
 
@@ -18,7 +18,7 @@ This is the unique aspect of REWOO: you design the entire information-gathering 
 
 Create an execution plan that:
 
-1. **Uses placeholders** - Reference results as {placeholder_name}, not actual values
+1. **Uses placeholders** - Reference results as {{placeholder_name}}, not actual values
 2. **Sequences logically** - Order tool calls with proper dependencies
 3. **Is complete** - Gathers all information needed to answer the task
 4. **Is efficient** - Uses minimal necessary tool calls
@@ -27,8 +27,8 @@ Create an execution plan that:
 ## Key Principle: Reason Without Observation
 
 **CRITICAL**: You will NOT see the actual results. You must plan with placeholders:
-- Use descriptive names: {ceo_name}, {stock_price}, {company_info}
-- Reference placeholders in later steps: `{"query": "news about {ceo_name}"}`
+- Use descriptive names: {{ceo_name}}, {{stock_price}}, {{company_info}}
+- Reference placeholders in later steps: `{{"query": "news about {{ceo_name}}"}}`
 - Think like a compiler creating an execution blueprint
 
 ## Planning Process
@@ -73,7 +73,7 @@ PARAMS: <JSON_dict_possibly_referencing_earlier_placeholders>
 - PLAN statement describes overall approach with placeholders
 - Each tool call has SOLVER, TOOL, PARAMS (in that order)
 - PARAMS must be valid JSON
-- Use {placeholder_name} syntax for references
+- Use {{placeholder_name}} syntax for references
 - No actual results, only placeholders
 
 ## Example
@@ -82,15 +82,15 @@ PARAMS: <JSON_dict_possibly_referencing_earlier_placeholders>
 
 **Output**:
 ```
-PLAN: Search for SpaceX founder -> {founder_name}. Then search for {founder_name} net worth -> {net_worth}.
+PLAN: Search for SpaceX founder -> {{founder_name}}. Then search for {{founder_name}} net worth -> {{net_worth}}.
 
 SOLVER: founder_name
 TOOL: search_tool
-PARAMS: {"query": "SpaceX founder who founded SpaceX"}
+PARAMS: {{"query": "SpaceX founder who founded SpaceX"}}
 
 SOLVER: net_worth
 TOOL: search_tool
-PARAMS: {"query": "{founder_name} net worth current"}
+PARAMS: {{"query": "{{founder_name}} net worth current"}}
 ```
 
 ## Quality Checklist
@@ -99,7 +99,7 @@ Before finalizing, verify:
 - [ ] Used PLAN/SOLVER/TOOL/PARAMS format exactly
 - [ ] All tool results have placeholder names
 - [ ] Placeholders are descriptive (not result1, result2)
-- [ ] Later steps can reference earlier placeholders using {name}
+- [ ] Later steps can reference earlier placeholders using {{name}}
 - [ ] PARAMS are valid JSON dictionaries
 - [ ] Tool calls are in logical order (dependencies satisfied)
 - [ ] Plan would gather all information needed

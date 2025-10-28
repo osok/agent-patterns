@@ -35,7 +35,6 @@ def main():
     agent = ReflectionAgent(
         llm_configs=llm_configs,
         max_reflection_cycles=1,
-        prompt_dir="agent_patterns/prompts",
     )
 
     # Example 1: Story writing

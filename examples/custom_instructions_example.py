@@ -34,8 +34,8 @@ def example_medical_domain():
     # Create SelfDiscovery agent with medical instructions
     agent = SelfDiscoveryAgent(
         llm_configs={
-            "thinking": {"provider": "openai", "model": "gpt-4"},
-            "execution": {"provider": "openai", "model": "gpt-4"}
+            "thinking": {"provider": "openai", "model_name": "gpt-4"},
+            "execution": {"provider": "openai", "model_name": "gpt-4"}
         },
         custom_instructions=medical_instructions,
         max_selected_modules=3
@@ -70,8 +70,8 @@ def example_legal_domain():
 
     agent = STORMAgent(
         llm_configs={
-            "thinking": {"provider": "openai", "model": "gpt-4"},
-            "documentation": {"provider": "openai", "model": "gpt-4"}
+            "thinking": {"provider": "openai", "model_name": "gpt-4"},
+            "documentation": {"provider": "openai", "model_name": "gpt-4"}
         },
         retrieval_tools={"search": mock_search},
         custom_instructions=legal_instructions
@@ -108,8 +108,8 @@ def example_financial_compliance():
 
     agent = SelfDiscoveryAgent(
         llm_configs={
-            "thinking": {"provider": "openai", "model": "gpt-4"},
-            "execution": {"provider": "openai", "model": "gpt-4"}
+            "thinking": {"provider": "openai", "model_name": "gpt-4"},
+            "execution": {"provider": "openai", "model_name": "gpt-4"}
         },
         custom_instructions=compliance_instructions,
         max_selected_modules=4
@@ -142,8 +142,8 @@ def example_educational_context():
 
     agent = SelfDiscoveryAgent(
         llm_configs={
-            "thinking": {"provider": "openai", "model": "gpt-4"},
-            "execution": {"provider": "openai", "model": "gpt-4"}
+            "thinking": {"provider": "openai", "model_name": "gpt-4"},
+            "execution": {"provider": "openai", "model_name": "gpt-4"}
         },
         custom_instructions=educational_instructions
     )
@@ -178,8 +178,8 @@ def example_cultural_sensitivity():
 
     agent = STORMAgent(
         llm_configs={
-            "thinking": {"provider": "openai", "model": "gpt-4"},
-            "documentation": {"provider": "openai", "model": "gpt-4"}
+            "thinking": {"provider": "openai", "model_name": "gpt-4"},
+            "documentation": {"provider": "openai", "model_name": "gpt-4"}
         },
         retrieval_tools={"search": mock_search},
         custom_instructions=cultural_instructions

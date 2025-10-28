@@ -69,18 +69,53 @@ Demonstrates the REWOO (Reason Without Observation) pattern that separates plann
 - **Use case**: Efficient reasoning when LLM calls are expensive
 - **Run**: `python examples/rewoo_example.py`
 
+#### 5. Plan & Solve Agent (`plan_and_solve_example.py`)
+Demonstrates the Plan & Solve pattern which separates planning from execution for structured problem-solving.
+
+- **What it shows**: Two-phase approach (planning then execution), sequential step execution
+- **Use case**: Tasks that can be decomposed into clear sequential steps
+- **Run**: `python examples/plan_and_solve_example.py`
+
+#### 6. Reflexion Agent (`reflexion_example.py`)
+Demonstrates the Reflexion pattern which learns from multiple trials using persistent reflection memory.
+
+- **What it shows**: Multi-trial learning, reflection memory, iterative improvement
+- **Use case**: Complex tasks that benefit from learning across multiple attempts
+- **Run**: `python examples/reflexion_example.py`
+
+#### 7. LATS Agent (`lats_example.py`)
+Demonstrates the LATS (Language Agent Tree Search) pattern which explores multiple reasoning paths using tree search.
+
+- **What it shows**: Tree search, UCB node selection, multi-path exploration
+- **Use case**: Complex reasoning tasks where exploring alternatives improves outcomes
+- **Run**: `python examples/lats_example.py`
+
+#### 8. Self-Discovery Agent (`self_discovery_example.py`)
+Demonstrates the Self-Discovery pattern which dynamically selects and adapts reasoning modules.
+
+- **What it shows**: Dynamic module selection, reasoning adaptation, problem-solving heuristics
+- **Use case**: Tasks that benefit from flexible reasoning approaches
+- **Run**: `python examples/self_discovery_example.py`
+
+#### 9. STORM Agent (`storm_example.py`)
+Demonstrates the STORM pattern for creating comprehensive multi-perspective reports.
+
+- **What it shows**: Multi-perspective generation, structured synthesis, comprehensive reporting
+- **Use case**: Creating detailed research reports or articles with multiple viewpoints
+- **Run**: `python examples/storm_example.py`
+
 ### Customization Examples
 
 These examples demonstrate how to customize agent behavior:
 
-#### 5. Custom Instructions (`custom_instructions_example.py`)
+#### 10. Custom Instructions (`custom_instructions_example.py`)
 Shows how to use `custom_instructions` parameter to inject domain-specific context into any agent pattern without modifying prompt templates.
 
 - **What it shows**: Adding domain knowledge, constraints, and guidelines
 - **Use case**: Adapting patterns to specific domains (medical, legal, technical, etc.)
 - **Run**: `python examples/custom_instructions_example.py`
 
-#### 6. Prompt Overrides (`prompt_overrides_example.py`)
+#### 11. Prompt Overrides (`prompt_overrides_example.py`)
 Shows how to use `prompt_overrides` parameter to programmatically replace specific prompt templates at runtime.
 
 - **What it shows**: Complete prompt replacement, A/B testing, dynamic prompts
@@ -109,16 +144,9 @@ Feel free to modify these examples to experiment with:
 - Different configuration parameters
 - Custom instructions and prompt overrides
 
-## Need More Examples?
+## Complete Coverage
 
-Currently, we have examples for 4 out of 9 patterns. Missing examples:
-- Plan & Solve
-- Reflexion
-- LATS
-- Self-Discovery
-- STORM
-
-Contributions welcome! See our [contribution guide](https://agent-patterns.readthedocs.io/en/latest/) for details.
+All 9 agent patterns now have working examples! Each example demonstrates the pattern's unique approach to problem-solving. Additionally, 2 customization examples show how to adapt patterns to your specific needs.
 
 ## Documentation
 
