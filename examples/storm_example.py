@@ -42,8 +42,7 @@ def main():
     print("Initializing STORM Agent...")
     agent = STORMAgent(
         llm_configs=llm_configs,
-        retrieval_tools=retrieval_tools,
-        num_perspectives=4
+        retrieval_tools=retrieval_tools
     )
 
     # Example 1: Technical Report

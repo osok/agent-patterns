@@ -34,7 +34,7 @@ def main():
     agent = LATSAgent(
         llm_configs=llm_configs,
         max_iterations=10,
-        num_candidates=3
+        num_expansions=3
     )
 
     # Example 1: Complex Reasoning Task

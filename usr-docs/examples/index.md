@@ -275,7 +275,7 @@ agent = LATSAgent(
         "documentation": {"provider": "openai", "model_name": "gpt-4o-mini"}
     },
     max_iterations=10,
-    num_candidates=3
+    num_expansions=3
 )
 
 result = agent.run("Design a solution for a smart home system that optimizes energy usage while maintaining comfort")
@@ -343,8 +343,7 @@ agent = STORMAgent(
         "thinking": {"provider": "openai", "model_name": "gpt-4o"},
         "documentation": {"provider": "openai", "model_name": "gpt-4o-mini"}
     },
-    retrieval_tools={"search": search_tool},
-    num_perspectives=4
+    retrieval_tools={"search": search_tool}
 )
 
 result = agent.run("Create a comprehensive report on quantum computing applications in cryptography")
