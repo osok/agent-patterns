@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "agent-patterns"
-version = "0.2.3"
+version = "0.2.4"
 description = "Reusable AI agent workflow patterns using LangGraph and LangChain"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -26,12 +26,12 @@ classifiers = [
 ]
 
 dependencies = [
-    "langgraph>=0.2.0",
-    "langchain>=0.3.0",
-    "langchain-core>=0.3.0",
-    "langchain-openai>=0.2.0",
-    "langchain-anthropic>=0.2.0",
-    "python-dotenv>=1.0.0",
+    "langgraph>=1.0.2",
+    "langchain>=1.0.3",
+    "langchain-core>=1.0.2",
+    "langchain-openai>=1.0.1",
+    "langchain-anthropic>=1.0.1",
+    "python-dotenv>=1.2.1",
 ]
 
 [project.optional-dependencies]
